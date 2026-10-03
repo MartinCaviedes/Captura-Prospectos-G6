@@ -1,4 +1,6 @@
 plugins {
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 }
@@ -46,7 +48,15 @@ android {
     }
 }
 
+room { schemaDirectory("$projectDir/schemas") }
+
 dependencies {
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    implementation(libs.sqlcipher)
+    implementation(libs.sqlite)
+    implementation(libs.coroutines.core)
+    ksp(libs.room.compiler)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
