@@ -72,7 +72,7 @@ class ContactValidator(
         // Los borradores pueden retener entradas incompletas para corregirlas después.
         if (complete) {
             if (!RutValidator.isValid(value.rut)) issues += FieldIssue(CaptureField.RUT, ValidationCode.FORMAT)
-            if (value.email.isNotEmpty() && !validEmail(value.email)) issues += FieldIssue(CaptureField.EMAIL, ValidationCode.FORMAT)
+            if (value.email.isNotEmpty() && !ContactFormats.validEmail(value.email)) issues += FieldIssue(CaptureField.EMAIL, ValidationCode.FORMAT)
             if (!Regex("\\+569[0-9]{8}").matches(value.phone)) issues += FieldIssue(CaptureField.PHONE, ValidationCode.FORMAT)
         }
         if (value.educationLevel.isEmpty()) {
@@ -84,16 +84,5 @@ class ContactValidator(
             issues += FieldIssue(CaptureField.CHANNEL, ValidationCode.UNKNOWN_OPTION)
         }
         return issues.toList()
-    }
-
-    private fun validEmail(email: String): Boolean {
-        if (email.any { it.isWhitespace() } || email.count { it == '@' } != 1) return false
-        val (local, domain) = email.split('@')
-        if (local.isEmpty() || local.startsWith('.') || local.endsWith('.') || ".." in local) return false
-        if (!Regex("[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+").matches(local)) return false
-        val labels = domain.split('.')
-        return labels.size >= 2 && labels.all {
-            it.isNotEmpty() && !it.startsWith('-') && !it.endsWith('-') && Regex("[A-Za-z0-9-]+").matches(it)
-        }
     }
 }

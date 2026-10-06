@@ -1,6 +1,6 @@
 # Captura de Prospectos — Android
 
-Base académica E1 del Grupo 6, al 03/10/2026. Dominio de captura y persistencia inicial compilados; pantalla Compose todavía de plantilla. Backend pendiente E2.
+Base académica E1 del Grupo 6, al 06/10/2026. Dominio de captura y persistencia inicial compilados; pantalla Compose todavía de plantilla. Backend pendiente E2.
 
 ## Abrir y verificar
 
@@ -12,7 +12,7 @@ Seleccionar demoDebug y ejecutar desde android:
 .\gradlew.bat :app:testDemoDebugUnitTest :app:assembleDemoDebug :app:lintDemoDebug :app:assembleDemoDebugAndroidTest --console=plain
 ```
 
-Comando verificado en Windows: 30 JVM pasan (29 de dominio y una de plantilla), 17 avisos Lint y 0 errores. APK principal y de pruebas compilados. Ocho pruebas nuevas de persistencia y la instrumental de plantilla **no se han ejecutado en Android**. Para ejecutarlas, conectar un dispositivo de pruebas con depuración USB autorizada o un emulador compatible y usar:
+Comando verificado en Windows: 56 JVM pasan (55 de dominio y una de plantilla), 17 avisos Lint y 0 errores. APK principal y de pruebas compilados. Ocho pruebas nuevas de persistencia y la instrumental de plantilla **no se han ejecutado en Android**. Para ejecutarlas, conectar un dispositivo de pruebas con depuración USB autorizada o un emulador compatible y usar:
 
 ```powershell
 .\gradlew.bat :app:connectedDemoDebugAndroidTest --console=plain
@@ -35,3 +35,21 @@ CaptureContextSource sólo tiene implementación en pruebas: faltan contexto per
 Demo tiene identidad propia; no se importan sus datos automáticamente a E2. Backup/transferencia están excluidos por configuración, pendientes de comprobación efectiva. No se requieren servicios ni secretos de nube para compilar. Sólo datos ficticios.
 
 No versionar build, cachés, local.properties ni claves. Git es local, sin remoto/publicación; revisión por otro integrante antes de integrar feature → develop → main. El APK debug no sustituye una entrega funcional ni una firma release. Próximo recorrido: contexto sintético → captura consentida → guardado cifrado → detalle recuperable.
+
+## Adaptación F2027 de dominio — 06/10/2026
+
+`domain.admission` prepara entradas nuevas con nombres separados, nacimiento/residencia,
+actividad y establecimiento condicional, preferencias opcionales, uno a tres programas
+priorizados y sedes independientes. `PrepareAdmission` recibe catálogos sintéticos,
+consentimiento, reloj y zona del evento explícitos. Los canales y modalidades admitidos
+se inyectan; no se inventan valores institucionales. Sin actividad ni opciones preseleccionadas.
+
+Prepared no acredita autorización ni guardado. Room v1 y RoomCaptureRepository conservan
+el contrato anterior `domain.capture`; **no conectar el formulario F2027 a ese repositorio**.
+No convertir F2027 a CaptureInput descartando campos ni usar el validador antiguo para
+altas F2027. La próxima adaptación requiere migración que preserve los registros antiguos
+y un repositorio que guarde el contrato completo. La pantalla sigue siendo la plantilla.
+
+26 pruebas JVM nuevas cubren F2027; las 30 anteriores siguen pasando. Sin nuevas
+dependencias, migración ejecutada, pruebas instrumentadas ejecutadas ni RF cerrado.
+La rama local depende del incremento previo de persistencia; revisión cruzada pendiente.
