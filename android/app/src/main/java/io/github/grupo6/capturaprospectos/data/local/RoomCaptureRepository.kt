@@ -69,6 +69,7 @@ internal class RoomCaptureRepository(
             db.withTransaction {
                 val actor = context.currentActor() ?: return@withTransaction ReadCaptureResult.Unavailable
                 val row = db.captures().capture(id.toString()) ?: return@withTransaction ReadCaptureResult.Unavailable
+                if (row.contractVersion != "LEGACY_1") return@withTransaction ReadCaptureResult.Unavailable
                 val state = CaptureState.valueOf(row.state)
                 if (!LocalCaptureAccess.canRead(actor, UUID.fromString(row.ownerId), UUID.fromString(row.siteId), state)) {
                     return@withTransaction ReadCaptureResult.Unavailable
@@ -92,7 +93,7 @@ private fun PreparationResult.Prepared.toRow(id: UUID, environment: CaptureEnvir
         event?.confirmedAt?.toString(), event?.confirmedBy?.toString())
 }
 
-private fun CaptureRow.toDomain(interests: List<InterestRow>): StoredCapture {
+internal fun CaptureRow.toDomain(interests: List<InterestRow>): StoredCapture {
     val location = when (locationSource) {
         "DEVICE" -> CaptureLocation.Device(Coordinates(requireNotNull(latitude), requireNotNull(longitude)), Instant.parse(measuredAt), requireNotNull(accuracyMeters))
         "EVENT_CONFIRMED" -> CaptureLocation.EventConfirmed(Coordinates(requireNotNull(latitude), requireNotNull(longitude)), Instant.parse(confirmedAt), UUID.fromString(confirmedBy))
@@ -101,7 +102,7 @@ private fun CaptureRow.toDomain(interests: List<InterestRow>): StoredCapture {
     }
     return StoredCapture(UUID.fromString(id), revision, UUID.fromString(ownerId), UUID.fromString(siteId), UUID.fromString(eventId),
         UUID.fromString(deviceId), Instant.parse(capturedAt), eventName, ZoneId.of(eventTimeZone),
-        CaptureInput(fullName, rut, email, phone, educationLevel, establishment, contactChannel, notes),
+        CaptureInput(requireNotNull(fullName), rut, email, phone, requireNotNull(educationLevel), requireNotNull(establishment), contactChannel, notes),
         ConsentEvidence(consentVersion, Instant.parse(acceptedAt), UUID.fromString(recordedBy), AcceptanceMode.valueOf(acceptanceMode)),
         interests.map { Offering(UUID.fromString(it.offeringId), UUID.fromString(it.programId), UUID.fromString(siteId), it.catalogVersion, it.programName, true, it.modality) }, location, CaptureState.valueOf(state))
 }

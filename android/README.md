@@ -12,7 +12,7 @@ Seleccionar demoDebug y ejecutar desde android:
 .\gradlew.bat :app:testDemoDebugUnitTest :app:assembleDemoDebug :app:lintDemoDebug :app:assembleDemoDebugAndroidTest --console=plain
 ```
 
-Comando verificado en Windows: 56 JVM pasan (55 de dominio y una de plantilla), 17 avisos Lint y 0 errores. APK principal y de pruebas compilados. Ocho pruebas nuevas de persistencia y la instrumental de plantilla **no se han ejecutado en Android**. Para ejecutarlas, conectar un dispositivo de pruebas con depuración USB autorizada o un emulador compatible y usar:
+Comando verificado en Windows: 56 JVM pasan (55 de dominio y una de plantilla), 17 avisos Lint y 0 errores. APK principal y de pruebas compilados. Quince pruebas de persistencia (ocho previas y siete F2027) y la instrumental de plantilla **no se han ejecutado en Android**. Para ejecutarlas, conectar un dispositivo de pruebas con depuración USB autorizada o un emulador compatible y usar:
 
 ```powershell
 .\gradlew.bat :app:connectedDemoDebugAndroidTest --console=plain
@@ -44,12 +44,27 @@ priorizados y sedes independientes. `PrepareAdmission` recibe catálogos sintét
 consentimiento, reloj y zona del evento explícitos. Los canales y modalidades admitidos
 se inyectan; no se inventan valores institucionales. Sin actividad ni opciones preseleccionadas.
 
-Prepared no acredita autorización ni guardado. Room v1 y RoomCaptureRepository conservan
-el contrato anterior `domain.capture`; **no conectar el formulario F2027 a ese repositorio**.
-No convertir F2027 a CaptureInput descartando campos ni usar el validador antiguo para
-altas F2027. La próxima adaptación requiere migración que preserve los registros antiguos
-y un repositorio que guarde el contrato completo. La pantalla sigue siendo la plantilla.
+Prepared no acredita autorización ni guardado. Room v2 y RoomAdmissionRepository implementan
+alta transaccional F2027 y lectura versionada (Found/Legacy), con permisos del evento,
+consentimiento inmutable, duplicados, ranking, sedes y auditoría. RoomCaptureRepository
+se conserva para el contrato antiguo; no usarlo para altas F2027.
 
-26 pruebas JVM nuevas cubren F2027; las 30 anteriores siguen pasando. Sin nuevas
-dependencias, migración ejecutada, pruebas instrumentadas ejecutadas ni RF cerrado.
-La rama local depende del incremento previo de persistencia; revisión cruzada pendiente.
+Migration 1→2 conserva columnas/filas antiguas, agrega campos desconocidos como null
+y LEGACY_1 como versión. No divide nombres ni inventa preferencias. Las copias de
+migración permanecen dentro de la misma base cifrada y la transacción; no se desactivan
+FK ni se reinician claves. Esquemas 1.json conservado y 2.json exportado.
+
+56 JVM pasan; siete pruebas instrumentadas F2027 agregadas y compiladas, **no ejecutadas**.
+La migración/recuperación cifrada en Android todavía no está comprobada. Complemento
+reproducible con Python 3, sin dependencias, SQLite en memoria del host:
+
+```text
+python tools/verify_migration_sql.py
+```
+
+Este control pasó: conserva todas las columnas v1, comprueba esquema v2/FK/índices,
+ausencia de datos inferidos y rollback de un fallo a mitad de migración. No sustituye
+las pruebas Room/SQLCipher/Keystore en dispositivo.
+
+La pantalla sigue siendo la plantilla. Faltan contexto/catálogos sintéticos persistidos,
+UI, edición/anulación y recursos nativos. Sin RF cerrado ni revisión cruzada completada.
