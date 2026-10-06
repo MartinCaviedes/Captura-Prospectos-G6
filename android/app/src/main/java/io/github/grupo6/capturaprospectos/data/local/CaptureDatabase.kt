@@ -76,7 +76,8 @@ internal interface CaptureDao {
     @Query("SELECT COUNT(*) FROM captures") fun count(): Int
 }
 
-@Database(entities = [ConsentTextRow::class, CaptureRow::class, InterestRow::class, ActiveKeyRow::class, AuditRow::class, SitePreferenceRow::class], version = 2, exportSchema = true)
+@Database(entities = [ConsentTextRow::class, CaptureRow::class, InterestRow::class, ActiveKeyRow::class, AuditRow::class, SitePreferenceRow::class, CatalogVersionRow::class, DemoSiteRow::class, DemoProfileRow::class, ProfileSiteRow::class, DemoEventRow::class, DemoAssignmentRow::class, DemoProgramRow::class, DemoMentionRow::class, DemoContextRow::class], version = 3, exportSchema = true)
 internal abstract class CaptureDatabase : RoomDatabase() {
     abstract fun captures(): CaptureDao
+    abstract fun context(): ContextDao
 }

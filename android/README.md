@@ -1,6 +1,6 @@
 # Captura de Prospectos — Android
 
-Base académica E1 del Grupo 6, al 06/10/2026. Dominio de captura y persistencia inicial compilados; pantalla Compose todavía de plantilla. Backend pendiente E2.
+Base académica E1 del Grupo 6, al 06/10/2026. Dominio, persistencia F2027 y contexto/catálogo sintético compilados; pantalla Compose todavía de plantilla. Backend pendiente E2.
 
 ## Abrir y verificar
 
@@ -12,7 +12,7 @@ Seleccionar demoDebug y ejecutar desde android:
 .\gradlew.bat :app:testDemoDebugUnitTest :app:assembleDemoDebug :app:lintDemoDebug :app:assembleDemoDebugAndroidTest --console=plain
 ```
 
-Comando verificado en Windows: 56 JVM pasan (55 de dominio y una de plantilla), 17 avisos Lint y 0 errores. APK principal y de pruebas compilados. Quince pruebas de persistencia (ocho previas y siete F2027) y la instrumental de plantilla **pasaron en Android 14/API 34 el 06/10**, mediante ADB directo sin concesión automática de permisos. Para ejecutarlas, conectar un dispositivo de pruebas con depuración USB autorizada o un emulador compatible y usar:
+Comando verificado en Windows: 58 JVM pasan (55 de dominio, dos de coherencia del seed y una de plantilla), 17 avisos Lint y 0 errores. APK principal y de pruebas compilados. Quince pruebas de persistencia (ocho previas y siete F2027) y la instrumental de plantilla **pasaron en Android 14/API 34 el 06/10**, mediante ADB directo sin concesión automática de permisos. Para ejecutarlas, conectar un dispositivo de pruebas con depuración USB autorizada o un emulador compatible y usar:
 
 ```powershell
 .\gradlew.bat :app:connectedDemoDebugAndroidTest --console=plain
@@ -30,7 +30,7 @@ Room 2.8.5, KSP 2.3.10, SQLCipher 4.19.1, SQLite 2.7.0 y coroutines 1.10.2. Esqu
 
 ## Límites y continuación
 
-CaptureContextSource sólo tiene implementación en pruebas: faltan contexto persistido, seeds ficticios, ViewModel, formulario/listado/detalle, edición/anulación y los recursos GPS/cámara/conectividad. Los snapshots de intereses no acreditan oferta vigente para otra alta. No declarar RF completos ni seguridad comprobada hasta ejecutar las pruebas y recorridos.
+AdmissionContextSource tiene implementación RoomDemoContextRepository para contexto y catálogo persistidos; falta ejecución Android de este incremento, ViewModel, formulario/listado/detalle, edición/anulación y recursos GPS/cámara/conectividad. Los snapshots de intereses no acreditan oferta vigente para otra alta. No declarar RF completos ni seguridad comprobada hasta ejecutar las pruebas y recorridos.
 
 Demo tiene identidad propia; no se importan sus datos automáticamente a E2. Backup/transferencia están excluidos por configuración, pendientes de comprobación efectiva. No se requieren servicios ni secretos de nube para compilar. Sólo datos ficticios.
 
@@ -66,7 +66,7 @@ Este control pasó: conserva todas las columnas v1, comprueba esquema v2/FK/índ
 ausencia de datos inferidos y rollback de un fallo a mitad de migración. No sustituye
 las pruebas Room/SQLCipher/Keystore en dispositivo.
 
-La pantalla sigue siendo la plantilla. Faltan contexto/catálogos sintéticos persistidos,
+La pantalla sigue siendo la plantilla. Contexto/catálogos persistidos implementados posteriormente; faltan su ejecución Android,
 UI, edición/anulación y recursos nativos. Sin RF cerrado ni revisión cruzada completada.
 
 ## Ejecución instrumental verificada — 06/10/2026
@@ -89,3 +89,38 @@ Comprobar los resultados de cada test y OK (16 tests), no sólo el código de sa
 Esta alternativa es para la suite actual de almacenamiento, que no requiere permisos
 peligrosos; futuras pruebas GPS/cámara requieren su propio manejo de permisos.
 No acredita backup/transferencia efectiva, recursos nativos, UI ni cierre de RF.
+
+## Contexto y catálogo persistidos — 06/10/2026
+
+Room v3 añade nueve tablas de contexto/catálogo sin modificar filas ni esquemas v1/v2.
+Migración 2→3 aditiva; cadena 1→2→3 disponible. Inicialización de fixtures explícita,
+transaccional e idempotente mediante RoomDemoContextRepository.initialize(); no forma
+parte de la migración ni se ejecuta todavía desde la pantalla de plantilla.
+
+Tres perfiles DEMO, tres eventos, cuatro sedes, cuatro programas (incluye sección online)
+y dos menciones subordinadas, todos ficticios. No importa las carreras del cupón como
+oferta institucional. Consentimiento ficticio versionado; no crea capturas personales.
+No selecciona perfil/evento ni respuestas del prospecto automáticamente.
+
+API para UI: snapshot/observe, selectProfile, selectEvent y clearSelection. Cambiar perfil
+limpia el evento; cerrar selección conserva deviceId y capturas. environment sólo entrega
+el evento seleccionado y autorizado; usar esta fuente con RoomAdmissionRepository.
+El supervisor conserva acceso de lectura por scope pero no selecciona evento para capturar.
+No es autenticación real. La sugerencia de establecimiento nunca se aplica al formulario
+sin confirmación. Coordenadas de fixtures ausentes; no fabricar GPS.
+
+El catálogo es inmutable en este incremento. Futuras ediciones de eventos/asignaciones o
+catálogo requieren revisión, auditoría/versionado y ampliar invalidación del Flow; no modificar
+las tablas directamente desde UI. Modalidad/canal opcionales no reciben opciones inventadas.
+
+58 JVM pasan; ocho pruebas DemoContextTest nuevas compiladas, **no ejecutadas**.
+La suite actual tiene 24 pruebas instrumentadas. Las 16 aprobadas anteriormente corresponden
+al código 91b4983/Room v2, no acreditan este incremento Room v3.
+
+```text
+python tools/verify_context_migration_sql.py
+```
+
+Control SQL del host ejecutado: cadena 1→2→3, preservación de filas, esquema/FK/índices,
+sin seed automático y rollback. Pendiente ejecutar suite completa en Android y revisión.
+Sin dependencias nuevas, UI conectada, administración de eventos ni RF cerrado.
