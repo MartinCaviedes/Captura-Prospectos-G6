@@ -30,7 +30,7 @@ Room 2.8.5, KSP 2.3.10, SQLCipher 4.19.1, SQLite 2.7.0 y coroutines 1.10.2. Esqu
 
 ## Límites y continuación
 
-AdmissionContextSource tiene implementación RoomDemoContextRepository para contexto y catálogo persistidos; falta ejecución Android de este incremento, ViewModel, formulario/listado/detalle, edición/anulación y recursos GPS/cámara/conectividad. Los snapshots de intereses no acreditan oferta vigente para otra alta. No declarar RF completos ni seguridad comprobada hasta ejecutar las pruebas y recorridos.
+AdmissionContextSource tiene implementación RoomDemoContextRepository para contexto y catálogo persistidos; suite Android aprobada; faltan ViewModel, formulario/listado/detalle, edición/anulación y recursos GPS/cámara/conectividad. Los snapshots de intereses no acreditan oferta vigente para otra alta. No declarar RF completos ni seguridad comprobada hasta ejecutar las pruebas y recorridos.
 
 Demo tiene identidad propia; no se importan sus datos automáticamente a E2. Backup/transferencia están excluidos por configuración, pendientes de comprobación efectiva. No se requieren servicios ni secretos de nube para compilar. Sólo datos ficticios.
 
@@ -66,7 +66,7 @@ Este control pasó: conserva todas las columnas v1, comprueba esquema v2/FK/índ
 ausencia de datos inferidos y rollback de un fallo a mitad de migración. No sustituye
 las pruebas Room/SQLCipher/Keystore en dispositivo.
 
-La pantalla sigue siendo la plantilla. Contexto/catálogos persistidos implementados posteriormente; faltan su ejecución Android,
+La pantalla sigue siendo la plantilla. Contexto/catálogos persistidos implementados posteriormente; faltan
 UI, edición/anulación y recursos nativos. Sin RF cerrado ni revisión cruzada completada.
 
 ## Ejecución instrumental verificada — 06/10/2026
@@ -113,14 +113,26 @@ El catálogo es inmutable en este incremento. Futuras ediciones de eventos/asign
 catálogo requieren revisión, auditoría/versionado y ampliar invalidación del Flow; no modificar
 las tablas directamente desde UI. Modalidad/canal opcionales no reciben opciones inventadas.
 
-58 JVM pasan; ocho pruebas DemoContextTest nuevas compiladas, **no ejecutadas**.
-La suite actual tiene 24 pruebas instrumentadas. Las 16 aprobadas anteriormente corresponden
-al código 91b4983/Room v2, no acreditan este incremento Room v3.
+58 JVM pasan; suite completa de **24 instrumentadas aprobada** sobre código 2298220/Room v3, incluidas ocho DemoContextTest. Xiaomi 11T, Android 14/API 34, 06/10/2026, 23.178 s. Las 16 aprobadas sobre v2 se conservan como antecedente.
 
 ```text
 python tools/verify_context_migration_sql.py
 ```
 
 Control SQL del host ejecutado: cadena 1→2→3, preservación de filas, esquema/FK/índices,
-sin seed automático y rollback. Pendiente ejecutar suite completa en Android y revisión.
+sin seed automático y rollback. Suite Android completa aprobada; revisión humana pendiente.
 Sin dependencias nuevas, UI conectada, administración de eventos ni RF cerrado.
+
+## Resultado instrumental Room v3 — 06/10/2026
+
+Código probado 2298220. Instalación de ambos APK con adb install -r -t (sin -g),
+seguida de am instrument -w -r con el mismo AndroidJUnitRunner del apartado anterior.
+Resultado: OK (24 tests), 23.178 s; 24 estados individuales de éxito, sin fallos ni omisiones.
+Distribución: ocho DemoContextTest, siete AdmissionStorageTest, ocho EncryptedCaptureTest
+más una prueba de contexto de aplicación. No fue necesario modificar el código.
+
+Verificado en Android 14/API 34: cadena de migración y preservación, inicialización explícita
+idempotente, selección/reapertura/deviceId, aislamiento, Flow inicial, guardado con fuente
+Room y cierre de selección sin pérdida, consentimiento conflictivo y rollback/reintento.
+También volvió a pasar la suite anterior de cifrado/persistencia sobre v3.
+No acredita UI, administración editable, GPS/cámara/red ni backup/transferencia efectiva.
