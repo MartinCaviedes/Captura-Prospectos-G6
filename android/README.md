@@ -12,7 +12,7 @@ Seleccionar demoDebug y ejecutar desde android:
 .\gradlew.bat :app:testDemoDebugUnitTest :app:assembleDemoDebug :app:lintDemoDebug :app:assembleDemoDebugAndroidTest --console=plain
 ```
 
-Comando verificado en Windows: 56 JVM pasan (55 de dominio y una de plantilla), 17 avisos Lint y 0 errores. APK principal y de pruebas compilados. Quince pruebas de persistencia (ocho previas y siete F2027) y la instrumental de plantilla **no se han ejecutado en Android**. Para ejecutarlas, conectar un dispositivo de pruebas con depuración USB autorizada o un emulador compatible y usar:
+Comando verificado en Windows: 56 JVM pasan (55 de dominio y una de plantilla), 17 avisos Lint y 0 errores. APK principal y de pruebas compilados. Quince pruebas de persistencia (ocho previas y siete F2027) y la instrumental de plantilla **pasaron en Android 14/API 34 el 06/10**, mediante ADB directo sin concesión automática de permisos. Para ejecutarlas, conectar un dispositivo de pruebas con depuración USB autorizada o un emulador compatible y usar:
 
 ```powershell
 .\gradlew.bat :app:connectedDemoDebugAndroidTest --console=plain
@@ -54,8 +54,8 @@ y LEGACY_1 como versión. No divide nombres ni inventa preferencias. Las copias 
 migración permanecen dentro de la misma base cifrada y la transacción; no se desactivan
 FK ni se reinician claves. Esquemas 1.json conservado y 2.json exportado.
 
-56 JVM pasan; siete pruebas instrumentadas F2027 agregadas y compiladas, **no ejecutadas**.
-La migración/recuperación cifrada en Android todavía no está comprobada. Complemento
+56 JVM pasan; siete pruebas instrumentadas F2027 agregadas y compiladas, **ejecutadas con éxito en Android 14/API 34**.
+La suite de migración/recuperación cifrada pasó en el dispositivo probado; backup/transferencia y otros dispositivos siguen pendientes. Complemento
 reproducible con Python 3, sin dependencias, SQLite en memoria del host:
 
 ```text
@@ -68,3 +68,24 @@ las pruebas Room/SQLCipher/Keystore en dispositivo.
 
 La pantalla sigue siendo la plantilla. Faltan contexto/catálogos sintéticos persistidos,
 UI, edición/anulación y recursos nativos. Sin RF cerrado ni revisión cruzada completada.
+
+## Ejecución instrumental verificada — 06/10/2026
+
+Código probado: 91b4983. Dispositivo de pruebas Xiaomi 11T, Android 14/API 34.
+Resultado AndroidJUnitRunner: OK (16 tests), 13.87 s; quince pruebas de almacenamiento
+más una de contexto de aplicación. Sin fallos ni omisiones.
+
+El ejecutor Gradle no logró instalar el APK de pruebas porque el dispositivo restringe
+INSTALL_GRANT_ALL_REQUESTED_PERMISSIONS. Aunque imprimió BUILD SUCCESSFUL, ese intento
+no ejecutó tests. Se instalaron ambos APK sin -g y se ejecutó el mismo runner directamente:
+
+```powershell
+adb install -r -t app/build/outputs/apk/demo/debug/app-demo-debug.apk
+adb install -r -t app/build/outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk
+adb shell am instrument -w -r io.github.grupo6.capturaprospectos.demo.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+Comprobar los resultados de cada test y OK (16 tests), no sólo el código de salida de ADB.
+Esta alternativa es para la suite actual de almacenamiento, que no requiere permisos
+peligrosos; futuras pruebas GPS/cámara requieren su propio manejo de permisos.
+No acredita backup/transferencia efectiva, recursos nativos, UI ni cierre de RF.
