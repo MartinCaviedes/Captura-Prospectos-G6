@@ -1,83 +1,45 @@
 # Captura de Prospectos — Android
 
-Base académica E1 del Grupo 6, al 06/10/2026. Dominio, persistencia F2027 y contexto/catálogo sintético compilados; pantalla Compose todavía de plantilla. Backend pendiente E2.
+Base E1 al 06/10/2026, implementación `2298220`, documentación previa `d658e76`. Dominio/persistencia F2027 y contexto/catálogo demo implementados; UI de plantilla. [Requisitos](../docs/SRS.md), [alcance E1/E2](../docs/ENTREGAS.md) y [evidencia](../docs/ANDROID_BASELINE.md).
 
-## Abrir y verificar
+## Entorno fijado
 
-Abrir android en Android Studio. SDK plataforma 37, minSdk 26, JDK 25 para Gradle (criterio en gradle/gradle-daemon-jvm.properties). Usar wrapper Gradle 9.6.0 y versiones de gradle/libs.versions.toml. local.properties es propio de cada equipo y no se comparte.
+| Elemento | Valor en el proyecto |
+|---|---|
+| Gradle wrapper / AGP | 9.6.0 / 9.4.1 |
+| JDK del daemon | 25; criterio en gradle/gradle-daemon-jvm.properties |
+| Compatibilidad fuente/bytecode | Java 11; diferente del JDK que ejecuta Gradle |
+| SDK compile / target / mínimo | 37 / 37 / 26 |
+| Compose plugin / BOM | 2.2.10 / 2026.02.01 |
+| Room / KSP | 2.8.5 / 2.3.10 |
+| SQLCipher / SQLite / coroutines | 4.19.1 / 2.7.0 / 1.10.2 |
 
-Seleccionar demoDebug y ejecutar desde android:
+Las versiones efectivas están en `gradle/libs.versions.toml`, wrapper y build del módulo; no regenerar el proyecto ni actualizar dependencias para reproducir esta base.
+
+## Preparación
+
+1. Obtener una copia identificada del código. Abrir esta carpeta `android/` en Android Studio.
+2. Instalar plataforma SDK 37 y un JDK 25 compatible con el criterio del daemon. Configurar el SDK local mediante Android Studio/local.properties, excluido de Git.
+3. Seleccionar variante `demoDebug`. El applicationId instalado será `io.github.grupo6.capturaprospectos.demo.debug`; namespace base `io.github.grupo6.capturaprospectos`.
+4. Desde esta carpeta ejecutar en PowerShell:
 
 ```powershell
 .\gradlew.bat :app:testDemoDebugUnitTest :app:assembleDemoDebug :app:lintDemoDebug :app:assembleDemoDebugAndroidTest --console=plain
 ```
 
-Comando verificado en Windows: 58 JVM pasan (55 de dominio, dos de coherencia del seed y una de plantilla), 17 avisos Lint y 0 errores. APK principal y de pruebas compilados. Quince pruebas de persistencia (ocho previas y siete F2027) y la instrumental de plantilla **pasaron en Android 14/API 34 el 06/10**, mediante ADB directo sin concesión automática de permisos. Para ejecutarlas, conectar un dispositivo de pruebas con depuración USB autorizada o un emulador compatible y usar:
+En Linux/macOS usar `./gradlew` con el mismo JDK/SDK; esos entornos todavía no se han reproducido. Los cuatro pasos anteriores no activan un backend ni cargan el contexto desde la pantalla.
+
+Resultados comprobados en Windows: 58 JVM sin fallos y 17 avisos Lint/0 errores. APK principal: `app/build/outputs/apk/demo/debug/app-demo-debug.apk`; APK de pruebas: `app/build/outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk`; Lint: `app/build/reports/lint-results-demoDebug.html`.
+
+## Pruebas Android
+
+Conectar dispositivo de pruebas API >=26 con depuración USB autorizada, o emulador compatible; confirmar que ADB lo muestra autorizado. Los tests usan bases/alias `test-*`, distintos de la base de la app. Revisar ese aislamiento antes de modificar tests destructivos.
 
 ```powershell
 .\gradlew.bat :app:connectedDemoDebugAndroidTest --console=plain
 ```
 
-Este comando instala app/pruebas. Las pruebas de almacenamiento crean bases test-* independientes y limpian sólo sus propios archivos/alias. No confundir compilación con cifrado/recuperación comprobados.
-
-APK: app/build/outputs/apk/demo/debug/app-demo-debug.apk. Reporte Lint: app/build/reports/lint-results-demoDebug.html. Identidad: io.github.grupo6.capturaprospectos.demo.debug. Nombre visible: Captura de Prospectos.
-
-## Incremento implementado
-
-domain.capture es Kotlin independiente de Android: normalización/validación, consentimiento, estados, ubicación y reglas de alcance. PrepareCapture prepara altas, no confirma guardado. RoomCaptureRepository comprueba contexto/duplicados y devuelve Saved después del commit; recupera detalle autorizado.
-
-Room 2.8.5, KSP 2.3.10, SQLCipher 4.19.1, SQLite 2.7.0 y coroutines 1.10.2. Esquema v1 en app/schemas: consentimiento, captura, intereses, clave activa RUT/evento y auditoría inicial. La contraseña se envuelve con AES-GCM/Android Keystore; ante pérdida de clave se conserva la base, sin reset. No añadir fallbackToDestructiveMigration.
-
-## Límites y continuación
-
-AdmissionContextSource tiene implementación RoomDemoContextRepository para contexto y catálogo persistidos; suite Android aprobada; faltan ViewModel, formulario/listado/detalle, edición/anulación y recursos GPS/cámara/conectividad. Los snapshots de intereses no acreditan oferta vigente para otra alta. No declarar RF completos ni seguridad comprobada hasta ejecutar las pruebas y recorridos.
-
-Demo tiene identidad propia; no se importan sus datos automáticamente a E2. Backup/transferencia están excluidos por configuración, pendientes de comprobación efectiva. No se requieren servicios ni secretos de nube para compilar. Sólo datos ficticios.
-
-No versionar build, cachés, local.properties ni claves. Git es local, sin remoto/publicación; revisión por otro integrante antes de integrar feature → develop → main. El APK debug no sustituye una entrega funcional ni una firma release. Próximo recorrido: contexto sintético → captura consentida → guardado cifrado → detalle recuperable.
-
-## Adaptación F2027 de dominio — 06/10/2026
-
-`domain.admission` prepara entradas nuevas con nombres separados, nacimiento/residencia,
-actividad y establecimiento condicional, preferencias opcionales, uno a tres programas
-priorizados y sedes independientes. `PrepareAdmission` recibe catálogos sintéticos,
-consentimiento, reloj y zona del evento explícitos. Los canales y modalidades admitidos
-se inyectan; no se inventan valores institucionales. Sin actividad ni opciones preseleccionadas.
-
-Prepared no acredita autorización ni guardado. Room v2 y RoomAdmissionRepository implementan
-alta transaccional F2027 y lectura versionada (Found/Legacy), con permisos del evento,
-consentimiento inmutable, duplicados, ranking, sedes y auditoría. RoomCaptureRepository
-se conserva para el contrato antiguo; no usarlo para altas F2027.
-
-Migration 1→2 conserva columnas/filas antiguas, agrega campos desconocidos como null
-y LEGACY_1 como versión. No divide nombres ni inventa preferencias. Las copias de
-migración permanecen dentro de la misma base cifrada y la transacción; no se desactivan
-FK ni se reinician claves. Esquemas 1.json conservado y 2.json exportado.
-
-56 JVM pasan; siete pruebas instrumentadas F2027 agregadas y compiladas, **ejecutadas con éxito en Android 14/API 34**.
-La suite de migración/recuperación cifrada pasó en el dispositivo probado; backup/transferencia y otros dispositivos siguen pendientes. Complemento
-reproducible con Python 3, sin dependencias, SQLite en memoria del host:
-
-```text
-python tools/verify_migration_sql.py
-```
-
-Este control pasó: conserva todas las columnas v1, comprueba esquema v2/FK/índices,
-ausencia de datos inferidos y rollback de un fallo a mitad de migración. No sustituye
-las pruebas Room/SQLCipher/Keystore en dispositivo.
-
-La pantalla sigue siendo la plantilla. Contexto/catálogos persistidos implementados posteriormente; faltan
-UI, edición/anulación y recursos nativos. Sin RF cerrado ni revisión cruzada completada.
-
-## Ejecución instrumental verificada — 06/10/2026
-
-Código probado: 91b4983. Dispositivo de pruebas Xiaomi 11T, Android 14/API 34.
-Resultado AndroidJUnitRunner: OK (16 tests), 13.87 s; quince pruebas de almacenamiento
-más una de contexto de aplicación. Sin fallos ni omisiones.
-
-El ejecutor Gradle no logró instalar el APK de pruebas porque el dispositivo restringe
-INSTALL_GRANT_ALL_REQUESTED_PERMISSIONS. Aunque imprimió BUILD SUCCESSFUL, ese intento
-no ejecutó tests. Se instalaron ambos APK sin -g y se ejecutó el mismo runner directamente:
+Verificar que se ejecutaron los tests, no sólo el mensaje final del build. En el dispositivo probado, el instalador de Gradle encontró una restricción de concesión automática de permisos y no ejecutó la suite aunque imprimió BUILD SUCCESSFUL. Se resolvió con instalación sin `-g` y el runner directo:
 
 ```powershell
 adb install -r -t app/build/outputs/apk/demo/debug/app-demo-debug.apk
@@ -85,54 +47,23 @@ adb install -r -t app/build/outputs/apk/androidTest/demo/debug/app-demo-debug-an
 adb shell am instrument -w -r io.github.grupo6.capturaprospectos.demo.debug.test/androidx.test.runner.AndroidJUnitRunner
 ```
 
-Comprobar los resultados de cada test y OK (16 tests), no sólo el código de salida de ADB.
-Esta alternativa es para la suite actual de almacenamiento, que no requiere permisos
-peligrosos; futuras pruebas GPS/cámara requieren su propio manejo de permisos.
-No acredita backup/transferencia efectiva, recursos nativos, UI ni cierre de RF.
+Esta suite pasó con `OK (24 tests)` sobre Room v3 en Android 14/API 34, 23.178 s. Comprobar resultados individuales y ausencia de fallos/omisiones. La alternativa no concede permisos peligrosos: futuros tests de cámara/GPS necesitarán su propio manejo de permisos.
 
-## Contexto y catálogo persistidos — 06/10/2026
+## Implementación y continuidad
 
-Room v3 añade nueve tablas de contexto/catálogo sin modificar filas ni esquemas v1/v2.
-Migración 2→3 aditiva; cadena 1→2→3 disponible. Inicialización de fixtures explícita,
-transaccional e idempotente mediante RoomDemoContextRepository.initialize(); no forma
-parte de la migración ni se ejecuta todavía desde la pantalla de plantilla.
+Nuevas altas: `domain.admission` → `AdmissionRepository` / `RoomAdmissionRepository`. `PrepareAdmission` prepara una entrada; el repositorio valida autorización/consentimiento y confirma guardado tras commit. El contrato antiguo `domain.capture` se conserva para compatibilidad; no convertir altas F2027 a `CaptureInput`.
 
-Tres perfiles DEMO, tres eventos, cuatro sedes, cuatro programas (incluye sección online)
-y dos menciones subordinadas, todos ficticios. No importa las carreras del cupón como
-oferta institucional. Consentimiento ficticio versionado; no crea capturas personales.
-No selecciona perfil/evento ni respuestas del prospecto automáticamente.
+Room v3 conserva esquemas 1/2/3 y migraciones 1→2→3. No inventa nombres separados, nacimiento, prioridades ni sedes para registros antiguos. La clave SQLCipher se protege con Keystore; fallo de clave no borra la base. No usar migración destructiva.
 
-API para UI: snapshot/observe, selectProfile, selectEvent y clearSelection. Cambiar perfil
-limpia el evento; cerrar selección conserva deviceId y capturas. environment sólo entrega
-el evento seleccionado y autorizado; usar esta fuente con RoomAdmissionRepository.
-El supervisor conserva acceso de lectura por scope pero no selecciona evento para capturar.
-No es autenticación real. La sugerencia de establecimiento nunca se aplica al formulario
-sin confirmación. Coordenadas de fixtures ausentes; no fabricar GPS.
+`RoomDemoContextRepository.initialize()` siembra perfiles/eventos/catálogo explícitamente, sin prospectos ni selección automática. La pantalla aún no lo llama. Ver [DEMO_CONTEXT](../docs/DEMO_CONTEXT.md) para el consumidor y sus estados.
 
-El catálogo es inmutable en este incremento. Futuras ediciones de eventos/asignaciones o
-catálogo requieren revisión, auditoría/versionado y ampliar invalidación del Flow; no modificar
-las tablas directamente desde UI. Modalidad/canal opcionales no reciben opciones inventadas.
-
-58 JVM pasan; suite completa de **24 instrumentadas aprobada** sobre código 2298220/Room v3, incluidas ocho DemoContextTest. Xiaomi 11T, Android 14/API 34, 06/10/2026, 23.178 s. Las 16 aprobadas sobre v2 se conservan como antecedente.
+Verificación SQL adicional desde esta carpeta, con Python 3 y sin librerías externas:
 
 ```text
+python tools/verify_migration_sql.py
 python tools/verify_context_migration_sql.py
 ```
 
-Control SQL del host ejecutado: cadena 1→2→3, preservación de filas, esquema/FK/índices,
-sin seed automático y rollback. Suite Android completa aprobada; revisión humana pendiente.
-Sin dependencias nuevas, UI conectada, administración de eventos ni RF cerrado.
+Ambos controles pasaron en SQLite del host; no sustituyen Room/SQLCipher/Keystore en Android.
 
-## Resultado instrumental Room v3 — 06/10/2026
-
-Código probado 2298220. Instalación de ambos APK con adb install -r -t (sin -g),
-seguida de am instrument -w -r con el mismo AndroidJUnitRunner del apartado anterior.
-Resultado: OK (24 tests), 23.178 s; 24 estados individuales de éxito, sin fallos ni omisiones.
-Distribución: ocho DemoContextTest, siete AdmissionStorageTest, ocho EncryptedCaptureTest
-más una prueba de contexto de aplicación. No fue necesario modificar el código.
-
-Verificado en Android 14/API 34: cadena de migración y preservación, inicialización explícita
-idempotente, selección/reapertura/deviceId, aislamiento, Flow inicial, guardado con fuente
-Room y cierre de selección sin pérdida, consentimiento conflictivo y rollback/reintento.
-También volvió a pasar la suite anterior de cifrado/persistencia sobre v3.
-No acredita UI, administración editable, GPS/cámara/red ni backup/transferencia efectiva.
+Faltan UI, edición/anulación, recursos nativos, administración, métricas y revisión cruzada. Backup/transferencia están excluidos por configuración, pendientes de prueba efectiva. El APK debug no acredita release firmado ni RF completos. No guardar secretos, datos reales, build, cachés, local.properties o claves en Git.

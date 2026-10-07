@@ -1,0 +1,282 @@
+{
+  "contractVersion": "0.1",
+  "synthetic": true,
+  "purpose": "Fixture de base implementada v0.1; casos anteriores NO acreditan adaptación F2027; no seed ni catálogo institucional",
+  "environment": "e1-local-demo",
+  "clock": "2026-10-19T15:00:00Z",
+  "context": {
+    "siteId": "10000000-0000-4000-8000-000000000001",
+    "siteName": "Sede ficticia de demostración",
+    "eventId": "20000000-0000-4000-8000-000000000001",
+    "eventName": "Jornada ficticia G6",
+    "startsAt": "2026-10-19T12:00:00Z",
+    "endsAt": "2026-10-20T23:00:00Z",
+    "timeZone": "America/Santiago",
+    "captorId": "30000000-0000-4000-8000-000000000001",
+    "otherCaptorId": "30000000-0000-4000-8000-000000000002",
+    "supervisorId": "30000000-0000-4000-8000-000000000003",
+    "deviceId": "40000000-0000-4000-8000-000000000001"
+  },
+  "catalog": {
+    "id": "demo-2026-v1",
+    "sourceKind": "SYNTHETIC",
+    "sourceReference": "Fixture académica G6; no representa oferta Duoc UC",
+    "consultedAt": "2026-10-03T12:00:00Z",
+    "academicYear": 2026,
+    "programs": [
+      {
+        "id": "50000000-0000-4000-8000-000000000001",
+        "name": "Programa ficticio A"
+      },
+      {
+        "id": "50000000-0000-4000-8000-000000000002",
+        "name": "Programa ficticio B"
+      }
+    ],
+    "offerings": [
+      {
+        "id": "60000000-0000-4000-8000-000000000001",
+        "programId": "50000000-0000-4000-8000-000000000001",
+        "siteId": "10000000-0000-4000-8000-000000000001",
+        "enabled": true
+      },
+      {
+        "id": "60000000-0000-4000-8000-000000000002",
+        "programId": "50000000-0000-4000-8000-000000000002",
+        "siteId": "10000000-0000-4000-8000-000000000001",
+        "enabled": true
+      }
+    ]
+  },
+  "consentText": {
+    "version": "demo-v1",
+    "isSynthetic": true,
+    "text": "DEMOSTRACIÓN ACADÉMICA CON DATOS FICTICIOS. Acepto guardar estos datos ficticios en el dispositivo para probar el formulario. Este texto no es una autorización institucional para tratar datos reales."
+  },
+  "validInput": {
+    "fullName": "Persona Ficticia Alfa",
+    "rut": "12.345.678-5",
+    "email": "alfa@example.invalid",
+    "phone": "+56 9 0000 0000",
+    "educationLevel": "SECONDARY",
+    "establishment": "Establecimiento ficticio",
+    "offeringIds": [
+      "60000000-0000-4000-8000-000000000001",
+      "60000000-0000-4000-8000-000000000002"
+    ],
+    "contactChannel": null,
+    "notes": null,
+    "consent": {
+      "version": "demo-v1",
+      "acceptedAt": "2026-10-19T14:59:50Z",
+      "recordedBy": "30000000-0000-4000-8000-000000000001",
+      "acceptanceMode": "DIRECT"
+    },
+    "location": {
+      "source": "DEVICE",
+      "latitude": -33.0,
+      "longitude": -71.5,
+      "measuredAt": "2026-10-19T14:59:58Z",
+      "accuracyMeters": 20.0,
+      "confirmedAt": null,
+      "confirmedBy": null
+    }
+  },
+  "notes": [
+    "RUT sintético con DV matemático válido: no garantiza que el número no exista; nunca consultar identidad ni contactar.",
+    "Teléfono sólo para validar estructura; no afirmar que es un rango oficialmente reservado.",
+    "SECONDARY representa enseñanza media; lista completa de niveles/canales pendiente de concretar con el formulario, no ampliar por intuición.",
+    "Las coordenadas son ejemplo de prueba y no representan la ubicación de una captura real."
+  ],
+  "cases": [
+    {
+      "id": "confirm-ready",
+      "operation": "confirm",
+      "patch": {},
+      "expected": "READY",
+      "transport": "NOT_QUEUED"
+    },
+    {
+      "id": "without-location",
+      "operation": "confirm",
+      "patch": {
+        "location": null
+      },
+      "expected": "NEEDS_CONTEXT",
+      "transport": "NOT_QUEUED"
+    },
+    {
+      "id": "without-consent",
+      "operation": "confirm",
+      "patch": {
+        "consent": null
+      },
+      "expected": "ConsentRequired",
+      "persisted": false
+    },
+    {
+      "id": "draft-incomplete",
+      "operation": "saveDraft",
+      "patch": {
+        "rut": null,
+        "email": null,
+        "offeringIds": []
+      },
+      "expected": "DRAFT",
+      "transport": "NOT_QUEUED"
+    },
+    {
+      "id": "invalid-rut",
+      "operation": "confirm",
+      "patch": {
+        "rut": "12345678-0"
+      },
+      "expected": "Validation",
+      "field": "rut"
+    },
+    {
+      "id": "empty-interest",
+      "operation": "confirm",
+      "patch": {
+        "offeringIds": []
+      },
+      "expected": "Validation",
+      "field": "offeringIds"
+    },
+    {
+      "id": "repeat-interest",
+      "operation": "confirm",
+      "patch": {
+        "offeringIds": [
+          "60000000-0000-4000-8000-000000000001",
+          "60000000-0000-4000-8000-000000000001"
+        ]
+      },
+      "expected": "Validation",
+      "field": "offeringIds"
+    }
+  ],
+  "qr": {
+    "valid": "G6DEMO:1:{\"fullName\":\"Persona Ficticia Alfa\",\"rut\":\"12345678-5\"}",
+    "invalid": [
+      "https://example.invalid",
+      "G6DEMO:2:{}",
+      "G6DEMO:1:{",
+      "G6DEMO:1:{\"fullName\":\"Persona Ficticia Alfa\",\"rut\":\"12345678-0\"}"
+    ],
+    "expectedValid": "Candidato pendiente de confirmación; no persistir QR ni abrir URL"
+  },
+  "summaryScenario": {
+    "rows": [
+      {
+        "person": "ALFA",
+        "event": "A",
+        "state": "READY",
+        "programs": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "person": "ALFA",
+        "event": "B",
+        "state": "READY",
+        "programs": [
+          "A"
+        ]
+      },
+      {
+        "person": "BETA",
+        "event": "A",
+        "state": "NEEDS_CONTEXT",
+        "programs": [
+          "A"
+        ]
+      },
+      {
+        "person": "GAMMA",
+        "event": "A",
+        "state": "DRAFT",
+        "programs": []
+      },
+      {
+        "person": "DELTA",
+        "event": "A",
+        "state": "CANCELLED",
+        "programs": [
+          "B"
+        ]
+      }
+    ],
+    "expectedAcrossEvents": {
+      "readyRegistrations": 2,
+      "distinctReadyPersons": 1,
+      "readyInterests": 3,
+      "needsContext": 1,
+      "drafts": 1,
+      "cancelled": 1
+    }
+  },
+  "approvedDeltaF2027": {
+    "implemented": false,
+    "maxConfirmedPrograms": 3,
+    "uniquePrograms": true,
+    "priorityRule": "1..n unique contiguous, n=1..3",
+    "eventSiteDistinctFromPreferredSite": true,
+    "preferredSiteCardinality": "ZERO_OR_MORE_UNIQUE_NO_ADDITIONAL_CAP",
+    "newPersonalFields": "APPROVED_2026-10-06_NOT_IMPLEMENTED",
+    "reference": "docs/FORMULARIO_ADMISION_2027.md",
+    "acceptanceCases": [
+      {
+        "id": "three-ranked",
+        "priorities": [
+          1,
+          2,
+          3
+        ],
+        "expected": "VALID_INTEREST_STRUCTURE"
+      },
+      {
+        "id": "four-ranked",
+        "priorities": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "expected": "REJECT"
+      },
+      {
+        "id": "duplicate-priority",
+        "priorities": [
+          1,
+          1
+        ],
+        "expected": "REJECT"
+      },
+      {
+        "id": "gap-priority",
+        "priorities": [
+          1,
+          3
+        ],
+        "expected": "REJECT"
+      },
+      {
+        "id": "empty-confirmed",
+        "priorities": [],
+        "expected": "REJECT"
+      },
+      {
+        "id": "empty-consented-draft",
+        "priorities": [],
+        "expected": "VALID_INTEREST_STRUCTURE"
+      },
+      {
+        "id": "legacy-without-priority",
+        "expected": "PRESERVE_WITHOUT_INVENTED_RANK"
+      }
+    ],
+    "targetFixture": "docs/fixtures/f2027-contract.json"
+  }
+}

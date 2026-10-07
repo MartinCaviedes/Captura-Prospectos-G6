@@ -1,0 +1,9 @@
+tipo(alcance): descripción breve
+
+# Reemplazar la primera línea. Ejemplo: feat(captura): validar RUT según RF02
+# Tipos: feat, fix, docs, test, refactor, chore, build, ci.
+# Alcance: captura, sync, auth, android, backend, docs, infra.
+# Cuerpo opcional: motivo o efecto que no se entiende sólo con el título.
+# Referencia opcional: Tarea: RF02-01
+# No afirmar pruebas, pushes o integración que no se hayan realizado.
+# No incluir secretos, datos reales ni conversaciones privadas.

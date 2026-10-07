@@ -1,0 +1,251 @@
+{
+  "contractVersion": "F2027-2026-10-06",
+  "status": "DOMAIN_STORAGE_ANDROID_VERIFIED_UI_PENDING",
+  "purpose": "Casos documentales objetivo; no seed, tests ejecutados ni catálogo institucional",
+  "synthetic": true,
+  "source": "docs/FORMULARIO_ADMISION_2027.md",
+  "clock": "2026-10-06T15:00:00Z",
+  "referenceData": {
+    "programs": [
+      {
+        "id": "demo-program-a",
+        "section": "DEMO_PHYSICAL"
+      },
+      {
+        "id": "demo-program-b",
+        "section": "DEMO_ONLINE"
+      },
+      {
+        "id": "demo-program-c",
+        "section": "DEMO_PHYSICAL"
+      },
+      {
+        "id": "demo-program-d",
+        "section": "DEMO_PHYSICAL"
+      }
+    ],
+    "sites": [
+      "demo-site-a",
+      "demo-site-b",
+      "demo-site-c",
+      "demo-site-d"
+    ],
+    "offers": "NOT_ASSERTED"
+  },
+  "validInput": {
+    "givenNames": "Persona Ficticia",
+    "familyNames": "Demostracion",
+    "rut": "12345678-5",
+    "email": "demo@example.invalid",
+    "phone": "+56900000000",
+    "birthDate": "2000-01-01",
+    "residenceCommune": "Comuna ficticia",
+    "currentActivity": "SECONDARY_GRADUATE",
+    "currentActivityOther": null,
+    "establishment": null,
+    "establishmentCommune": null,
+    "formPersonalOption": null,
+    "preferredSchedule": null,
+    "interestLevel": null,
+    "motivation": null,
+    "preferredSiteIds": [],
+    "interests": [
+      {
+        "programId": "demo-program-a",
+        "priority": 1
+      }
+    ],
+    "consent": {
+      "version": "demo-v1",
+      "accepted": true
+    },
+    "eventSiteId": "demo-site-a"
+  },
+  "cases": [
+    {
+      "id": "optional-fields-empty",
+      "patch": {},
+      "expected": "VALID_FORM_WITH_AUTHORIZED_CONTEXT"
+    },
+    {
+      "id": "birth-required",
+      "patch": {
+        "birthDate": null
+      },
+      "expected": "REJECT_CONFIRMATION"
+    },
+    {
+      "id": "future-birth",
+      "patch": {
+        "birthDate": "2027-01-01"
+      },
+      "expected": "REJECT_CONFIRMATION"
+    },
+    {
+      "id": "residence-required",
+      "patch": {
+        "residenceCommune": ""
+      },
+      "expected": "REJECT_CONFIRMATION"
+    },
+    {
+      "id": "fourth-secondary-establishment",
+      "patch": {
+        "currentActivity": "FOURTH_SECONDARY",
+        "establishment": null
+      },
+      "expected": "REJECT_CONFIRMATION"
+    },
+    {
+      "id": "graduate-no-establishment",
+      "patch": {
+        "establishment": null
+      },
+      "expected": "VALID_FORM_WITH_AUTHORIZED_CONTEXT"
+    },
+    {
+      "id": "other-needs-description",
+      "patch": {
+        "currentActivity": "OTHER",
+        "currentActivityOther": null
+      },
+      "expected": "REJECT_CONFIRMATION"
+    },
+    {
+      "id": "sites-not-limited-to-three",
+      "patch": {
+        "preferredSiteIds": [
+          "demo-site-a",
+          "demo-site-b",
+          "demo-site-c",
+          "demo-site-d"
+        ]
+      },
+      "expected": "VALID_FORM_WITH_AUTHORIZED_CONTEXT"
+    },
+    {
+      "id": "duplicate-site",
+      "patch": {
+        "preferredSiteIds": [
+          "demo-site-b",
+          "demo-site-b"
+        ]
+      },
+      "expected": "REJECT_DUPLICATE_SELECTION"
+    },
+    {
+      "id": "preferred-site-distinct-from-event",
+      "patch": {
+        "preferredSiteIds": [
+          "demo-site-b"
+        ]
+      },
+      "expected": "DO_NOT_REJECT_FOR_EVENT_SITE_DIFFERENCE"
+    },
+    {
+      "id": "online-without-site-or-schedule",
+      "patch": {
+        "interests": [
+          {
+            "programId": "demo-program-b",
+            "priority": 1
+          }
+        ]
+      },
+      "expected": "VALID_FORM_WITH_AUTHORIZED_CONTEXT"
+    },
+    {
+      "id": "mixed-interests",
+      "patch": {
+        "interests": [
+          {
+            "programId": "demo-program-a",
+            "priority": 1
+          },
+          {
+            "programId": "demo-program-b",
+            "priority": 2
+          }
+        ]
+      },
+      "expected": "VALID_FORM_WITH_AUTHORIZED_CONTEXT"
+    },
+    {
+      "id": "four-programs",
+      "patch": {
+        "interests": [
+          {
+            "programId": "demo-program-a",
+            "priority": 1
+          },
+          {
+            "programId": "demo-program-b",
+            "priority": 2
+          },
+          {
+            "programId": "demo-program-c",
+            "priority": 3
+          },
+          {
+            "programId": "demo-program-d",
+            "priority": 4
+          }
+        ]
+      },
+      "expected": "REJECT_CONFIRMATION"
+    },
+    {
+      "id": "motivation-free-text",
+      "patch": {
+        "motivation": "Texto libre inventado"
+      },
+      "expected": "REJECT_UNRECOGNIZED_OPTION"
+    },
+    {
+      "id": "without-consent",
+      "patch": {
+        "consent": null
+      },
+      "expected": "NO_PERSONAL_DATA_PERSISTED"
+    }
+  ],
+  "interactionCases": [
+    {
+      "id": "event-establishment-suggestion",
+      "given": "Evento con establecimiento identificado",
+      "expected": "SUGGEST_CONFIRM_EDIT_NO_SILENT_APPLY"
+    },
+    {
+      "id": "gps-only",
+      "given": "Sólo coordenadas del captador",
+      "expected": "NO_ESTABLISHMENT_OR_RESIDENCE_INFERENCE"
+    },
+    {
+      "id": "qr-birth-unsupported",
+      "given": "Parser sin fecha verificable",
+      "expected": "MANUAL_BIRTH_NO_FABRICATED_VALUE"
+    },
+    {
+      "id": "qr-birth-future-capability",
+      "given": "Formato verificado contiene fecha válida",
+      "expected": "SHOW_CANDIDATE_REQUIRE_CONFIRMATION_ALLOW_EDIT"
+    },
+    {
+      "id": "legacy-migration",
+      "given": "Fila antigua sin campos nuevos ni ranking",
+      "expected": "PRESERVE_UNKNOWN_NO_DESTRUCTIVE_RESET"
+    }
+  ],
+  "limits": [
+    "IDs de referencia son ficticios para especificación; no reemplazan UUID del dominio.",
+    "RUT/teléfono sólo para validar estructura; no contactar ni consultar identidad.",
+    "Consentimiento y contexto están simplificados: no prueban autorización ni persistencia.",
+    "G6DEMO:1 no se amplía con birthDate; requiere contrato versionado si se modifica."
+  ],
+  "implementationEvidence": {
+    "commit": "83bbed2",
+    "jvmAdmissionTests": 26,
+    "note": "26 JVM de dominio y siete instrumentadas F2027 aprobadas; suite total Android 16 aprobadas en Android 14/API 34. Este JSON no se ejecuta automáticamente. UI/QR/sugerencias pendientes.",
+    "storageCommit": "91b4983"
+  }
+}

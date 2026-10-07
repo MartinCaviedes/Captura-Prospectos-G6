@@ -1,0 +1,966 @@
+{
+  "version": "reference-1",
+  "kind": "DOCUMENT_TRANSCRIPTION_NOT_SEED",
+  "academicYearFromFilename": 2027,
+  "source": "DocUniversidad/CUPON_ADMISION_2027.pdf",
+  "sourceSha256": "c702b52ad2bc125a7493038540e4f273087ac85080191e3c9b00cc56cb26cd25",
+  "reviewedAt": "2026-10-05",
+  "method": "Transcripción visual de ambas páginas; PDF sin capa de texto extraíble",
+  "humanCrossReview": "PENDING",
+  "selectionInstruction": {
+    "maximumPrinted": 3,
+    "ranked": true,
+    "applicationDecision": "F01_APPROVED_2026-10-05_NOT_IMPLEMENTED"
+  },
+  "limitations": [
+    "No acredita disponibilidad por sede/jornada",
+    "No son IDs institucionales ni IDs definitivos del dominio",
+    "Nombres iguales en secciones distintas no se fusionan",
+    "Menciones de turismo conservadas bajo su programa padre; no cuatro programas inventados"
+  ],
+  "siteOptions": [
+    {
+      "region": "Región Metropolitana",
+      "printedName": "Alameda (Santiago Centro)",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región Metropolitana",
+      "printedName": "Antonio Varas (Providencia)",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región Metropolitana",
+      "printedName": "Maipú",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región Metropolitana",
+      "printedName": "Melipilla",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región Metropolitana",
+      "printedName": "Padre Alonso de Ovalle (Santiago Centro)",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región Metropolitana",
+      "printedName": "Plaza Norte (Huechuraba)",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región Metropolitana",
+      "printedName": "Plaza Oeste (Cerrillos)",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región Metropolitana",
+      "printedName": "Plaza Vespucio (La Florida)",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región Metropolitana",
+      "printedName": "Puente Alto",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región Metropolitana",
+      "printedName": "San Bernardo",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región Metropolitana",
+      "printedName": "San Carlos de Apoquindo (Las Condes)",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región Metropolitana",
+      "printedName": "San Joaquín",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región de Valparaíso",
+      "printedName": "Valparaíso",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región de Valparaíso",
+      "printedName": "Viña del Mar",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región del Biobío",
+      "printedName": "Concepción",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región del Biobío",
+      "printedName": "Campus Arauco",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región del Biobío",
+      "printedName": "Campus Nacimiento",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región de la Araucanía",
+      "printedName": "Campus Villarrica",
+      "sourcePage": 1
+    },
+    {
+      "region": "Región de los Lagos",
+      "printedName": "Puerto Montt",
+      "sourcePage": 1
+    }
+  ],
+  "programEntries": [
+    {
+      "sourceRowId": "cupon2027-001",
+      "section": "Escuela de Administración y Negocios",
+      "level": "PROFESIONAL",
+      "printedName": "Auditoría",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-002",
+      "section": "Escuela de Administración y Negocios",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Administración Mención Finanzas",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-003",
+      "section": "Escuela de Administración y Negocios",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Administración Mención Gestión de Personas",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-004",
+      "section": "Escuela de Administración y Negocios",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Administración Mención Innovación y Emprendimiento",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-005",
+      "section": "Escuela de Administración y Negocios",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Comercio Exterior",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-006",
+      "section": "Escuela de Administración y Negocios",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Gestión Logística",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-007",
+      "section": "Escuela de Administración y Negocios",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Marketing Digital",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-008",
+      "section": "Escuela de Administración y Negocios",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Comercio Exterior",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-009",
+      "section": "Escuela de Administración y Negocios",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Contabilidad General Mención Legislación Tributaria",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-010",
+      "section": "Escuela de Administración y Negocios",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Administración",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-011",
+      "section": "Escuela de Administración y Negocios",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Gestión Logística",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-012",
+      "section": "Escuela de Comunicación",
+      "level": "PROFESIONAL",
+      "printedName": "Animación Digital",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-013",
+      "section": "Escuela de Comunicación",
+      "level": "PROFESIONAL",
+      "printedName": "Comunicación Audiovisual",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-014",
+      "section": "Escuela de Comunicación",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Sonido",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-015",
+      "section": "Escuela de Comunicación",
+      "level": "PROFESIONAL",
+      "printedName": "Publicidad",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-016",
+      "section": "Escuela de Comunicación",
+      "level": "PROFESIONAL",
+      "printedName": "Relaciones Públicas y Comunicación Organizacional",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-017",
+      "section": "Escuela de Comunicación",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico Audiovisual",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-018",
+      "section": "Escuela de Comunicación",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Tecnología en Sonido e Iluminación",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-019",
+      "section": "Escuela de Construcción",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Construcción",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-020",
+      "section": "Escuela de Construcción",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Prevención de Riesgos",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-021",
+      "section": "Escuela de Construcción",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico Modelador Proyectista",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-022",
+      "section": "Escuela de Construcción",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Restauración de Bienes Patrimoniales",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-023",
+      "section": "Escuela de Construcción",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Construcción",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-024",
+      "section": "Escuela de Construcción",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Prevención de Riesgos",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-025",
+      "section": "Escuela de Construcción",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico Topógrafo Geomático",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-026",
+      "section": "Escuela de Diseño",
+      "level": "PROFESIONAL",
+      "printedName": "Diseño de Ambientes",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-027",
+      "section": "Escuela de Diseño",
+      "level": "PROFESIONAL",
+      "printedName": "Diseño de Vestuario",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-028",
+      "section": "Escuela de Diseño",
+      "level": "PROFESIONAL",
+      "printedName": "Diseño Gráfico",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-029",
+      "section": "Escuela de Diseño",
+      "level": "PROFESIONAL",
+      "printedName": "Diseño Industrial e Innovación de Productos",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-030",
+      "section": "Escuela de Diseño",
+      "level": "PROFESIONAL",
+      "printedName": "Ilustración para Contextos Globales",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-031",
+      "section": "Escuela de Gastronomía",
+      "level": "PROFESIONAL",
+      "printedName": "Gastronomía Internacional",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-032",
+      "section": "Escuela de Gastronomía",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Gastronomía",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-033",
+      "section": "Escuela de Informática y Telecomunicaciones",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Informática",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-034",
+      "section": "Escuela de Informática y Telecomunicaciones",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Infraestructura Tecnológica",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-035",
+      "section": "Escuela de Informática y Telecomunicaciones",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Redes y Telecomunicaciones",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-036",
+      "section": "Escuela de Informática y Telecomunicaciones",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Analista Programador",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-037",
+      "section": "Escuela de Informática y Telecomunicaciones",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Redes y Telecomunicaciones",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-038",
+      "section": "Escuela de Salud y Bienestar",
+      "level": "PROFESIONAL",
+      "printedName": "Informática Biomédica",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-039",
+      "section": "Escuela de Salud y Bienestar",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Preparador Físico",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-040",
+      "section": "Escuela de Salud y Bienestar",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Enfermería",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-041",
+      "section": "Escuela de Salud y Bienestar",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Laboratorio Clínico, Banco de Sangre e Imagenología",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-042",
+      "section": "Escuela de Salud y Bienestar",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Odontología",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-043",
+      "section": "Escuela de Salud y Bienestar",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Química y Farmacia",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-044",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería Agrícola",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-045",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Electricidad y Automatización Industrial",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-046",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Mantenimiento Industrial",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-047",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Maquinaria y Vehículos Pesados",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-048",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Mecánica Automotriz y Autotrónica",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-049",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Recursos Naturales y Sostenibilidad",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-050",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Calidad de Alimentos",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-051",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Desabolladura y Pintura Automotriz",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-052",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Electricidad y Automatización Industrial",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-053",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Electricidad y Energías Renovables",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-054",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Geología",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-055",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Mantenimiento Industrial",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-056",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Maquinaria y Vehículos Pesados",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-057",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Mecánica Automotriz y Autotrónica",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-058",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Operación y Supervisión de Procesos Mineros",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-059",
+      "section": "Escuela de Ingeniería y Recursos Naturales",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico Veterinario y Pecuario",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-060",
+      "section": "Escuela de Turismo y Hospitalidad",
+      "level": "PROFESIONAL",
+      "printedName": "Administración en Turismo y Hospitalidad",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false,
+      "mentions": [
+        "Administración Hotelera",
+        "Ecoturismo",
+        "Gestión de Destinos Turísticos",
+        "Hospitality Management"
+      ]
+    },
+    {
+      "sourceRowId": "cupon2027-061",
+      "section": "Escuela de Turismo y Hospitalidad",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Turismo y Hospitalidad",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-062",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Administración Pública",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-063",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Auditoría y Análisis de Negocios",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-064",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Administración de Seguridad Privada",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-065",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Control de Gestión",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-066",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Gestión de Personas",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-067",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Marketing Digital",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-068",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Relaciones Públicas y Comunicación Organizacional",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-069",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Prevención de Riesgos",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-070",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Ciberseguridad",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-071",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Ciencia de Datos",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-072",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Desarrollo de Software",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-073",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Automatización y Control Industrial",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-074",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería en Minas",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-075",
+      "section": "Duoc Online",
+      "level": "PROFESIONAL",
+      "printedName": "Ingeniería Industrial",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-076",
+      "section": "Duoc Online",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Administración de Empresas",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-077",
+      "section": "Duoc Online",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Contabilidad Tributaria",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-078",
+      "section": "Duoc Online",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Operaciones Logísticas",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-079",
+      "section": "Duoc Online",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Trabajo Social",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-080",
+      "section": "Duoc Online",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Prevención de Riesgos Laborales",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-081",
+      "section": "Duoc Online",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Desarrollo y Diseño Web",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-082",
+      "section": "Duoc Online",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Analista Programador Computacional",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-083",
+      "section": "Duoc Online",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Desarrollo de Aplicaciones",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    },
+    {
+      "sourceRowId": "cupon2027-084",
+      "section": "Duoc Online",
+      "level": "TECNICA_NIVEL_SUPERIOR",
+      "printedName": "Técnico en Control y Monitoreo Remoto de Procesos Mineros",
+      "sourcePage": 2,
+      "siteIds": null,
+      "schedules": null,
+      "enabledForCapture": false
+    }
+  ]
+}
