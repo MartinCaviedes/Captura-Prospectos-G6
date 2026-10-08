@@ -51,6 +51,12 @@ git ls-remote --heads origin feature/e1-rf02-validacion
 
 Comparar SHA local/remoto y abrir PR hacia develop con la plantilla. Solicitar revisión de otro integrante; corregir observaciones antes de integrar. main recibe hitos comprobados mediante PR. La existencia de plantillas no acredita protecciones, checks ni revisión realizada.
 
+## Desarrollo en paralelo
+
+Dividir por incremento verificable, no por RF completo. Formulario consume AdmissionRepository.create/get y el contexto existente; no necesita esperar la edición/anulación. Parser QR, ubicación y conectividad pueden desarrollarse de forma aislada. Para listados/edición/métricas, revisar primero firmas, errores y fixtures: después UI y persistencia trabajan contra el mismo contrato, con dobles explícitos hasta integrar el repositorio real.
+
+Coordinar temporalmente navegación, Gradle/Manifest y migraciones; el resto trabaja en archivos propios. Incorporar cambios de develop a la rama de tarea mediante merge y volver a verificar lo afectado. No reescribir una rama ya compartida ni declarar integrada una pantalla que sólo consume un doble.
+
 ## Evidencia y cuidado de datos
 
 Ejecutar controles proporcionales al cambio, siguiendo [Android](android/README.md). Distinguir build, tests JVM e instrumentación realmente ejecutada. Cambios documentales requieren revisar consistencia/enlaces; cambios de contrato o esquema requieren sus consumidores/migraciones y pruebas pertinentes.

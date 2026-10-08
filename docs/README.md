@@ -1,6 +1,8 @@
 # Documentación técnica
 
-Preparación 0.1.11, 07/10/2026. Referencia técnica previa `d658e76`; implementación probada `2298220`. Esta documentación describe tanto lo construido como el producto objetivo; cada documento debe conservar esa diferencia.
+Preparación 0.1.13, 08/10/2026. Implementación probada `2298220`; los cambios posteriores de esta preparación son documentales. Esta documentación distingue lo construido del producto objetivo.
+
+Lectura breve: portada → ENTREGAS. Desarrollo: SRS → contrato de la tarea. Verificación: README Android → ANDROID_BASELINE. No es necesario leer toda la propuesta E2 para ejecutar E1.
 
 | Consulta | Documento |
 |---|---|

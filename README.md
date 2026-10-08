@@ -39,7 +39,7 @@ La división mantiene los requisitos finales y los controles de calidad. E1 corr
 
 ## Estado actual
 
-**Base técnica en desarrollo, documentación actualizada al 07/10/2026.**
+**Base técnica en desarrollo, documentación revisada al 08/10/2026.**
 
 Están implementados el dominio de captura F2027, las altas y lectura de detalle en Room cifrado, las migraciones conservadoras y el contexto/catálogo sintético persistido. La pantalla sigue siendo la plantilla Compose: todavía faltan navegación, formulario, recorridos completos, administración y recursos nativos. El backend se desarrollará en E2.
 
@@ -49,9 +49,23 @@ El desarrollo y la demostración usan únicamente datos ficticios. Los perfiles 
 
 ## Ejecutar y explorar
 
+Al ejecutar esta versión se verá la pantalla inicial de Compose. Los modelos, validaciones y repositorios se comprueban mediante las pruebas; el recorrido de captación todavía no está conectado a esa pantalla. Esto permite distinguir la base entregada del funcionamiento previsto.
+
 Abrir `android/` en Android Studio y seleccionar `demoDebug`. La [guía Android](android/README.md) describe el JDK/SDK, las versiones fijadas y los comandos para construir y probar esta base. No se necesita infraestructura de nube para el build local.
 
 Tecnologías actuales: **Kotlin, Jetpack Compose, Material 3, Room, SQLCipher y Android Keystore**, con negocio separado de la UI. La [arquitectura](docs/ARCHITECTURE.md) explica la evolución hacia MVVM y servicios remotos.
+
+```text
+android/                  Proyecto Android y Gradle wrapper
+  app/src/main/           Dominio, persistencia y pantalla inicial
+  app/src/test/           Pruebas de reglas en JVM
+  app/src/androidTest/    Pruebas de almacenamiento/contexto en Android
+  app/schemas/            Esquemas Room conservados para migraciones
+docs/                     Requisitos, contratos y evidencia técnica
+.github/                  Plantillas de contribución
+```
+
+Para comprender el proyecto, comienza por esta portada y Entregas. Para programar una tarea, consulta SRS y el contrato correspondiente. Para reproducir resultados, utiliza la guía Android y ANDROID_BASELINE. Los documentos de servicios remotos describen la segunda etapa; no son requisitos de instalación de esta versión.
 
 - [Requisitos del producto](docs/SRS.md)
 - [Contrato de datos local](docs/LOCAL_MODEL.md) y [contexto demo](docs/DEMO_CONTEXT.md)
