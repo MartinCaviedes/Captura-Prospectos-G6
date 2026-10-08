@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteException
 import androidx.room.withTransaction
 import io.github.grupo6.capturaprospectos.domain.admission.*
 import io.github.grupo6.capturaprospectos.domain.capture.*
+import java.time.DateTimeException
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
@@ -56,6 +57,7 @@ internal class RoomAdmissionRepository(
         } catch (_: SQLiteException) { CreateAdmissionResult.StorageUnavailable }
     }
 
+    // Fallos de formato se traducen sin reset; no capturar IllegalStateException/CancellationException.
     override suspend fun get(id: UUID): ReadAdmissionResult = withContext(dispatcher) {
         try {
             db.withTransaction {
@@ -72,6 +74,7 @@ internal class RoomAdmissionRepository(
             }
         } catch (_: SQLiteException) { ReadAdmissionResult.StorageUnavailable }
         catch (_: IllegalArgumentException) { ReadAdmissionResult.StorageUnavailable }
+        catch (_: DateTimeException) { ReadAdmissionResult.StorageUnavailable }
 
     }
 }
@@ -107,8 +110,8 @@ private fun CaptureRow.toAdmission(interests: List<InterestRow>, preferences: Li
         interests = programs.map { RankedInterest(it.id, it.priority, it.mentionId) }, preferredSiteIds = sites.map { it.id },
     )
     val location = when (locationSource) {
-        "DEVICE" -> CaptureLocation.Device(Coordinates(requireNotNull(latitude), requireNotNull(longitude)), Instant.parse(measuredAt), requireNotNull(accuracyMeters))
-        "EVENT_CONFIRMED" -> CaptureLocation.EventConfirmed(Coordinates(requireNotNull(latitude), requireNotNull(longitude)), Instant.parse(confirmedAt), UUID.fromString(confirmedBy))
+        "DEVICE" -> CaptureLocation.Device(Coordinates(requireNotNull(latitude), requireNotNull(longitude)), Instant.parse(requireNotNull(measuredAt)), requireNotNull(accuracyMeters))
+        "EVENT_CONFIRMED" -> CaptureLocation.EventConfirmed(Coordinates(requireNotNull(latitude), requireNotNull(longitude)), Instant.parse(requireNotNull(confirmedAt)), UUID.fromString(requireNotNull(confirmedBy)))
         null -> null
         else -> throw IllegalArgumentException("Fuente de ubicación desconocida")
     }

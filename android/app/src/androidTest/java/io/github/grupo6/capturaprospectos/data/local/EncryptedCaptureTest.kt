@@ -135,4 +135,57 @@ class EncryptedCaptureTest {
         assertNull(handle.database.captures().consent("rollback-test"))
         assertEquals(1, handle.database.captures().count())
     }
+
+    private val invalidStoredValues: List<Pair<String, String?>> = listOf(
+        "capturedAt" to "invalid-date", "eventTimeZone" to "Invalid/Zone",
+        "acceptedAt" to "invalid-date", "state" to "UNKNOWN", "ownerId" to "invalid-uuid",
+        "acceptanceMode" to "UNKNOWN", "locationSource" to "UNKNOWN",
+        "measuredAt" to "invalid-date", "measuredAt" to null, "latitude" to null,
+        "locationSource" to "EVENT_CONFIRMED", // Falta evidencia de confirmacion del evento.
+    )
+
+    @Test fun malformedLegacyRowsAreControlledByBothReadersWithoutDeletingData() = runBlocking {
+        val legacy = repository()
+        val broken = legacy.create(request.copy(intent = SaveIntent.SAVE_DRAFT,
+            location = CaptureLocation.Device(Coordinates(-33.0, -71.0), now, 10.0))) as CreateCaptureResult.Saved
+        val healthy = legacy.create(request.copy(intent = SaveIntent.SAVE_DRAFT,
+            location = CaptureLocation.Device(Coordinates(-33.0, -71.0), now, 10.0))) as CreateCaptureResult.Saved
+        fun admission() = RoomAdmissionRepository(handle.database,
+            object : io.github.grupo6.capturaprospectos.domain.admission.AdmissionContextSource {
+                override suspend fun currentActor() = current
+                override suspend fun environment(eventId: UUID): io.github.grupo6.capturaprospectos.domain.admission.AdmissionEnvironment? = null
+            })
+        val dao = handle.database.captures()
+        val original = dao.capture(broken.id.toString())!!
+        for ((column, value) in invalidStoredValues) {
+            val sql = handle.database.openHelper.writableDatabase
+            val oldValue = sql.query("SELECT `$column` FROM captures WHERE id = ?", arrayOf(broken.id.toString())).use {
+                check(it.moveToFirst()); if (it.isNull(0)) null else it.getString(0)
+            }
+            sql.execSQL("UPDATE captures SET `$column` = ? WHERE id = ?", arrayOf(value, broken.id.toString()))
+            val damaged = dao.capture(broken.id.toString())!!
+            assertEquals(column, ReadCaptureResult.StorageUnavailable, legacy.get(broken.id))
+            assertEquals(column, io.github.grupo6.capturaprospectos.domain.admission.ReadAdmissionResult.StorageUnavailable, admission().get(broken.id))
+            assertEquals(damaged, dao.capture(broken.id.toString()))
+            assertTrue(legacy.get(healthy.id) is ReadCaptureResult.Found)
+            assertTrue(admission().get(healthy.id) is io.github.grupo6.capturaprospectos.domain.admission.ReadAdmissionResult.Legacy)
+            assertEquals(2, dao.count())
+            sql.execSQL("UPDATE captures SET `$column` = ? WHERE id = ?", arrayOf(oldValue, broken.id.toString()))
+        }
+        assertEquals(original, dao.capture(broken.id.toString()))
+        handle.close(); handle = EncryptedDatabase.open(context, name)
+        assertTrue(repository().get(broken.id) is ReadCaptureResult.Found)
+        assertTrue(admission().get(healthy.id) is io.github.grupo6.capturaprospectos.domain.admission.ReadAdmissionResult.Legacy)
+    }
+
+    @Test fun legacyReadDoesNotHideCoroutineCancellation() = runBlocking {
+        val cancelled = object : CaptureContextSource {
+            override suspend fun currentActor(): LocalActor? = throw kotlinx.coroutines.CancellationException("test cancellation")
+            override suspend fun environment(eventId: UUID): CaptureEnvironment? = null
+        }
+        try {
+            RoomCaptureRepository(handle.database, cancelled, PrepareCapture(ContactValidator(setOf("SECONDARY")))).get(UUID.randomUUID())
+            fail("La cancelacion debe propagarse")
+        } catch (_: kotlinx.coroutines.CancellationException) { }
+    }
 }

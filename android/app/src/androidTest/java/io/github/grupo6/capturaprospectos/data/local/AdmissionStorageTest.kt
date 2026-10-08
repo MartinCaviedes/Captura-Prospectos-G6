@@ -200,4 +200,50 @@ class AdmissionStorageTest {
         handle!!.close(); handle = null
         assertEquals(4, open().captures().count())
     }
+
+    private val invalidStoredValues: List<Pair<String, String?>> = listOf(
+        "capturedAt" to "invalid-date", "eventTimeZone" to "Invalid/Zone",
+        "acceptedAt" to "invalid-date", "state" to "UNKNOWN", "ownerId" to "invalid-uuid",
+        "acceptanceMode" to "UNKNOWN", "locationSource" to "UNKNOWN",
+        "measuredAt" to "invalid-date", "measuredAt" to null, "latitude" to null,
+        "locationSource" to "EVENT_CONFIRMED", // Falta evidencia de confirmacion del evento.
+    )
+
+    @Test fun malformedRowsReturnStorageUnavailableAndPreserveBothRecords() = runBlocking {
+        val repository = repo()
+        val broken = repository.create(request.copy(intent = SaveIntent.SAVE_DRAFT,
+            location = CaptureLocation.Device(Coordinates(-33.0, -71.0), now, 10.0))) as CreateAdmissionResult.Saved
+        val healthy = repository.create(request.copy(intent = SaveIntent.SAVE_DRAFT,
+            location = CaptureLocation.Device(Coordinates(-33.0, -71.0), now, 10.0))) as CreateAdmissionResult.Saved
+        val dao = open().captures()
+        val original = dao.capture(broken.id.toString())!!
+        for ((column, value) in invalidStoredValues) {
+            val sql = open().openHelper.writableDatabase
+            val oldValue = sql.query("SELECT `$column` FROM captures WHERE id = ?", arrayOf(broken.id.toString())).use {
+                check(it.moveToFirst()); if (it.isNull(0)) null else it.getString(0)
+            }
+            sql.execSQL("UPDATE captures SET `$column` = ? WHERE id = ?", arrayOf(value, broken.id.toString()))
+            val damaged = dao.capture(broken.id.toString())!!
+            assertEquals(column, ReadAdmissionResult.StorageUnavailable, repository.get(broken.id))
+            assertEquals(damaged, dao.capture(broken.id.toString()))
+            assertTrue(repository.get(healthy.id) is ReadAdmissionResult.Found)
+            assertEquals(2, dao.count())
+            sql.execSQL("UPDATE captures SET `$column` = ? WHERE id = ?", arrayOf(oldValue, broken.id.toString()))
+        }
+        assertEquals(original, dao.capture(broken.id.toString()))
+        handle!!.close(); handle = null
+        assertTrue(repo().get(broken.id) is ReadAdmissionResult.Found)
+        assertTrue(repo().get(healthy.id) is ReadAdmissionResult.Found)
+    }
+
+    @Test fun readDoesNotHideCoroutineCancellation() = runBlocking {
+        val cancelled = object : AdmissionContextSource {
+            override suspend fun currentActor(): LocalActor? = throw kotlinx.coroutines.CancellationException("test cancellation")
+            override suspend fun environment(eventId: UUID): AdmissionEnvironment? = null
+        }
+        try {
+            RoomAdmissionRepository(open(), cancelled).get(UUID.randomUUID())
+            fail("La cancelacion debe propagarse")
+        } catch (_: kotlinx.coroutines.CancellationException) { }
+    }
 }

@@ -1,5 +1,10 @@
 # Cambios del producto
 
+## Lectura robusta A06 — 08/10/2026
+
+Errores de formato almacenado devuelven resultado tipado conservando datos; cancelación propagada. 58 JVM y 28 instrumentadas aprobadas en Android 14/API 34. Sin migración ni cambios de negocio. Revisión humana pendiente.
+
+
 ## Revisión documental — 08/10/2026
 
 Preparación 0.1.13: entrada pública más clara, contrato local depurado, desarrollo paralelo por interfaces e integración y límite de lectura de datos inválidos registrado. Sin cambios funcionales Android ni pruebas de dispositivo nuevas. Históricos y reglas de negocio conservados.

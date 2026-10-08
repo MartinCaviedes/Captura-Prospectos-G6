@@ -3,6 +3,7 @@ package io.github.grupo6.capturaprospectos.data.local
 import android.database.sqlite.SQLiteException
 import androidx.room.withTransaction
 import io.github.grupo6.capturaprospectos.domain.capture.*
+import java.time.DateTimeException
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
@@ -64,6 +65,7 @@ internal class RoomCaptureRepository(
         } catch (_: SQLiteException) { CreateCaptureResult.StorageUnavailable }
     }
 
+    // Fallos de formato se traducen sin reset; no capturar IllegalStateException/CancellationException.
     override suspend fun get(id: UUID): ReadCaptureResult = withContext(dispatcher) {
         try {
             db.withTransaction {
@@ -77,6 +79,8 @@ internal class RoomCaptureRepository(
                 ReadCaptureResult.Found(row.toDomain(db.captures().interests(row.id)))
             }
         } catch (_: SQLiteException) { ReadCaptureResult.StorageUnavailable }
+        catch (_: IllegalArgumentException) { ReadCaptureResult.StorageUnavailable }
+        catch (_: DateTimeException) { ReadCaptureResult.StorageUnavailable }
     }
 }
 
@@ -95,14 +99,14 @@ private fun PreparationResult.Prepared.toRow(id: UUID, environment: CaptureEnvir
 
 internal fun CaptureRow.toDomain(interests: List<InterestRow>): StoredCapture {
     val location = when (locationSource) {
-        "DEVICE" -> CaptureLocation.Device(Coordinates(requireNotNull(latitude), requireNotNull(longitude)), Instant.parse(measuredAt), requireNotNull(accuracyMeters))
-        "EVENT_CONFIRMED" -> CaptureLocation.EventConfirmed(Coordinates(requireNotNull(latitude), requireNotNull(longitude)), Instant.parse(confirmedAt), UUID.fromString(confirmedBy))
+        "DEVICE" -> CaptureLocation.Device(Coordinates(requireNotNull(latitude), requireNotNull(longitude)), Instant.parse(requireNotNull(measuredAt)), requireNotNull(accuracyMeters))
+        "EVENT_CONFIRMED" -> CaptureLocation.EventConfirmed(Coordinates(requireNotNull(latitude), requireNotNull(longitude)), Instant.parse(requireNotNull(confirmedAt)), UUID.fromString(requireNotNull(confirmedBy)))
         null -> null
-        else -> error("Fuente de ubicación local desconocida")
+        else -> throw IllegalArgumentException("Fuente de ubicación local desconocida")
     }
     return StoredCapture(UUID.fromString(id), revision, UUID.fromString(ownerId), UUID.fromString(siteId), UUID.fromString(eventId),
         UUID.fromString(deviceId), Instant.parse(capturedAt), eventName, ZoneId.of(eventTimeZone),
         CaptureInput(requireNotNull(fullName), rut, email, phone, requireNotNull(educationLevel), requireNotNull(establishment), contactChannel, notes),
         ConsentEvidence(consentVersion, Instant.parse(acceptedAt), UUID.fromString(recordedBy), AcceptanceMode.valueOf(acceptanceMode)),
-        interests.map { Offering(UUID.fromString(it.offeringId), UUID.fromString(it.programId), UUID.fromString(siteId), it.catalogVersion, it.programName, true, it.modality) }, location, CaptureState.valueOf(state))
+        interests.map { Offering(UUID.fromString(requireNotNull(it.offeringId)), UUID.fromString(it.programId), UUID.fromString(siteId), it.catalogVersion, it.programName, true, it.modality) }, location, CaptureState.valueOf(state))
 }
