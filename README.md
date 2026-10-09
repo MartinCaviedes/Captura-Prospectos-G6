@@ -39,17 +39,17 @@ La división mantiene los requisitos finales y los controles de calidad. E1 corr
 
 ## Estado actual
 
-**Base técnica en desarrollo, documentación revisada al 08/10/2026.**
+**Base local en desarrollo, actualizada al 09/10/2026.**
 
-Están implementados el dominio de captura F2027, las altas y lectura de detalle en Room cifrado, las migraciones conservadoras y el contexto/catálogo sintético persistido. La pantalla sigue siendo la plantilla Compose: todavía faltan navegación, formulario, recorridos completos, administración y recursos nativos. El backend se desarrollará en E2.
+Están implementados el dominio de captura F2027, las altas y lectura de detalle en Room cifrado, las migraciones conservadoras y el contexto/catálogo sintético persistido. La app abre un selector de perfiles/eventos conectado a Room. También están preparados el observador real de conectividad, el formulario volátil (aún fuera del recorrido principal), el parser QR sintético y las interfaces de GPS/registros. Faltan conectar el alta al formulario, cámara/GPS reales, bandeja, edición/anulación, administración y recorridos completos. El backend se desarrollará en E2.
 
-La evidencia del 06/10 sobre la implementación `2298220` registra **58 pruebas JVM y 24 pruebas instrumentadas aprobadas** en Android 14/API 34. Son pruebas de dominio, almacenamiento y contexto; no acreditan las funcionalidades visuales pendientes. Ningún RF semestral está cerrado. Consulta [la evidencia técnica](docs/ANDROID_BASELINE.md) para resultados y límites.
+La comprobación del 09/10 registra **95 pruebas JVM aprobadas**, build correcto y Lint sin errores. En Android 14/API 34 se ejecutaron por separado persistencia/conectividad, selector con Room, pérdida/recuperación Wi-Fi y componentes del formulario; las pruebas de UI requirieron apertura asistida en MIUI. Estos resultados no acreditan los recorridos aún pendientes. Ningún RF semestral está cerrado. Consulta [la evidencia técnica](docs/ANDROID_BASELINE.md) para resultados y límites.
 
 El desarrollo y la demostración usan únicamente datos ficticios. Los perfiles demo permiten probar el alcance funcional local; la autenticación real pertenece a E2.
 
 ## Ejecutar y explorar
 
-Al ejecutar esta versión se verá la pantalla inicial de Compose. Los modelos, validaciones y repositorios se comprueban mediante las pruebas; el recorrido de captación todavía no está conectado a esa pantalla. Esto permite distinguir la base entregada del funcionamiento previsto.
+Al ejecutar esta versión se verá el selector demo. «Preparar demo local» crea explícitamente perfiles, eventos y catálogo ficticios; después se puede seleccionar perfil/evento y salir de la selección. Abrir la app no selecciona respuestas ni crea prospectos. El formulario y el guardado de inscripciones todavía no están conectados a ese recorrido.
 
 Abrir `android/` en Android Studio y seleccionar `demoDebug`. La [guía Android](android/README.md) describe el JDK/SDK, las versiones fijadas y los comandos para construir y probar esta base. No se necesita infraestructura de nube para el build local.
 
@@ -59,7 +59,7 @@ Tecnologías actuales: **Kotlin, Jetpack Compose, Material 3, Room, SQLCipher y 
 android/                  Proyecto Android y Gradle wrapper
   app/src/main/           Dominio, persistencia y pantalla inicial
   app/src/test/           Pruebas de reglas en JVM
-  app/src/androidTest/    Pruebas de almacenamiento/contexto en Android
+  app/src/androidTest/    Pruebas de almacenamiento, contexto, red y UI
   app/schemas/            Esquemas Room conservados para migraciones
 docs/                     Requisitos, contratos y evidencia técnica
 .github/                  Plantillas de contribución

@@ -1,5 +1,7 @@
 # Contrato local E1
 
+Avance 09/10: contexto conectado y conectividad aislada en [ROUND0_BASE](ROUND0_BASE.md); formulario y contratos nativos en [ROUND1_INTERFACES](ROUND1_INTERFACES.md). [RECORD_CONTRACTS](RECORD_CONTRACTS.md) materializa firmas **propuestas**, sin DAO/implementación ni consumidores. No modifica el esquema v3 ni convierte ejemplos de mutaciones en APIs ya operativas.
+
 Estado al 06/10: Room v3 y contexto/catálogo demo persistidos en 2298220; contrato consumidor en [DEMO_CONTEXT](DEMO_CONTEXT.md). Migración 2→3 aditiva y SQL del host comprobado; suite de 24 instrumentadas aprobada en Android 14/API 34 sobre v3. Las 16 aprobadas anteriormente corresponden al código 91b4983/Room v2. [ANDROID_BASELINE](ANDROID_BASELINE.md) separa evidencias. UI, administración, revisión y backup/transferencia efectiva pendientes.
 
 ## Contrato objetivo F2027 — 06/10/2026

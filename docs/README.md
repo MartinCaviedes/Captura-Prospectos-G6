@@ -1,6 +1,6 @@
 # Documentación técnica
 
-Preparación 0.1.13, 08/10/2026. Implementación probada `2298220`; los cambios posteriores de esta preparación son documentales. Esta documentación distingue lo construido del producto objetivo.
+Actualizado 09/10/2026: base compartida e interfaces locales, posteriores a la preparación 0.1.13. [Selector y red](ROUND0_BASE.md), [formulario y dispositivos](ROUND1_INTERFACES.md), [propuesta de registros](RECORD_CONTRACTS.md). Esta documentación distingue lo construido del producto objetivo.
 
 Lectura breve: portada → ENTREGAS. Desarrollo: SRS → contrato de la tarea. Verificación: README Android → ANDROID_BASELINE. No es necesario leer toda la propuesta E2 para ejecutar E1.
 

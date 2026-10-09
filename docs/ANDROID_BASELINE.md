@@ -1,5 +1,22 @@
 # Evidencia de la base Android
 
+## Rondas 0 y 1 — 09/10/2026
+
+R0 en ec9b93b y R1 preparada sobre esa base: **95 pruebas JVM aprobadas**, 0 fallos/errores/omitidas; assembleDemoDebug y assembleDemoDebugAndroidTest correctos; **Lint 19 avisos/0 errores**. R0 agregó ocho pruebas (79); R1 agregó dieciséis (95). [Resumen por suite y hashes de fuentes](evidencias/rounds-0-1-2026-10-09.json).
+
+Ejecuciones separadas en Xiaomi 11T Android 14/API 34, no una suite conjunta:
+
+| Código / alcance | Resultado |
+|---|---|
+| R0: paquete data (27 persistencia + 1 conectividad) | 28 aprobadas, 30,139 s; incluye A06 y 110 colecciones de red sin agotar callbacks |
+| R0: ContextRoomUiTest | 1 aprobada, 16,302 s; selector Compose con Room cifrado y apertura asistida ADB |
+| R1: ConnectivityTransitionTest, adaptador R0 sin cambios | 1 aprobada, 2,676 s; VALIDATED → OFFLINE → VALIDATED; Wi-Fi restaurado y estado 1 comprobado |
+| R1: AdmissionFormUiTest | 1 aprobada, 20,499 s; ingreso volátil, confirmación de actividad, consentimiento y descarte; apertura asistida ADB |
+
+[Salida de red](evidencias/android-wifi-2026-10-09.txt) y [salida de formulario](evidencias/android-form-2026-10-09.txt). Una primera prueba de formulario falló al buscar un nodo aún no compuesto en LazyColumn: se corrigió el test con performScrollToNode. El intento siguiente terminó con Process crashed tras interrupción/bloqueo del dispositivo; no se atribuye una causa técnica concluyente ni se cuenta como aprobado. El reintento completo con teléfono desbloqueado pasó. No se ocultaron fallos ni se redujeron aserciones.
+
+Alcance en [ROUND0_BASE](ROUND0_BASE.md) y [ROUND1_INTERFACES](ROUND1_INTERFACES.md). Sin migración Room, nuevas dependencias, backend, publicación ni RF completo cerrado. Revisión visual/accesibilidad y aceptación humana pendientes. Portal cautivo no probado. La firma de registros es propuesta: no acredita DAO de edición/anulación. El formulario todavía no está conectado a MainActivity ni guarda.
+
 ## ViewModel y Route de contexto — 09/10/2026
 
 Incremento A2 sobre 1a8f8e9: 71 JVM aprobadas (13 nuevas), sin fallos/errores/omitidas; build demoDebug y APK instrumental correctos. Lint 19 avisos/0 errores, incluidos dos avisos adicionales de versiones disponibles para Lifecycle declarado explícitamente. Sin ejecución Android nueva, apertura Room ni conexión de MainActivity. [Alcance y comprobaciones](CONTEXT_UI.md); [evidencia por suite y hashes](evidencias/context-viewmodel-2026-10-09.json).

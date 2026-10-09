@@ -1,0 +1,199 @@
+{
+  "date": "2026-10-09",
+  "base": "ec9b93b",
+  "candidateBranch": "feature/e1-ronda1-interfaces",
+  "jvm": {
+    "totals": {
+      "tests": 95,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      {
+        "name": "io.github.grupo6.capturaprospectos.data.local.DemoSeedTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "io.github.grupo6.capturaprospectos.domain.admission.PrepareAdmissionTest",
+        "tests": "26",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "io.github.grupo6.capturaprospectos.domain.capture.ContactValidatorTest",
+        "tests": "11",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "io.github.grupo6.capturaprospectos.domain.capture.LocalCaptureAccessTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "io.github.grupo6.capturaprospectos.domain.capture.PrepareCaptureTest",
+        "tests": "14",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "io.github.grupo6.capturaprospectos.domain.device.ConnectivityTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "io.github.grupo6.capturaprospectos.domain.device.DemoQrParserTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "io.github.grupo6.capturaprospectos.domain.records.RecordContractsTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "io.github.grupo6.capturaprospectos.ExampleUnitTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormViewModelTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "io.github.grupo6.capturaprospectos.ui.context.ContextSessionOwnerTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "io.github.grupo6.capturaprospectos.ui.context.DemoContextViewModelTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ]
+  },
+  "lint": {
+    "warnings": 19,
+    "errors": 0
+  },
+  "build": [
+    "assembleDemoDebug",
+    "assembleDemoDebugAndroidTest"
+  ],
+  "androidExecutionsAreSeparate": true,
+  "android": [
+    {
+      "scope": "R0 data package",
+      "tests": 28,
+      "result": "passed",
+      "seconds": 30.139
+    },
+    {
+      "scope": "R0 ContextRoomUiTest",
+      "tests": 1,
+      "result": "passed",
+      "seconds": 16.302,
+      "assistedLaunch": true
+    },
+    {
+      "scope": "R1 ConnectivityTransitionTest",
+      "tests": 1,
+      "result": "passed",
+      "seconds": 2.676,
+      "wifiRestored": true
+    },
+    {
+      "scope": "R1 AdmissionFormUiTest",
+      "tests": 1,
+      "result": "passed",
+      "seconds": 20.499,
+      "assistedLaunch": true
+    }
+  ],
+  "sourceSha256": {
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/data/device/ConnectivityAndroidTest.kt": "2a47b6cfcc3f2cda2e1b7b9d7475d62824e72e6baccd9aee51484ef6250ff730",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/data/device/ConnectivityTransitionTest.kt": "ac10f9cf165ab1486829886825b1527cf52dd291bfafa1e358d478275bf0cae5",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/data/local/AdmissionStorageTest.kt": "4fda0607ada00dab94fa985122073caea24584409259780d5594851b75db9dd4",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/data/local/ContextRoomUiTest.kt": "3bbbea2fcaed266d3d01ad04269c67dc0ab4b07d9645a100e9c94fd654b9af57",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/data/local/DemoContextTest.kt": "dce7c61280b2170c117898d1c22641364462fdad2f083b419923285640a2fd49",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/data/local/EncryptedCaptureTest.kt": "f4d1af7d448e4020690230b54b76e8902a87b31f56ac67d9ac827b82394409f8",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ExampleInstrumentedTest.kt": "efd90db1a741b14e1ef3dc1179ea05ff6be4f36cf4d090be350458e8245b70de",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormUiTest.kt": "566fd2afa542ee6abc3039c3ba7e1ba38f078fcc96ade30acf4e220d16ddf2cf",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextScreenTest.kt": "dbcc3312b6692b0225de9c77c3a7fdaa8643e37068db88affd28cbf0907251b0",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/device/AndroidConnectivityObserver.kt": "dd68a8502fcda597ae8e77edb5f03cafe002b433c3c42c9e0a1f9b34e8acdec1",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/CaptureDatabase.kt": "705e34e3fb57be1266ea1ddd1ede5cc46becc9a4907e3c62d8265e0e3c0bbea0",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/CaptureMigration1To2.kt": "f9a078f519df56b7a2e7e9cb8a7b803e42a34c98761ba41317683e66571ef983",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/CaptureMigration2To3.kt": "409396253ed0f5776f42b6030c405eec7d949df047cfc07714b5d72e8afad3e6",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/ContextTables.kt": "5c4f62da47a4fc45ca6d97e5229182b98b21274c4b6180a5a27e4d0ec6b601d4",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/DatabaseKeyStore.kt": "5654a273581dfd074333ad9dd37c899b844e4d20dca522f751a07e6caeb1f53e",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/DemoSeed.kt": "8d8503f87914db0e5131f31dfab02d878cc4f0d314879b05dbad42b03961bce4",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/EncryptedDatabase.kt": "4bbe6847dddfcd6e1d604727ff2ff2a36aa67444308c62e3e29899fa8668f176",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/RoomAdmissionRepository.kt": "8cc2e4eacf7be9cef908ba1af76b876e20ecb656b2752801819bb488315ee327",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/RoomCaptureRepository.kt": "fb0930d745afd89a4fc19f4e295bf688225b2c810de132763a69467f0d09d2e4",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/RoomContextSession.kt": "5d1ef17e3723fc1f6526872d638125d540cc7b1ee2844670b29db95b03f96440",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/RoomDemoContextRepository.kt": "62a0aa3e6097fa4d88617e141218c388b06556e4f73f02c56551d9c01153f9c5",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/admission/AdmissionInput.kt": "9c57b2563dd288f6d59f26400b0fe2b86879c72b65c787543835611f8d935ef0",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/admission/AdmissionRepository.kt": "fb4fa2c818d1cfd5d7fd85d7dba820e09d0b09388ae7f6e7bba3fc97258ed1ef",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/admission/AdmissionValidator.kt": "1dba224db5e471c99360df0fab0a0dd42b813b6e4bba25c0674dc7ec68d39266",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/admission/PrepareAdmission.kt": "54955ca0aad93f9a8a2b9855fef3ed1c58a725c6ec0a42336e6e893895b49c0a",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/capture/CaptureInput.kt": "9b69f6e95b1b7695b2f2235feba27b6c296e3e48c97349cd89625a248c4002c2",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/capture/CaptureLocation.kt": "d19631b1f1ba011f16c2a6170d2a49387c09a3f8f2e229a61a9c45d0b6cd8348",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/capture/CaptureRepository.kt": "ff9b77f641a411e93b19948d2c11eae2a8584bdcc92c1ba165d877d8d6e8fd10",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/capture/ContactFormats.kt": "3d779f536037e32b78fc2fb5cddc91c6e641e9a72fba7c552b04f64cf8f77ee8",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/capture/ContactValidator.kt": "1c9ce6410ebd161ece8cfd3c866608b204e9fae84918ab572d07188791f1a097",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/capture/PrepareCapture.kt": "3786590a66a413dbcc0658b636cfaafac4013d0d3b77a55e34823d9642aa2f89",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/context/ContextSession.kt": "07d662ac7df1d78cb04b8fbdf95cef31b86499d0ce7684a7e65c634a5b1777f5",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/context/DemoContext.kt": "7f319b5e0ebc2af3dc018f4f1554f6cefd02fcad3e3abd4da2c0f3498fd53cf2",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/device/ConnectivityObserver.kt": "fab12321577be357563ab55bd32d72af2ed9b71960c96014a4be483c2ecba4a1",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/device/DemoQrParser.kt": "b02894827988357abb5e8b0c4905ea57bd0b4a1cd7396e44a2e00f64fc4fe1e1",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/device/LocationProvider.kt": "56d1eb52bded69af92e9a1332c67042bb9c7a81527af2db7a011b12bb62e73dd",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/records/RecordContracts.kt": "bfbdf93294f88762deb47a14ea89d53d4a424a66cae050269ad479925603b7b4",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/MainActivity.kt": "a691ad368e7e7246b9bc2f3f3af584c03ec8fcc83f67d2c4a80080bb5986391b",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt": "cad63a1a1c7163aa4d77595be9b4e0ab81f76af8975cadd40e65526c5857f711",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormViewModel.kt": "adcd290e3e54b78d82cbe23f1be94f1bd284edc9ee7fcda1f1c43becbd236dd0",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/ContextSessionOwner.kt": "11a354081ec9b9e2d2224f42d35666395041d6bfbf21747fd1d258cdfc82efd6",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextRoute.kt": "478f2d19fc1a22f4aa14b4ed7d0cfa56db99944420f9d5712702faf35101d3c4",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextScreen.kt": "bc402b6fc21913a9dc0796392116c2d47f5ab005fa0693a61214da5c2a60bb54",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextUiState.kt": "e7136aebc62509f92e22823741243825897785d434da2bd30fe3ace86667c7dd",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextViewModel.kt": "fe75acb2e8a581c72e2e8a02b0ce509c050745e74f4f343f94722713d9723662",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/theme/Color.kt": "085794596dc2eb8a865a0ad65fa66f2afe0ae7f11d0f410c03ccc46c122cc0e4",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/theme/Theme.kt": "57ef7dbcbfee0539775d77fbc4095dbbd55ab23245eb11d97732b6207b7c4e3b",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/theme/Type.kt": "4adcd9f63b17a1ce7068cc4683fcfb2248978a813512fe30d9a27d8ec475f178",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/data/local/DemoSeedTest.kt": "ec38b11e318b800c6aa79216bfb50094cd2bbc065cf7d3c151376e57227e54ad",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/domain/admission/PrepareAdmissionTest.kt": "544384ccda86a9137a67358f9cbde53ed4ead0523936493435b43d020379719c",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/domain/capture/ContactValidatorTest.kt": "eced2b47481316b37fcf4f9d07ee5d99bbbc5207f79de078d033c769ccaf8ad8",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/domain/capture/LocalCaptureAccessTest.kt": "a116c4b3e410227a4e0b33a24f6f3554f6f95fccac51b736244385c0335baecb",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/domain/capture/PrepareCaptureTest.kt": "62753ed58c8be0f4c9a9ef72c05edae583f79a4d3cee335a5ce5544bc5b43989",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/domain/device/ConnectivityTest.kt": "5406102cd961e1ffcb894f049c4664157387718bdea655824c0be617e621559b",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/domain/device/DemoQrParserTest.kt": "4e11284434ee15bb9051bd80f745c8fb9c7c0564aa4d363faf3d0c1fddae197d",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/domain/records/RecordContractsTest.kt": "b5b063333b8e9c1e0dd48896a635d3fc99b6adf4e028ab25c85934bfa8eadb6a",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/ExampleUnitTest.kt": "ce0696776cdab66b159a2499fe76e29ac110c25acd61ccfd0094289edf6ec0fc",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormViewModelTest.kt": "e8ef27a192ed595b48eaf8eece59658cc5e34a54637a23c54dcbe7516c3136b3",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/ui/context/ContextSessionOwnerTest.kt": "bcd8cd9173cf66bc4448a9565a749e413a5b29c532237f11c375ce2967772bdc",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextViewModelTest.kt": "c416f3aec6816fcf30c8ee9ff40686483cc22958bd057f7fa0fc6967e5347d3e"
+  }
+}

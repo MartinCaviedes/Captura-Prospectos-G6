@@ -1,0 +1,18 @@
+{
+  "version": "proposal-0.1",
+  "status": "human-review-pending",
+  "executed": false,
+  "cases": [
+    {"id":"list-own", "actor":"captor-a", "rows":["own-draft","own-ready","foreign-ready"], "visible":["own-draft","own-ready"]},
+    {"id":"list-supervisor", "actor":"supervisor-site-a", "rows":["site-a-draft-other","site-a-ready","site-b-ready"], "visible":["site-a-ready"]},
+    {"id":"stale-edit", "storedRevision":3, "expectedRevision":2, "result":"RevisionConflict", "unchanged":true},
+    {"id":"foreign-edit", "authorized":false, "result":"Unavailable", "revealsRevision":false},
+    {"id":"legacy-edit", "contract":"LEGACY", "result":"UnsupportedContract", "unchanged":true},
+    {"id":"cancelled-edit", "state":"CANCELLED", "result":"InvalidTransition", "unchanged":true},
+    {"id":"active-rut-change", "state":"READY", "changes":["rut"], "result":"InvalidTransition", "unchanged":true},
+    {"id":"cancel-no-reason", "reason":"", "result":"ReasonRequired", "unchanged":true},
+    {"id":"foreign-duplicate", "result":"DuplicateRestricted", "revealsId":false},
+    {"id":"cancel-transaction-fails", "failure":"audit-write", "result":"StorageUnavailable", "originalAndActiveKeyPreserved":true},
+    {"id":"cancel-success", "storedRevision":3, "expectedRevision":3, "reason":"Registro ficticio duplicado", "result":"Saved", "state":"CANCELLED", "revision":4, "activeKeyReleased":true, "auditRequired":true}
+  ]
+}

@@ -1,6 +1,8 @@
 # Componentes de entrada al contexto demo
 
-Actualización 09/10/2026: A2 incorpora ViewModel y Route, aún sin apertura de Room ni conexión desde MainActivity. El apartado A1 siguiente conserva el alcance y la evidencia visual del 08/10; no describe un recorrido integrado actual.
+Estado vigente 09/10: [ronda 0](ROUND0_BASE.md) conecta el selector desde MainActivity con apertura cifrada y dueño explícito. Recorrido Compose/Room probado. Los apartados A1/A2 siguientes conservan evidencia histórica; sus pendientes de implementación ya no describen el HEAD actual. Revisión humana y visual aún pendientes.
+
+Antecedente A2 del 09/10/2026: A2 incorpora ViewModel y Route, aún sin apertura de Room ni conexión desde MainActivity. El apartado A1 siguiente conserva el alcance y la evidencia visual del 08/10; no describe un recorrido integrado actual.
 
 ## A2: coordinación de estado y acciones
 
@@ -32,7 +34,7 @@ Build demoDebug y APK instrumental correctos; 58 pruebas JVM sin fallos; Lint 17
 
 No se repitió la suite de persistencia: sus 28 pruebas aprobadas pertenecen al incremento A06. No sumar las seis nuevas a esas 28 como si se hubiera ejecutado una suite conjunta. Revisión visual de claro/oscuro, texto ampliado y TalkBack pendiente.
 
-## Integración siguiente: E1-BASE-03-A2
+## Plan de integración original de A2 (ejecutado después en ronda 0)
 
 1. Revisar y aceptar el contrato de contexto y A06 antes de conectar el consumidor; registrar revisor y base real.
 2. ViewModel preparado y probado con dobles el 09/10. Revisar su coordinación y completar la fábrica/dueño explícitos al integrar; no volver a implementarlo ni sustituir contratos.
