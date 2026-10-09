@@ -1,5 +1,23 @@
 # Componentes de entrada al contexto demo
 
+Actualización 09/10/2026: A2 incorpora ViewModel y Route, aún sin apertura de Room ni conexión desde MainActivity. El apartado A1 siguiente conserva el alcance y la evidencia visual del 08/10; no describe un recorrido integrado actual.
+
+## A2: coordinación de estado y acciones
+
+`DemoContextViewModel` recibe DemoContextRepository por constructor. Expone StateFlow de sólo lectura, observa sin inicializar y delega las acciones explícitas. Después de una acción consulta el snapshot confirmado. Mientras está ocupado descarta clics adicionales, sin encolarlos contra un perfil antiguo; cancela/espera la observación anterior antes de mutar y la reinicia al terminar. No deduce permisos, selecciona preferencias ni altera transporte.
+
+Los resultados inválidos, almacenamiento no disponible y contexto incompatible producen mensajes; el reintento sólo lee y vuelve a observar, sin resembrar. La cancelación se propaga; al liberar el ViewModel se cancelan sus trabajos. La pantalla ofrece reintento ante errores de acción. No se exponen excepciones ni datos personales en mensajes.
+
+`DemoContextRoute` recibe el ViewModel de su futuro dueño y usa `collectAsStateWithLifecycle` para entregar el estado a la pantalla. Esta observación UI sigue el ciclo de vida; la observación del repositorio vive durante el ViewModel. La fábrica y apertura cifrada todavía no están implementadas. El patrón se apoya en la [guía oficial de corrutinas y ciclo de vida](https://developer.android.com/topic/libraries/architecture/coroutines).
+
+Dependencias explícitas: lifecycle-viewmodel-ktx y lifecycle-runtime-compose 2.9.4, alineadas con la versión ya resuelta transitivamente; lifecycle-runtime-ktx usa esa misma declaración. kotlinx-coroutines-test 1.10.2 sólo en pruebas. No se actualizan Compose/AGP/Room ni se añade Navigation/Hilt.
+
+Comprobaciones del 09/10: **71 JVM aprobadas** (58 anteriores + 13 de ViewModel), sin fallos/errores/omitidas; build demoDebug e instrumental correctos; **Lint 19 avisos/0 errores**. Dos avisos adicionales notifican versiones más nuevas de las dependencias Lifecycle ahora explícitas; se mantiene la versión comprobada, sin ocultar los avisos. [Resumen de resultados y hashes de fuentes](evidencias/context-viewmodel-2026-10-09.json).
+
+Los casos nuevos cubren lectura inicial sin mutación, preparación explícita, cambio de perfil, selección confirmada, clics repetidos, rechazo, incompatibilidad, fallo de almacenamiento, recuperación de observación, salida, cancelación, cierre y reemplazo del observador. Son pruebas con doble de repositorio, no pruebas de Room. No se ejecutó Android en este incremento ni se extrapolan las seis UI previas a la Route nueva. Una primera prueba falló por comprobar el estado inicial después de que runTest hubiera avanzado el planificador; se hizo explícito el avance del reloj y se conservaron las aserciones antes/después.
+
+## A1: componente visual del 08/10
+
 Incremento E1-BASE-03-A1 del 08/10/2026, derivado de 978ca91. Aporta tema y pantalla presentacional para RF01 local/base RF13; no cierra estos RF. La actividad principal todavía muestra la plantilla: no se conecta la nueva pantalla al almacenamiento en este incremento.
 
 ## Qué está implementado
@@ -17,8 +35,8 @@ No se repitió la suite de persistencia: sus 28 pruebas aprobadas pertenecen al 
 ## Integración siguiente: E1-BASE-03-A2
 
 1. Revisar y aceptar el contrato de contexto y A06 antes de conectar el consumidor; registrar revisor y base real.
-2. Crear ViewModel con DemoContextRepository por constructor, StateFlow de sólo lectura y observación del contexto. Serializar acciones para evitar selecciones simultáneas; traducir ContextChange a mensajes, conservando los datos ante error.
-3. Añadir Route con observación ligada al ciclo de vida. Abrir EncryptedDatabase fuera del hilo principal mediante un dueño con cierre definido; manejar fallo de apertura sin reset destructivo. No añadir inicialización automática.
+2. ViewModel preparado y probado con dobles el 09/10. Revisar su coordinación y completar la fábrica/dueño explícitos al integrar; no volver a implementarlo ni sustituir contratos.
+3. Route preparada con observación ligada al ciclo de vida. Falta abrir EncryptedDatabase fuera del hilo principal mediante un dueño con cierre definido; manejar fallo de apertura sin reset destructivo. No añadir inicialización automática.
 4. Conectar MainActivity a esa Route. Mantener un único contenedor explícito y las dependencias mínimas compatibles, sin Hilt/Navigation por costumbre para una sola pantalla.
 5. Probar inicialización explícita → perfil → evento → reapertura → cambio de perfil → salida; comprobar estado persistido, eventos autorizados y conservación de capturas. Probar fallo de apertura, cancelación y rechazo de selección. Un test con callbacks no sustituye este recorrido.
 

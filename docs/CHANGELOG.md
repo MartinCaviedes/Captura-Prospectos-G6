@@ -1,5 +1,10 @@
 # Cambios del producto
 
+## Estado y Route de contexto — 09/10/2026
+
+ViewModel por constructor, StateFlow de sólo lectura, acciones exclusivas, reintento y cancelación; Route con observación ligada al ciclo de vida. 71 JVM aprobadas, build e instrumental correctos, Lint 19 avisos/0 errores. Sin conexión MainActivity/Room, migración, backend ni ejecución Android nueva. Ver [CONTEXT_UI](CONTEXT_UI.md). Los paquetes anteriores siguen congelados.
+
+
 ## Componentes visuales de contexto — 08/10/2026
 
 Tema claro/oscuro y pantalla presentacional de contexto, aún sin conexión desde MainActivity. Sin cambios de modelo, Room o dependencias. 58 JVM aprobadas; build e instrumental compilan; Lint 17 avisos/0 errores; seis pruebas UI aprobadas en Android 14/API 34 con apertura asistida por ADB por bloqueo de MIUI. [Alcance, evidencia y siguiente integración](CONTEXT_UI.md). Revisión humana y pruebas visuales pendientes; no cierra RF01/13 ni sustituye los paquetes anteriores.

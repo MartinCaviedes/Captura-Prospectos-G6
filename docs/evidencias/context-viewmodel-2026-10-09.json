@@ -1,0 +1,164 @@
+{
+  "date": "2026-10-09",
+  "base_commit": "1a8f8e9",
+  "branch": "feature/e1-contexto-viewmodel",
+  "command": "gradlew.bat :app:testDemoDebugUnitTest :app:assembleDemoDebug :app:lintDemoDebug :app:assembleDemoDebugAndroidTest --console=plain --offline",
+  "build_result": "BUILD SUCCESSFUL",
+  "jvm": {
+    "tests": 71,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "name": "io.github.grupo6.capturaprospectos.data.local.DemoSeedTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "syntheticCatalogHasIndependentSitesOnlineAndParentMentions",
+        "allAssignmentsRespectCaptorRoleAndSiteScope"
+      ]
+    },
+    {
+      "name": "io.github.grupo6.capturaprospectos.domain.admission.PrepareAdmissionTest",
+      "tests": 26,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "optionalModalityUsesConfiguredCatalogWithoutConstrainingInterests",
+        "acceptsFourSitesAndDoesNotFilterByEventSite",
+        "mentionMustBelongToParentAndDoesNotAddAnotherCareer",
+        "rejectsDuplicateProgramEvenWithDifferentPriority",
+        "birthUsesEventLocalDateWithoutInventedAgeLimits",
+        "noConsentCannotPrepareEvenDraft",
+        "birthIsRequiredRealAndNotFuture",
+        "validLocationMakesReadyButStaleLocationIsRejected",
+        "normalizesContactsAndRejectsBadFormatsAndUnknownChannel",
+        "snapshotDoesNotChangeWhenOriginalSelectionsAreMutated",
+        "rejectsDuplicateUnknownDisabledAndAmbiguousSites",
+        "dependentTextIsNotSilentlyDiscarded",
+        "confirmationRequiresOneToThreePrograms",
+        "requiresSeparateNamesWithoutDemandingTwoSurnames",
+        "residenceAndActivityHaveNoDefaults",
+        "consentMustMatchActorVersionAndTime",
+        "consentedIncompleteDraftIsNeverRegistration",
+        "rankingIsPreservedIndependentOfInputOrder",
+        "limitsApplyToDraftAndErrorsDoNotExposePersonalValues",
+        "fourthSecondaryRequiresEstablishmentOnlyOnConfirmation",
+        "optionalChoiceNotStatedIsDistinctFromAbsenceAndMotivationIsSingle",
+        "prioritiesMustBeUniqueAndContiguous",
+        "otherRequiresDescriptionButNotEstablishment",
+        "rejectsUnknownDisabledOrAmbiguousPrograms",
+        "optionalFieldsRemainAbsentAndLocationIsPending",
+        "onlineAndMixedProgramsDoNotRequireSiteOrSchedule"
+      ]
+    },
+    {
+      "name": "io.github.grupo6.capturaprospectos.domain.capture.ContactValidatorTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "optionalNotesHaveLengthLimitButAreNotRequired",
+        "nameAndEstablishmentBoundariesAreEnforced",
+        "rutRejectsWrongCheckDigitZeroAndAmbiguousCharacters",
+        "phoneUsesOnlyDeclaredChileanMobileRule",
+        "rutAcceptsFormattedCompactAndLowercaseCheckDigit",
+        "emailRejectsMalformedStructuresAndExcessLength",
+        "unicodeNamesAreNotRestrictedToAsciiOrTwoSurnames",
+        "educationAndChannelComeFromSuppliedOptions",
+        "draftAllowsIncompleteFieldsButKeepsLengthLimits",
+        "errorAndInputDescriptionsDoNotEchoPersonalValues",
+        "normalizesPresentationWithoutChangingNameOrEmailCase"
+      ]
+    },
+    {
+      "name": "io.github.grupo6.capturaprospectos.domain.capture.LocalCaptureAccessTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "supervisorCannotReadAnotherPersonsDraftOrForeignSite",
+        "captorReadsOnlyOwnRecordsWithinScope",
+        "invalidEventCannotAuthorizeCreation",
+        "creationRequiresCaptorSiteAndAssignment"
+      ]
+    },
+    {
+      "name": "io.github.grupo6.capturaprospectos.domain.capture.PrepareCaptureTest",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "gpsThresholdBoundariesAreInclusive",
+        "gpsRejectsFutureTimeNanAndInvalidCoordinates",
+        "duplicateOfferingsAndSameProgramAreRejected",
+        "consentedIncompleteDraftCanBePrepared",
+        "completeCaptureIsReadyAndNeverSynced",
+        "rejectsWrongConsentVersionActorAndFutureTime",
+        "missingLocationNeedsContextWithoutInventingCoordinates",
+        "explicitDraftRemainsDraftEvenWithCompleteFields",
+        "verbalConsentIsRecordedWithoutChangingItsMode",
+        "incompleteRegistrationAndMissingInterestAreRejected",
+        "eventFallbackRequiresExactDeclaredLocationAndActorConfirmation",
+        "consentRequiredForBothDraftAndRegistration",
+        "missingDisabledForeignSiteAndAmbiguousCatalogEntriesAreRejected",
+        "preparationDoesNotMutateInputAndDoesNotExposeItInDescription"
+      ]
+    },
+    {
+      "name": "io.github.grupo6.capturaprospectos.ExampleUnitTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "addition_isCorrect"
+      ]
+    },
+    {
+      "name": "io.github.grupo6.capturaprospectos.ui.context.DemoContextViewModelTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        "incompatibleSeedDoesNotResetOrAutomaticallyRetry",
+        "cancellationPropagatesAndReleasesBusyState",
+        "storageFailureIsShownWithoutClaimingSuccess",
+        "retryReadsAndRestartsObservationWithoutSeeding",
+        "clearSelectionDelegatesWithoutReinitializing",
+        "rejectedSelectionKeepsSnapshotAndExplainsFailure",
+        "initializesOnceAndConfirmsRepositorySnapshot",
+        "rapidSecondActionIsNotQueuedAgainstOldContext",
+        "openingOnlyObservesWithoutInitializingOrSelecting",
+        "eventSelectionWaitsForRepositoryConfirmation",
+        "actionReplacesObserverWithoutConcurrentCollectors",
+        "clearingViewModelCancelsObservationAndActiveOperation",
+        "profileChangeUsesConfirmedStateAndRemovesOldEvent"
+      ]
+    }
+  ],
+  "lint": {
+    "Warning": 19,
+    "Error": 0,
+    "Fatal": 0
+  },
+  "android_execution": "Not run in this increment; APK assembled only",
+  "source_sha256": {
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextRoute.kt": "478f2d19fc1a22f4aa14b4ed7d0cfa56db99944420f9d5712702faf35101d3c4",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextScreen.kt": "736a8e6a7b4a5b1d3b46b90b65fc91492adaedc617636cf84abbebf610dab469",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextUiState.kt": "13b2514f35cecc44baa0ef71d380c096c3a70c3a0b294b0830533e3e829f30de",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextViewModel.kt": "fe75acb2e8a581c72e2e8a02b0ce509c050745e74f4f343f94722713d9723662",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextViewModelTest.kt": "c416f3aec6816fcf30c8ee9ff40686483cc22958bd057f7fa0fc6967e5347d3e",
+    "android/gradle/libs.versions.toml": "6643e337671edf837d8d68ff812d78eb54662f6160dd512e4f60ba9110a46ec1",
+    "android/app/build.gradle.kts": "bac83ddaefd0417fedd722898339793b3281c5d2733697cc545d6a952533c03a"
+  }
+}

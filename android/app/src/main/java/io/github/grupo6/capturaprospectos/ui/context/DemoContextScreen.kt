@@ -24,13 +24,6 @@ import io.github.grupo6.capturaprospectos.domain.context.DemoContextState
 import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
 import java.util.UUID
 
-/** Estado recibido: null significa lectura inicial. La pantalla no abre ni inicializa Room. */
-data class DemoContextUiState(
-    val context: DemoContextState? = null,
-    val busy: Boolean = false,
-    val message: String? = null,
-)
-
 /** El consumidor confirma cambios con un nuevo estado; un clic no simula persistencia. */
 @Composable
 fun DemoContextScreen(
@@ -57,11 +50,14 @@ fun DemoContextScreen(
             }
         }
         if (state.busy) item {
-            Text("Aplicando selección…", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+            Text("Procesando operación local…", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
         state.message?.let { message -> item {
             Text(message, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+            if (state.context != DemoContextState.StorageUnavailable) {
+                TextButton(onClick = onRetry, enabled = !state.busy) { Text("Reintentar lectura") }
+            }
         } }
         when (val context = state.context) {
             null -> item {
