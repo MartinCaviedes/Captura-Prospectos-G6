@@ -7,41 +7,41 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.grupo6.capturaprospectos.data.local.openContextSession
+import io.github.grupo6.capturaprospectos.domain.context.DemoContextState
+import io.github.grupo6.capturaprospectos.ui.context.*
 import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val appContext = applicationContext
+        val owner = ViewModelProvider(this, object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                require(modelClass == ContextSessionOwner::class.java)
+                return ContextSessionOwner({ openContextSession(appContext) }) as T
+            }
+        })[ContextSessionOwner::class.java]
         setContent {
             CapturaProspectosG6Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                val session by owner.uiState.collectAsStateWithLifecycle()
+                Scaffold(Modifier.fillMaxSize()) { padding ->
+                    val modifier = Modifier.fillMaxSize().padding(padding)
+                    when (val current = session) {
+                        ContextSessionState.Opening -> DemoContextScreen(DemoContextUiState(), {}, {}, {}, {}, {}, modifier)
+                        ContextSessionState.Unavailable -> DemoContextScreen(
+                            DemoContextUiState(DemoContextState.StorageUnavailable), {}, owner::retry, {}, {}, {}, modifier)
+                        is ContextSessionState.Ready -> DemoContextRoute(current.viewModel, modifier)
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    CapturaProspectosG6Theme {
-        Greeting("Android")
     }
 }
