@@ -2,10 +2,9 @@ package io.github.grupo6.capturaprospectos.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Referencia: kit digital Duoc UC. Asignación a roles Android propia del proyecto.
+internal val DuocYellow = Color(0xFFFFB800)
+internal val DuocBlack = Color(0xFF1A1A1A)
+internal val DuocWhite = Color(0xFFFFFFFF)
+internal val DuocGray = Color(0xFF666666)
+internal val DuocLightGray = Color(0xFFEEEEEE)

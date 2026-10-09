@@ -1,5 +1,7 @@
 # Captura de Prospectos — Android
 
+Incremento 08/10: tema y componentes de contexto preparados, con seis pruebas UI aprobadas mediante apertura asistida por ADB en MIUI. MainActivity conserva la plantilla; conexión a Room y revisión humana pendientes. Ver [CONTEXT_UI](../docs/CONTEXT_UI.md).
+
 Base E1 al 06/10/2026, implementación `2298220`, documentación previa `d658e76`. Dominio/persistencia F2027 y contexto/catálogo demo implementados; UI de plantilla. [Requisitos](../docs/SRS.md), [alcance E1/E2](../docs/ENTREGAS.md) y [evidencia](../docs/ANDROID_BASELINE.md).
 
 ## Entorno fijado

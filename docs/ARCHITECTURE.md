@@ -1,5 +1,7 @@
 # Arquitectura propuesta del prototipo
 
+Actualización de evidencia 08/10: A06 en 978ca91 mantiene Room v3; 58 JVM y 28 instrumentadas aprobadas. Revisión humana/integración pendientes. Los conteos de 24 en el antecedente del 06/10 identifican la suite anterior; ver [ANDROID_BASELINE](ANDROID_BASELINE.md) para resultados por incremento.
+
 Incremento 06/10: Room v3 y contexto/catálogo sintético descritos en [DEMO_CONTEXT](DEMO_CONTEXT.md); inicialización explícita, sin autenticación real ni seed automático al migrar. Suite completa de 24 pruebas Android aprobada sobre v3; ver evidencia en ANDROID_BASELINE.
 
 Actualizado 02/10/2026. Diseño del producto completo; implementación parcial de dominio y base Android, no del sistema completo. Complementa SRS 1.4 y [ENTREGAS](ENTREGAS.md). E1 implementa Android/local; E2 agrega fuentes remotas. Las secciones de servidor/cola describen el destino E2 y no obligan a añadirlo a E1.
@@ -31,6 +33,14 @@ Flujo: evento UI → ViewModel → regla/caso de uso cuando aporta valor → rep
 - Inyección inicial por constructor y un contenedor pequeño explícito. Adoptar otro mecanismo sólo si resuelve un problema concreto; no introducir dos sistemas simultáneos.
 
 El componente que realiza una operación bloqueante se responsabiliza de moverla al dispatcher adecuado. No ejecutar siempre todo en IO ni exigirlo alrededor de APIs ya no bloqueantes. Inyectar reloj/dispatchers cuando sea necesario para pruebas deterministas.
+
+### Patrón de pantalla para la implementación E1
+
+Concretado el 08/10/2026, compatible con la progresión docente de Compose a MVVM. Separar `FeatureRoute`, que obtiene el ViewModel y observa su estado con `collectAsStateWithLifecycle`, de `FeatureScreen`, que recibe UiState y callbacks. La pantalla puede previsualizarse con datos ficticios sin abrir Room ni acceder a servicios. El ViewModel expone StateFlow de sólo lectura, recibe dependencias por constructor y delega reglas al dominio/repositorio. Un contenedor y una fábrica explícita resuelven su creación; no copiar acceso global a repositorios en cada pantalla ni introducir Hilt por costumbre.
+
+La navegación conecta callbacks y transporta identificadores mínimos; no llevar RUT ni formularios personales completos en rutas. Los identificadores se resuelven contra el repositorio y se maneja el registro inexistente. MainActivity instala tema y punto de entrada; no concentra validaciones o persistencia. Cada acción visible tiene comportamiento comprobable o una explicación explícita de que aún no está disponible.
+
+El estado visual local puede permanecer en Compose. Los ejemplos de `rememberSaveable` no autorizan guardar datos personales sin consentimiento ni sustituir Room por estado de pantalla; revisar también SavedStateHandle y argumentos de navegación conforme a [SECURITY](SECURITY.md). Las dependencias para UI/navegación se incorporan sólo cuando la tarea las necesite, con versiones compatibles en el catálogo del proyecto. Estos patrones guían código nuevo, sin ordenar una reestructuración del dominio/persistencia ya probado.
 
 ## Modelo conceptual
 

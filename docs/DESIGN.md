@@ -6,13 +6,43 @@ Acuerdo F01: las opciones pueden ordenarse alfabéticamente; el resumen de hasta
 
 Revisión 05/10: antes de implementar captura/preferencias, revisar F01–F03 en FORMULARIO_ADMISION_2027. Nombre/apellidos, actividad, nuevas variables, ranking y sede de interés tienen reglas acordadas en la revisión del 06/10; no inventar obligatoriedad ni confundir jornada, modalidad y sede. La base visual y recursos E1 no cambian.
 
-Versión 0.1, 30/09/2026. Propuesta común para que cada integrante amplíe la app sin crear estilos distintos. No existe mockup aprobado ni marca comercial definitiva.
+Actualizado 08/10/2026 con referencias del kit digital Duoc UC. Guía común para que cada integrante amplíe la app sin crear estilos distintos. La adaptación inicial del tema y los componentes de contexto está implementada en la rama E1-BASE-03-A1; conexión a datos y revisión visual/humana pendientes. Ver [CONTEXT_UI](CONTEXT_UI.md). No existe un mockup aprobado por el cliente.
 
 ## Principios
 
-Material Design 3, textos en español, jerarquía clara y contraste comprobado. Utilizar tokens semánticos de tema para color, tipografía, espaciado y formas; no hexadecimales repetidos en cada pantalla. No copiar logos ni presentar colores como identidad oficial sin material autorizado.
+Material Design 3, textos en español, jerarquía clara y contraste comprobado. Utilizar tokens semánticos de tema para color, tipografía, espaciado y formas; no hexadecimales repetidos en cada pantalla. El kit público respalda las referencias visuales siguientes; no acredita aprobación institucional de esta app ni autoriza por sí solo incorporar cualquier logo o recurso.
 
 Escala inicial de espaciado: 4/8/12/16/24/32 dp. Controles táctiles >=48 dp, etiqueta siempre visible, soporte de texto ampliado y TalkBack. Ningún estado se comunica sólo mediante color. La guía de [accesibilidad de Compose](https://developer.android.com/codelabs/basic-android-kotlin-compose-test-accessibility) respalda el tamaño de objetivos táctiles; estos tokens de espaciado son propuesta del equipo técnico.
+
+## Referencia Duoc UC y adaptación Android
+
+Consulta del 08/10/2026. El [kit web](https://www.duoc.cl/kit-digital/web/) utiliza Bootstrap; en esta app se adapta a Compose/Material 3. No incorporar HTML, CSS, JavaScript o WebView para reproducirlo, ni convertir mecánicamente sus medidas web a dp/sp.
+
+La fuente de [tipografía y colores](https://www.duoc.cl/kit-digital/web/tipografia-colores/) publica negro `#1A1A1A`, blanco `#FFFFFF` y amarillo `#FFB800` como paleta primaria; gris `#666666`, negro `#000000` y gris claro `#EEEEEE` como secundaria, y las familias Merriweather y Lato. Las asignaciones Android siguientes son decisiones de adaptación del proyecto, no un tema móvil oficial.
+
+| Rol inicial del tema | Claro | Oscuro |
+|---|---|---|
+| primary / onPrimary | amarillo / negro #1A1A1A | amarillo / negro #1A1A1A |
+| background / onBackground | blanco / negro #1A1A1A | negro #1A1A1A / blanco |
+| surface / onSurface | blanco / negro #1A1A1A | negro #1A1A1A / blanco |
+| Texto secundario sobre el fondo anterior | gris #666666 | gris claro #EEEEEE |
+
+Esta tabla fija roles principales, no todos los roles de ColorScheme. Completar contenedores, bordes, selección, foco y estados en el tema compartido al implementar la primera pantalla, comprobando sus pares de contraste. Evitar el reemplazo automático por colores dinámicos del dispositivo en el tema de referencia. Los colores semánticos de error/advertencia/éxito se definen por legibilidad y significado; no atribuirlos al kit sin fuente ni usar amarillo como prueba de guardado o sincronización.
+
+Comprobación numérica sRGB, colores opacos: negro #1A1A1A sobre amarillo ≈10,04:1; blanco sobre amarillo ≈1,73:1; gris #666666 sobre blanco ≈5,74:1 y sobre negro #1A1A1A ≈3,03:1. Por tanto, no usar blanco sobre amarillo ni ese gris sobre negro para texto normal. Revisar también el límite visible de controles amarillos sobre blanco; añadir borde oscuro cuando sea necesario. Son cálculos de pares de colores, no una auditoría de accesibilidad de pantallas todavía inexistentes.
+
+Tipografía propuesta: Lato para cuerpo/controles y Merriweather para títulos destacados puntuales. Hasta incorporar archivos y licencias verificadas, conservar las fuentes nativas del tema; no descargar fuentes en tiempo de ejecución ni prometer fidelidad ya implementada. Mantener tamaños escalables en sp y roles Material 3; verificar tildes, ñ y ampliación de texto. No inferir colores de carreras o escuelas a partir del catálogo sintético.
+
+| Fuente visual consultada | Aplicación al proyecto |
+|---|---|
+| [Cajas y bloques](https://www.duoc.cl/kit-digital/web/cajas-bloques/) | Jerarquía de tarjetas para evento, contexto y resumen; controles nativos y texto legible |
+| [Tablas y listas](https://www.duoc.cl/kit-digital/web/tablas-listas/) | Filas con etiquetas claras; preferir listas adaptables en teléfono frente a tablas anchas |
+| [Acordeones](https://www.duoc.cl/kit-digital/web/acordeones/) | Secciones desplegables sólo donde ayuden; anunciar expansión y abrir la sección que contiene un error |
+| [Mensajes y notificaciones](https://www.duoc.cl/kit-digital/web/mensajes-notificaciones/) | Mensaje, icono y acción adecuados; conservar las distinciones de estado de esta guía |
+| [Botones e iconos](https://www.duoc.cl/kit-digital/web/botones-iconos/) | Acción principal, secundaria y destructiva diferenciadas; el kit referencia Feather, pero se usarán vectores/iconos nativos sin importar su runtime web |
+| [Widgets de contenidos](https://www.duoc.cl/kit-digital/web/widget-contenidos/) | Referencia de jerarquía de contenido; sus tarjetas de noticias no agregan un feed ni nuevos RF |
+
+No ocultar consentimiento o información imprescindible dentro de un acordeón sin acceso claro. No copiar contenido comercial, catálogo, imágenes o enlaces de los ejemplos como datos funcionales. La primera revisión visual debe incluir tema claro/oscuro, texto ampliado, TalkBack y controles reales; cualquier desviación se resuelve en el componente/tema compartido.
 
 ## Recorridos
 
