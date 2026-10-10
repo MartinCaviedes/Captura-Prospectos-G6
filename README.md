@@ -1,10 +1,10 @@
-# Captura de Prospectos — Grupo 6
+# 📱 Captura de Prospectos — Grupo 6
 
 Aplicación Android para registrar personas interesadas en estudiar en Duoc UC durante visitas a establecimientos, ferias y otras actividades de captación en terreno.
 
 El proyecto nace del caso **Inscripción de potenciales clientes**, en la asignatura Desarrollo de Aplicaciones Móviles de Duoc UC Viña del Mar. Su objetivo es digitalizar la captura de datos e intereses académicos, reducir la transcripción manual y conservar registros con su consentimiento y contexto, incluso cuando no haya conexión.
 
-## ¿Cómo se utilizará?
+## 🎯 Caso de uso
 
 El recorrido previsto comienza con el captador seleccionando su perfil y evento. Luego registra los datos del prospecto, sus carreras de interés y preferencias, confirma el consentimiento y guarda la inscripción. La aplicación permitirá recuperar esos registros y consultar un resumen del trabajo realizado.
 
@@ -16,7 +16,7 @@ El recorrido previsto comienza con el captador seleccionando su perfil y evento.
 
 La sede donde se realiza el evento y las sedes preferidas por el prospecto se tratan como conceptos distintos. Los intereses académicos se registran con **hasta tres carreras ordenadas por prioridad**.
 
-## Funcionalidades del producto
+## ✨ Funcionalidades del producto
 
 - Captura de datos de contacto y educación, con validación y errores por campo.
 - Selección de carreras, prioridades y preferencias opcionales de sede, jornada e interés.
@@ -28,7 +28,7 @@ La sede donde se realiza el evento y las sedes preferidas por el prospecto se tr
 
 Estas funcionalidades describen el alcance del producto; el estado implementado se indica más abajo. El catálogo de demostración es ficticio y no acredita disponibilidad institucional de una carrera por sede o jornada. La asistencia por cámara utilizará inicialmente un código sintético documentado; el soporte de cédula real requiere verificar su formato.
 
-## Desarrollo en dos entregas
+## 🗓️ Desarrollo en dos entregas
 
 | Etapa | Resultado previsto |
 |---|---|
@@ -37,7 +37,7 @@ Estas funcionalidades describen el alcance del producto; el estado implementado 
 
 La división mantiene los requisitos finales y los controles de calidad. E1 corresponde a P2/P3 y E2 a P4/P5; el detalle de criterios y las aclaraciones académicas pendientes están en [Entregas](docs/ENTREGAS.md).
 
-## Estado actual
+## 🚧 Estado actual
 
 **Base local en desarrollo, actualizada al 09/10/2026.**
 
@@ -47,13 +47,35 @@ La comprobación del 09/10 registra **95 pruebas JVM aprobadas**, build correcto
 
 El desarrollo y la demostración usan únicamente datos ficticios. Los perfiles demo permiten probar el alcance funcional local; la autenticación real pertenece a E2.
 
-## Ejecutar y explorar
+## 🚀 Ejecutar y explorar
 
 Al ejecutar esta versión se verá el selector demo. «Preparar demo local» crea explícitamente perfiles, eventos y catálogo ficticios; después se puede seleccionar perfil/evento y salir de la selección. Abrir la app no selecciona respuestas ni crea prospectos. El formulario y el guardado de inscripciones todavía no están conectados a ese recorrido.
 
 Abrir `android/` en Android Studio y seleccionar `demoDebug`. La [guía Android](android/README.md) describe el JDK/SDK, las versiones fijadas y los comandos para construir y probar esta base. No se necesita infraestructura de nube para el build local.
 
-Tecnologías actuales: **Kotlin, Jetpack Compose, Material 3, Room, SQLCipher y Android Keystore**, con negocio separado de la UI. La [arquitectura](docs/ARCHITECTURE.md) explica la evolución hacia MVVM y servicios remotos.
+## 🛠️ Tecnologías y arquitectura
+
+| Capa | Tecnología | Responsabilidad actual |
+|---|---|---|
+| Interfaz | Jetpack Compose · Material 3 | Pantallas declarativas, componentes y tema inspirado en el kit digital Duoc UC |
+| Estado | ViewModel · StateFlow | Estado observable y acciones de pantalla |
+| Dominio | Kotlin | Validación, consentimiento, prioridades y contratos independientes de Android |
+| Persistencia | Room · SQLite · SQLCipher | Consultas, transacciones, migraciones y base local cifrada |
+| Protección de claves | Android Keystore | Protección de la clave que permite abrir la base |
+| Conectividad | ConnectivityManager | Estado real de la red; no confirma disponibilidad del futuro backend |
+| Construcción y pruebas | Gradle · JUnit · AndroidX Test | Build, reglas de negocio, instrumentación y pruebas Compose |
+
+La UI delega acciones al ViewModel y las operaciones de datos a repositorios. El dominio define reglas y contratos; las implementaciones Room resuelven la persistencia. [Arquitectura y convenciones](docs/ARCHITECTURE.md).
+
+### 💾 ¿Dónde se guardan los datos?
+
+**La base de datos local ya existe.** Al abrir la sesión, la app instancia Room y abre `captures-demo.db` mediante SQLCipher en su almacenamiento privado. La contraseña de cifrado se genera en el dispositivo y se guarda envuelta con una clave de Android Keystore. No requiere crear una cuenta de nube ni configurar credenciales de servidor.
+
+Room utiliza el esquema v3 y migraciones 1→2→3. El selector conserva contexto y catálogo ficticios. El repositorio de admisiones ya permite guardar y recuperar inscripciones consentidas; conectar ese repositorio al formulario es el siguiente incremento. Un error de clave o migración se comunica sin borrar la base.
+
+En E2 se incorporarán servicios remotos y sincronización. La base del teléfono seguirá permitiendo trabajar sin conexión; observar una red disponible no significa que un registro se haya sincronizado.
+
+## 🗂️ Organización del repositorio
 
 ```text
 android/                  Proyecto Android y Gradle wrapper
@@ -65,6 +87,8 @@ docs/                     Requisitos, contratos y evidencia técnica
 .github/                  Plantillas de contribución
 ```
 
+## 📚 Documentación
+
 Para comprender el proyecto, comienza por esta portada y Entregas. Para programar una tarea, consulta SRS y el contrato correspondiente. Para reproducir resultados, utiliza la guía Android y ANDROID_BASELINE. Los documentos de servicios remotos describen la segunda etapa; no son requisitos de instalación de esta versión.
 
 - [Requisitos del producto](docs/SRS.md)
@@ -73,6 +97,6 @@ Para comprender el proyecto, comienza por esta portada y Entregas. Para programa
 - [Índice de documentación](docs/README.md)
 - [Guía de contribución y revisión](CONTRIBUTING.md)
 
-## Equipo
+## 👥 Equipo
 
 Grupo 6: [Martín Caviedes](https://github.com/MartinCaviedes), [Jeremy Hanglin](https://github.com/JeremyDylan122) y [Sebastián Diaz](https://github.com/Sebastianidm). Proyecto académico para el caso Duoc UC, con supervisión externa reportada de THERIONLABS.

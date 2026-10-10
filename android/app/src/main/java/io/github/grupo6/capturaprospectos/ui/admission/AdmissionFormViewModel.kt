@@ -17,7 +17,8 @@ data class AdmissionFormState(
     val message: String? = null,
 ) { override fun toString() = "AdmissionFormState(redacted)" }
 
-/** R1: estado volátil y validación. No recibe repositorios, SavedStateHandle ni almacenamiento. */
+/** Mantiene el borrador de admisión en memoria y expone su validación a la UI.
+ * El borrador se descarta con el ViewModel; la persistencia corresponde al repositorio de admisiones. */
 class AdmissionFormViewModel(
     val environment: AdmissionEnvironment,
     val suggestion: EstablishmentSuggestion? = null,

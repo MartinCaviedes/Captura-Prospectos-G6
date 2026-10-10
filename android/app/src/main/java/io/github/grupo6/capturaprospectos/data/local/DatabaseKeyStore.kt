@@ -52,7 +52,7 @@ internal class DatabaseKeyStore(private val context: Context, private val databa
                 password
             } catch (error: Exception) { password.fill(0); throw error }
         } catch (error: Exception) {
-            // No reset, borrado, logging de material criptográfico ni excepción con secretos.
+            // Conserva la base y el material existente; el error público omite detalles criptográficos.
             throw DatabaseKeyUnavailable()
         }
     }

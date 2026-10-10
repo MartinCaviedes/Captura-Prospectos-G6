@@ -1,10 +1,8 @@
 # Captura de Prospectos — Android
 
-Incremento 09/10: ViewModel y Route preparados, 71 JVM aprobadas; build e instrumental correctos; Lint 19 avisos/0 errores. Sin ejecución Android nueva ni conexión a Room/MainActivity. [Estado y pasos restantes](../docs/CONTEXT_UI.md).
+Base R0/R1: selector de perfiles y eventos conectado a Room cifrado, observador de red y componentes del formulario F2027. El formulario todavía no se abre desde MainActivity ni guarda desde la UI. Cámara/GPS reales, bandeja y edición/anulación corresponden a los próximos incrementos.
 
-Incremento 08/10: tema y componentes de contexto preparados, con seis pruebas UI aprobadas mediante apertura asistida por ADB en MIUI. MainActivity conserva la plantilla; conexión a Room y revisión humana pendientes. Ver [CONTEXT_UI](../docs/CONTEXT_UI.md).
-
-Base E1 al 06/10/2026, implementación `2298220`, documentación previa `d658e76`. Dominio/persistencia F2027 y contexto/catálogo demo implementados; UI de plantilla. [Requisitos](../docs/SRS.md), [alcance E1/E2](../docs/ENTREGAS.md) y [evidencia](../docs/ANDROID_BASELINE.md).
+Consultar [R0](../docs/ROUND0_BASE.md), [R1](../docs/ROUND1_INTERFACES.md) y [evidencia de pruebas](../docs/ANDROID_BASELINE.md).
 
 ## Entorno fijado
 
@@ -31,9 +29,9 @@ Las versiones efectivas están en `gradle/libs.versions.toml`, wrapper y build d
 .\gradlew.bat :app:testDemoDebugUnitTest :app:assembleDemoDebug :app:lintDemoDebug :app:assembleDemoDebugAndroidTest --console=plain
 ```
 
-En Linux/macOS usar `./gradlew` con el mismo JDK/SDK; esos entornos todavía no se han reproducido. Los cuatro pasos anteriores no activan un backend ni cargan el contexto desde la pantalla.
+En Linux/macOS usar `./gradlew` con el mismo JDK/SDK; esos entornos todavía no se han reproducido. La variante demo funciona sin backend. En el selector, «Preparar demo local» inicializa explícitamente perfiles, eventos y catálogo ficticios; no crea prospectos ni selecciona un contexto automáticamente.
 
-Resultados comprobados en Windows: 58 JVM sin fallos y 17 avisos Lint/0 errores. APK principal: `app/build/outputs/apk/demo/debug/app-demo-debug.apk`; APK de pruebas: `app/build/outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk`; Lint: `app/build/reports/lint-results-demoDebug.html`.
+Evidencia R0/R1 del 09/10: 95 JVM aprobadas y Lint sin errores. Los avisos y condiciones de cada ejecución están identificados en ANDROID_BASELINE. APK principal: `app/build/outputs/apk/demo/debug/app-demo-debug.apk`; APK de pruebas: `app/build/outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk`; Lint: `app/build/reports/lint-results-demoDebug.html`.
 
 ## Pruebas Android
 
@@ -51,7 +49,7 @@ adb install -r -t app/build/outputs/apk/androidTest/demo/debug/app-demo-debug-an
 adb shell am instrument -w -r io.github.grupo6.capturaprospectos.demo.debug.test/androidx.test.runner.AndroidJUnitRunner
 ```
 
-Esta suite pasó con `OK (24 tests)` sobre Room v3 en Android 14/API 34, 23.178 s. Comprobar resultados individuales y ausencia de fallos/omisiones. La alternativa no concede permisos peligrosos: futuros tests de cámara/GPS necesitarán su propio manejo de permisos.
+La evidencia más reciente se obtuvo en grupos separados: 28 pruebas de datos/red, una de selector con Room, una de transición Wi-Fi y una de formulario. En MIUI las pruebas UI requirieron apertura asistida por ADB; el comando general no acredita ejecución desatendida de esos casos. La transición Wi-Fi requiere habilitación y preparación específicas; consultar ANDROID_BASELINE. Comprobar resultados individuales y omisiones. La alternativa no concede permisos peligrosos: futuros tests de cámara/GPS necesitarán su propio manejo de permisos.
 
 ## Implementación y continuidad
 
@@ -59,7 +57,7 @@ Nuevas altas: `domain.admission` → `AdmissionRepository` / `RoomAdmissionRepos
 
 Room v3 conserva esquemas 1/2/3 y migraciones 1→2→3. No inventa nombres separados, nacimiento, prioridades ni sedes para registros antiguos. La clave SQLCipher se protege con Keystore; fallo de clave no borra la base. No usar migración destructiva.
 
-`RoomDemoContextRepository.initialize()` siembra perfiles/eventos/catálogo explícitamente, sin prospectos ni selección automática. La pantalla aún no lo llama. Ver [DEMO_CONTEXT](../docs/DEMO_CONTEXT.md) para el consumidor y sus estados.
+`RoomDemoContextRepository.initialize()` siembra perfiles/eventos/catálogo explícitamente, sin prospectos ni selección automática. El botón «Preparar demo local» del selector invoca esta inicialización. Ver [DEMO_CONTEXT](../docs/DEMO_CONTEXT.md) para el consumidor y sus estados.
 
 Verificación SQL adicional desde esta carpeta, con Python 3 y sin librerías externas:
 
@@ -70,4 +68,4 @@ python tools/verify_context_migration_sql.py
 
 Ambos controles pasaron en SQLite del host; no sustituyen Room/SQLCipher/Keystore en Android.
 
-Faltan UI, edición/anulación, recursos nativos, administración, métricas y revisión cruzada. Backup/transferencia están excluidos por configuración, pendientes de prueba efectiva. El APK debug no acredita release firmado ni RF completos. No guardar secretos, datos reales, build, cachés, local.properties o claves en Git.
+Faltan conectar el formulario al guardado y completar bandeja, edición/anulación, cámara/GPS, administración, métricas y revisión cruzada. Backup/transferencia están excluidos por configuración, pendientes de prueba efectiva. El APK debug no acredita release firmado ni RF completos. No guardar secretos, datos reales, build, cachés, local.properties o claves en Git.

@@ -26,7 +26,8 @@ class FormActions(
     val site: (UUID) -> Unit, val mode: (AcceptanceMode) -> Unit, val consent: (Boolean) -> Unit,
     val validate: (SaveIntent) -> Unit, val discard: () -> Unit,
 )
-/** Punto de composición R1, todavía fuera de MainActivity. R2 añadirá navegación y guardado. */
+/** Compone el formulario a partir del estado y las acciones del ViewModel.
+ * La navegación y la confirmación de guardado pertenecen al consumidor. */
 @Composable fun AdmissionFormRoute(vm: AdmissionFormViewModel, modifier: Modifier = Modifier) {
     val state by vm.uiState.collectAsStateWithLifecycle()
     AdmissionFormComponents(state, vm.environment, vm.suggestion, remember(vm) {
@@ -40,7 +41,7 @@ class FormActions(
     state: AdmissionFormState, environment: AdmissionEnvironment,
     suggestion: EstablishmentSuggestion?, actions: FormActions, modifier: Modifier = Modifier,
 ) {
-    // La búsqueda también queda sólo en memoria; nunca rememberSaveable.
+    // La búsqueda se conserva sólo durante esta composición para evitar restaurar datos personales.
     var search by remember { mutableStateOf("") }
     var confirmDiscard by remember { mutableStateOf(false) }
     val input = state.input
