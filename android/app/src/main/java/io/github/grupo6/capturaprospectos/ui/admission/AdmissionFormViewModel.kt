@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.grupo6.capturaprospectos.domain.admission.*
 import io.github.grupo6.capturaprospectos.domain.capture.*
 import io.github.grupo6.capturaprospectos.domain.context.EstablishmentSuggestion
+import io.github.grupo6.capturaprospectos.domain.device.*
 import java.time.Clock
 import java.util.UUID
 import kotlinx.coroutines.Job
@@ -15,13 +16,21 @@ import kotlinx.coroutines.launch
 
 data class AdmissionFormState(
     val input: AdmissionInput = AdmissionInput(),
-    val mode: AcceptanceMode? = null, val consent: ConsentEvidence? = null,
-    val pendingActivity: CurrentActivity? = null, val issues: List<AdmissionIssue> = emptyList(),
+    val mode: AcceptanceMode? = null,
+    val consent: ConsentEvidence? = null,
+    val pendingActivity: CurrentActivity? = null,
+    val issues: List<AdmissionIssue> = emptyList(),
     val message: String? = null,
     val isSaving: Boolean = false,
     val isSaved: Boolean = false,
     val savedId: UUID? = null,
     val savedState: CaptureState? = null,
+    val location: CaptureLocation? = null,
+    val isAcquiringLocation: Boolean = false,
+    val locationStatus: String? = null,
+    val qrCandidate: QrCandidate? = null,
+    val qrError: String? = null,
+    val isQrScannerOpen: Boolean = false,
 ) { override fun toString() = "AdmissionFormState(redacted)" }
 
 /** Mantiene el borrador de admisión en memoria y expone su validación y persistencia a la UI.
@@ -32,9 +41,12 @@ class AdmissionFormViewModel(
     private val clock: Clock = Clock.systemUTC(),
     private val prepare: PrepareAdmission = PrepareAdmission(),
     private val repository: AdmissionRepository? = null,
+    private val locationProvider: LocationProvider? = null,
+    private val qrParser: QrParser = DemoQrParser(),
 ) : ViewModel() {
     private val state = MutableStateFlow(AdmissionFormState())
     val uiState = state.asStateFlow()
+
     private fun change(transform: (AdmissionInput) -> AdmissionInput) {
         state.value = state.value.copy(
             input = transform(state.value.input),
@@ -45,6 +57,7 @@ class AdmissionFormViewModel(
             savedState = null,
         )
     }
+
     @MainThread fun text(field: AdmissionField, value: String) = change { input -> when (field) {
         AdmissionField.GIVEN_NAMES -> input.copy(givenNames = value)
         AdmissionField.FAMILY_NAMES -> input.copy(familyNames = value)
@@ -59,6 +72,7 @@ class AdmissionFormViewModel(
         AdmissionField.NOTES -> input.copy(notes = value)
         else -> input // Sin catálogo de modalidad/canal: no inventar opciones.
     } }
+
     @MainThread fun activity(value: CurrentActivity) {
         val input = state.value.input
         if (input.currentActivity == CurrentActivity.OTHER && value != CurrentActivity.OTHER && !input.currentActivityOther.isNullOrBlank()) {
@@ -66,19 +80,23 @@ class AdmissionFormViewModel(
         }
         change { it.copy(currentActivity = value, currentActivityOther = if (value == CurrentActivity.OTHER) it.currentActivityOther else null) }
     }
+
     @MainThread fun confirmActivityDiscard(confirmed: Boolean) {
         val pending = state.value.pendingActivity ?: return
         if (confirmed) change { it.copy(currentActivity = pending, currentActivityOther = null) }
         state.value = state.value.copy(pendingActivity = null)
     }
+
     @MainThread fun acceptEstablishmentSuggestion() {
         val value = suggestion ?: return
         change { it.copy(establishment = value.name, establishmentCommune = value.commune) }
     }
+
     @MainThread fun personal(value: PersonalOption?) = change { it.copy(formPersonalOption = value) }
     @MainThread fun schedule(value: PreferredSchedule?) = change { it.copy(preferredSchedule = value) }
     @MainThread fun interestLevel(value: InterestLevel?) = change { it.copy(interestLevel = value) }
     @MainThread fun motivation(value: Motivation?) = change { it.copy(motivation = value) }
+
     @MainThread fun program(id: UUID) {
         if (environment.programs.none { it.id == id && it.enabled }) return
         change { input ->
@@ -88,6 +106,7 @@ class AdmissionFormViewModel(
             input.copy(interests = next.mapIndexed { index, item -> item.copy(priority = index + 1) })
         }
     }
+
     @MainThread fun moveProgram(id: UUID, direction: Int) {
         if (direction != -1 && direction != 1) return
         change { input ->
@@ -97,28 +116,163 @@ class AdmissionFormViewModel(
             input.copy(interests = items.mapIndexed { index, item -> item.copy(priority = index + 1) })
         }
     }
+
     @MainThread fun mention(programId: UUID, mentionId: UUID?) {
         val option = environment.programs.singleOrNull { it.id == programId } ?: return
         if (mentionId != null && mentionId !in option.mentions) return
         change { input -> input.copy(interests = input.interests.map { if (it.programId == programId) it.copy(mentionId = mentionId) else it }) }
     }
+
     @MainThread fun site(id: UUID) {
         if (environment.sites.none { it.id == id && it.enabled }) return
         change { input -> input.copy(preferredSiteIds = if (id in input.preferredSiteIds) input.preferredSiteIds - id else input.preferredSiteIds + id) }
     }
+
     @MainThread fun mode(value: AcceptanceMode) {
         state.value = state.value.copy(mode = value, consent = null, issues = emptyList(), message = null)
     }
+
     @MainThread fun consent(accepted: Boolean) {
         val current = state.value
         val evidence = if (accepted && current.mode != null) ConsentEvidence(environment.context.consentVersion,
             clock.instant(), environment.context.actor.id, current.mode) else null
         state.value = current.copy(consent = evidence, issues = emptyList(), message = null)
     }
+
+    // --- Ubicación GPS y contextual (RF04) ---
+
+    @MainThread
+    fun requestLocation(customProvider: LocationProvider? = null): Job? {
+        val current = state.value
+        if (current.isAcquiringLocation) return null
+        val provider = customProvider ?: locationProvider ?: run {
+            state.value = current.copy(locationStatus = "Proveedor de ubicación no disponible.")
+            return null
+        }
+        state.value = current.copy(isAcquiringLocation = true, locationStatus = "Adquiriendo ubicación GPS…")
+        return viewModelScope.launch {
+            val result = provider.request(LocationRequestDefaults.timeout)
+            val latest = state.value
+            val context = environment.context
+            val now = clock.instant()
+            state.value = when (result) {
+                is LocationResult.Candidate -> {
+                    val policy = LocationPolicy()
+                    val isValid = policy.isValid(result.position, now, context.actor.id, context.event.location)
+                    if (isValid) {
+                        latest.copy(
+                            isAcquiringLocation = false,
+                            location = result.position,
+                            locationStatus = "Ubicación GPS confirmada (precisión ${result.position.accuracyMeters.toInt()}m).",
+                        )
+                    } else {
+                        latest.copy(
+                            isAcquiringLocation = false,
+                            locationStatus = "Ubicación GPS fuera de los umbrales de política local (5 min / 100 m).",
+                        )
+                    }
+                }
+                LocationResult.PermissionDenied -> latest.copy(
+                    isAcquiringLocation = false,
+                    locationStatus = "Permiso de ubicación denegado en el dispositivo.",
+                )
+                LocationResult.ServicesDisabled -> latest.copy(
+                    isAcquiringLocation = false,
+                    locationStatus = "Servicios de ubicación (GPS) desactivados.",
+                )
+                LocationResult.TimedOut -> latest.copy(
+                    isAcquiringLocation = false,
+                    locationStatus = "Tiempo de espera agotado al adquirir ubicación (10s).",
+                )
+                LocationResult.Unavailable -> latest.copy(
+                    isAcquiringLocation = false,
+                    locationStatus = "Ubicación GPS no disponible en este momento.",
+                )
+            }
+        }
+    }
+
+    @MainThread
+    fun confirmEventLocation() {
+        val eventLoc = environment.context.event.location
+        if (eventLoc != null) {
+            val confirmed = CaptureLocation.EventConfirmed(
+                coordinates = eventLoc,
+                confirmedAt = clock.instant(),
+                confirmedBy = environment.context.actor.id,
+            )
+            state.value = state.value.copy(
+                location = confirmed,
+                locationStatus = "Ubicación confirmada según sede del evento.",
+            )
+        } else {
+            state.value = state.value.copy(
+                locationStatus = "El evento no tiene coordenadas declaradas.",
+            )
+        }
+    }
+
+    @MainThread
+    fun clearLocation() {
+        state.value = state.value.copy(location = null, locationStatus = null)
+    }
+
+    // --- Asistencia por Cámara / QR sintético (RF11) ---
+
+    @MainThread
+    fun openQrScanner() {
+        state.value = state.value.copy(isQrScannerOpen = true, qrCandidate = null, qrError = null)
+    }
+
+    @MainThread
+    fun closeQrScanner() {
+        state.value = state.value.copy(isQrScannerOpen = false, qrCandidate = null, qrError = null)
+    }
+
+    @MainThread
+    fun processQrPayload(rawPayload: String) {
+        when (val result = qrParser.parse(rawPayload)) {
+            is QrResult.Candidate -> {
+                state.value = state.value.copy(qrCandidate = result.value, qrError = null)
+            }
+            QrResult.Unsupported -> {
+                state.value = state.value.copy(
+                    qrCandidate = null,
+                    qrError = "Formato de código no compatible. Debe ser formato sintético de demo (G6DEMO:1).",
+                )
+            }
+            QrResult.Invalid -> {
+                state.value = state.value.copy(
+                    qrCandidate = null,
+                    qrError = "Código inválido o datos mal formados.",
+                )
+            }
+        }
+    }
+
+    @MainThread
+    fun applyQrCandidate() {
+        val candidate = state.value.qrCandidate ?: return
+        change { input ->
+            input.copy(
+                rut = candidate.rut,
+                givenNames = if (input.givenNames.isBlank()) candidate.fullName else input.givenNames,
+            )
+        }
+        state.value = state.value.copy(isQrScannerOpen = false, qrCandidate = null, qrError = null)
+    }
+
+    @MainThread
+    fun dismissQrError() {
+        state.value = state.value.copy(qrError = null)
+    }
+
+    // --- Validación y persistencia (FORM-01-B) ---
+
     @MainThread fun validate(intent: SaveIntent) {
         val current = state.value; val context = environment.context
         val result = prepare.prepare(current.input, intent, current.consent, context.consentVersion,
-            context.actor.id, environment.programs, environment.sites, null, context.event.location,
+            context.actor.id, environment.programs, environment.sites, current.location, context.event.location,
             clock.instant(), context.event.timeZone)
         state.value = when (result) {
             AdmissionPreparation.ConsentRequired -> current.copy(issues = listOf(AdmissionIssue(AdmissionField.CONSENT, ValidationCode.REQUIRED)), message = "Registra el consentimiento para validar.")
@@ -126,6 +280,7 @@ class AdmissionFormViewModel(
             is AdmissionPreparation.Prepared -> current.copy(issues = emptyList(), message = "Validación local correcta. No se ha guardado ni enviado la inscripción.")
         }
     }
+
     @MainThread
     fun save(intent: SaveIntent): Job? {
         val current = state.value
@@ -141,7 +296,7 @@ class AdmissionFormViewModel(
                 intent = intent,
                 consent = current.consent,
                 eventId = environment.context.event.id,
-                location = null,
+                location = current.location,
             )
             val result = repo.create(request)
             val latest = state.value
@@ -182,6 +337,7 @@ class AdmissionFormViewModel(
             }
         }
     }
+
     @MainThread fun reset() { state.value = AdmissionFormState() }
     @MainThread fun discard() { state.value = AdmissionFormState() }
     override fun onCleared() { state.value = AdmissionFormState() }

@@ -20,6 +20,7 @@ sealed interface ContextSessionState {
         val viewModel: DemoContextViewModel,
         val admissionRepository: AdmissionRepository? = null,
         val recordRepository: RecordRepository? = null,
+        val locationProvider: io.github.grupo6.capturaprospectos.domain.device.LocationProvider? = null,
     ) : ContextSessionState
 }
 
@@ -54,7 +55,7 @@ class ContextSessionOwner(
                         return DemoContextViewModel(requireNotNull(resource).repository) as T
                     }
                 })[DemoContextViewModel::class.java]
-                state.value = ContextSessionState.Ready(consumer, resource?.admissionRepository, resource?.recordRepository)
+                state.value = ContextSessionState.Ready(consumer, resource?.admissionRepository, resource?.recordRepository, resource?.locationProvider)
                 awaitCancellation()
             } catch (_: ContextOpenFailure) {
                 state.value = ContextSessionState.Unavailable

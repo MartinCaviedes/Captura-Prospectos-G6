@@ -95,11 +95,12 @@ class MainActivity : ComponentActivity() {
                                                 sites = snapshot.catalog.sites,
                                             )
                                         }
-                                        val formVm = remember(profile.actor.id, event.id, current.admissionRepository) {
+                                        val formVm = remember(profile.actor.id, event.id, current.admissionRepository, current.locationProvider) {
                                             AdmissionFormViewModel(
                                                 environment = env,
                                                 suggestion = snapshot.establishmentSuggestion,
                                                 repository = current.admissionRepository,
+                                                locationProvider = current.locationProvider,
                                             )
                                         }
                                         AdmissionFormRoute(
