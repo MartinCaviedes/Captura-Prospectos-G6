@@ -40,6 +40,8 @@ fun MainHubScreen(
     modifier: Modifier = Modifier,
     onOpenTray: () -> Unit = {},
     onRefreshMetrics: () -> Unit = {},
+    onCreateEvent: () -> Unit = {},
+    onEditEvent: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier,
@@ -243,6 +245,27 @@ fun MainHubScreen(
                             "${state.event.assignedCaptorIds.size} captador(es) asignados a ${state.event.name}.",
                             style = MaterialTheme.typography.bodySmall,
                         )
+
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                        Text("Administración de Eventos (RF13):", style = MaterialTheme.typography.titleSmall)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            OutlinedButton(
+                                onClick = onEditEvent,
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Text("Editar evento")
+                            }
+                            FilledTonalButton(
+                                onClick = onCreateEvent,
+                                modifier = Modifier.weight(1f),
+                            ) {
+                                Text("Nuevo evento")
+                            }
+                        }
                     }
                 }
             }

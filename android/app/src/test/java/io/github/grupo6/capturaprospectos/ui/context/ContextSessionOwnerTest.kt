@@ -65,4 +65,6 @@ private class SessionRepository : DemoContextRepository {
     override suspend fun clearSelection() = error("Sin reset implícito")
     override suspend fun currentActor(): LocalActor? = null
     override suspend fun environment(eventId: UUID): AdmissionEnvironment? = null
+    override suspend fun saveEvent(command: io.github.grupo6.capturaprospectos.domain.context.SaveDemoEvent): io.github.grupo6.capturaprospectos.domain.context.SaveEventResult =
+        io.github.grupo6.capturaprospectos.domain.context.SaveEventResult.Success(UUID.randomUUID())
 }

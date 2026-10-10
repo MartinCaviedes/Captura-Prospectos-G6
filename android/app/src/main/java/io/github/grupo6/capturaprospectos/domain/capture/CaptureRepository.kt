@@ -30,6 +30,15 @@ object LocalCaptureAccess {
     fun canRead(actor: LocalActor, ownerId: UUID, siteId: UUID, state: CaptureState): Boolean =
         siteId in actor.siteIds && (actor.id == ownerId ||
             (actor.role == LocalRole.SUPERVISOR && state != CaptureState.DRAFT))
+
+    fun canSupervise(actor: LocalActor, event: CaptureEvent): Boolean =
+        actor.role == LocalRole.SUPERVISOR && event.siteId in actor.siteIds
+
+    fun canAccessEvent(actor: LocalActor, event: CaptureEvent): Boolean =
+        when (actor.role) {
+            LocalRole.CAPTOR -> canCreate(actor, event)
+            LocalRole.SUPERVISOR -> canSupervise(actor, event)
+        }
 }
 
 data class NewCapture(

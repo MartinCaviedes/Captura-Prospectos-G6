@@ -21,10 +21,13 @@ fun MainHubRoute(
     modifier: Modifier = Modifier,
     onOpenTray: () -> Unit = {},
     recordRepository: RecordRepository? = null,
+    contextViewModel: io.github.grupo6.capturaprospectos.ui.context.DemoContextViewModel? = null,
 ) {
     val connectivity by connectivityObserver.observe().collectAsStateWithLifecycle(initialValue = ConnectivityStatus.UNKNOWN)
     var metrics by remember { mutableStateOf<DeviceMetrics?>(null) }
     var isLoadingMetrics by remember { mutableStateOf(false) }
+    var showEventDialog by remember { mutableStateOf(false) }
+    var eventToEdit by remember { mutableStateOf<CaptureEvent?>(null) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(profile.actor.id, event.id, recordRepository) {
@@ -50,6 +53,14 @@ fun MainHubRoute(
         onChangeContext = onChangeContext,
         modifier = modifier,
         onOpenTray = onOpenTray,
+        onCreateEvent = {
+            eventToEdit = null
+            showEventDialog = true
+        },
+        onEditEvent = {
+            eventToEdit = event
+            showEventDialog = true
+        },
         onRefreshMetrics = {
             if (recordRepository != null) {
                 scope.launch {
@@ -63,4 +74,29 @@ fun MainHubRoute(
             }
         },
     )
+
+    if (showEventDialog && contextViewModel != null) {
+        val ready = contextViewModel.uiState.value.context as? io.github.grupo6.capturaprospectos.domain.context.DemoContextState.Ready
+        val snapshot = ready?.snapshot
+        val authorizedSites = snapshot?.catalog?.sites?.filter { it.id in profile.actor.siteIds }.orEmpty()
+        val captors = snapshot?.profiles?.filter { it.actor.role == io.github.grupo6.capturaprospectos.domain.capture.LocalRole.CAPTOR }.orEmpty()
+        io.github.grupo6.capturaprospectos.ui.context.EventAdminDialog(
+            eventToEdit = eventToEdit,
+            availableSites = authorizedSites,
+            availableCaptors = captors,
+            onDismiss = { showEventDialog = false },
+            onSave = { cmd ->
+                contextViewModel.saveEvent(cmd) { result ->
+                    if (result is io.github.grupo6.capturaprospectos.domain.context.SaveEventResult.Success) {
+                        showEventDialog = false
+                        if (recordRepository != null) {
+                            scope.launch {
+                                metrics = recordRepository.getMetrics(result.eventId)
+                            }
+                        }
+                    }
+                }
+            },
+        )
+    }
 }

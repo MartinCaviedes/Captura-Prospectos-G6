@@ -35,6 +35,7 @@ fun DemoContextScreen(
     onClearSelection: () -> Unit,
     modifier: Modifier = Modifier,
     onContinueToHub: () -> Unit = {},
+    onCreateEvent: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier,
@@ -93,8 +94,39 @@ fun DemoContextScreen(
                 }
                 when {
                     snapshot.currentProfile == null -> item { Text("Elige un perfil para consultar sus eventos.") }
-                    snapshot.currentProfile.actor.role == LocalRole.SUPERVISOR -> item {
-                        Text("Perfil supervisor: la selección de eventos para capturar no está disponible. La supervisión se incorporará en otro incremento.")
+                    snapshot.currentProfile.actor.role == LocalRole.SUPERVISOR -> {
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                            ) {
+                                Text("2. Evento para supervisar", style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.semantics { heading() })
+                                FilledTonalButton(onClick = onCreateEvent, enabled = !state.busy) {
+                                    Text("Nuevo evento")
+                                }
+                            }
+                        }
+                        if (snapshot.availableEvents.isEmpty()) item {
+                            Text("No hay eventos configurados para tus sedes. Pulsa 'Nuevo evento' para crear uno.")
+                        }
+                        items(snapshot.availableEvents, key = { "event-${it.id}" }) { event ->
+                            ContextChoice(event.name, snapshot.selectedEvent?.id == event.id,
+                                enabled = !state.busy, onClick = { onEventSelected(event.id) })
+                        }
+                        snapshot.selectedEvent?.let { event -> item {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Evento en supervisión: ${event.name}.", style = MaterialTheme.typography.bodyMedium)
+                                Button(
+                                    onClick = onContinueToHub,
+                                    enabled = !state.busy,
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text("Ir al panel de supervisión")
+                                }
+                            }
+                        } }
                     }
                     else -> {
                         item { Text("2. Selecciona un evento", style = MaterialTheme.typography.titleLarge,

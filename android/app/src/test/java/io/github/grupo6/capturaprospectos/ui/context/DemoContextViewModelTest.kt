@@ -135,6 +135,39 @@ class DemoContextViewModelTest {
         assertEquals(repo.other, (vm.uiState.value.context as DemoContextState.Ready).snapshot.currentProfile)
         assertNull((vm.uiState.value.context as DemoContextState.Ready).snapshot.selectedEvent)
     }
+
+    @Test fun saveEventDelegatesToRepositoryAndUpdatesMessage() = runTest(dispatcher) {
+        ready()
+        val cmd = SaveDemoEvent(
+            siteId = repo.profile.actor.siteIds.first(),
+            name = "Nuevo Evento Demo",
+            startsAt = Instant.EPOCH,
+            endsAt = Instant.EPOCH.plusSeconds(3600),
+        )
+        var callbackInvoked = false
+        vm.saveEvent(cmd) { result ->
+            callbackInvoked = true
+            assertTrue(result is SaveEventResult.Success)
+        }
+        advanceUntilIdle()
+        assertTrue(callbackInvoked)
+        assertEquals(listOf("saveEvent:Nuevo Evento Demo", "snapshot"), repo.calls)
+        assertTrue(vm.uiState.value.message!!.contains("guardado correctamente"))
+    }
+
+    @Test fun saveEventUnauthorizedDisplaysFeedback() = runTest(dispatcher) {
+        ready()
+        repo.saveResult = SaveEventResult.Unauthorized
+        val cmd = SaveDemoEvent(
+            siteId = UUID.randomUUID(),
+            name = "Evento No Autorizado",
+            startsAt = Instant.EPOCH,
+            endsAt = Instant.EPOCH.plusSeconds(3600),
+        )
+        vm.saveEvent(cmd)
+        advanceUntilIdle()
+        assertTrue(vm.uiState.value.message!!.contains("No tienes permisos"))
+    }
 }
 
 /** Doble de contrato: no acredita permisos, Room ni persistencia real. */
@@ -172,4 +205,12 @@ private class FakeContextRepository : DemoContextRepository {
     override suspend fun clearSelection() = change("clear") { state.value = DemoContextState.Ready(base) }
     override suspend fun currentActor(): LocalActor? = error("Fuera del alcance del ViewModel")
     override suspend fun environment(eventId: UUID): AdmissionEnvironment? = error("Fuera del alcance del ViewModel")
+
+    var saveResult: SaveEventResult = SaveEventResult.Success(UUID(0, 3))
+    var lastSaveCommand: SaveDemoEvent? = null
+    override suspend fun saveEvent(command: SaveDemoEvent): SaveEventResult {
+        calls += "saveEvent:${command.name}"
+        lastSaveCommand = command
+        return saveResult
+    }
 }

@@ -56,6 +56,37 @@ class DemoContextViewModel(private val repository: DemoContextRepository) : View
     }
 
     @MainThread
+    fun saveEvent(
+        command: io.github.grupo6.capturaprospectos.domain.context.SaveDemoEvent,
+        onResult: (io.github.grupo6.capturaprospectos.domain.context.SaveEventResult) -> Unit = {},
+    ): Job? {
+        if (uiState.value.busy || !viewModelScope.isActive) return null
+        mutableState.update { it.copy(busy = true, message = null) }
+        return viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            try {
+                observation?.cancelAndJoin()
+                val result = repository.saveEvent(command)
+                val context = repository.snapshot()
+                val msg = when (result) {
+                    is io.github.grupo6.capturaprospectos.domain.context.SaveEventResult.Success ->
+                        "Evento guardado correctamente en este dispositivo."
+                    io.github.grupo6.capturaprospectos.domain.context.SaveEventResult.Unauthorized ->
+                        "No tienes permisos de supervisor para administrar eventos en esta sede."
+                    is io.github.grupo6.capturaprospectos.domain.context.SaveEventResult.Invalid ->
+                        result.issues.joinToString(" ")
+                    io.github.grupo6.capturaprospectos.domain.context.SaveEventResult.StorageUnavailable ->
+                        "No se pudo guardar el evento localmente. Reintenta."
+                }
+                mutableState.update { it.copy(context = context, message = msg) }
+                onResult(result)
+            } finally {
+                mutableState.update { it.copy(busy = false) }
+                if (viewModelScope.isActive) observe()
+            }
+        }
+    }
+
+    @MainThread
     fun retry(): Job? = perform { null }
 
     /** Una acción en curso descarta nuevos clics: no encola eventos contra un perfil obsoleto. */
