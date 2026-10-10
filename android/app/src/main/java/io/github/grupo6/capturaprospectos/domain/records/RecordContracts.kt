@@ -54,9 +54,31 @@ sealed interface RecordMutationResult {
     data object DuplicateRestricted : RecordMutationResult
     data object StorageUnavailable : RecordMutationResult
 }
+
+data class SiteMetrics(
+    val siteId: UUID,
+    val siteName: String,
+    val totalCount: Int,
+    val readyCount: Int,
+    val draftCount: Int,
+    val needsContextCount: Int,
+    val cancelledCount: Int,
+)
+
+data class DeviceMetrics(
+    val eventId: UUID,
+    val totalCaptures: Int,
+    val readyCount: Int,
+    val draftCount: Int,
+    val needsContextCount: Int,
+    val cancelledCount: Int,
+    val siteMetrics: List<SiteMetrics> = emptyList(),
+)
+
 interface RecordRepository {
     suspend fun list(query: RecordQuery): RecordPageResult
     suspend fun get(id: UUID): ReadAdmissionResult
+    suspend fun getMetrics(eventId: UUID): DeviceMetrics
     suspend fun edit(command: EditAdmission): RecordMutationResult
     suspend fun cancel(command: CancelRecord): RecordMutationResult
 }

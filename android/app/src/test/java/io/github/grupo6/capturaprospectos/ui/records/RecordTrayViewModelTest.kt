@@ -275,6 +275,9 @@ private class FakeRecordRepository : RecordRepository {
 
     override suspend fun get(id: UUID): ReadAdmissionResult = getResult
 
+    var metricsResult: DeviceMetrics = DeviceMetrics(UUID.randomUUID(), 0, 0, 0, 0, 0)
+    override suspend fun getMetrics(eventId: UUID): DeviceMetrics = metricsResult
+
     override suspend fun cancel(command: CancelRecord): RecordMutationResult {
         lastCancel = command
         return cancelResult

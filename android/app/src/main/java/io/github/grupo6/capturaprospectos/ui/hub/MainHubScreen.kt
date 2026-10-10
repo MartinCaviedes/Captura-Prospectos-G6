@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -16,6 +17,8 @@ import io.github.grupo6.capturaprospectos.domain.capture.LocalActor
 import io.github.grupo6.capturaprospectos.domain.capture.LocalRole
 import io.github.grupo6.capturaprospectos.domain.context.DemoProfile
 import io.github.grupo6.capturaprospectos.domain.device.ConnectivityStatus
+import io.github.grupo6.capturaprospectos.domain.records.DeviceMetrics
+import io.github.grupo6.capturaprospectos.domain.records.SiteMetrics
 import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
 import java.time.Instant
 import java.time.ZoneId
@@ -25,6 +28,8 @@ data class MainHubUiState(
     val profile: DemoProfile,
     val event: CaptureEvent,
     val connectivity: ConnectivityStatus = ConnectivityStatus.UNKNOWN,
+    val metrics: DeviceMetrics? = null,
+    val isLoadingMetrics: Boolean = false,
 )
 
 @Composable
@@ -34,27 +39,8 @@ fun MainHubScreen(
     onChangeContext: () -> Unit,
     modifier: Modifier = Modifier,
     onOpenTray: () -> Unit = {},
+    onRefreshMetrics: () -> Unit = {},
 ) {
-    var showTrayDialog by remember { mutableStateOf(false) }
-
-    if (showTrayDialog) {
-        AlertDialog(
-            onDismissRequest = { showTrayDialog = false },
-            title = { Text("Bandeja de Capturas") },
-            text = {
-                Text(
-                    "La bandeja de consulta, edición y anulación está programada para la siguiente tarea (RECORDS-01-B). " +
-                        "Todas las inscripciones y borradores se guardan con seguridad en la base de datos local cifrada de este dispositivo."
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = { showTrayDialog = false }) {
-                    Text("Entendido")
-                }
-            }
-        )
-    }
-
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -73,7 +59,7 @@ fun MainHubScreen(
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Text(
-                    "Demostración local — Ronda 2",
+                    "Demostración local — Entrega 1",
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
@@ -142,6 +128,148 @@ fun MainHubScreen(
                 }
             }
         }
+
+        // Resumen Operativo Local (RF09)
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            "Resumen operativo (este dispositivo)",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.semantics { heading() },
+                        )
+                        TextButton(onClick = onRefreshMetrics) {
+                            Text("Actualizar")
+                        }
+                    }
+
+                    Text(
+                        "Métricas calculadas exclusivamente sobre datos almacenados en este equipo. En E1 no se consolidan registros de otros teléfonos ni servidores.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+
+                    if (state.isLoadingMetrics) {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    }
+
+                    val m = state.metrics
+                    if (m != null) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            MetricStatCard("Total", "${m.totalCaptures}", MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.weight(1f))
+                            MetricStatCard("Confirmadas", "${m.readyCount}", MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.weight(1f))
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            MetricStatCard("Borradores", "${m.draftCount}", MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.weight(1f))
+                            MetricStatCard("Falta contexto", "${m.needsContextCount}", MaterialTheme.colorScheme.tertiaryContainer, modifier = Modifier.weight(1f))
+                            MetricStatCard("Anuladas", "${m.cancelledCount}", MaterialTheme.colorScheme.errorContainer, modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+        }
+
+        // Panel de Supervisión Local (RF10)
+        if (state.profile.actor.role == LocalRole.SUPERVISOR) {
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Text(
+                            "Panel de Supervisión Local",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.semantics { heading() },
+                        )
+                        Text(
+                            "Supervisión sobre este dispositivo para las sedes autorizadas en tu perfil. Excluye borradores ajenos por privacidad.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+
+                        Text("Distribución por Sedes:", style = MaterialTheme.typography.titleSmall)
+                        val siteList = state.metrics?.siteMetrics.orEmpty()
+                        if (siteList.isEmpty()) {
+                            Text("No hay sedes con capturas registradas en este evento todavía.", style = MaterialTheme.typography.bodySmall)
+                        } else {
+                            siteList.forEach { s ->
+                                Surface(
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = MaterialTheme.shapes.small,
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        Text(s.siteName, style = MaterialTheme.typography.titleSmall)
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                        ) {
+                                            Text("Total: ${s.totalCount}", style = MaterialTheme.typography.bodyMedium)
+                                            Text("Confirmadas: ${s.readyCount}", style = MaterialTheme.typography.bodySmall)
+                                            Text("Anuladas: ${s.cancelledCount}", style = MaterialTheme.typography.bodySmall)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                        Text("Equipo en Terreno (Evento):", style = MaterialTheme.typography.titleSmall)
+                        Text(
+                            "${state.event.assignedCaptorIds.size} captador(es) asignados a ${state.event.name}.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MetricStatCard(
+    label: String,
+    value: String,
+    containerColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        color = containerColor,
+        shape = MaterialTheme.shapes.medium,
+        modifier = modifier,
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(value, style = MaterialTheme.typography.titleLarge)
+            Text(label, style = MaterialTheme.typography.labelSmall)
+        }
     }
 }
 
@@ -179,22 +307,28 @@ private fun ConnectivityBanner(status: ConnectivityStatus) {
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
-                    "Estado de Red: $statusText",
-                    style = MaterialTheme.typography.titleSmall,
+                    text = "Detección de conectividad (E1)",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = status.name,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
             Text(
-                subtitle,
-                style = MaterialTheme.typography.bodySmall,
+                text = statusText,
+                style = MaterialTheme.typography.titleSmall,
             )
             Text(
-                "Aviso E1: Cero transmisiones remotas. La detección de conectividad es informativa y no genera sincronización automática en esta entrega.",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
             )
         }
     }
@@ -205,46 +339,32 @@ private fun ConnectivityBanner(status: ConnectivityStatus) {
 private fun MainHubPreview() {
     CapturaProspectosG6Theme {
         Surface {
-            val actor = LocalActor(UUID.randomUUID(), LocalRole.CAPTOR, emptySet())
-            val profile = DemoProfile(actor, "Captador Demo")
-            val event = CaptureEvent(
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                "Feria Vocacional 2026",
-                Instant.now(),
-                Instant.now().plusSeconds(3600),
-                ZoneId.of("America/Santiago"),
-                emptySet(),
-                null,
-            )
             MainHubScreen(
-                state = MainHubUiState(profile, event, ConnectivityStatus.VALIDATED),
-                onNewCapture = {},
-                onChangeContext = {},
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, fontScale = 1.5f)
-@Composable
-private fun MainHubDarkPreview() {
-    CapturaProspectosG6Theme(darkTheme = true) {
-        Surface {
-            val actor = LocalActor(UUID.randomUUID(), LocalRole.CAPTOR, emptySet())
-            val profile = DemoProfile(actor, "Captador Demo")
-            val event = CaptureEvent(
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                "Feria Vocacional 2026",
-                Instant.now(),
-                Instant.now().plusSeconds(3600),
-                ZoneId.of("America/Santiago"),
-                emptySet(),
-                null,
-            )
-            MainHubScreen(
-                state = MainHubUiState(profile, event, ConnectivityStatus.OFFLINE),
+                state = MainHubUiState(
+                    profile = DemoProfile(
+                        actor = LocalActor(UUID.randomUUID(), LocalRole.CAPTOR, emptySet()),
+                        displayName = "Juan Captador",
+                        activeEventId = UUID.randomUUID(),
+                    ),
+                    event = CaptureEvent(
+                        id = UUID.randomUUID(),
+                        siteId = UUID.randomUUID(),
+                        name = "Feria Central 2026",
+                        startUtc = Instant.now(),
+                        endUtc = Instant.now().plusSeconds(3600),
+                        timeZone = ZoneId.of("America/Santiago"),
+                        assignedCaptorIds = setOf(UUID.randomUUID()),
+                    ),
+                    connectivity = ConnectivityStatus.VALIDATED,
+                    metrics = DeviceMetrics(
+                        eventId = UUID.randomUUID(),
+                        totalCaptures = 15,
+                        readyCount = 10,
+                        draftCount = 3,
+                        needsContextCount = 1,
+                        cancelledCount = 1,
+                    ),
+                ),
                 onNewCapture = {},
                 onChangeContext = {},
             )

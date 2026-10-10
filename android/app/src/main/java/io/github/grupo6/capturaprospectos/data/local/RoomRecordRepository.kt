@@ -27,6 +27,61 @@ internal class RoomRecordRepository(
 
     override suspend fun get(id: UUID): ReadAdmissionResult = admissionRepo.get(id)
 
+    override suspend fun getMetrics(eventId: UUID): DeviceMetrics = withContext(dispatcher) {
+        try {
+            db.withTransaction {
+                val actor = context.currentActor() ?: return@withTransaction DeviceMetrics(eventId, 0, 0, 0, 0, 0)
+                val catalog = context.environment(eventId)
+                val dao = db.captures()
+
+                val rawRows = when (actor.role) {
+                    LocalRole.CAPTOR -> dao.capturesByOwner(actor.id.toString())
+                    LocalRole.SUPERVISOR -> {
+                        val siteIds = actor.siteScopes.map { it.toString() }
+                        if (siteIds.isEmpty()) emptyList() else dao.capturesBySitesExcludingDraft(siteIds)
+                    }
+                }
+
+                val eventRows = rawRows.filter { it.eventId == eventId.toString() }
+                val total = eventRows.size
+                val ready = eventRows.count { it.state == CaptureState.READY.name }
+                val draft = eventRows.count { it.state == CaptureState.DRAFT.name }
+                val needsContext = eventRows.count { it.state == CaptureState.NEEDS_CONTEXT.name }
+                val cancelled = eventRows.count { it.state == CaptureState.CANCELLED.name }
+
+                val siteMetrics = if (actor.role == LocalRole.SUPERVISOR && catalog != null) {
+                    val siteMap = catalog.sites.associateBy { it.id }
+                    val groupedBySite = eventRows.groupBy { it.siteId }
+                    actor.siteScopes.mapNotNull { siteId ->
+                        val siteOpt = siteMap[siteId] ?: return@mapNotNull null
+                        val siteRows = groupedBySite[siteId.toString()] ?: emptyList()
+                        SiteMetrics(
+                            siteId = siteId,
+                            siteName = siteOpt.name,
+                            totalCount = siteRows.size,
+                            readyCount = siteRows.count { it.state == CaptureState.READY.name },
+                            draftCount = siteRows.count { it.state == CaptureState.DRAFT.name },
+                            needsContextCount = siteRows.count { it.state == CaptureState.NEEDS_CONTEXT.name },
+                            cancelledCount = siteRows.count { it.state == CaptureState.CANCELLED.name },
+                        )
+                    }
+                } else emptyList()
+
+                DeviceMetrics(
+                    eventId = eventId,
+                    totalCaptures = total,
+                    readyCount = ready,
+                    draftCount = draft,
+                    needsContextCount = needsContext,
+                    cancelledCount = cancelled,
+                    siteMetrics = siteMetrics,
+                )
+            }
+        } catch (_: Exception) {
+            DeviceMetrics(eventId, 0, 0, 0, 0, 0)
+        }
+    }
+
     override suspend fun list(query: RecordQuery): RecordPageResult = withContext(dispatcher) {
         if (!query.isValid()) return@withContext RecordPageResult.InvalidQuery
         try {
