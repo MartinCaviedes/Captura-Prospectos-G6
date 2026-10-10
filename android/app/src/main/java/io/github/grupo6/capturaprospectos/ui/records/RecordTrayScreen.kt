@@ -12,6 +12,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.grupo6.capturaprospectos.domain.admission.AdmissionInput
 import io.github.grupo6.capturaprospectos.domain.capture.CaptureState
 import io.github.grupo6.capturaprospectos.domain.records.RecordContract
 import io.github.grupo6.capturaprospectos.domain.records.RecordSummary
@@ -28,9 +29,41 @@ fun RecordTrayScreen(
     onCloseCancel: () -> Unit,
     onConfirmCancel: (String) -> Unit,
     onNavigateBack: () -> Unit,
+    onOpenDetail: (UUID) -> Unit = {},
+    onCloseDetail: () -> Unit = {},
+    onStartEdit: () -> Unit = {},
+    onCancelEdit: () -> Unit = {},
+    onSaveEdit: (AdmissionInput, String?) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
 ) {
     var reasonInput by remember { mutableStateOf("") }
+
+    // Modal de Detalle y Edición de Ficha (RF07)
+    if (state.isDetailOpen && state.selectedRecord != null) {
+        RecordDetailDialog(
+            admission = state.selectedRecord,
+            isEditing = state.isEditing,
+            isSaving = state.isSavingEdit,
+            onClose = onCloseDetail,
+            onStartEdit = onStartEdit,
+            onCancelEdit = onCancelEdit,
+            onSaveEdit = onSaveEdit,
+            onCancelRecord = {
+                val sum = state.items.firstOrNull { it.id == state.selectedRecord.id }
+                    ?: RecordSummary(
+                        id = state.selectedRecord.id,
+                        revision = state.selectedRecord.revision,
+                        capturedAt = state.selectedRecord.capturedAt,
+                        eventId = state.selectedRecord.eventId,
+                        displayName = state.selectedRecord.fullNameSnapshot,
+                        rut = state.selectedRecord.input.rut,
+                        state = state.selectedRecord.state,
+                        contract = RecordContract.F2027,
+                    )
+                onOpenCancel(sum)
+            },
+        )
+    }
 
     if (state.targetForCancellation != null) {
         AlertDialog(
@@ -179,6 +212,7 @@ fun RecordTrayScreen(
             items(state.items, key = { it.id }) { item ->
                 RecordItemCard(
                     item = item,
+                    onDetailClick = { onOpenDetail(item.id) },
                     onCancelClick = { onOpenCancel(item) },
                 )
             }
@@ -189,9 +223,11 @@ fun RecordTrayScreen(
 @Composable
 private fun RecordItemCard(
     item: RecordSummary,
+    onDetailClick: () -> Unit,
     onCancelClick: () -> Unit,
 ) {
     Card(
+        onClick = onDetailClick,
         modifier = Modifier.fillMaxWidth(),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
@@ -222,13 +258,17 @@ private fun RecordItemCard(
 
             Text("Capturado: ${item.capturedAt}", style = MaterialTheme.typography.labelSmall)
 
-            if (item.state != CaptureState.CANCELLED) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                TextButton(onClick = onDetailClick) {
+                    Text("Ver ficha completa")
+                }
+                if (item.state != CaptureState.CANCELLED) {
                     TextButton(onClick = onCancelClick) {
-                        Text("Anular captura", color = MaterialTheme.colorScheme.error)
+                        Text("Anular", color = MaterialTheme.colorScheme.error)
                     }
                 }
             }

@@ -20,6 +20,11 @@ fun RecordTrayRoute(
         onCloseCancel = { viewModel.closeCancelDialog() },
         onConfirmCancel = { viewModel.confirmCancellation(it) },
         onNavigateBack = onNavigateBack,
+        onOpenDetail = { viewModel.openDetail(it) },
+        onCloseDetail = { viewModel.closeDetail() },
+        onStartEdit = { viewModel.startEditing() },
+        onCancelEdit = { viewModel.cancelEditing() },
+        onSaveEdit = { input, reason -> viewModel.saveEdit(input, reason) },
         modifier = modifier,
     )
 }

@@ -56,6 +56,7 @@ sealed interface RecordMutationResult {
 }
 interface RecordRepository {
     suspend fun list(query: RecordQuery): RecordPageResult
+    suspend fun get(id: UUID): ReadAdmissionResult
     suspend fun edit(command: EditAdmission): RecordMutationResult
     suspend fun cancel(command: CancelRecord): RecordMutationResult
 }

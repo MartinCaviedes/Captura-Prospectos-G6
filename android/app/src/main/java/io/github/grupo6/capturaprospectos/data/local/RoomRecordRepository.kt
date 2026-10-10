@@ -23,6 +23,10 @@ internal class RoomRecordRepository(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : RecordRepository {
 
+    private val admissionRepo = RoomAdmissionRepository(db, context, clock = clock, dispatcher = dispatcher)
+
+    override suspend fun get(id: UUID): ReadAdmissionResult = admissionRepo.get(id)
+
     override suspend fun list(query: RecordQuery): RecordPageResult = withContext(dispatcher) {
         if (!query.isValid()) return@withContext RecordPageResult.InvalidQuery
         try {
@@ -184,7 +188,43 @@ internal class RoomRecordRepository(
                     if (reason.length !in 5..300) return@withTransaction RecordMutationResult.InvalidReason
                 }
 
-                RecordMutationResult.Saved(command.id, row.revision + 1, CaptureState.valueOf(row.state))
+                val input = command.input
+                val nextRevision = row.revision + 1
+                val updatedRow = row.copy(
+                    revision = nextRevision,
+                    givenNames = input.givenNames.ifBlank { row.givenNames },
+                    familyNames = input.familyNames.ifBlank { row.familyNames },
+                    fullName = listOf(input.givenNames, input.familyNames).filter { it.isNotBlank() }.joinToString(" ").ifBlank { row.fullName },
+                    email = input.email.ifBlank { row.email },
+                    phone = input.phone.ifBlank { row.phone },
+                    birthDate = input.birthDate.ifBlank { row.birthDate },
+                    residenceCommune = input.residenceCommune.ifBlank { row.residenceCommune },
+                    currentActivity = input.currentActivity?.name ?: row.currentActivity,
+                    currentActivityOther = input.currentActivityOther ?: row.currentActivityOther,
+                    establishment = input.establishment ?: row.establishment,
+                    establishmentCommune = input.establishmentCommune ?: row.establishmentCommune,
+                    formPersonalOption = input.formPersonalOption?.name ?: row.formPersonalOption,
+                    preferredSchedule = input.preferredSchedule?.name ?: row.preferredSchedule,
+                    interestLevel = input.interestLevel?.name ?: row.interestLevel,
+                    motivation = input.motivation?.name ?: row.motivation,
+                    notes = input.notes ?: row.notes,
+                )
+
+                val updatedCount = dao.updateCapture(updatedRow)
+                if (updatedCount == 0) return@withTransaction RecordMutationResult.StorageUnavailable
+
+                dao.insertAudit(
+                    AuditRow(
+                        id = UUID.randomUUID().toString(),
+                        captureId = row.id,
+                        actorId = actor.id.toString(),
+                        occurredAt = clock.instant().toString(),
+                        action = if (isOwner) "EDITED" else "SUPERVISOR_EDITED",
+                        resultingRevision = nextRevision,
+                    )
+                )
+
+                RecordMutationResult.Saved(command.id, nextRevision, CaptureState.valueOf(row.state))
             }
         } catch (_: SQLiteException) {
             RecordMutationResult.StorageUnavailable

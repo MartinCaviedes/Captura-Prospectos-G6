@@ -1,8 +1,10 @@
 package io.github.grupo6.capturaprospectos.ui.records
 
-import io.github.grupo6.capturaprospectos.domain.capture.CaptureState
+import io.github.grupo6.capturaprospectos.domain.admission.*
+import io.github.grupo6.capturaprospectos.domain.capture.*
 import io.github.grupo6.capturaprospectos.domain.records.*
 import java.time.Instant
+import java.time.ZoneId
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,8 +19,9 @@ class RecordTrayViewModelTest {
     private val dispatcher = StandardTestDispatcher()
     private val fakeRepo = FakeRecordRepository()
 
+    private val sampleId1 = UUID.randomUUID()
     private val sampleSummary1 = RecordSummary(
-        id = UUID.randomUUID(),
+        id = sampleId1,
         revision = 1,
         capturedAt = Instant.now(),
         eventId = UUID.randomUUID(),
@@ -38,10 +41,39 @@ class RecordTrayViewModelTest {
         contract = RecordContract.F2027,
     )
 
+    private val sampleAdmission1 = StoredAdmission(
+        id = sampleId1,
+        revision = 1,
+        ownerId = UUID.randomUUID(),
+        siteId = UUID.randomUUID(),
+        eventId = UUID.randomUUID(),
+        deviceId = UUID.randomUUID(),
+        capturedAt = Instant.now(),
+        eventName = "Feria Central",
+        eventTimeZone = ZoneId.of("America/Santiago"),
+        input = AdmissionInput(
+            givenNames = "Prospecto",
+            familyNames = "Alfa",
+            rut = "12345678-5",
+            email = "alfa@correo.test",
+            phone = "+56912345678",
+            birthDate = "2006-03-15",
+            residenceCommune = "Viña del Mar",
+        ),
+        fullNameSnapshot = "Prospecto Alfa",
+        consent = ConsentEvidence("v1", Instant.now(), UUID.randomUUID(), AcceptanceMode.DIRECT),
+        programs = emptyList(),
+        sites = emptyList(),
+        location = null,
+        state = CaptureState.READY,
+        transportState = TransportState.NOT_QUEUED,
+    )
+
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
         fakeRepo.listResult = RecordPageResult.Page(listOf(sampleSummary1, sampleSummary2), null)
+        fakeRepo.getResult = ReadAdmissionResult.Found(sampleAdmission1)
     }
 
     @After
@@ -145,6 +177,70 @@ class RecordTrayViewModelTest {
     }
 
     @Test
+    fun openDetailLoadsStoredAdmissionAndOpensDialog() = runTest(dispatcher) {
+        val vm = RecordTrayViewModel(fakeRepo)
+        runCurrent()
+
+        vm.openDetail(sampleId1)
+        runCurrent()
+
+        val state = vm.uiState.value
+        assertTrue(state.isDetailOpen)
+        assertNotNull(state.selectedRecord)
+        assertEquals(sampleId1, state.selectedRecord?.id)
+        assertFalse(state.isEditing)
+    }
+
+    @Test
+    fun closeDetailResetsSelectedRecord() = runTest(dispatcher) {
+        val vm = RecordTrayViewModel(fakeRepo)
+        runCurrent()
+
+        vm.openDetail(sampleId1)
+        runCurrent()
+        assertTrue(vm.uiState.value.isDetailOpen)
+
+        vm.closeDetail()
+        assertFalse(vm.uiState.value.isDetailOpen)
+        assertNull(vm.uiState.value.selectedRecord)
+    }
+
+    @Test
+    fun toggleEditState() = runTest(dispatcher) {
+        val vm = RecordTrayViewModel(fakeRepo)
+        runCurrent()
+
+        vm.openDetail(sampleId1)
+        runCurrent()
+
+        vm.startEditing()
+        assertTrue(vm.uiState.value.isEditing)
+
+        vm.cancelEditing()
+        assertFalse(vm.uiState.value.isEditing)
+    }
+
+    @Test
+    fun saveEditSuccessUpdatesMessageAndReloads() = runTest(dispatcher) {
+        fakeRepo.editResult = RecordMutationResult.Saved(sampleId1, 2, CaptureState.READY)
+        val vm = RecordTrayViewModel(fakeRepo)
+        runCurrent()
+
+        vm.openDetail(sampleId1)
+        runCurrent()
+
+        val editedInput = sampleAdmission1.input.copy(email = "nuevo@correo.test")
+        vm.saveEdit(editedInput, "Corrección de correo")?.join()
+        runCurrent()
+
+        val state = vm.uiState.value
+        assertFalse(state.isEditing)
+        assertTrue(state.message!!.contains("modificada correctamente"))
+        assertEquals(sampleId1, fakeRepo.lastEdit?.id)
+        assertEquals("nuevo@correo.test", fakeRepo.lastEdit?.input?.email)
+    }
+
+    @Test
     fun nullRepositoryHandlesGracefully() = runTest(dispatcher) {
         val vm = RecordTrayViewModel(repository = null)
         runCurrent()
@@ -164,6 +260,8 @@ private class FakeRecordRepository : RecordRepository {
     var lastQuery: RecordQuery? = null
     var listResult: RecordPageResult = RecordPageResult.Page(emptyList(), null)
 
+    var getResult: ReadAdmissionResult = ReadAdmissionResult.Unavailable
+
     var lastCancel: CancelRecord? = null
     var cancelResult: RecordMutationResult = RecordMutationResult.StorageUnavailable
 
@@ -174,6 +272,8 @@ private class FakeRecordRepository : RecordRepository {
         lastQuery = query
         return listResult
     }
+
+    override suspend fun get(id: UUID): ReadAdmissionResult = getResult
 
     override suspend fun cancel(command: CancelRecord): RecordMutationResult {
         lastCancel = command

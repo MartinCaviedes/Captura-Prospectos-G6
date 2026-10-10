@@ -3,6 +3,10 @@ package io.github.grupo6.capturaprospectos.ui.records
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.grupo6.capturaprospectos.domain.admission.AdmissionInput
+import io.github.grupo6.capturaprospectos.domain.admission.ReadAdmissionResult
+import io.github.grupo6.capturaprospectos.domain.admission.SaveIntent
+import io.github.grupo6.capturaprospectos.domain.admission.StoredAdmission
 import io.github.grupo6.capturaprospectos.domain.capture.CaptureState
 import io.github.grupo6.capturaprospectos.domain.records.*
 import java.util.UUID
@@ -19,6 +23,10 @@ data class RecordTrayUiState(
     val message: String? = null,
     val nextCursor: RecordCursor? = null,
     val targetForCancellation: RecordSummary? = null,
+    val selectedRecord: StoredAdmission? = null,
+    val isDetailOpen: Boolean = false,
+    val isEditing: Boolean = false,
+    val isSavingEdit: Boolean = false,
 ) {
     override fun toString() = "RecordTrayUiState(count=${items.size}, redacted)"
 }
@@ -47,6 +55,152 @@ class RecordTrayViewModel(
         val newStates = if (state == null) emptySet() else setOf(state)
         mutableState.update { it.copy(filter = it.filter.copy(states = newStates), message = null) }
         return load()
+    }
+
+    @MainThread
+    fun openDetail(id: UUID): Job? {
+        val repo = repository ?: run {
+            mutableState.update { it.copy(message = "Repositorio local no disponible.") }
+            return null
+        }
+        mutableState.update { it.copy(isLoading = true, message = null) }
+        return viewModelScope.launch {
+            when (val result = repo.get(id)) {
+                is ReadAdmissionResult.Found -> {
+                    mutableState.update {
+                        it.copy(
+                            selectedRecord = result.capture,
+                            isDetailOpen = true,
+                            isEditing = false,
+                            isLoading = false,
+                        )
+                    }
+                }
+                is ReadAdmissionResult.Legacy -> {
+                    mutableState.update {
+                        it.copy(
+                            isLoading = false,
+                            message = "El registro pertenece a una versión anterior y no tiene vista detallada F2027.",
+                        )
+                    }
+                }
+                ReadAdmissionResult.Unavailable -> {
+                    mutableState.update {
+                        it.copy(
+                            isLoading = false,
+                            message = "Registro no disponible o fuera de su alcance autorizado.",
+                        )
+                    }
+                }
+                ReadAdmissionResult.StorageUnavailable -> {
+                    mutableState.update {
+                        it.copy(
+                            isLoading = false,
+                            message = "Almacenamiento local no disponible al leer el detalle.",
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @MainThread
+    fun closeDetail() {
+        mutableState.update {
+            it.copy(
+                selectedRecord = null,
+                isDetailOpen = false,
+                isEditing = false,
+            )
+        }
+    }
+
+    @MainThread
+    fun startEditing() {
+        mutableState.update { it.copy(isEditing = true) }
+    }
+
+    @MainThread
+    fun cancelEditing() {
+        mutableState.update { it.copy(isEditing = false) }
+    }
+
+    @MainThread
+    fun saveEdit(editedInput: AdmissionInput, reason: String?): Job? {
+        val selected = uiState.value.selectedRecord ?: return null
+        val repo = repository ?: run {
+            mutableState.update { it.copy(message = "Repositorio local no disponible.") }
+            return null
+        }
+
+        mutableState.update { it.copy(isSavingEdit = true, message = null) }
+        return viewModelScope.launch {
+            val command = EditAdmission(
+                id = selected.id,
+                expectedRevision = selected.revision,
+                input = editedInput,
+                intent = if (selected.state == CaptureState.DRAFT) SaveIntent.SAVE_DRAFT else SaveIntent.CONFIRM_REGISTRATION,
+                location = selected.location,
+                reason = reason,
+            )
+            val result = repo.edit(command)
+            when (result) {
+                is RecordMutationResult.Saved -> {
+                    mutableState.update {
+                        it.copy(
+                            isSavingEdit = false,
+                            isEditing = false,
+                            message = "Inscripción modificada correctamente.",
+                        )
+                    }
+                    // Recargar detalle actualizado y refrescar bandeja
+                    openDetail(selected.id)
+                    load()
+                }
+                RecordMutationResult.ReasonRequired, RecordMutationResult.InvalidReason -> {
+                    mutableState.update {
+                        it.copy(
+                            isSavingEdit = false,
+                            message = "El motivo de supervisión debe tener entre 5 y 300 caracteres.",
+                        )
+                    }
+                }
+                RecordMutationResult.RevisionConflict -> {
+                    mutableState.update {
+                        it.copy(
+                            isSavingEdit = false,
+                            message = "Conflicto de edición: el registro fue modificado externamente.",
+                        )
+                    }
+                    openDetail(selected.id)
+                    load()
+                }
+                RecordMutationResult.InvalidTransition -> {
+                    mutableState.update {
+                        it.copy(
+                            isSavingEdit = false,
+                            message = "No es posible modificar este registro en su estado actual o intentar cambiar el RUT confirmado.",
+                        )
+                    }
+                }
+                RecordMutationResult.StorageUnavailable -> {
+                    mutableState.update {
+                        it.copy(
+                            isSavingEdit = false,
+                            message = "Almacenamiento no disponible al guardar la modificación.",
+                        )
+                    }
+                }
+                else -> {
+                    mutableState.update {
+                        it.copy(
+                            isSavingEdit = false,
+                            message = "No fue posible guardar las modificaciones.",
+                        )
+                    }
+                }
+            }
+        }
     }
 
     @MainThread
