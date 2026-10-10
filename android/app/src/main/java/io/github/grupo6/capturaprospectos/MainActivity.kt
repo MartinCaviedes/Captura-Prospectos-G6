@@ -24,7 +24,7 @@ import io.github.grupo6.capturaprospectos.ui.context.*
 import io.github.grupo6.capturaprospectos.ui.hub.MainHubRoute
 import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
 
-enum class AppScreen { CONTEXT_SELECTOR, HUB, FORM }
+enum class AppScreen { CONTEXT_SELECTOR, HUB, FORM, TRAY }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,6 +77,7 @@ class MainActivity : ComponentActivity() {
                                         connectivityObserver = connectivityObserver,
                                         onNewCapture = { activeScreen = AppScreen.FORM },
                                         onChangeContext = { activeScreen = AppScreen.CONTEXT_SELECTOR },
+                                        onOpenTray = { activeScreen = AppScreen.TRAY },
                                         modifier = modifier,
                                     )
                                     AppScreen.FORM -> {
@@ -108,6 +109,18 @@ class MainActivity : ComponentActivity() {
                                                 formVm.discard()
                                                 activeScreen = AppScreen.HUB
                                             },
+                                        )
+                                    }
+                                    AppScreen.TRAY -> {
+                                        val trayVm = remember(profile.actor.id, event.id, current.recordRepository) {
+                                            io.github.grupo6.capturaprospectos.ui.records.RecordTrayViewModel(
+                                                repository = current.recordRepository,
+                                            )
+                                        }
+                                        io.github.grupo6.capturaprospectos.ui.records.RecordTrayRoute(
+                                            viewModel = trayVm,
+                                            onNavigateBack = { activeScreen = AppScreen.HUB },
+                                            modifier = modifier,
                                         )
                                     }
                                 }

@@ -18,9 +18,11 @@ internal fun openContextSession(context: Context): ContextSession {
     catch (_: IllegalStateException) { throw ContextOpenFailure() } // Apertura/esquema incompatible, sin reset.
     val demoRepo = RoomDemoContextRepository(handle.database)
     val admissionRepo = RoomAdmissionRepository(handle.database, demoRepo)
+    val recordRepo = RoomRecordRepository(handle.database, demoRepo)
     return object : ContextSession {
         override val repository = demoRepo
         override val admissionRepository = admissionRepo
+        override val recordRepository = recordRepo
         override fun close() = handle.close()
     }
 }

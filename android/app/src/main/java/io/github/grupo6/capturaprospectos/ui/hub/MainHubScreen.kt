@@ -33,6 +33,7 @@ fun MainHubScreen(
     onNewCapture: () -> Unit,
     onChangeContext: () -> Unit,
     modifier: Modifier = Modifier,
+    onOpenTray: () -> Unit = {},
 ) {
     var showTrayDialog by remember { mutableStateOf(false) }
 
@@ -127,7 +128,7 @@ fun MainHubScreen(
                         Text("Nueva Captura de Prospecto")
                     }
                     OutlinedButton(
-                        onClick = { showTrayDialog = true },
+                        onClick = onOpenTray,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text("Bandeja de Registros Locales")

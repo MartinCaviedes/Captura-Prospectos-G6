@@ -74,6 +74,13 @@ internal interface CaptureDao {
     @Query("SELECT captures.* FROM captures INNER JOIN active_registration_keys ON captures.id = active_registration_keys.captureId WHERE active_registration_keys.eventId = :eventId AND active_registration_keys.rut = :rut")
     fun duplicate(eventId: String, rut: String): CaptureRow?
     @Query("SELECT COUNT(*) FROM captures") fun count(): Int
+    @Query("DELETE FROM active_registration_keys WHERE captureId = :captureId") fun deleteKey(captureId: String): Int
+    @Query("UPDATE captures SET state = :state, revision = :newRevision WHERE id = :id AND revision = :expectedRevision")
+    fun updateState(id: String, state: String, newRevision: Long, expectedRevision: Long): Int
+    @Query("SELECT * FROM captures WHERE ownerId = :ownerId ORDER BY capturedAt DESC, id DESC")
+    fun capturesByOwner(ownerId: String): List<CaptureRow>
+    @Query("SELECT * FROM captures WHERE siteId IN (:siteIds) AND state != 'DRAFT' ORDER BY capturedAt DESC, id DESC")
+    fun capturesBySitesExcludingDraft(siteIds: List<String>): List<CaptureRow>
 }
 
 @Database(entities = [ConsentTextRow::class, CaptureRow::class, InterestRow::class, ActiveKeyRow::class, AuditRow::class, SitePreferenceRow::class, CatalogVersionRow::class, DemoSiteRow::class, DemoProfileRow::class, ProfileSiteRow::class, DemoEventRow::class, DemoAssignmentRow::class, DemoProgramRow::class, DemoMentionRow::class, DemoContextRow::class], version = 3, exportSchema = true)

@@ -17,6 +17,7 @@ fun MainHubRoute(
     onNewCapture: () -> Unit,
     onChangeContext: () -> Unit,
     modifier: Modifier = Modifier,
+    onOpenTray: () -> Unit = {},
 ) {
     val connectivity by connectivityObserver.observe().collectAsStateWithLifecycle(initialValue = ConnectivityStatus.UNKNOWN)
     MainHubScreen(
@@ -28,5 +29,6 @@ fun MainHubRoute(
         onNewCapture = onNewCapture,
         onChangeContext = onChangeContext,
         modifier = modifier,
+        onOpenTray = onOpenTray,
     )
 }

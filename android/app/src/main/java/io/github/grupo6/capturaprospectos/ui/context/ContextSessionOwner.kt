@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import io.github.grupo6.capturaprospectos.domain.admission.AdmissionRepository
+import io.github.grupo6.capturaprospectos.domain.records.RecordRepository
 import io.github.grupo6.capturaprospectos.domain.context.ContextSession
 import io.github.grupo6.capturaprospectos.domain.context.ContextOpenFailure
 import kotlinx.coroutines.*
@@ -18,6 +19,7 @@ sealed interface ContextSessionState {
     data class Ready(
         val viewModel: DemoContextViewModel,
         val admissionRepository: AdmissionRepository? = null,
+        val recordRepository: RecordRepository? = null,
     ) : ContextSessionState
 }
 
@@ -52,7 +54,7 @@ class ContextSessionOwner(
                         return DemoContextViewModel(requireNotNull(resource).repository) as T
                     }
                 })[DemoContextViewModel::class.java]
-                state.value = ContextSessionState.Ready(consumer, resource?.admissionRepository)
+                state.value = ContextSessionState.Ready(consumer, resource?.admissionRepository, resource?.recordRepository)
                 awaitCancellation()
             } catch (_: ContextOpenFailure) {
                 state.value = ContextSessionState.Unavailable
