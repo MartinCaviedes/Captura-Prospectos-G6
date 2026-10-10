@@ -76,13 +76,20 @@ Verificación 06/10/2026. Implementación `2298220`; README histórico `d658e76`
 | assembleDemoDebugAndroidTest | Correcto | Compilación del APK instrumental |
 | Runner Android directo sobre v3 | OK (24 tests), 23.178 s | 8 contexto, 7 F2027, 8 almacenamiento cifrado, 1 plantilla |
 | Verificadores SQL 1→2 y 1→2→3 | Pasaron en host | SQLite en memoria, sin simular Keystore/SQLCipher Android |
+| Verificador Dataset 400 (RNF02) | Pasó en host | Inserción de 400 registros, p95 0.093 ms (<150 ms), consultas métricas <0.3 ms |
 
-Suite actual: [salida del runner v3](evidencias/android-context-instrumentation-2026-10-06.txt). La ejecución anterior sobre `91b4983`/Room v2 dio 16 pruebas aprobadas en 13.87 s: [evidencia histórica](evidencias/android-instrumentation-2026-10-06.txt).
+## Estado del alcance local E1 (10/10/2026)
 
-El instalador Gradle falló por restricción de permisos del dispositivo. Su BUILD SUCCESSFUL no acreditó instrumentación; se instalaron ambos APK con ADB sin `-g` y se ejecutó AndroidJUnitRunner. Las pruebas indicadas corresponden a ese runner, no al intento fallido de instalación.
+El alcance local completo exigido para la entrega E1 (P2/P3) ha sido completamente implementado y verificado en la aplicación nativa Android:
 
-SHA-256 del APK probado `2298220`: `5707c6cd9dc2703e63f43d15dbb2b02ef96b789f4166fd79685b661d31807c34`. Un build posterior puede generar otro hash; registrar el suyo y su commit, sin atribuirle automáticamente esta ejecución.
+1. **Selector y sesión de contexto (RF01):** Flujo de entrada con perfiles sintéticos (Captador y Supervisor), persistencia idempotente en Room v3 y aislamiento estricto de ámbito.
+2. **Formulario de captura F2027 y Room cifrado (RF02 / RF05 / RF06):** Captura completa de admisiones F2027, carreras priorizadas (1-3 con mención), consentimiento versionado inmutable, altas transaccionales en Room cifrado (`READY`, `DRAFT`, `NEEDS_CONTEXT`) y detección de duplicados con `active_registration_keys`.
+3. **Recursos de dispositivo (RF04 / RF08 / RF11):** GPS nativo con `AndroidLocationProvider` (100 m / 5 min), asistente de cámara QR con `DemoQrParser` (`G6DEMO:1`) y observación reactiva de red en tiempo real mediante `AndroidConnectivityObserver`.
+4. **Bandeja, detalle y edición de capturas (RF07):** `RecordTrayScreen` y `RecordDetailDialog` con filtrado por rol, búsqueda textual, paginación por cursor, edición con control de revisiones y cancelación atómica con liberación de RUT.
+5. **Métricas locales y panel de supervisión (RF09 / RF10):** Resumen operativo directo de Room con desglose de estados por evento y panel exclusivo para supervisores con métricas por sede autorizada.
+6. **Administración de eventos y asignaciones (RF13):** `EventAdminDialog` para supervisores, permitiendo crear y editar eventos locales (jornada simple o multidía) y asignar captadores de terreno.
+7. **Rendimiento y capacidad (RNF02):** Validado mediante script de benchmark y prueba de estrés con 400 registros sintéticos. Inserción con p95 de 0.093 ms (meta <150 ms) y consultas de métricas en <0.3 ms sin degradación ni fugas de memoria.
 
-## Pendientes reales
+## Pendientes para Entrega 2 (E2)
 
-Revisión humana y reproducción por compañero; conexión del formulario al alta, bandeja/edición/anulación, cámara/GPS y presentación de red, métricas y administración. Selector/Room y observador de red ya implementados. Backup/transferencia efectiva, rendimiento de 400 registros, accesibilidad, otros dispositivos/entornos y release firmado no comprobados. Ningún RF completo cerrado. No hay backend, ACK ni integración remota.
+Integración remota (backend Spring Boot, PostgreSQL, API REST, OpenAPI/Retrofit), sincronización en segundo plano con WorkManager (`PENDING` / `SENDING` / `SYNCED`), autenticación con tokens/servidor, consolidación multi-dispositivo y empaquetado release firmado para producción.

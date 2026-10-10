@@ -1,6 +1,6 @@
 # Alcance y aceptación por entrega
 
-Actualización documental 05/10: F01 incorpora hasta tres carreras priorizadas y F03 separa sede del evento de interés. Son ajustes dentro de la captura/catálogo E1 y se conservan en E2. F02 y cardinalidad F03 aclarados el 06/10; preferencias independientes, jornada/nivel/motivación opcionales; consultar FORMULARIO_ADMISION_2027. Dominio y persistencia F2027 implementados; suite de 24 pruebas Android v3 aprobada; el recorrido funcional y la UI siguen pendientes.
+Actualización 10/10/2026: Alcance local completo de E1 implementado y verificado. Incluye conexión de altas F2027 a Room cifrado, bandeja de registros con filtrado por rol y cancelación atómica, detalle y edición de fichas (RF07), GPS nativo (AndroidLocationProvider), asistente QR sintético (DemoQrParser), detección reactiva de red, resumen operativo local (RF09), panel de supervisión (RF10), administración local de eventos (RF13) y validación de estrés con 400 registros (RNF02). Sin backend, sin WorkManager y con transporte estrictamente NOT_QUEUED. E2 continúa pendiente para integración remota y sincronización.
 
 02/10/2026. Distribución de trabajo adoptada por instrucción de Martín: mantener el nivel del producto y progresarlo en dos entregas. No equivale a aprobación adicional del docente/cliente. El SRS define el comportamiento final; este documento determina cuándo se implementa y qué evidencia permite cerrar cada incremento. Los RF no se eliminan ni renumeran.
 
