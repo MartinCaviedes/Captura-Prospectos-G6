@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-10",
+  "base_commit": "0f43a211d1ace41aeb91c198b500eb4e6efde760",
+  "branch": "fix/e1-revision-rondas-0-1",
+  "jvm": {
+    "tests": 97,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "Warning": 17,
+    "Error": 0,
+    "Fatal": 0
+  },
+  "android": {
+    "tests": 2,
+    "seconds": 19.578,
+    "api": 34,
+    "version": "14",
+    "device": "Xiaomi 11T",
+    "scope": "Formulario claro 1.0 y oscuro 1.5, telefono/actividad/consentimiento/descarte; apertura asistida ADB",
+    "limits": "No es una revision TalkBack, contraste visual completa ni suite de persistencia/red."
+  },
+  "apk_sha256": {
+    "app-demo-debug.apk": "dd6f9a5b249ec9a497df7f6b2ba299f9108e99c05420c3e9ffdba5ba9a2fa3f0",
+    "app-demo-debug-androidTest.apk": "36ae5e99a7e3ebc5a55f72e8ee51bbee22f62105f055d4aba43a7291bb40440d"
+  },
+  "changed_sources_sha256": {
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/device/DemoQrParser.kt": "53be2e4c8a1cc0f55ffeb6ddaeca6601a19509be65192a0faf6837341407eeaf",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt": "38bfa9d37688619d272f5740501692e5b020be01f8072b8a5e98da60f9c36f9a",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/domain/device/DemoQrParserTest.kt": "437f8f037ad8a433af51130a403782e09192d067d2476d5f5fda0d71e2d8b155",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormUiTest.kt": "a5f0292317198ff55b12718dfeb717397b4c481b462f47a735da556e63bfa714"
+  }
+}

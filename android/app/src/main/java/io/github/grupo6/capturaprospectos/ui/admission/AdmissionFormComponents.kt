@@ -123,7 +123,13 @@ class FormActions(
 }
 @Composable private fun FormText(label: String, field: AdmissionField, value: String, state: AdmissionFormState,
     actions: FormActions, keyboard: KeyboardType = KeyboardType.Text) {
-    OutlinedTextField(value, { actions.text(field, it) }, label = { Text(label) }, modifier = Modifier.fillMaxWidth(),
+    val isPhone = field == AdmissionField.PHONE
+    val displayedValue = if (isPhone) value.removePrefix("+56") else value
+    OutlinedTextField(displayedValue, { edited ->
+        val input = if (isPhone && edited.isNotBlank() && !edited.startsWith("+56")) "+56$edited" else edited
+        actions.text(field, input)
+    }, label = { Text(label) }, prefix = if (isPhone) ({ Text("+56") }) else null,
+        modifier = Modifier.fillMaxWidth(),
         isError = state.issues.any { it.field == field }, keyboardOptions = KeyboardOptions(keyboardType = keyboard),
         singleLine = field != AdmissionField.NOTES)
 }

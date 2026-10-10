@@ -1,5 +1,30 @@
 # Evidencia de la base Android
 
+## Revisión R0/R1 — 10/10/2026
+
+Sobre la base publicada 0f43a21, rama fix/e1-revision-rondas-0-1. Correcciones: escapes QR limitados a hexadecimal ASCII y prefijo +56 visible en formulario, con pegado de número completo sin duplicación y borrado a vacío. Sin cambios de Room v3, dependencias ni reglas de negocio.
+
+**97 pruebas JVM aprobadas**, cero fallos/errores/omitidas. APK principal/instrumental correctos. **Lint 17 avisos, cero errores.** La nueva regresión QR falló antes de corregir el parser (aceptaba un Candidate para JSON no válido); pasó después. Las ocho pruebas de parser incluyen Unicode válido y pares sustitutos.
+
+Xiaomi 11T, Android 14/API 34: **2 pruebas de formulario aprobadas en 19,578 s**, claro con fuente 1.0 y oscuro con fuente 1.5, escaladas sólo en la composición de prueba. Comprueban ingreso/pegado/borrado de teléfono, actividad con confirmación, consentimiento y descarte. [Salida instrumental](evidencias/android-form-review-2026-10-10.txt) · [conteos y hashes](evidencias/review-r01-2026-10-10.json).
+
+Los primeros intentos quedaron esperando apertura de ActivityScenario; uno se interrumpió, luego la prueba individual pasó. El log identificó que el intent asistido sin MAIN/LAUNCHER no coincidía. En la ampliación de texto falló la búsqueda de un elemento aún no compuesto de LazyColumn; se corrigió el test para desplazarse primero con performScrollToNode, sin retirar aserciones. La ejecución final de los dos casos pasó.
+
+Reproducción del caso específico tras instalar las APK, con pantalla desbloqueada:
+
+```text
+adb shell am instrument -w -r -e class io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest io.github.grupo6.capturaprospectos.demo.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+En MIUI, desde otra terminal al comenzar cada caso y sólo si el inicio queda bloqueado:
+
+```text
+adb shell am start -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -f 0x10008000 -n io.github.grupo6.capturaprospectos.demo.debug/androidx.activity.ComponentActivity
+```
+
+Es una ejecución asistida, no una suite desatendida. No se cambiaron ajustes de fuente/tema/red del teléfono ni se borraron datos. No se repitieron persistencia, selector ni transición Wi-Fi: sus evidencias del 09/10 siguen siendo históricas. Pendientes: evaluación TalkBack/visual completa, portal cautivo en entorno controlado y revisión cruzada. La comprobación de acciones con letra ampliada no acredita por sí sola accesibilidad completa.
+
+
 ## Rondas 0 y 1 — 09/10/2026
 
 R0 en ec9b93b y R1 preparada sobre esa base: **95 pruebas JVM aprobadas**, 0 fallos/errores/omitidas; assembleDemoDebug y assembleDemoDebugAndroidTest correctos; **Lint 19 avisos/0 errores**. R0 agregó ocho pruebas (79); R1 agregó dieciséis (95). [Resumen por suite y hashes de fuentes](evidencias/rounds-0-1-2026-10-09.json).
@@ -60,4 +85,4 @@ SHA-256 del APK probado `2298220`: `5707c6cd9dc2703e63f43d15dbb2b02ef96b789f4166
 
 ## Pendientes reales
 
-Pantalla de plantilla, revisión humana y reproducción por compañero; navegación/formulario, CRUD completo, recursos GPS/cámara/conectividad, métricas y administración. Backup/transferencia efectiva, rendimiento de 400 registros, accesibilidad, otros dispositivos/entornos y release firmado no comprobados. Ningún RF completo cerrado. No hay backend, ACK ni integración remota.
+Revisión humana y reproducción por compañero; conexión del formulario al alta, bandeja/edición/anulación, cámara/GPS y presentación de red, métricas y administración. Selector/Room y observador de red ya implementados. Backup/transferencia efectiva, rendimiento de 400 registros, accesibilidad, otros dispositivos/entornos y release firmado no comprobados. Ningún RF completo cerrado. No hay backend, ACK ni integración remota.

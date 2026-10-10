@@ -35,6 +35,16 @@ class DemoQrParserTest {
         assertEquals("Ficticio José", value.value.fullName)
         assertEquals("12345678-5", value.value.rut)
     }
+    @Test fun rejectsNonAsciiHexDigitsInUnicodeEscapes() {
+        listOf("\\u００４１", "\\u٠٠٤١", "\\u00ＦＦ").forEach { escape ->
+            assertEquals(QrResult.Invalid, parser.parse(valid.replace("Persona Ficticia Alfa", "Persona $escape")))
+        }
+    }
+    @Test fun acceptsAsciiHexAndSurrogatePairs() {
+        listOf("\\u0041", "\\u00EF", "\\uD83D\\uDE00").forEach { escape ->
+            assertTrue(parser.parse(valid.replace("Persona Ficticia Alfa", "Persona $escape")) is QrResult.Candidate)
+        }
+    }
     @Test fun limitsPayloadBeforeParsing() {
         assertEquals(QrResult.Invalid, parser.parse(valid + " ".repeat(512)))
         assertEquals(QrResult.Invalid, parser.parse(valid.replace("Persona Ficticia Alfa", "A".repeat(121))))

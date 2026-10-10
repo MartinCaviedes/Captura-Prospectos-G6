@@ -14,7 +14,7 @@ Los perfiles de demo E1 están identificados y aislados de integración E2. No e
 
 ## Estructura y límites
 
-Identidad técnica definida el 03/10 por delegación del propietario: proyecto `captura-prospectos-g6`, applicationId base y namespace `io.github.grupo6.capturaprospectos`. Flavor demo E1 añade `.demo`; debug añade `.debug`, manteniendo el namespace. demoDebug ya compila y sus metadatos confirman esa identidad; no hay flavor remoto todavía. Módulo Android en `android/` dentro de la carpeta del producto, con Git local sin remoto. Cambiar la raíz local no cambia package ni rutas relativas.
+Identidad técnica definida el 03/10 por delegación del propietario: proyecto `captura-prospectos-g6`, applicationId base y namespace `io.github.grupo6.capturaprospectos`. Flavor demo E1 añade `.demo`; debug añade `.debug`, manteniendo el namespace. demoDebug ya compila y sus metadatos confirman esa identidad; no hay flavor remoto todavía. Módulo Android en `android/` dentro de la carpeta del producto, con Git y publicación en una rama de revisión. Cambiar la raíz local no cambia package ni rutas relativas.
 
 Propuesta de un repositorio de producto con `android/`, `backend/`, `docs/` e `infra/`. La ruta relativa Android vigente es android/; backend/ e infra/ se incorporarán al necesitarlos en E2. Android tendrá inicialmente un módulo `app`; paquetes por funcionalidad dentro de `ui`, `domain` y `data`, sin convertir cada RF en un módulo Gradle.
 

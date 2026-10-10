@@ -1,6 +1,6 @@
 # Interfaces por tarea · ronda 1
 
-09/10/2026. Incremento local sobre ronda 0 (`ec9b93b`), sin publicación ni integración en develop. La revisión humana de contratos sigue pendiente. No cierra RF completos ni adelanta backend.
+Preparado el 09/10 sobre ronda 0 (`ec9b93b`), publicado para revisión el 10/10. La revisión técnica posterior corrige escapes QR no ASCII y añade el prefijo +56 visible; ver ANDROID_BASELINE. Sin integración en develop. La revisión humana de contratos sigue pendiente. No cierra RF completos ni adelanta backend.
 
 | Entregable | Alcance preparado | Siguiente consumidor |
 |---|---|---|
@@ -12,7 +12,7 @@
 
 Sin repositorio, SavedStateHandle, rememberSaveable ni almacenamiento de respuestas. El ViewModel mantiene estado durante recreación mientras conserve su dueño; descartar o liberar el dueño vacía el estado. Una muerte de proceso pierde el formulario no guardado deliberadamente. Ronda 2 debe asignar un dueño por contexto/formulario y confirmar descarte antes de cambiar contexto; no retener respuestas bajo un perfil/evento diferente.
 
-Campos F2027, actividad con confirmación antes de quitar detalle de Otra, establecimiento sugerido sólo por acción explícita y editable, respuestas opcionales sin valor predeterminado, tres carreras máximas ordenadas con mención opcional, búsqueda sin acentos/mayúsculas y sedes múltiples independientes. Motivación conserva las cuatro alternativas del cupón; sin texto libre. Modalidad y canal no ofrecen opciones inventadas mientras falte catálogo.
+Teléfono con prefijo +56 visible, entrada de nueve dígitos locales y pegado de número completo sin duplicarlo; borrar deja el campo vacío. Campos F2027, actividad con confirmación antes de quitar detalle de Otra, establecimiento sugerido sólo por acción explícita y editable, respuestas opcionales sin valor predeterminado, tres carreras máximas ordenadas con mención opcional, búsqueda sin acentos/mayúsculas y sedes múltiples independientes. Motivación conserva las cuatro alternativas del cupón; sin texto libre. Modalidad y canal no ofrecen opciones inventadas mientras falte catálogo.
 
 Consentimiento sin marcar, modalidad DIRECT/VERBAL elegida explícitamente, evidencia con versión/actor/instante. Cambiar modalidad elimina la evidencia anterior. Validar delega a PrepareAdmission: devuelve errores legibles o confirmación de validación **sin guardado**. Preparar no autoriza contexto ni acredita escritura. No hay GPS conectado en esta ronda: la validación puede preparar NEEDS_CONTEXT conforme al contrato. R2 usará la ubicación explícitamente aceptada; jamás inferirá residencia/establecimiento desde coordenadas.
 

@@ -73,7 +73,8 @@ private class StringObjectReader(private val source: String) {
                 'u' -> {
                     if (index + 4 > source.length) fail()
                     val digits = source.substring(index, index + 4)
-                    if (digits.any { it.digitToIntOrNull(16) == null }) fail()
+                    // JSON limita los escapes a dígitos hexadecimales ASCII.
+                    if (digits.any { it !in '0'..'9' && it !in 'a'..'f' && it !in 'A'..'F' }) fail()
                     index += 4; digits.toInt(16).toChar()
                 }
                 else -> fail()

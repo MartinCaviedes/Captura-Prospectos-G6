@@ -39,11 +39,11 @@ La división mantiene los requisitos finales y los controles de calidad. E1 corr
 
 ## 🚧 Estado actual
 
-**Base local en desarrollo, actualizada al 09/10/2026.**
+**Base local en desarrollo, actualizada al 10/10/2026.**
 
 Están implementados el dominio de captura F2027, las altas y lectura de detalle en Room cifrado, las migraciones conservadoras y el contexto/catálogo sintético persistido. La app abre un selector de perfiles/eventos conectado a Room. También están preparados el observador real de conectividad, el formulario volátil (aún fuera del recorrido principal), el parser QR sintético y las interfaces de GPS/registros. Faltan conectar el alta al formulario, cámara/GPS reales, bandeja, edición/anulación, administración y recorridos completos. El backend se desarrollará en E2.
 
-La comprobación del 09/10 registra **95 pruebas JVM aprobadas**, build correcto y Lint sin errores. En Android 14/API 34 se ejecutaron por separado persistencia/conectividad, selector con Room, pérdida/recuperación Wi-Fi y componentes del formulario; las pruebas de UI requirieron apertura asistida en MIUI. Estos resultados no acreditan los recorridos aún pendientes. Ningún RF semestral está cerrado. Consulta [la evidencia técnica](docs/ANDROID_BASELINE.md) para resultados y límites.
+La revisión del 10/10 registra **97 pruebas JVM aprobadas**, build correcto y Lint sin errores. Dos pruebas de formulario pasaron en Android 14/API 34, en tema claro normal y oscuro con letra al 150 %, con apertura asistida en MIUI. La evidencia anterior conserva las pruebas separadas de persistencia, selector y conectividad. No acredita recorridos pendientes ni accesibilidad completa; ningún RF semestral está cerrado. Consulta [la evidencia técnica](docs/ANDROID_BASELINE.md) para resultados y límites.
 
 El desarrollo y la demostración usan únicamente datos ficticios. Los perfiles demo permiten probar el alcance funcional local; la autenticación real pertenece a E2.
 
