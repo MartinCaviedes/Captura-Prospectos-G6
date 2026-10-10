@@ -2,33 +2,48 @@ package io.github.grupo6.capturaprospectos.ui.admission
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.github.grupo6.capturaprospectos.domain.admission.*
 import io.github.grupo6.capturaprospectos.domain.capture.*
 import io.github.grupo6.capturaprospectos.domain.context.EstablishmentSuggestion
 import java.time.Clock
 import java.util.UUID
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 data class AdmissionFormState(
     val input: AdmissionInput = AdmissionInput(),
     val mode: AcceptanceMode? = null, val consent: ConsentEvidence? = null,
     val pendingActivity: CurrentActivity? = null, val issues: List<AdmissionIssue> = emptyList(),
     val message: String? = null,
+    val isSaving: Boolean = false,
+    val isSaved: Boolean = false,
+    val savedId: UUID? = null,
+    val savedState: CaptureState? = null,
 ) { override fun toString() = "AdmissionFormState(redacted)" }
 
-/** Mantiene el borrador de admisión en memoria y expone su validación a la UI.
+/** Mantiene el borrador de admisión en memoria y expone su validación y persistencia a la UI.
  * El borrador se descarta con el ViewModel; la persistencia corresponde al repositorio de admisiones. */
 class AdmissionFormViewModel(
     val environment: AdmissionEnvironment,
     val suggestion: EstablishmentSuggestion? = null,
     private val clock: Clock = Clock.systemUTC(),
     private val prepare: PrepareAdmission = PrepareAdmission(),
+    private val repository: AdmissionRepository? = null,
 ) : ViewModel() {
     private val state = MutableStateFlow(AdmissionFormState())
     val uiState = state.asStateFlow()
     private fun change(transform: (AdmissionInput) -> AdmissionInput) {
-        state.value = state.value.copy(input = transform(state.value.input), issues = emptyList(), message = null)
+        state.value = state.value.copy(
+            input = transform(state.value.input),
+            issues = emptyList(),
+            message = null,
+            isSaved = false,
+            savedId = null,
+            savedState = null,
+        )
     }
     @MainThread fun text(field: AdmissionField, value: String) = change { input -> when (field) {
         AdmissionField.GIVEN_NAMES -> input.copy(givenNames = value)
@@ -111,6 +126,63 @@ class AdmissionFormViewModel(
             is AdmissionPreparation.Prepared -> current.copy(issues = emptyList(), message = "Validación local correcta. No se ha guardado ni enviado la inscripción.")
         }
     }
+    @MainThread
+    fun save(intent: SaveIntent): Job? {
+        val current = state.value
+        if (current.isSaving) return null
+        val repo = repository ?: run {
+            state.value = current.copy(message = "Repositorio local no disponible para guardar.")
+            return null
+        }
+        state.value = current.copy(isSaving = true, message = null)
+        return viewModelScope.launch {
+            val request = NewAdmission(
+                input = current.input,
+                intent = intent,
+                consent = current.consent,
+                eventId = environment.context.event.id,
+                location = null,
+            )
+            val result = repo.create(request)
+            val latest = state.value
+            state.value = when (result) {
+                is CreateAdmissionResult.Saved -> latest.copy(
+                    isSaving = false,
+                    isSaved = true,
+                    savedId = result.id,
+                    savedState = result.state,
+                    message = "Inscripción guardada localmente (${result.state.name}). Envío remoto no habilitado en esta entrega."
+                )
+                is CreateAdmissionResult.DuplicateOwn -> latest.copy(
+                    isSaving = false,
+                    message = "Ya existe una inscripción registrada para este RUT en este evento."
+                )
+                CreateAdmissionResult.DuplicateRestricted -> latest.copy(
+                    isSaving = false,
+                    message = "Este RUT ya se encuentra registrado en este evento."
+                )
+                CreateAdmissionResult.ConsentRequired -> latest.copy(
+                    isSaving = false,
+                    issues = listOf(AdmissionIssue(AdmissionField.CONSENT, ValidationCode.REQUIRED)),
+                    message = "Registra el consentimiento para guardar."
+                )
+                is CreateAdmissionResult.Invalid -> latest.copy(
+                    isSaving = false,
+                    issues = result.issues,
+                    message = "Revisa los campos indicados para guardar."
+                )
+                CreateAdmissionResult.AccessDenied -> latest.copy(
+                    isSaving = false,
+                    message = "Acceso no autorizado para este perfil o evento."
+                )
+                CreateAdmissionResult.StorageUnavailable -> latest.copy(
+                    isSaving = false,
+                    message = "Almacenamiento local no disponible. Los datos se conservan; puedes reintentar."
+                )
+            }
+        }
+    }
+    @MainThread fun reset() { state.value = AdmissionFormState() }
     @MainThread fun discard() { state.value = AdmissionFormState() }
     override fun onCleared() { state.value = AdmissionFormState() }
 }

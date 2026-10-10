@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import io.github.grupo6.capturaprospectos.domain.admission.AdmissionRepository
 import io.github.grupo6.capturaprospectos.domain.context.ContextSession
 import io.github.grupo6.capturaprospectos.domain.context.ContextOpenFailure
 import kotlinx.coroutines.*
@@ -14,7 +15,10 @@ import kotlinx.coroutines.flow.asStateFlow
 sealed interface ContextSessionState {
     data object Opening : ContextSessionState
     data object Unavailable : ContextSessionState
-    data class Ready(val viewModel: DemoContextViewModel) : ContextSessionState
+    data class Ready(
+        val viewModel: DemoContextViewModel,
+        val admissionRepository: AdmissionRepository? = null,
+    ) : ContextSessionState
 }
 
 /** Dueño retenido por Activity: primero cancela consumidores y después cierra la conexión. */
@@ -48,7 +52,7 @@ class ContextSessionOwner(
                         return DemoContextViewModel(requireNotNull(resource).repository) as T
                     }
                 })[DemoContextViewModel::class.java]
-                state.value = ContextSessionState.Ready(consumer)
+                state.value = ContextSessionState.Ready(consumer, resource?.admissionRepository)
                 awaitCancellation()
             } catch (_: ContextOpenFailure) {
                 state.value = ContextSessionState.Unavailable

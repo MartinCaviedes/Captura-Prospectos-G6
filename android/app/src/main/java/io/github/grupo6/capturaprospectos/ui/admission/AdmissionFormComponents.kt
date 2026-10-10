@@ -25,15 +25,25 @@ class FormActions(
     val program: (UUID) -> Unit, val move: (UUID, Int) -> Unit, val mention: (UUID, UUID?) -> Unit,
     val site: (UUID) -> Unit, val mode: (AcceptanceMode) -> Unit, val consent: (Boolean) -> Unit,
     val validate: (SaveIntent) -> Unit, val discard: () -> Unit,
+    val save: ((SaveIntent) -> Unit)? = null,
+    val reset: (() -> Unit)? = null,
+    val onBack: (() -> Unit)? = null,
 )
 /** Compone el formulario a partir del estado y las acciones del ViewModel.
  * La navegación y la confirmación de guardado pertenecen al consumidor. */
-@Composable fun AdmissionFormRoute(vm: AdmissionFormViewModel, modifier: Modifier = Modifier) {
+@Composable fun AdmissionFormRoute(
+    vm: AdmissionFormViewModel,
+    modifier: Modifier = Modifier,
+    onNavigateBack: () -> Unit = {},
+) {
     val state by vm.uiState.collectAsStateWithLifecycle()
-    AdmissionFormComponents(state, vm.environment, vm.suggestion, remember(vm) {
-        FormActions(vm::text, vm::activity, vm::confirmActivityDiscard, vm::acceptEstablishmentSuggestion,
+    AdmissionFormComponents(state, vm.environment, vm.suggestion, remember(vm, onNavigateBack) {
+        FormActions(
+            vm::text, vm::activity, vm::confirmActivityDiscard, vm::acceptEstablishmentSuggestion,
             vm::personal, vm::schedule, vm::interestLevel, vm::motivation, vm::program, vm::moveProgram,
-            vm::mention, vm::site, vm::mode, vm::consent, vm::validate, vm::discard)
+            vm::mention, vm::site, vm::mode, vm::consent, vm::validate, vm::discard,
+            save = vm::save, reset = vm::reset, onBack = onNavigateBack,
+        )
     }, modifier)
 }
 
@@ -51,7 +61,7 @@ class FormActions(
         dismissButton = { TextButton(onClick = { actions.discardActivity(false) }) { Text("Conservar") } })
     if (confirmDiscard) AlertDialog(onDismissRequest = { confirmDiscard = false },
         title = { Text("¿Descartar formulario?") }, text = { Text("Se quitarán los datos que aún están sólo en memoria.") },
-        confirmButton = { TextButton(onClick = { actions.discard(); search = ""; confirmDiscard = false }) { Text("Descartar datos") } },
+        confirmButton = { TextButton(onClick = { actions.discard(); search = ""; confirmDiscard = false; actions.onBack?.invoke() }) { Text("Descartar datos") } },
         dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text("Seguir editando") } })
     LazyColumn(modifier, contentPadding = PaddingValues(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item { Text("Inscripción de prospecto", style = MaterialTheme.typography.headlineMedium)
@@ -113,11 +123,66 @@ class FormActions(
             }
         }
         item {
-            state.issues.forEach { Text("${fieldLabel(it.field)}: ${issueLabel(it.code)}", color = MaterialTheme.colorScheme.error) }
-            state.message?.let { Text(it) }
-            Button({ actions.validate(SaveIntent.CONFIRM_REGISTRATION) }) { Text("Validar inscripción") }
-            OutlinedButton({ actions.validate(SaveIntent.SAVE_DRAFT) }) { Text("Validar borrador") }
-            TextButton({ confirmDiscard = true }) { Text("Descartar formulario") }
+            if (state.isSaving) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                Text("Guardando en base de datos local…", style = MaterialTheme.typography.bodyMedium)
+            }
+            if (state.isSaved) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            "¡Registro guardado con éxito!",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                        Text(
+                            state.message ?: "",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(onClick = { actions.reset?.invoke() }) {
+                                Text("Nueva inscripción")
+                            }
+                            if (actions.onBack != null) {
+                                OutlinedButton(onClick = { actions.onBack.invoke() }) {
+                                    Text("Volver al panel")
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                state.issues.forEach { Text("${fieldLabel(it.field)}: ${issueLabel(it.code)}", color = MaterialTheme.colorScheme.error) }
+                state.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                if (actions.save != null) {
+                    Button(
+                        onClick = { actions.save.invoke(SaveIntent.CONFIRM_REGISTRATION) },
+                        enabled = !state.isSaving,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("Guardar inscripción")
+                    }
+                    OutlinedButton(
+                        onClick = { actions.save.invoke(SaveIntent.SAVE_DRAFT) },
+                        enabled = !state.isSaving,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("Guardar borrador")
+                    }
+                }
+                Button({ actions.validate(SaveIntent.CONFIRM_REGISTRATION) }, modifier = Modifier.fillMaxWidth()) { Text("Validar inscripción") }
+                OutlinedButton({ actions.validate(SaveIntent.SAVE_DRAFT) }, modifier = Modifier.fillMaxWidth()) { Text("Validar borrador") }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton({ confirmDiscard = true }) { Text("Descartar formulario") }
+                    if (actions.onBack != null) {
+                        TextButton(onClick = { confirmDiscard = true }) { Text("Volver al panel") }
+                    }
+                }
+            }
         }
     }
 }
