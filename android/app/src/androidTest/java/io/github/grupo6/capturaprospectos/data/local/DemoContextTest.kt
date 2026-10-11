@@ -93,7 +93,9 @@ class DemoContextTest {
         assertEquals(ContextChange.INVALID_SELECTION, repository().selectEvent(id("event-a")))
         repository().selectProfile(id("supervisor"))
         assertEquals(LocalRole.SUPERVISOR, repository().currentActor()!!.role)
-        assertTrue(ready().availableEvents.isEmpty()) // El supervisor no crea capturas atribuidas a otro.
+        assertEquals(setOf(id("event-a"),id("event-a2"),id("event-b")),ready().availableEvents.map { it.id }.toSet())
+        assertEquals(ContextChange.APPLIED,repository().selectEvent(id("event-a")))
+        assertNull(repository().environment(id("event-a"))) // Puede consultar; continúa sin permiso de alta.
     }
 
     @Test fun realContextSourceSavesAdmissionAndLogoutPreservesIt() = runBlocking {

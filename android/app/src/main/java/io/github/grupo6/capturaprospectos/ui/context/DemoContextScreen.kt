@@ -34,6 +34,7 @@ fun DemoContextScreen(
     onEventSelected: (UUID) -> Unit,
     onClearSelection: () -> Unit,
     modifier: Modifier = Modifier,
+    onContinueToHub: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier,
@@ -92,19 +93,25 @@ fun DemoContextScreen(
                 }
                 when {
                     snapshot.currentProfile == null -> item { Text("Elige un perfil para consultar sus eventos.") }
-                    snapshot.currentProfile.actor.role == LocalRole.SUPERVISOR -> item {
-                        Text("Perfil supervisor: la selección de eventos para capturar no está disponible. La supervisión se incorporará en otro incremento.")
-                    }
                     else -> {
                         item { Text("2. Selecciona un evento", style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.semantics { heading() }) }
-                        if (snapshot.availableEvents.isEmpty()) item { Text("Este perfil no tiene eventos disponibles para capturar.") }
+                        if (snapshot.availableEvents.isEmpty()) item { Text("Este perfil no tiene eventos disponibles dentro de su alcance.") }
                         items(snapshot.availableEvents, key = { "event-${it.id}" }) { event ->
                             ContextChoice(event.name, snapshot.selectedEvent?.id == event.id,
                                 enabled = !state.busy, onClick = { onEventSelected(event.id) })
                         }
                         snapshot.selectedEvent?.let { event -> item {
-                            Text("Contexto seleccionado: ${event.name}. El formulario se incorporará en el siguiente incremento.")
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Contexto seleccionado: ${event.name}.", style = MaterialTheme.typography.bodyMedium)
+                                Button(
+                                    onClick = onContinueToHub,
+                                    enabled = !state.busy,
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text(if (snapshot.currentProfile.actor.role == LocalRole.SUPERVISOR) "Ir al panel de supervisión" else "Ir al panel de captura")
+                                }
+                            }
                         } }
                     }
                 }

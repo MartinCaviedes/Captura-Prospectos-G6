@@ -21,7 +21,7 @@ class DemoContextScreenTest {
     private fun ready(supervisor: Boolean = false, selected: Boolean = false): DemoContextState.Ready {
         val current = if (supervisor) profile.copy(actor = profile.actor.copy(role = LocalRole.SUPERVISOR)) else profile
         return DemoContextState.Ready(DemoContextSnapshot(UUID(0, 4), listOf(current), current,
-            if (supervisor) emptyList() else listOf(event), if (selected) event else null, null,
+            listOf(event), if (selected) event else null, null,
             DemoCatalog("test", "SYNTHETIC", "test", 2027, emptyList(), emptyList()), "test", "Texto ficticio"))
     }
     private fun render(state: DemoContextUiState, initialize: () -> Unit = {}, retry: () -> Unit = {},
@@ -59,10 +59,10 @@ class DemoContextScreenTest {
         compose.onNodeWithText("Evento ficticio").performScrollTo().assertIsNotEnabled()
         compose.onNodeWithText("Salir de la selección").performScrollTo().assertIsNotEnabled()
     }
-    @Test fun supervisorHasNoCaptureEventAction() {
-        render(DemoContextUiState(ready(supervisor = true)))
-        compose.onNodeWithText("Evento ficticio").assertDoesNotExist()
-        compose.onNodeWithText("Perfil supervisor:", substring = true).performScrollTo().assertIsDisplayed()
+    @Test fun supervisorCanEnterItsEventPanelWithoutCaptureAction() {
+        render(DemoContextUiState(ready(supervisor = true, selected = true)))
+        compose.onNodeWithText("Ir al panel de supervisión").performScrollTo().assertIsEnabled()
+        compose.onNodeWithText("Ir al panel de captura").assertDoesNotExist()
     }
     @Test fun clearSelectionIsAnExplicitCallback() {
         var calls = 0

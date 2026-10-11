@@ -1,5 +1,8 @@
 # Seguridad y demostración reproducible
 
+Candidato nativo 10/10: cámara/ubicación con solicitud contextual, entrada manual preservada y candidatos confirmados. Cámara/QR no escriben imágenes/payloads; se retira INTERNET añadido por bibliotecas en E1 y el modelo incluido decodifica sin ese permiso. FINE/COARSE/CAMERA permanecieron denegados en las ejecuciones automáticas; matriz real de permisos y revisión humana pendientes. Auditoría candidata Room v4 y evidencia por incremento: [registros](ROUND2_RECORDS_TRAY.md), [nativos](ROUND2_DEVICE_RESOURCES.md), [resultados](ANDROID_BASELINE.md). Los estados v3 siguientes son antecedentes fechados.
+
+
 Incremento 06/10: Room v3 y contexto/catálogo sintético descritos en [DEMO_CONTEXT](DEMO_CONTEXT.md); inicialización explícita, sin autenticación real ni seed automático al migrar. Suite completa de 24 pruebas Android aprobada sobre v3; ver evidencia en ANDROID_BASELINE.
 
 Estado local verificado al 06/10: SQLCipher 4.19.1 y clave aleatoria de 32 bytes, envuelta mediante AES-256-GCM con Android Keystore. Blob versionado en noBackupFilesDir, IV generado por Cipher y nombre de base como AAD; contraseña mantenida sólo durante la vida de la conexión y sobrescrita al cerrar. Ante clave/blob inaccesible se falla conservando archivos; sin reset ni migración destructiva. La suite de 24 instrumentadas sobre Room v3 incluye reapertura, rechazo de SQLite sin clave, pérdida de alias, permisos, duplicados, rollback y migraciones. Las 16 de v2 quedan como antecedente en ANDROID_BASELINE. Backup/transferencia efectiva, UI y recursos nativos siguen pendientes; no se declara auditoría de seguridad general.
