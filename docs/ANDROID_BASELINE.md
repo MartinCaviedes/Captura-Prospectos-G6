@@ -1,5 +1,16 @@
 # Evidencia de la base Android
 
+## Corrección de adquisición tras prueba física · 10/10/2026
+
+El usuario comprobó cámara física con el QR ficticio: se detectan fullName/RUT y se aplica sólo RUT, sin dividir nombres. Dos intentos de GPS agotaron 10 s con permiso preciso y ubicación activada (uno cerca de ventana). Estos intentos anteriores no acreditaban adquisición ni confirmación.
+
+Se corrige la selección exclusiva de GPS: con permiso preciso se suscriben GPS y red; con aproximado, sólo red. La primera muestra que cumple 100 m/5 min gana. Una muestra imprecisa/antigua no impide esperar al otro proveedor; al agotar plazo se informa calidad si hubo una muestra rechazada, o timeout si no hubo ninguna. No se usa última ubicación cacheada, no se cambian los umbrales ni se confirma automáticamente. Cada listener se retira al terminar, cancelar o revocarse permiso, incluso ante callback síncrono de registro. Sin dependencia nueva ni INTERNET.
+
+Controles nuevos: **155 JVM**, Lint **0 errores/24 avisos**, ambas APK compiladas. Ocho casos JVM específicos de adquisición, cierre y permiso revocado. Xiaomi: **3 decoder/proveedor (1.214 s)** y **8 UI (68.764 s)**, separados con asistencia de apertura MIUI en UI; dobles/bitmaps, sin simular hardware aprobado. Fuentes y APK instaladas verificadas por SHA256 en [evidencia GPS](evidencias/gps-correction-2026-10-10.json). La caché de proyecto fue aislada por worktree y se deshabilitó configuration cache para evitar reutilizar rutas del worktree de detalle. Se corrigió el hallazgo MissingPermission de Lint manejando SecurityException explícitamente; no se añadió baseline ni se deshabilitó el control.
+
+En la APK corregida, el usuario reportó una ubicación candidata con precisión de 12–100 m y comprobó las acciones de confirmar y descartar. No se registraron coordenadas reales ni se atribuye la muestra a un proveedor específico. [Proveedores Android](https://developer.android.com/reference/android/location/LocationManager), [permisos](https://developer.android.com/develop/sensors-and-location/location/permissions). No cierra RF ni revisión humana.
+
+
 ## Corrección R2 · recursos nativos — 10/10/2026
 
 Rama `feature/e1-ronda2-device-resources`, sobre 925810f con las correcciones previas de alta/hub y registros. **147 JVM aprobadas**, cero fallos/errores/omitidas; ambas APK compiladas; **Lint 24 avisos/0 errores**. Los cuatro avisos adicionales corresponden a dependencias/UseKtx; no se modifican las versiones previas por estilo.
