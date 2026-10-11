@@ -44,3 +44,7 @@ El candidato v4 agrega motivo, revisión anterior y campos modificados (sólo no
 [Fixtures de contrato](fixtures/records-contract.json) describen permisos, conflicto, transición, unicidad y rollback. Son ejemplos esperados; las dos pruebas JVM actuales sólo verifican límites de consulta y diagnóstico sin PII. **No acreditan por sí mismas mutaciones ni autorización ejecutada**. La evidencia nueva de Room cifrado se registra en ROUND2_RECORDS_TRAY y ANDROID_BASELINE, separada de los fixtures y pruebas con doble.
 
 Después de revisar las firmas: persistencia implementa este contrato; UI de bandeja puede usar un doble identificado con los mismos resultados. Ningún consumidor debe inventar una API alternativa ni presentar éxito simulado como guardado. Formulario de alta y dispositivos no dependen de completar estas mutaciones.
+
+## Extensión técnica candidata de métricas · 11/10
+
+getMetrics(MetricsQuery) devuelve MetricsResult (Calculated/InvalidQuery/Unavailable/StorageUnavailable). Límites UTC deben ser ambos nulos o un intervalo positivo; la UI convierte fechas en zona del evento. DeviceMetrics incorpora personas distintas, intereses por programa y período efectivamente calculado. Inscripciones activas = READY + NEEDS_CONTEXT, borradores/anuladas aparte. Alcance uniforme con list/get y error explícito sin cero ficticio. Consumidor local preparado/probado; aceptación humana pendiente, sin contrato remoto E2.

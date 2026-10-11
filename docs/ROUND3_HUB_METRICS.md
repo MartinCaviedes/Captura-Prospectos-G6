@@ -1,32 +1,19 @@
-# Ronda 3 · RF09 y RF10: Resumen Operativo Local y Panel de Supervisión en Hub
+# Ronda 3 · RF09/RF10: métricas locales por evento y período
 
-Incremento local sobre la base de ronda 3 (`feature/e1-ronda3-hub-metrics`). Implementa las métricas operativas y el panel de supervisión local exigidos para la entrega E1 (P2/P3), calculando resúmenes estadísticos directamente desde la base de datos Room cifrada del dispositivo sin requerir servicios de red ni sincronización remota.
+Candidato en feature/e1-ronda3-hub-metrics, sobre el original 98f733d y las correcciones comprobadas previas. Sin merge ni cierre E1/RF. Contrato RECORD_CONTRACTS y auditoría v4 pendientes de aceptación humana.
 
-## Alcance técnico implementado
+MetricsQuery contiene evento y límites UTC inclusivo/exclusivo; MetricsResult separa Calculated, InvalidQuery, Unavailable y StorageUnavailable. Se consulta el actor vigente y la sede del evento dentro de la transacción, con el mismo alcance de filas que registros: captador propio y sede vigente, supervisor sus sedes sin borradores ajenos. Un evento desconocido o fuera de alcance no revela datos. Cancelación se propaga; errores de lectura/fecha/estado no se convierten en cero.
 
-| Entregable | Responsabilidad e integración |
-|---|---|
-| **Contratos de Dominio (RF09 / RF10)** | `DeviceMetrics` y `SiteMetrics` en `RecordContracts.kt`. Modelan agregaciones tipadas de capturas (`totalCaptures`, `readyCount`, `draftCount`, `needsContextCount`, `cancelledCount`) desglosadas por evento y por sede. |
-| **Repositorio Room (Persistencia)** | `RoomRecordRepository.getMetrics(eventId)` ejecuta consultas agregadas tipadas en `CaptureDao`: `getMetricsByOwner` para captadores (aislamiento estricto de registros propios) y `getMetricsBySites` para supervisores (agrupación por sede dentro de las sedes autorizadas del evento, excluyendo borradores ajenos). |
-| **UI Resumen Operativo (RF09)** | Tarjeta visual en `MainHubScreen` ("Resumen operativo (este dispositivo)"). Muestra tarjetas métricas con conteos en tiempo real: Total, Confirmadas (`READY`), Borradores (`DRAFT`), Sin ubicación (`NEEDS_CONTEXT`) y Anuladas (`CANCELLED`). Incluye aviso explícito de alcance local: *"Alcance: este dispositivo. Datos calculados directamente desde Room cifrado en este equipo. En E1 no se consolidan registros de otros teléfonos ni servidores."* |
-| **UI Panel de Supervisión (RF10)** | Sección condicional visible exclusivamente para el rol `SUPERVISOR` en `MainHubScreen`. Presenta el desglose de capturas por cada sede asignada y el número de captadores de terreno asignados al evento activo. |
-| **Rutas y Orquestación** | `MainHubRoute` y `MainActivity` conectan `RecordRepository` al Hub principal, actualizando reactivamente las métricas operativas al ingresar a la pantalla o tras guardar/anular/editar registros. |
+Inscripciones activas son READY + NEEDS_CONTEXT. Borradores/anuladas se presentan aparte; personas distintas = RUT normalizado dentro del filtro. Cada carrera cuenta una vez por inscripción activa, con snapshot de etiqueta conservado, por lo que intereses pueden superar personas. El desglose usa nombres de sede del catálogo sintético. Una persona en otro evento se cuenta sólo al consultar ese evento. Las agregaciones se calculan en Kotlin sobre consultas Room cifradas autorizadas; no se afirma agregación SQL optimizada.
 
-## Reglas de negocio y privacidad preservadas
+El hub permite hoy, todo el evento y rango inclusive de fechas locales en la zona del evento; convierte el fin al inicio del día siguiente, incluyendo días de 23/25 h. Fecha inválida/invertida no consulta ni permite que una lectura anterior quite su error. El último cálculo se mantiene con aviso visible ante fallo; acceso perdido lo retira. El ViewModel se retiene por actor completo/evento y el hub actualiza al reingresar, tras volver de altas/ediciones/anulaciones.
 
-1. **Aislamiento por rol:**
-   - **Captador:** Solo contabiliza capturas creadas por su propio identificador (`ownerId == actor.id`). No tiene visibilidad sobre capturas realizadas por otros captadores en el mismo evento.
-   - **Supervisor:** Contabiliza capturas de todas las sedes asignadas a su perfil dentro del evento, excluyendo estrictamente borradores (`state != 'DRAFT'`) para salvaguardar la privacidad de prospectos no confirmados.
-2. **Esquema de base de datos inmutable:**
-   - La implementación de las métricas no altera las entidades Room ni genera migraciones de esquema (permanece en versión 3 intacta con hash validado).
-3. **Transporte estrictamente local:**
-   - Los datos se computan en memoria y SQLite local. No se generan peticiones HTTP ni colas de red.
+Supervisor puede seleccionar explícitamente un evento de sus sedes e ir al panel local; esto no concede permiso de alta. No se muestran reportes inventados de otros teléfonos, consolidación remota ni ACK. Ninguna migración adicional: se consume el candidato v4 ya propagado.
 
-## Pruebas agregadas y verificadas
+## Corrección y verificación de métricas · 11/10/2026
 
-- `MainHubMetricsTest`: 3 pruebas unitarias en JVM que validan:
-  - Cómputo correcto de totales operativos (`totalCaptures`, confirmadas, borradores, pendientes, anuladas).
-  - Desglose por sedes y recuentos para supervisores.
-  - Inicialización consistente en cero ante eventos sin registros.
-- `RecordTrayViewModelTest`: Actualización de mocks y contratos auxiliares (`FakeRecordRepository`).
-- Verificación de esquema SQLite: Scripts `verify_migration_sql.py` y `verify_context_migration_sql.py` ejecutados con 100% éxito.
+**172 JVM**, ambas APK y Lint **0 errores/25 avisos**. Incluye cuatro regresiones nuevas de fechas/zona/DST, rango inválido que cancela una lectura, error con último cálculo y cancelación por dueño. Xiaomi 11T Android 14/API 34: **43 cifradas (55.885 s)** y **9 UI (54.032 s)** en grupos separados; asistencia MIUI en UI. Cuatro nuevas de Room verifican conteos/rango/eventos/intereses, alcance de captador/supervisor, almacenamiento corrupto y cancelación. Dos UI nuevas usan Room cifrado real para supervisor sin alta y actualización tras anulación/rango inválido; seis del selector y una de contexto+Room son regresiones. [Fuentes/APK/runners](evidencias/metrics-correction-2026-10-11.json).
+
+El primer control cifrado rechazó un RUT ficticio con DV incorrecto en la preparación; se corrigió el fixture y el grupo final completo pasó. Lint detectó uso de ViewModelStore.put en código de producción; se sustituyó por ViewModelProvider/fábrica pública, conservando el control. Sin tests omitidos ni baseline nueva.
+
+Pendientes: rendimiento de 400 con método/dispositivo documentados, revisión cruzada, giro real, TalkBack/visual completa y ensayo P3. La supervisión remota permanece en E2.

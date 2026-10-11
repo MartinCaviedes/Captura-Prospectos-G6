@@ -1,5 +1,12 @@
 # Cambios del producto
 
+## Corrección y verificación de métricas · 11/10/2026
+
+**172 JVM**, ambas APK y Lint **0 errores/25 avisos**. Incluye cuatro regresiones nuevas de fechas/zona/DST, rango inválido que cancela una lectura, error con último cálculo y cancelación por dueño. Xiaomi 11T Android 14/API 34: **43 cifradas (55.885 s)** y **9 UI (54.032 s)** en grupos separados; asistencia MIUI en UI. Cuatro nuevas de Room verifican conteos/rango/eventos/intereses, alcance de captador/supervisor, almacenamiento corrupto y cancelación. Dos UI nuevas usan Room cifrado real para supervisor sin alta y actualización tras anulación/rango inválido; seis del selector y una de contexto+Room son regresiones. [Fuentes/APK/runners](evidencias/metrics-correction-2026-10-11.json).
+
+El primer control cifrado rechazó un RUT ficticio con DV incorrecto en la preparación; se corrigió el fixture y el grupo final completo pasó. Lint detectó uso de ViewModelStore.put en código de producción; se sustituyó por ViewModelProvider/fábrica pública, conservando el control. Sin tests omitidos ni baseline nueva.
+
+
 ## Corrección R3 · detalle — 11/10/2026
 
 Edición completa F2027 del mismo ID, foco del primer error, campos opcionales retirables, contexto original autorizado y conflicto que conserva cambios hasta descarte confirmado. Feedback sólo en diálogo activo. 165 JVM, Lint 0 errores/25 avisos, 39 cifradas y 11 UI separadas; ver ROUND3_RECORD_DETAIL. Contrato/v4 y revisión humana pendientes.

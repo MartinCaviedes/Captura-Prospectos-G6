@@ -1,0 +1,42 @@
+{
+  "jvm": {
+    "tests": 172,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "Error": 0,
+    "Warning": 25
+  },
+  "apks": {
+    "outputs/apk/demo/debug/app-demo-debug.apk": "9f0a8af44e869f1a1c7fbb93c161416ef960f10efe7b4969cecb180c86cedc8e",
+    "outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk": "da8b5f53558b338237b302845b6b75c96fae2a9401b884ee3826522198d31ba7"
+  },
+  "date": "2026-10-11",
+  "base": "7f87544",
+  "android": {
+    "data": {
+      "passed": 43,
+      "seconds": 55.885,
+      "assisted_launch": false
+    },
+    "ui": {
+      "passed": 9,
+      "seconds": 54.032,
+      "assisted_launch": true
+    }
+  },
+  "sources_sha256": {
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/RoomRecordRepository.kt": "45f1064cd263f9f71aa8a9b568ac2b2aff95afd306c4200f9cae4c666a450b7c",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/hub/MainHubMetricsViewModel.kt": "4873d157422a62095e8a71ea5f3aa4f44dbee58914bedaf011199df54c650092",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/hub/MainHubRoute.kt": "ba7187e80c9a0b95d7f05f0a7aae2b04b10c609a96f17bf2217f367efb701a58",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/data/local/MetricsStorageTest.kt": "6d2fca97a2f5bdda39b8adf94bb8d383272f1b9d0a0768ae2b79007454722b00",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/hub/HubMetricsRoomUiTest.kt": "b187201dd90dba5cbd0fdeee24bfa771ef38e171840849fc95f98046b633dba4"
+  },
+  "limits": [
+    "Métricas exclusivamente locales; no estima otros teléfonos ni reportes/ACK E2.",
+    "Agregaciones Kotlin sobre consultas autorizadas; rendimiento de 400 pendiente en su bloque.",
+    "RECORD_CONTRACTS, Room v4, revisión humana, giro real/TalkBack y ensayo P3 pendientes."
+  ]
+}

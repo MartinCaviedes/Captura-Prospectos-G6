@@ -30,6 +30,7 @@ data class MainHubUiState(
     val connectivity: ConnectivityStatus = ConnectivityStatus.UNKNOWN,
     val metrics: DeviceMetrics? = null,
     val isLoadingMetrics: Boolean = false,
+    val metricsError: String? = null, val fromDate: String = "", val untilDate: String = "",
 )
 
 @Composable
@@ -40,6 +41,8 @@ fun MainHubScreen(
     modifier: Modifier = Modifier,
     onOpenTray: () -> Unit = {},
     onRefreshMetrics: () -> Unit = {},
+    onFromDate: (String) -> Unit = {}, onUntilDate: (String) -> Unit = {},
+    onToday: () -> Unit = {}, onAll: () -> Unit = {}, onRange: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier,
@@ -109,6 +112,7 @@ fun MainHubScreen(
                     )
                     Button(
                         onClick = onNewCapture,
+                        enabled = state.profile.actor.role == LocalRole.CAPTOR,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text("Nueva Captura de Prospecto")
@@ -150,7 +154,7 @@ fun MainHubScreen(
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.semantics { heading() },
                         )
-                        TextButton(onClick = onRefreshMetrics) {
+                        TextButton(onClick = onRefreshMetrics, enabled = !state.isLoadingMetrics) {
                             Text("Actualizar")
                         }
                     }
@@ -165,13 +169,27 @@ fun MainHubScreen(
                         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                     }
 
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        TextButton(onClick=onToday,enabled=!state.isLoadingMetrics) { Text("Hoy") }
+                        TextButton(onClick=onAll,enabled=!state.isLoadingMetrics) { Text("Todo el evento") }
+                    }
+                    OutlinedTextField(state.fromDate,onFromDate,label={Text("Desde (aaaa-mm-dd)")},modifier=Modifier.fillMaxWidth())
+                    OutlinedTextField(state.untilDate,onUntilDate,label={Text("Hasta inclusive (aaaa-mm-dd)")},modifier=Modifier.fillMaxWidth())
+                    OutlinedButton(onClick=onRange,enabled=!state.isLoadingMetrics) { Text("Aplicar rango") }
+                    state.metricsError?.let { Text(it,color=MaterialTheme.colorScheme.error) }
+                    if (state.metricsError != null && state.metrics != null) Text("Se conserva el último cálculo; revisa su período antes de usarlo.")
+                    if (state.metrics == null && !state.isLoadingMetrics && state.metricsError == null) Text("Métricas aún desconocidas.")
                     val m = state.metrics
                     if (m != null) {
+                        Text("Personas distintas: ${m.distinctPeople}")
+                        Text(if (m.fromInclusive == null) "Período calculado: todo el evento" else "Período calculado: ${m.fromInclusive.atZone(state.event.timeZone).toLocalDate()} a ${m.untilExclusive!!.minusNanos(1).atZone(state.event.timeZone).toLocalDate()} (${state.event.timeZone.id})")
+                        Text("READY y NEEDS_CONTEXT cuentan como inscripciones activas; borradores/anuladas se separan.")
+                        m.programMetrics.forEach { Text("${it.snapshotName}: ${it.registrations} interés(es)") }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            MetricStatCard("Total", "${m.totalCaptures}", MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.weight(1f))
+                            MetricStatCard("Inscripciones activas", "${m.totalCaptures}", MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.weight(1f))
                             MetricStatCard("Confirmadas", "${m.readyCount}", MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.weight(1f))
                         }
                         Row(
@@ -213,7 +231,7 @@ fun MainHubScreen(
                         Text("Distribución por Sedes:", style = MaterialTheme.typography.titleSmall)
                         val siteList = state.metrics?.siteMetrics.orEmpty()
                         if (siteList.isEmpty()) {
-                            Text("No hay sedes con capturas registradas en este evento todavía.", style = MaterialTheme.typography.bodySmall)
+                            Text(if (state.metrics == null) "Desglose desconocido; requiere cálculo correcto." else "Sin registros autorizados en este filtro.", style = MaterialTheme.typography.bodySmall)
                         } else {
                             siteList.forEach { s ->
                                 Surface(
@@ -344,16 +362,15 @@ private fun MainHubPreview() {
                     profile = DemoProfile(
                         actor = LocalActor(UUID.randomUUID(), LocalRole.CAPTOR, emptySet()),
                         displayName = "Juan Captador",
-                        activeEventId = UUID.randomUUID(),
                     ),
                     event = CaptureEvent(
                         id = UUID.randomUUID(),
                         siteId = UUID.randomUUID(),
                         name = "Feria Central 2026",
-                        startUtc = Instant.now(),
-                        endUtc = Instant.now().plusSeconds(3600),
+                        startsAt = Instant.now(),
+                        endsAt = Instant.now().plusSeconds(3600),
                         timeZone = ZoneId.of("America/Santiago"),
-                        assignedCaptorIds = setOf(UUID.randomUUID()),
+                        assignedCaptorIds = setOf(UUID.randomUUID()), location = null,
                     ),
                     connectivity = ConnectivityStatus.VALIDATED,
                     metrics = DeviceMetrics(

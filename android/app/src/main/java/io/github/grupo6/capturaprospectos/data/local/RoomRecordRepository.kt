@@ -24,59 +24,46 @@ internal class RoomRecordRepository(
     private val admissionRepo = RoomAdmissionRepository(db, context, clock = clock, dispatcher = dispatcher)
     override suspend fun get(id: UUID): ReadAdmissionResult = admissionRepo.get(id)
 
-    override suspend fun getMetrics(eventId: UUID): DeviceMetrics = withContext(dispatcher) {
+    override suspend fun getMetrics(query: MetricsQuery): MetricsResult = withContext(dispatcher) {
+        if (!query.isValid()) return@withContext MetricsResult.InvalidQuery
         try {
             db.withTransaction {
-                val actor = context.currentActor() ?: return@withTransaction DeviceMetrics(eventId, 0, 0, 0, 0, 0)
-                val catalog = context.environment(eventId)
-                val dao = db.captures()
-
-                val rawRows = when (actor.role) {
-                    LocalRole.CAPTOR -> dao.capturesByOwner(actor.id.toString())
-                    LocalRole.SUPERVISOR -> {
-                        val siteIds = actor.siteScopes.map { it.toString() }
-                        if (siteIds.isEmpty()) emptyList() else dao.capturesBySitesExcludingDraft(siteIds)
+                val actor=context.currentActor() ?: return@withTransaction MetricsResult.Unavailable
+                val event=db.context().events().singleOrNull { it.id == query.eventId.toString() }
+                    ?: return@withTransaction MetricsResult.Unavailable
+                if (UUID.fromString(event.siteId) !in actor.siteIds) return@withTransaction MetricsResult.Unavailable
+                val dao=db.captures()
+                val rows=dao.capturesForActor(actor.id.toString(),actor.siteIds.map(UUID::toString),actor.role == LocalRole.SUPERVISOR)
+                    .filter { row ->
+                        if (row.eventId != event.id) false else {
+                            val at=Instant.parse(row.capturedAt)
+                            (query.fromInclusive == null || at >= query.fromInclusive) && (query.untilExclusive == null || at < query.untilExclusive)
+                        }
                     }
-                }
-
-                val eventRows = rawRows.filter { it.eventId == eventId.toString() }
-                val total = eventRows.size
-                val ready = eventRows.count { it.state == CaptureState.READY.name }
-                val draft = eventRows.count { it.state == CaptureState.DRAFT.name }
-                val needsContext = eventRows.count { it.state == CaptureState.NEEDS_CONTEXT.name }
-                val cancelled = eventRows.count { it.state == CaptureState.CANCELLED.name }
-
-                val siteMetrics = if (actor.role == LocalRole.SUPERVISOR && catalog != null) {
-                    val siteMap = catalog.sites.associateBy { it.id }
-                    val groupedBySite = eventRows.groupBy { it.siteId }
-                    actor.siteScopes.mapNotNull { siteId ->
-                        val siteOpt = siteMap[siteId] ?: return@mapNotNull null
-                        val siteRows = groupedBySite[siteId.toString()] ?: emptyList()
-                        SiteMetrics(
-                            siteId = siteId,
-                            siteName = siteOpt.name,
-                            totalCount = siteRows.size,
-                            readyCount = siteRows.count { it.state == CaptureState.READY.name },
-                            draftCount = siteRows.count { it.state == CaptureState.DRAFT.name },
-                            needsContextCount = siteRows.count { it.state == CaptureState.NEEDS_CONTEXT.name },
-                            cancelledCount = siteRows.count { it.state == CaptureState.CANCELLED.name },
-                        )
-                    }
-                } else emptyList()
-
-                DeviceMetrics(
-                    eventId = eventId,
-                    totalCaptures = total,
-                    readyCount = ready,
-                    draftCount = draft,
-                    needsContextCount = needsContext,
-                    cancelledCount = cancelled,
-                    siteMetrics = siteMetrics,
-                )
+                rows.forEach { CaptureState.valueOf(it.state) }
+                val active=rows.filter { it.state == "READY" || it.state == "NEEDS_CONTEXT" }
+                active.forEach { require(RutValidator.isValid(it.rut)) }
+                val programs=active.flatMap { row -> dao.interests(row.id).distinctBy { it.programId } }
+                    .groupBy { it.programId }.map { (id, interests) ->
+                        ProgramMetrics(UUID.fromString(id), interests.first().programName, interests.size)
+                    }.sortedBy { it.snapshotName }
+                val siteNames=db.context().state()?.catalogVersion?.let { db.context().sites(it).associateBy { row -> row.id } }.orEmpty()
+                val sites=if (actor.role == LocalRole.SUPERVISOR) rows.groupBy { it.siteId }.map { (id, siteRows) ->
+                    SiteMetrics(UUID.fromString(id),requireNotNull(siteNames[id]).name,
+                        siteRows.count { it.state == "READY" || it.state == "NEEDS_CONTEXT" },
+                        siteRows.count { it.state == "READY" },siteRows.count { it.state == "DRAFT" },
+                        siteRows.count { it.state == "NEEDS_CONTEXT" },siteRows.count { it.state == "CANCELLED" })
+                }.sortedBy { it.siteName } else emptyList()
+                MetricsResult.Calculated(DeviceMetrics(query.eventId,active.size,
+                    rows.count { it.state == "READY" },rows.count { it.state == "DRAFT" },
+                    rows.count { it.state == "NEEDS_CONTEXT" },rows.count { it.state == "CANCELLED" },sites,
+                    active.map { RutValidator.normalize(it.rut) }.distinct().size,programs,query.fromInclusive,query.untilExclusive))
             }
-        } catch (_: Exception) {
-            DeviceMetrics(eventId, 0, 0, 0, 0, 0)
-        }
+        } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+        catch (_: SQLiteException) { MetricsResult.StorageUnavailable }
+        catch (_: IllegalArgumentException) { MetricsResult.StorageUnavailable }
+        catch (_: DateTimeException) { MetricsResult.StorageUnavailable }
+        catch (_: IllegalStateException) { MetricsResult.StorageUnavailable }
     }
 
     override suspend fun editContext(id: UUID): RecordEditContextResult = withContext(dispatcher) {

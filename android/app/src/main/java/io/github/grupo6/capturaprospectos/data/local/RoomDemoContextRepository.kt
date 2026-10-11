@@ -96,7 +96,7 @@ internal class RoomDemoContextRepository(
             val coordinates = if (row.latitude == null && row.longitude == null) null else Coordinates(requireNotNull(row.latitude), requireNotNull(row.longitude)).also { require(it.isValid()) }
             CaptureEvent(UUID.fromString(row.id), UUID.fromString(row.siteId), row.name, Instant.parse(row.startsAt), Instant.parse(row.endsAt), ZoneId.of(row.timeZone),
                 dao.assignments(row.id).map { UUID.fromString(it.profileId) }.toSet(), coordinates)
-        }.filter { profile != null && LocalCaptureAccess.canCreate(profile.actor, it) }
+        }.filter { profile != null && LocalCaptureAccess.canSelectEvent(profile.actor, it) }
         val selected = state.eventId?.let { id -> requireNotNull(available.singleOrNull { it.id.toString() == id }) }
         val eventRow = rows.singleOrNull { it.id == selected?.id.toString() }
         val suggestion = eventRow?.establishment?.let { EstablishmentSuggestion(it, eventRow.establishmentCommune) }

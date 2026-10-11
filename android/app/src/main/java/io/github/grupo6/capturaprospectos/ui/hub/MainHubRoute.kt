@@ -21,46 +21,35 @@ fun MainHubRoute(
     modifier: Modifier = Modifier,
     onOpenTray: () -> Unit = {},
     recordRepository: RecordRepository? = null,
+    suppliedMetrics: MainHubMetricsViewModel? = null,
 ) {
     val connectivity by connectivityObserver.observe().collectAsStateWithLifecycle(initialValue = ConnectivityStatus.UNKNOWN)
-    var metrics by remember { mutableStateOf<DeviceMetrics?>(null) }
-    var isLoadingMetrics by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(profile.actor.id, event.id, recordRepository) {
-        if (recordRepository != null) {
-            isLoadingMetrics = true
-            try {
-                metrics = recordRepository.getMetrics(event.id)
-            } finally {
-                isLoadingMetrics = false
-            }
-        }
+    val localStore = remember(profile.actor, event, recordRepository) { androidx.lifecycle.ViewModelStore() }
+    val metricsVm = suppliedMetrics ?: remember(localStore) {
+        androidx.lifecycle.ViewModelProvider(localStore, object : androidx.lifecycle.ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T =
+                MainHubMetricsViewModel(recordRepository, event) as T
+        })[MainHubMetricsViewModel::class.java]
     }
-
+    val metricsState by metricsVm.uiState.collectAsStateWithLifecycle()
+    LaunchedEffect(metricsVm) { if (suppliedMetrics != null) metricsVm.refresh() }
+    DisposableEffect(localStore) { onDispose { localStore.clear() } }
     MainHubScreen(
         state = MainHubUiState(
             profile = profile,
             event = event,
             connectivity = connectivity,
-            metrics = metrics,
-            isLoadingMetrics = isLoadingMetrics,
+            metrics = metricsState.metrics,
+            isLoadingMetrics = metricsState.isLoading, metricsError = metricsState.error,
+            fromDate = metricsState.fromDate, untilDate = metricsState.untilDate,
         ),
         onNewCapture = onNewCapture,
         onChangeContext = onChangeContext,
         modifier = modifier,
         onOpenTray = onOpenTray,
-        onRefreshMetrics = {
-            if (recordRepository != null) {
-                scope.launch {
-                    isLoadingMetrics = true
-                    try {
-                        metrics = recordRepository.getMetrics(event.id)
-                    } finally {
-                        isLoadingMetrics = false
-                    }
-                }
-            }
-        },
+        onRefreshMetrics = { metricsVm.refresh() },
+        onFromDate = metricsVm::fromDate, onUntilDate = metricsVm::untilDate,
+        onToday = { metricsVm.today() }, onAll = { metricsVm.all() }, onRange = { metricsVm.range() },
     )
 }
