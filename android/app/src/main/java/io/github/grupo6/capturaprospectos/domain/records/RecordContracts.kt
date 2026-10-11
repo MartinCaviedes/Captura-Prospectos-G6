@@ -75,7 +75,15 @@ data class DeviceMetrics(
     val siteMetrics: List<SiteMetrics> = emptyList(),
 )
 
+/** Contexto confiable para editar: catálogo actual y evidencia del registro, nunca alta implícita. */
+sealed interface RecordEditContextResult {
+    data class Available(val environment: AdmissionEnvironment,
+        val suggestion: io.github.grupo6.capturaprospectos.domain.context.EstablishmentSuggestion? = null) : RecordEditContextResult
+    data object Unavailable : RecordEditContextResult
+    data object StorageUnavailable : RecordEditContextResult
+}
 interface RecordRepository {
+    suspend fun editContext(id: UUID): RecordEditContextResult = RecordEditContextResult.Unavailable
     suspend fun list(query: RecordQuery): RecordPageResult
     suspend fun get(id: UUID): ReadAdmissionResult
     suspend fun getMetrics(eventId: UUID): DeviceMetrics

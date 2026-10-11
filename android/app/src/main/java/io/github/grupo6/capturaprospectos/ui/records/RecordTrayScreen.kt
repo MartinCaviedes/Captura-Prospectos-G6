@@ -33,23 +33,31 @@ fun RecordTrayScreen(
     onCloseDetail: () -> Unit = {},
     onStartEdit: () -> Unit = {},
     onCancelEdit: () -> Unit = {},
-    onSaveEdit: (AdmissionInput, String?) -> Unit = { _, _ -> },
+    onSaveEditor: (io.github.grupo6.capturaprospectos.domain.capture.SaveIntent) -> Unit = {},
+    onEditReason: (String) -> Unit = {}, onReloadDetail: () -> Unit = {},
+    onDiscardEditConfirmation: (Boolean) -> Unit = {},
+    onCancellationReason: ((String) -> Unit)? = null,
     modifier: Modifier = Modifier,
     onLoadMore: () -> Unit = {},
     onRefresh: () -> Unit = {},
 ) {
     var reasonInput by remember(state.targetForCancellation?.id) { mutableStateOf("") }
 
-    // Modal de Detalle y EdiciÃ³n de Ficha (RF07)
+    if (state.confirmEditDiscard) AlertDialog(onDismissRequest = { onDiscardEditConfirmation(false) },
+        title = { Text("¿Descartar cambios de edición?") },
+        text = { Text("Se quitarán los cambios y el motivo que permanecen en memoria." ) },
+        confirmButton = { TextButton(onClick = { onDiscardEditConfirmation(true) }) { Text("Descartar cambios") } },
+        dismissButton = { TextButton(onClick = { onDiscardEditConfirmation(false) }) { Text("Conservar cambios") } })
+
+    // Modal de Detalle y Edición de Ficha (RF07)
     if (state.isDetailOpen && state.selectedRecord != null) {
         RecordDetailDialog(
             admission = state.selectedRecord,
-            isEditing = state.isEditing,
-            isSaving = state.isSavingEdit,
+            state = state,
             onClose = onCloseDetail,
             onStartEdit = onStartEdit,
             onCancelEdit = onCancelEdit,
-            onSaveEdit = onSaveEdit,
+            onSaveEditor = onSaveEditor, onEditReason = onEditReason, onReload = onReloadDetail,
             onCancelRecord = {
                 val sum = state.items.firstOrNull { it.id == state.selectedRecord.id }
                     ?: RecordSummary(
@@ -70,17 +78,17 @@ fun RecordTrayScreen(
     if (state.targetForCancellation != null) {
         AlertDialog(
             onDismissRequest = onCloseCancel,
-            title = { Text("Anular InscripciÃ³n") },
+            title = { Text("Anular Inscripción") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        "Se anularÃ¡ el registro de ${state.targetForCancellation.displayName} (${state.targetForCancellation.rut}). " +
-                            "La anulaciÃ³n libera la reserva del RUT para volver a registrarlo si es necesario y deja constancia en auditorÃ­a."
+                        "Se anulará el registro de ${state.targetForCancellation.displayName} (${state.targetForCancellation.rut}). " +
+                            "La anulación libera la reserva del RUT para volver a registrarlo si es necesario y deja constancia en auditoría."
                     )
                     OutlinedTextField(
-                        value = reasonInput,
-                        onValueChange = { reasonInput = it },
-                        label = { Text("Motivo de la anulaciÃ³n (5 a 300 caracteres)") },
+                        value = if (onCancellationReason == null) reasonInput else state.cancellationReason,
+                        onValueChange = { if (onCancellationReason == null) reasonInput = it else onCancellationReason(it) },
+                        label = { Text("Motivo de la anulación (5 a 300 caracteres)") },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = false,
                         maxLines = 4,
@@ -92,11 +100,11 @@ fun RecordTrayScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        onConfirmCancel(reasonInput)
+                        onConfirmCancel(if (onCancellationReason == null) reasonInput else state.cancellationReason)
                     },
-                    enabled = !state.isMutating && reasonInput.trim().length in 5..300,
+                    enabled = !state.isMutating && (if (onCancellationReason == null) reasonInput else state.cancellationReason).trim().length in 5..300,
                 ) {
-                    Text("Confirmar anulaciÃ³n")
+                    Text("Confirmar anulación")
                 }
             },
             dismissButton = {
@@ -126,7 +134,7 @@ fun RecordTrayScreen(
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier.semantics { heading() },
                     )
-                    Text("GestiÃ³n local en este dispositivo", style = MaterialTheme.typography.bodyMedium)
+                    Text("Gestión local en este dispositivo", style = MaterialTheme.typography.bodyMedium)
                 }
                 OutlinedButton(enabled = !state.isMutating, onClick = onNavigateBack) {
                     Text("Volver")
@@ -234,7 +242,7 @@ fun RecordTrayScreen(
         }
         if (state.nextCursor != null) item {
             Button(onClick = onLoadMore, enabled = !state.isLoading && !state.isMutating,
-                modifier = Modifier.fillMaxWidth()) { Text("Cargar mÃ¡s registros") }
+                modifier = Modifier.fillMaxWidth()) { Text("Cargar más registros") }
         }
     }
 }
@@ -248,6 +256,7 @@ private fun RecordItemCard(
 ) {
     Card(
         onClick = onDetailClick,
+        enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
@@ -273,7 +282,7 @@ private fun RecordItemCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text("RUT: ${item.rut}", style = MaterialTheme.typography.bodyMedium)
-                Text("VersiÃ³n: ${item.contract.name}", style = MaterialTheme.typography.bodySmall)
+                Text("Versión: ${item.contract.name}", style = MaterialTheme.typography.bodySmall)
             }
 
             Text("Capturado: ${item.capturedAt}", style = MaterialTheme.typography.labelSmall)
@@ -322,11 +331,11 @@ private fun RecordTrayPreview() {
                     items = listOf(
                         RecordSummary(
                             UUID.randomUUID(), 1, Instant.now(), UUID.randomUUID(),
-                            "Juan PÃ©rez Soto", "12345678-5", CaptureState.READY, RecordContract.F2027
+                            "Juan Pérez Soto", "12345678-5", CaptureState.READY, RecordContract.F2027
                         ),
                         RecordSummary(
                             UUID.randomUUID(), 1, Instant.now(), UUID.randomUUID(),
-                            "MarÃ­a GonzÃ¡lez", "87654321-4", CaptureState.DRAFT, RecordContract.F2027
+                            "María González", "87654321-4", CaptureState.DRAFT, RecordContract.F2027
                         ),
                     ),
                 ),
