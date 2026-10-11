@@ -149,7 +149,7 @@ fun RecordTrayScreen(
             }
         }
 
-        state.message?.let { msg ->
+        state.message?.takeIf { !state.isDetailOpen && state.targetForCancellation == null }?.let { msg ->
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
