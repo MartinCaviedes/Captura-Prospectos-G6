@@ -18,7 +18,17 @@ Incremento local sobre la base de ronda 1 (`525f109`), desarrollado en la rama `
 3. **Control de duplicados sin fuga de datos:** `CreateAdmissionResult.DuplicateOwn` notifica la coincidencia propia; `CreateAdmissionResult.DuplicateRestricted` informa duplicado en el evento sin revelar identificadores ni datos de otros captadores.
 4. **Tolerancia a fallos:** Los fallos de almacenamiento (`StorageUnavailable`) se comunican sin reiniciar la base de datos ni provocar crashes, preservando los datos digitados para reintentar.
 
-## Pruebas agregadas
+## Corrección y verificación — 10/10/2026
+
+La revisión encontró un argumento inexistente en CaptureEnvironment y un formulario creado con remember sin ViewModelStore. Se corrige el consumidor (`offerings`); ContextSessionOwner retiene el formulario por perfil/evento y libera su estado al salir. Primero cancela y espera sus consumidores, luego cierra Room. Sólo se retienen respuestas en memoria; una muerte de proceso pierde el formulario no guardado.
+
+Atrás del sistema y el botón de salida piden confirmación para descartar. Durante el guardado no se permiten edición, cambio de consentimiento, descarte, reset ni segundo envío: se espera el resultado transaccional y se conserva la entrada si falla. Tras guardar se requiere «Nueva inscripción» para otra alta. Sin consentimiento no se llama al repositorio desde el formulario; el repositorio mantiene la validación autoritativa. Mensajes por campo y filas adaptables mejoran el feedback; no acreditan accesibilidad completa.
+
+Controles nuevos: **109 JVM sin fallos/errores/omitidas**, build principal/instrumental correcto y **Lint 20 avisos/0 errores**, sin actualizar dependencias. En Xiaomi 11T Android 14/API 34: **27 pruebas de persistencia cifrada** (29.645 s) y, por separado, **4 de formulario/Atrás** (40.641 s). Las cuatro UI necesitaron apertura asistida por ADB en MIUI, sin conceder permisos ni omitir aserciones. La duración incluye espera y no mide rendimiento de la app. Los SHA256 de ambas APK instaladas coinciden con el build registrado.
+
+[Evidencia por fuentes/APK y suites](evidencias/form-correction-2026-10-10.json), [salida UI](evidencias/android-form-correction-2026-10-10.txt). Los tests de retención/liberación y cancelación antes de cerrar la conexión usan ViewModelStore en JVM; todavía queda comprobar giro real del recorrido de MainActivity, TalkBack/visual completa, cámara/GPS y revisión humana. La UI usa un doble demorado; la persistencia real se prueba en otro grupo, sin afirmar un recorrido conjunto nuevo ni cierre de E1.
+
+## Pruebas originales del incremento (antecedente)
 
 - `AdmissionFormSaveTest`: 9 pruebas unitarias en JVM que verifican:
   - Guardado sin repositorio informa error sin crash.
@@ -26,6 +36,6 @@ Incremento local sobre la base de ronda 1 (`525f109`), desarrollado en la rama `
   - Guardado de borrador consentido confirma estado `DRAFT`.
   - Manejo de duplicado propio y duplicado restringido (sin PII).
   - Fallo de almacenamiento preserva datos en memoria.
-  - Consentimiento requerido bloquea la llamada al repositorio.
+  - El caso original recibía ConsentRequired del doble; la corrección posterior comprueba que sin consentimiento no se llama al repositorio.
   - Reseteo completo tras guardar para capturar nuevo prospecto.
-  - Modificación de campos tras guardado invalida el estado de guardado previo.
+  - La corrección posterior requiere reset explícito antes de otra captura y bloquea cambios durante guardado.

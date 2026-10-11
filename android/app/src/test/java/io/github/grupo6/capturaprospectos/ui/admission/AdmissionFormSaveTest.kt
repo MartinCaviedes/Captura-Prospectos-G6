@@ -8,6 +8,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
 import org.junit.After
@@ -53,6 +54,8 @@ class AdmissionFormSaveTest {
     @Test
     fun saveWithoutRepositoryReportsError() = runTest(dispatcher) {
         val vm = vm(repo = null)
+        vm.mode(AcceptanceMode.DIRECT)
+        vm.consent(true)
         vm.save(SaveIntent.CONFIRM_REGISTRATION)
         runCurrent()
         assertFalse(vm.uiState.value.isSaved)
@@ -163,6 +166,7 @@ class AdmissionFormSaveTest {
         val state = vm.uiState.value
         assertFalse(state.isSaved)
         assertEquals(AdmissionField.CONSENT, state.issues.single().field)
+        assertNull(fakeRepo.lastRequest)
     }
 
     @Test
@@ -182,7 +186,7 @@ class AdmissionFormSaveTest {
     }
 
     @Test
-    fun editingInputResetsSavedState() = runTest(dispatcher) {
+    fun savedFormRequiresExplicitResetBeforeAnotherCapture() = runTest(dispatcher) {
         val saveId = UUID.randomUUID()
         fakeRepo.resultToReturn = CreateAdmissionResult.Saved(saveId, 1, CaptureState.READY)
         val vm = vm()
@@ -194,18 +198,49 @@ class AdmissionFormSaveTest {
         assertTrue(vm.uiState.value.isSaved)
 
         vm.text(AdmissionField.GIVEN_NAMES, "Nuevo nombre")
-        assertFalse(vm.uiState.value.isSaved)
-        assertNull(vm.uiState.value.savedId)
+        assertTrue(vm.uiState.value.isSaved)
+        assertEquals(saveId, vm.uiState.value.savedId)
+        assertEquals("", vm.uiState.value.input.givenNames)
+        assertNull(vm.save(SaveIntent.SAVE_DRAFT))
+    }
+
+    @Test
+    fun delayedSaveBlocksDiscardEditsConsentAndRepeatedSubmission() = runTest(dispatcher) {
+        val response = CompletableDeferred<CreateAdmissionResult>()
+        fakeRepo.delayed = response
+        val vm = vm()
+        vm.text(AdmissionField.GIVEN_NAMES, "Persona ficticia")
+        vm.mode(AcceptanceMode.DIRECT)
+        vm.consent(true)
+        val before = vm.uiState.value
+        val job = vm.save(SaveIntent.SAVE_DRAFT)
+        runCurrent()
+        vm.discard()
+        vm.reset()
+        vm.text(AdmissionField.GIVEN_NAMES, "Cambio tardío")
+        vm.consent(false)
+        vm.mode(AcceptanceMode.VERBAL)
+        vm.activity(CurrentActivity.OTHER)
+        assertNull(vm.save(SaveIntent.CONFIRM_REGISTRATION))
+        assertTrue(vm.uiState.value.isSaving)
+        assertEquals(before.input, vm.uiState.value.input)
+        assertEquals(before.consent, vm.uiState.value.consent)
+        response.complete(CreateAdmissionResult.Saved(UUID(0, 100), 1, CaptureState.DRAFT))
+        job!!.join()
+        assertTrue(vm.uiState.value.isSaved)
+        vm.discard()
+        assertEquals(AdmissionFormState(), vm.uiState.value)
     }
 }
 
 private class FakeAdmissionRepository : AdmissionRepository {
     var lastRequest: NewAdmission? = null
     var resultToReturn: CreateAdmissionResult = CreateAdmissionResult.StorageUnavailable
+    var delayed: CompletableDeferred<CreateAdmissionResult>? = null
 
     override suspend fun create(request: NewAdmission): CreateAdmissionResult {
         lastRequest = request
-        return resultToReturn
+        return delayed?.await() ?: resultToReturn
     }
 
     override suspend fun get(id: UUID): ReadAdmissionResult = ReadAdmissionResult.Unavailable

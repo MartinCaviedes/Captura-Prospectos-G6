@@ -1,6 +1,7 @@
 package io.github.grupo6.capturaprospectos.ui.admission
 
 import androidx.compose.foundation.layout.*
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.selection.toggleable
@@ -71,6 +72,11 @@ class FormActions(
     // La búsqueda se conserva sólo durante esta composición para evitar restaurar datos personales.
     var search by remember { mutableStateOf("") }
     var confirmDiscard by remember { mutableStateOf(false) }
+    BackHandler(enabled = actions.onBack != null) {
+        if (!state.isSaving) {
+            if (state.isSaved) actions.onBack?.invoke() else confirmDiscard = true
+        }
+    }
     val input = state.input
 
     if (state.pendingActivity != null) AlertDialog(onDismissRequest = { actions.discardActivity(false) },
@@ -80,7 +86,7 @@ class FormActions(
 
     if (confirmDiscard) AlertDialog(onDismissRequest = { confirmDiscard = false },
         title = { Text("¿Descartar formulario?") }, text = { Text("Se quitarán los datos que aún están sólo en memoria.") },
-        confirmButton = { TextButton(onClick = { actions.discard(); search = ""; confirmDiscard = false; actions.onBack?.invoke() }) { Text("Descartar datos") } },
+        confirmButton = { TextButton(enabled = !state.isSaving, onClick = { actions.discard(); search = ""; confirmDiscard = false; actions.onBack?.invoke() }) { Text("Descartar datos") } },
         dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text("Seguir editando") } })
 
     // Modal de asistencia por cámara y lectura de QR sintético (RF11)
@@ -159,7 +165,7 @@ class FormActions(
     LazyColumn(modifier, contentPadding = PaddingValues(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item {
             Text("Inscripción de prospecto", style = MaterialTheme.typography.headlineMedium)
-            Text("Los datos permanecen sin guardar. Validar no guarda ni envía la inscripción.")
+            Text(if (state.isSaved) "Registro confirmado en este dispositivo." else "Los datos permanecen sin guardar. Validar no guarda ni envía la inscripción.")
         }
 
         // Asistente de escaneo QR (RF11)
@@ -212,7 +218,7 @@ class FormActions(
             input.interests.forEach { selected ->
                 val program = environment.programs.firstOrNull { it.id == selected.programId }
                 Text("${selected.priority}. ${program?.name ?: "Carrera no disponible"}")
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton({ actions.move(selected.programId, -1) }, enabled = selected.priority > 1) { Text("Subir") }
                     TextButton({ actions.move(selected.programId, 1) }, enabled = selected.priority < input.interests.size) { Text("Bajar") }
                     TextButton({ actions.program(selected.programId) }) { Text("Quitar") }
@@ -328,7 +334,7 @@ class FormActions(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Button(onClick = { actions.reset?.invoke() }) {
                                 Text("Nueva inscripción")
                             }
@@ -359,12 +365,12 @@ class FormActions(
                         Text("Guardar borrador")
                     }
                 }
-                Button({ actions.validate(SaveIntent.CONFIRM_REGISTRATION) }, modifier = Modifier.fillMaxWidth()) { Text("Validar inscripción") }
-                OutlinedButton({ actions.validate(SaveIntent.SAVE_DRAFT) }, modifier = Modifier.fillMaxWidth()) { Text("Validar borrador") }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton({ confirmDiscard = true }) { Text("Descartar formulario") }
+                Button({ actions.validate(SaveIntent.CONFIRM_REGISTRATION) }, enabled = !state.isSaving, modifier = Modifier.fillMaxWidth()) { Text("Validar inscripción") }
+                OutlinedButton({ actions.validate(SaveIntent.SAVE_DRAFT) }, enabled = !state.isSaving, modifier = Modifier.fillMaxWidth()) { Text("Validar borrador") }
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton({ confirmDiscard = true }, enabled = !state.isSaving) { Text("Descartar formulario") }
                     if (actions.onBack != null) {
-                        TextButton(onClick = { confirmDiscard = true }) { Text("Volver al panel") }
+                        TextButton(enabled = !state.isSaving, onClick = { confirmDiscard = true }) { Text("Volver al panel") }
                     }
                 }
             }
@@ -375,11 +381,15 @@ class FormActions(
     actions: FormActions, keyboard: KeyboardType = KeyboardType.Text) {
     val isPhone = field == AdmissionField.PHONE
     val displayedValue = if (isPhone) value.removePrefix("+56") else value
+    val issue = state.issues.firstOrNull { it.field == field }
     OutlinedTextField(displayedValue, { edited ->
         val input = if (isPhone && edited.isNotBlank() && !edited.startsWith("+56")) "+56$edited" else edited
         actions.text(field, input)
     }, label = { Text(label) }, prefix = if (isPhone) ({ Text("+56") }) else null,
         modifier = Modifier.fillMaxWidth(),
+        enabled = !state.isSaving && !state.isSaved,
+        supportingText = issue?.let { { Text(issueLabel(it.code)) } },
+        trailingIcon = issue?.let { { Text("!", color = MaterialTheme.colorScheme.error) } },
         isError = state.issues.any { it.field == field }, keyboardOptions = KeyboardOptions(keyboardType = keyboard),
         singleLine = field != AdmissionField.NOTES)
 }

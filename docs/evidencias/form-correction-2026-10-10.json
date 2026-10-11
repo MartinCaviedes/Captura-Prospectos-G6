@@ -1,0 +1,66 @@
+{
+  "date_local": "2026-10-10",
+  "branch": "feature/e1-ronda2-form-hub",
+  "base_sha": "ef5a0f41d6f6747bc73ed7f4ee129f28b2927b51",
+  "sources_sha256": {
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/MainActivity.kt": "1ffc7364cfecda53751f8baea821f5594ae84b19a788e98531e84cd5fb542589",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt": "563ce92a3fa66f58319660b779b4062ddfaf7f007822350d96d70272bcd48cf3",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormViewModel.kt": "76d82663af08b4b9b6d25ee692a9c36078a26651fe69625f32d6d6fbe9f8f1c1",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/ContextSessionOwner.kt": "322e4f3535bd0537dd5e9fe9b11e31b058ce18a5c95a948e2a8708ae6fc46fb0",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormSaveTest.kt": "3242793b6110fff2c0fcde064e30c806227ce1f9e3e728f630698c0649245e15",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/ui/context/ContextSessionOwnerTest.kt": "7abae84e187c3835776c6867abae651a70292c68dca3ab34f61861ce5eaef0fa",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormNavigationTest.kt": "83a29dd73b379c48959288e4de098b75ce2badaf4fe31c1f3424fc0294d9ae6f"
+  },
+  "apks_sha256_installed_matches_build": {
+    "android/app/build/outputs/apk/demo/debug/app-demo-debug.apk": "d8aa69228eaba19b3c5837b01740b289d3a3791240f4bb182cc9b86294546e28",
+    "android/app/build/outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk": "e716983464cb58c3c5585803b476fd1c509eadfe387a7c5745f911ff2d121169"
+  },
+  "jvm": {
+    "tests": 109,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "gradle_tasks": [
+    "testDemoDebugUnitTest",
+    "assembleDemoDebug",
+    "lintDemoDebug",
+    "assembleDemoDebugAndroidTest"
+  ],
+  "lint": {
+    "errors": 0,
+    "warnings": 20
+  },
+  "android": [
+    {
+      "classes": [
+        "EncryptedCaptureTest",
+        "AdmissionStorageTest",
+        "DemoContextTest"
+      ],
+      "passed": 27,
+      "seconds": 29.645,
+      "new_run": true
+    },
+    {
+      "classes": [
+        "AdmissionFormUiTest",
+        "AdmissionFormNavigationTest"
+      ],
+      "passed": 4,
+      "seconds": 40.641,
+      "launch_assisted_by_adb": true,
+      "new_run": true
+    }
+  ],
+  "device": {
+    "model": "Xiaomi 11T / 21081111RG",
+    "android": "14",
+    "api": 34
+  },
+  "limits": [
+    "No prueba nueva de giro real de MainActivity; retención/cierre comprobados con ViewModelStore en JVM.",
+    "UI con doble de repositorio; persistencia cifrada ejecutada en grupo separado.",
+    "Sin revisión completa TalkBack/visual, permisos cámara/GPS o aceptación humana."
+  ]
+}
