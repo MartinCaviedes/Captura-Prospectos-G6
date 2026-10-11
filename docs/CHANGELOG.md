@@ -1,5 +1,10 @@
 # Cambios del producto
 
+## Corrección GPS tras comprobación física — 10/10/2026
+
+Consulta simultánea GPS/red según permisos, calidad vigente y cierre de todos los listeners. La cámara física fue reportada por el usuario; dos timeouts GPS originaron esta corrección, con repetición física favorable: candidata de 12–100 m, confirmación y descarte reportados por el usuario. 155 JVM, Lint 0 errores/24 avisos y grupos Android separados; ver ROUND2_DEVICE_RESOURCES y evidencia GPS. Sin ampliación E1, dependencia nueva, merge ni aceptación humana.
+
+
 ## Corrección R2 · recursos nativos — 10/10/2026
 
 Cámara real CameraX + lector QR offline incluido; permisos contextuales, RUT confirmado/reemplazo explícito y nombres manuales. GPS candidato requiere confirmación y las solicitudes/callbacks se cancelan al descartar/liberar. Corrección de acceso a doble privado en pruebas. 147 JVM, Lint 24 avisos/0 errores; Xiaomi tres decoder/proveedor y ocho UI con dobles por separado. [Comprobaciones físicas y límites](ROUND2_DEVICE_RESOURCES.md). Sin cierre E1.

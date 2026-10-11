@@ -11,163 +11,125 @@ import android.os.Looper
 import androidx.core.content.ContextCompat
 import io.github.grupo6.capturaprospectos.domain.capture.CaptureLocation
 import io.github.grupo6.capturaprospectos.domain.capture.Coordinates
+import io.github.grupo6.capturaprospectos.domain.capture.LocationPolicy
 import io.github.grupo6.capturaprospectos.domain.device.LocationProvider
 import io.github.grupo6.capturaprospectos.domain.device.LocationResult
 import java.time.Duration
 import java.time.Instant
+import java.util.UUID
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
 
-/**
- * Implementación Android nativa de LocationProvider mediante LocationManager del framework.
- * Cumple con los requisitos de E1 (RF04):
- * - Verificación de permisos de tiempo de ejecución (ACCESS_FINE_LOCATION / ACCESS_COARSE_LOCATION).
- * - Verificación de estado de proveedores satelitales/red.
- * - Adquisición acotada en tiempo (timeout).
- * - Cancelación reactiva sin fugas de listeners, sin caché arbitrario y sin fallback implícito.
- */
+enum class NativeLocationSource { GPS, NETWORK }
+
+/** Adaptador de suscripciones nativas; permite comprobar adquisición y cierre con fuentes ficticias. */
+interface NativeLocationUpdates {
+    fun isEnabled(source: NativeLocationSource): Boolean
+    fun subscribe(source: NativeLocationSource, onPosition: (CaptureLocation.Device) -> Unit,
+        onDisabled: () -> Unit): AutoCloseable
+}
+
+/** Adquiere desde los proveedores permitidos, sin ubicación cacheada ni confirmación implícita. */
 class AndroidLocationProvider(
     private val context: Context? = null,
     private val locationManager: LocationManager? = context?.applicationContext?.getSystemService(LocationManager::class.java),
-    private val permissionChecker: (String) -> Boolean = { perm ->
-        context?.let { ctx ->
-            try {
-                ContextCompat.checkSelfPermission(ctx, perm) == PackageManager.PERMISSION_GRANTED
-            } catch (_: Exception) {
-                false
-            }
-        } ?: false
+    private val permissionChecker: (String) -> Boolean = { permission ->
+        context?.let { ContextCompat.checkSelfPermission(it, permission) == PackageManager.PERMISSION_GRANTED } ?: false
     },
-    private val isProviderEnabled: (LocationManager, String) -> Boolean = { manager, provider ->
-        try {
-            manager.isProviderEnabled(provider)
-        } catch (_: Exception) {
-            false
-        }
-    },
+    private val updates: NativeLocationUpdates? = null,
+    private val now: () -> Instant = { Instant.now() },
 ) : LocationProvider {
-
-    constructor(context: Context) : this(
-        context = context,
-        locationManager = context.applicationContext.getSystemService(LocationManager::class.java),
-    )
+    constructor(context: Context) : this(context = context,
+        locationManager = context.applicationContext.getSystemService(LocationManager::class.java))
 
     override suspend fun request(timeout: Duration): LocationResult {
         require(!timeout.isNegative && !timeout.isZero) { "Timeout must be positive" }
-
-        val hasFine = permissionChecker(Manifest.permission.ACCESS_FINE_LOCATION)
-        val hasCoarse = permissionChecker(Manifest.permission.ACCESS_COARSE_LOCATION)
-        if (!hasFine && !hasCoarse) {
-            return LocationResult.PermissionDenied
-        }
-
-        val manager = locationManager ?: return LocationResult.Unavailable
-
-        val isGpsEnabled = try {
-            isProviderEnabled(manager, LocationManager.GPS_PROVIDER)
-        } catch (_: SecurityException) {
-            return LocationResult.PermissionDenied
-        } catch (_: Exception) {
-            false
-        }
-
-        val isNetworkEnabled = try {
-            isProviderEnabled(manager, LocationManager.NETWORK_PROVIDER)
-        } catch (_: SecurityException) {
-            return LocationResult.PermissionDenied
-        } catch (_: Exception) {
-            false
-        }
-
-        if (!isGpsEnabled && !isNetworkEnabled) {
-            return LocationResult.ServicesDisabled
-        }
-
+        val fine = permissionChecker(Manifest.permission.ACCESS_FINE_LOCATION)
+        val coarse = permissionChecker(Manifest.permission.ACCESS_COARSE_LOCATION)
+        if (!fine && !coarse) return LocationResult.PermissionDenied
+        val source = updates ?: locationManager?.let(::FrameworkLocationUpdates) ?: return LocationResult.Unavailable
         return try {
-            val result = withTimeoutOrNull(timeout.toMillis()) {
-                // GPS exige FINE; COARSE utiliza únicamente el proveedor de red.
-                acquireSingleLocation(manager, hasFine && isGpsEnabled, isNetworkEnabled)
-            }
-            result ?: LocationResult.TimedOut
-        } catch (e: CancellationException) {
-            throw e
-        } catch (_: SecurityException) {
-            LocationResult.PermissionDenied
-        } catch (_: Exception) {
-            LocationResult.Unavailable
-        }
+            val allowed = listOfNotNull(NativeLocationSource.GPS.takeIf { fine }, NativeLocationSource.NETWORK)
+                .filter(source::isEnabled)
+            if (allowed.isEmpty()) return LocationResult.ServicesDisabled
+            val lastRejected = AtomicReference<CaptureLocation.Device?>(null)
+            withTimeoutOrNull(timeout.toMillis()) {
+                acquire(source, allowed, lastRejected)
+            } ?: lastRejected.get()?.let(LocationResult::Candidate) ?: LocationResult.TimedOut
+        } catch (cancelled: CancellationException) { throw cancelled }
+        catch (_: SecurityException) { LocationResult.PermissionDenied }
+        catch (_: IllegalArgumentException) { LocationResult.Unavailable }
+        catch (_: IllegalStateException) { LocationResult.Unavailable }
     }
 
-    private suspend fun acquireSingleLocation(
-        manager: LocationManager,
-        gpsEnabled: Boolean,
-        networkEnabled: Boolean,
-    ): LocationResult = suspendCancellableCoroutine { continuation ->
-        val providerName = when {
-            gpsEnabled -> LocationManager.GPS_PROVIDER
-            networkEnabled -> LocationManager.NETWORK_PROVIDER
-            else -> {
-                continuation.resume(LocationResult.ServicesDisabled)
-                return@suspendCancellableCoroutine
-            }
+    /** El primer resultado válido gana; una muestra imprecisa no bloquea al otro proveedor. */
+    private suspend fun acquire(source: NativeLocationUpdates, allowed: List<NativeLocationSource>,
+        rejected: AtomicReference<CaptureLocation.Device?>): LocationResult = suspendCancellableCoroutine { continuation ->
+        val lock = Any()
+        val subscriptions = mutableListOf<AutoCloseable>()
+        val live = allowed.toMutableSet()
+        var finished = false
+        fun closeAll() {
+            val closing = synchronized(lock) { subscriptions.toList().also { subscriptions.clear() } }
+            closing.forEach { try { it.close() } catch (_: SecurityException) { } catch (_: IllegalStateException) { } }
         }
-
-        val listener = object : LocationListener {
-            override fun onLocationChanged(loc: Location) {
-                if (continuation.isActive) {
-                    try {
-                        manager.removeUpdates(this)
-                    } catch (_: Exception) {}
-
-                    val coords = Coordinates(loc.latitude, loc.longitude)
-                    if (loc.hasAccuracy() && coords.isValid() && loc.accuracy.isFinite() && loc.accuracy >= 0f) {
-                        val deviceLoc = CaptureLocation.Device(
-                            coordinates = coords,
-                            measuredAt = Instant.ofEpochMilli(loc.time),
-                            accuracyMeters = loc.accuracy.toDouble(),
-                        )
-                        continuation.resume(LocationResult.Candidate(deviceLoc))
-                    } else {
-                        continuation.resume(LocationResult.Unavailable)
-                    }
-                }
-            }
-
-            @Deprecated("Deprecated in Java")
-            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-            override fun onProviderEnabled(provider: String) {}
-            override fun onProviderDisabled(provider: String) {
-                if (continuation.isActive) {
-                    try {
-                        manager.removeUpdates(this)
-                    } catch (_: Exception) {}
-                    continuation.resume(LocationResult.ServicesDisabled)
-                }
-            }
+        fun finish(result: LocationResult) {
+            val won = synchronized(lock) { if (finished) false else { finished = true; true } }
+            if (won) { closeAll(); continuation.resume(result) }
         }
-
-        continuation.invokeOnCancellation {
+        continuation.invokeOnCancellation { synchronized(lock) { finished = true }; closeAll() }
+        for (provider in allowed) {
+            if (synchronized(lock) { finished }) break
             try {
-                manager.removeUpdates(listener)
-            } catch (_: Exception) {}
+                val subscription = source.subscribe(provider, onPosition = { position ->
+                    if (LocationPolicy().isValid(position, now(), UUID(0,0), null)) finish(LocationResult.Candidate(position))
+                    else if (!synchronized(lock) { finished }) rejected.set(position)
+                }, onDisabled = {
+                    val none = synchronized(lock) { live.remove(provider); live.isEmpty() }
+                    if (none) finish(LocationResult.ServicesDisabled)
+                })
+                val closeNow = synchronized(lock) {
+                    if (finished || !continuation.isActive) true else { subscriptions += subscription; false }
+                }
+                if (closeNow) subscription.close()
+            } catch (_: SecurityException) { finish(LocationResult.PermissionDenied) }
+            catch (_: IllegalArgumentException) {
+                val none = synchronized(lock) { live.remove(provider); live.isEmpty() }
+                if (none) finish(LocationResult.Unavailable)
+            } catch (_: IllegalStateException) { finish(LocationResult.Unavailable) }
         }
+    }
+}
 
-        try {
-            manager.requestLocationUpdates(
-                providerName,
-                0L,
-                0f,
-                listener,
-                Looper.getMainLooper(),
-            )
-            // La cancelación puede ocurrir entre instalar el handler y registrar el listener.
-            if (!continuation.isActive) manager.removeUpdates(listener)
-        } catch (_: SecurityException) {
-            continuation.resume(LocationResult.PermissionDenied)
-        } catch (_: Exception) {
-            continuation.resume(LocationResult.Unavailable)
+/** Convierte únicamente muestras con precisión declarada; cada suscripción retira su listener. */
+private class FrameworkLocationUpdates(private val manager: LocationManager): NativeLocationUpdates {
+    private fun provider(source: NativeLocationSource) = when (source) {
+        NativeLocationSource.GPS -> LocationManager.GPS_PROVIDER
+        NativeLocationSource.NETWORK -> LocationManager.NETWORK_PROVIDER
+    }
+    override fun isEnabled(source: NativeLocationSource) = manager.isProviderEnabled(provider(source))
+    override fun subscribe(source: NativeLocationSource, onPosition: (CaptureLocation.Device) -> Unit,
+        onDisabled: () -> Unit): AutoCloseable {
+        val listener = object: LocationListener {
+            override fun onLocationChanged(location: Location) {
+                val coordinates = Coordinates(location.latitude, location.longitude)
+                if (location.hasAccuracy() && coordinates.isValid() && location.accuracy.isFinite() && location.accuracy >= 0f)
+                    onPosition(CaptureLocation.Device(coordinates, Instant.ofEpochMilli(location.time), location.accuracy.toDouble()))
+            }
+            override fun onProviderDisabled(provider: String) = onDisabled()
+            override fun onProviderEnabled(provider: String) { }
+            @Deprecated("Deprecated in Java")
+            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) { }
         }
+        try {
+            manager.requestLocationUpdates(provider(source), 0L, 0f, listener, Looper.getMainLooper())
+        } catch (error: SecurityException) {
+            try { manager.removeUpdates(listener) } catch (_: SecurityException) { }
+            throw error
+        }
+        return AutoCloseable { manager.removeUpdates(listener) }
     }
 }

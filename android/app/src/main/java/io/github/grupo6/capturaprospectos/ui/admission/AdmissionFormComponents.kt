@@ -119,7 +119,7 @@ class FormActions(
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("Asistencia por cámara (QR sintético)", style = MaterialTheme.typography.titleMedium)
                     Text(
-                        "Lee un código QR de formato sintético (G6DEMO:1) para precargar nombres y RUT tras confirmación manual. No almacena imágenes ni datos crudos.",
+                        "Lee un código QR de formato sintético (G6DEMO:1) para confirmar el RUT compatible. Los nombres se completan manualmente. No almacena imágenes ni datos crudos.",
                         style = MaterialTheme.typography.bodySmall,
                     )
                     Button(
