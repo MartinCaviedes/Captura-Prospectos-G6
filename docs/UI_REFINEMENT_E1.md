@@ -1,5 +1,7 @@
 # Refinamiento visual E1 y comprobación manual
 
+Antecedente del primer refinamiento de 11/10/2026. La V3 aprobada posteriormente actualiza tema, vistas y accesos de muestra; leer [UI_CONEXIONES_E1](UI_CONEXIONES_E1.md) para su comportamiento y evidencia. Las etiquetas/capturas y resultados siguientes corresponden al incremento anterior.
+
 Incremento candidato en `feature/e1-ui-refinement`, basado en `161f635` (rondas corregidas), dependiente del PR #1 de producto. No supone integración en develop, aceptación contractual ni cierre de E1.
 
 ## Decisión y alcance

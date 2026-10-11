@@ -19,6 +19,8 @@ import io.github.grupo6.capturaprospectos.domain.records.RecordSummary
 import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
 import java.time.Instant
 import java.util.UUID
+import io.github.grupo6.capturaprospectos.ui.components.*
+import io.github.grupo6.capturaprospectos.R
 
 @Composable
 fun RecordTrayScreen(
@@ -130,11 +132,11 @@ fun RecordTrayScreen(
             ) {
                 Column {
                     Text(
-                        "Bandeja de Registros",
+                        "Tus registros",
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier.semantics { heading() },
                     )
-                    Text("Gestión local en este dispositivo", style = MaterialTheme.typography.bodyMedium)
+                    Text("Cada contacto, una oportunidad.", style = MaterialTheme.typography.bodyMedium)
                 }
                 OutlinedButton(enabled = !state.isMutating, onClick = onNavigateBack) {
                     Text("Volver")
@@ -171,6 +173,7 @@ fun RecordTrayScreen(
                 value = state.filter.query,
                 onValueChange = onQueryChanged,
                 label = { Text("Buscar por nombre o RUT...") },
+                trailingIcon = { DesignIcon(R.drawable.g6_records_frame) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 enabled = !state.isMutating,

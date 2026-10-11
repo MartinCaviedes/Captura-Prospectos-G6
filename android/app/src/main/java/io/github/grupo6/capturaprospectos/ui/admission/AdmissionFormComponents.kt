@@ -18,12 +18,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.Role
+import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.grupo6.capturaprospectos.domain.admission.*
 import io.github.grupo6.capturaprospectos.domain.capture.*
 import io.github.grupo6.capturaprospectos.domain.context.EstablishmentSuggestion
 import java.text.Normalizer
 import java.util.UUID
+import java.time.LocalDate
+import java.time.Instant
+import java.time.ZoneOffset
+import androidx.compose.ui.Alignment
+import io.github.grupo6.capturaprospectos.R
+import io.github.grupo6.capturaprospectos.ui.components.*
+import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
 
 class FormActions(
     val text: (AdmissionField, String) -> Unit, val activity: (CurrentActivity) -> Unit,
@@ -88,6 +96,19 @@ class FormActions(
     suggestion: EstablishmentSuggestion?, actions: FormActions, modifier: Modifier = Modifier,
     editing: Boolean = false, allowDraft: Boolean = true, saveEnabled: Boolean = true,
 ) {
+    CapturaProspectosG6Theme(darkTheme = false) {
+        ConexionesBackground(modifier) {
+            FormContent(state, environment, suggestion, actions, Modifier.fillMaxSize(), editing, allowDraft, saveEnabled)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable private fun FormContent(
+    state: AdmissionFormState, environment: AdmissionEnvironment,
+    suggestion: EstablishmentSuggestion?, actions: FormActions, modifier: Modifier,
+    editing: Boolean, allowDraft: Boolean, saveEnabled: Boolean,
+) {
     val listState = rememberLazyListState()
     val fieldPositions = remember { mutableMapOf<AdmissionField, Int>() }
     val requesters = remember { AdmissionField.entries.associateWith { FocusRequester() } }
@@ -102,12 +123,36 @@ class FormActions(
     var search by remember { mutableStateOf("") }
     var confirmDiscard by remember { mutableStateOf(false) }
     var showConsentText by remember { mutableStateOf(false) }
+    var showBirthPicker by remember { mutableStateOf(false) }
     BackHandler(enabled = actions.onBack != null) {
         if (!state.isSaving) {
             if (state.isSaved) actions.onBack?.invoke() else confirmDiscard = true
         }
     }
     val input = state.input
+
+    if (showBirthPicker) {
+        val parsed = runCatching { LocalDate.parse(input.birthDate) }.getOrNull()
+        // La fecha sigue siendo memoria volátil, sin Saver ni SavedState.
+        val picker = remember {
+            DatePickerState(locale = java.util.Locale.getDefault(),
+            initialSelectedDateMillis = parsed?.takeIf { it.year in 1900..LocalDate.now().year }?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli(),
+            yearRange = 1900..LocalDate.now().year,
+            )
+        }
+        DatePickerDialog(onDismissRequest = { showBirthPicker = false },
+            confirmButton = { TextButton(enabled = picker.selectedDateMillis != null, onClick = {
+                picker.selectedDateMillis?.let { actions.text(AdmissionField.BIRTH_DATE,
+                    Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate().toString()) }
+                showBirthPicker = false
+            }) { Text("Usar fecha") } },
+            dismissButton = { TextButton({ showBirthPicker = false }) { Text("Cancelar fecha") } }) {
+            // El modo de ingreso y el mes del calendario tampoco se restauran desde disco.
+            CompositionLocalProvider(LocalSaveableStateRegistry provides null) {
+                DatePicker(picker, title = { Text("Fecha de nacimiento", Modifier.padding(24.dp)) })
+            }
+        }
+    }
     if (showConsentText) AlertDialog(onDismissRequest = { showConsentText = false },
         title = { Text("Texto de consentimiento") },
         text = { androidx.compose.foundation.layout.Column(Modifier.verticalScroll(rememberScrollState())) {
@@ -141,7 +186,14 @@ class FormActions(
             item(content = content)
         }
         entry {
-            Text(if (editing) "Edición de inscripción" else "Inscripción de prospecto", style = MaterialTheme.typography.headlineMedium)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (actions.onBack != null) IconButton({
+                    if (state.isSaved) actions.onBack.invoke() else confirmDiscard = true
+                }, enabled = !state.isSaving) {
+                    DesignIcon(R.drawable.g6_capture_frame, description = "Volver al panel")
+                }
+                Text(if (editing) "Edición de inscripción" else "Nueva captura", style = MaterialTheme.typography.headlineMedium)
+            }
             Text(if (editing) "Los cambios permanecen en memoria hasta guardar. El consentimiento original se conserva." else if (state.isSaved) "Registro confirmado en este dispositivo." else "Los datos permanecen sin guardar. Validar no guarda ni envía la inscripción.")
         }
 
@@ -149,17 +201,20 @@ class FormActions(
 
         // Asistente de escaneo QR (RF11)
         if (!editing || allowDraft) entry {
-            Card(
+            GlassCard(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Asistencia por cámara (QR sintético)", style = MaterialTheme.typography.titleMedium)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        DesignIcon(R.drawable.g6_capture_frame1)
+                        Text("Completa más rápido con QR", style = MaterialTheme.typography.titleMedium)
+                    }
                     Text(
-                        "Lee un código QR de formato sintético (G6DEMO:1) para confirmar el RUT compatible. Los nombres se completan manualmente. No almacena imágenes ni datos crudos.",
+                        "Escanea un QR compatible y confirma el RUT. Completa los nombres manualmente.",
                         style = MaterialTheme.typography.bodySmall,
                     )
-                    Button(
+                    PrimaryActionButton(
                         onClick = { actions.openQrScanner?.invoke() },
                         enabled = !state.isSaving && !state.isSaved && !state.isAcquiringLocation && state.locationCandidate == null,
                         modifier = Modifier.fillMaxWidth(),
@@ -171,12 +226,23 @@ class FormActions(
         }
 
         entry { Text("Datos personales y contacto", style = MaterialTheme.typography.titleLarge) }
-        entry(AdmissionField.GIVEN_NAMES) { FormText("Nombres", AdmissionField.GIVEN_NAMES, input.givenNames, state, actions, requester = requesters.getValue(AdmissionField.GIVEN_NAMES)) }
-        entry(AdmissionField.FAMILY_NAMES) { FormText("Apellidos", AdmissionField.FAMILY_NAMES, input.familyNames, state, actions, requester = requesters.getValue(AdmissionField.FAMILY_NAMES)) }
+        fieldPositions[AdmissionField.FAMILY_NAMES] = index
+        entry(AdmissionField.GIVEN_NAMES) {
+            AdaptiveFields(
+                first = { FormText("Nombres", AdmissionField.GIVEN_NAMES, input.givenNames, state, actions, requester = requesters.getValue(AdmissionField.GIVEN_NAMES)) },
+                second = { FormText("Apellidos", AdmissionField.FAMILY_NAMES, input.familyNames, state, actions, requester = requesters.getValue(AdmissionField.FAMILY_NAMES)) })
+        }
         entry(AdmissionField.RUT) { FormText("RUT", AdmissionField.RUT, input.rut, state, actions, locked = editing && !allowDraft, requester = requesters.getValue(AdmissionField.RUT)) }
-        entry(AdmissionField.EMAIL) { FormText("Correo electrónico", AdmissionField.EMAIL, input.email, state, actions, KeyboardType.Email, requester = requesters.getValue(AdmissionField.EMAIL)) }
-        entry(AdmissionField.PHONE) { FormText("Teléfono", AdmissionField.PHONE, input.phone, state, actions, KeyboardType.Phone, requester = requesters.getValue(AdmissionField.PHONE)) }
-        entry(AdmissionField.BIRTH_DATE) { FormText("Nacimiento (aaaa-mm-dd)", AdmissionField.BIRTH_DATE, input.birthDate, state, actions, requester = requesters.getValue(AdmissionField.BIRTH_DATE)) }
+        fieldPositions[AdmissionField.PHONE] = index
+        entry(AdmissionField.EMAIL) {
+            AdaptiveFields(
+                first = { FormText("Correo electrónico", AdmissionField.EMAIL, input.email, state, actions, KeyboardType.Email, requester = requesters.getValue(AdmissionField.EMAIL)) },
+                second = { FormText("Teléfono", AdmissionField.PHONE, input.phone, state, actions, KeyboardType.Phone, requester = requesters.getValue(AdmissionField.PHONE)) })
+        }
+        entry(AdmissionField.BIRTH_DATE) { FormText("Nacimiento (aaaa-mm-dd)", AdmissionField.BIRTH_DATE, input.birthDate, state, actions, requester = requesters.getValue(AdmissionField.BIRTH_DATE),
+            trailing = { IconButton({ showBirthPicker = true }, enabled = !state.isSaving && !state.isSaved) {
+                DesignIcon(R.drawable.g6_capture_frame2, description = "Elegir fecha de nacimiento")
+            } }) }
         entry(AdmissionField.RESIDENCE_COMMUNE) { FormText("Comuna de residencia", AdmissionField.RESIDENCE_COMMUNE, input.residenceCommune, state, actions, requester = requesters.getValue(AdmissionField.RESIDENCE_COMMUNE)) }
         entry(AdmissionField.ACTIVITY) { Choices("Actividad actual", CurrentActivity.entries, input.currentActivity, ::activityLabel, actions.activity) }
         if (input.currentActivity == CurrentActivity.OTHER) entry(AdmissionField.ACTIVITY_OTHER) { FormText("Detalle de otra actividad", AdmissionField.ACTIVITY_OTHER, input.currentActivityOther.orEmpty(), state, actions, requester = requesters.getValue(AdmissionField.ACTIVITY_OTHER)) }
@@ -195,7 +261,7 @@ class FormActions(
             { when (it) { InterestLevel.HIGH -> "Alto"; InterestLevel.MEDIUM -> "Medio"; InterestLevel.LOW -> "Bajo" } }, actions.level) }
         entry { OptionalChoices("Motivación (opcional)", Motivation.entries, input.motivation, ::motivationLabel, actions.motivation) }
         entry(AdmissionField.INTERESTS) { Text("Carreras de interés · máximo 3, en orden de prioridad", style = MaterialTheme.typography.titleMedium)
-            OutlinedTextField(search, { search = it }, label = { Text("Buscar carrera") }, modifier = Modifier.fillMaxWidth()) }
+            OutlinedTextField(search, { search = it }, label = { Text("Buscar carrera") }, trailingIcon = { DesignIcon(R.drawable.g6_capture_frame4) }, modifier = Modifier.fillMaxWidth()) }
         entry {
             input.interests.forEach { selected ->
                 val program = environment.programs.firstOrNull { it.id == selected.programId }
@@ -222,12 +288,15 @@ class FormActions(
 
         // Ubicación de captura
         entry(AdmissionField.LOCATION) {
-            Card(
+            GlassCard(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Ubicación de captura", style = MaterialTheme.typography.titleMedium)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        DesignIcon(R.drawable.g6_capture_frame5)
+                        Text("Ubicación de captura", style = MaterialTheme.typography.titleMedium)
+                    }
                     val loc = state.location
                     when (loc) {
                         is CaptureLocation.Device -> {
@@ -252,7 +321,7 @@ class FormActions(
                         }
                         null -> {
                             Text(
-                                "Sin ubicación asociada. La captura completa se guardará como NEEDS_CONTEXT si no se confirma ubicación.",
+                                "Sin ubicación asociada. Puedes guardar y completar el contexto después.",
                                 style = MaterialTheme.typography.bodySmall,
                             )
                         }
@@ -261,7 +330,7 @@ class FormActions(
                     state.locationCandidate?.let { candidate ->
                         Text("Ubicación candidata: precisión ${candidate.accuracyMeters.toInt()} m. Confirma para utilizarla.")
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = { actions.confirmDeviceLocation?.invoke() }) { Text("Confirmar GPS candidato") }
+                            PrimaryActionButton(onClick = { actions.confirmDeviceLocation?.invoke() }) { Text("Confirmar GPS candidato") }
                             OutlinedButton(onClick = { actions.dismissLocationCandidate?.invoke() }) { Text("Descartar candidata") }
                         }
                     }
@@ -271,11 +340,11 @@ class FormActions(
                     }
 
                     state.locationStatus?.let {
-                        Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                        Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
 
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(
+                        PrimaryActionButton(
                             onClick = { actions.requestLocation?.invoke() },
                             enabled = !state.isAcquiringLocation && !state.isSaving && !state.isSaved && state.locationCandidate == null,
                         ) {
@@ -314,7 +383,7 @@ class FormActions(
                 Text("Guardando en base de datos local…", style = MaterialTheme.typography.bodyMedium)
             }
             if (state.isSaved) {
-                Card(
+                GlassCard(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                 ) {
@@ -330,7 +399,7 @@ class FormActions(
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = { actions.reset?.invoke() }) {
+                            PrimaryActionButton(onClick = { actions.reset?.invoke() }) {
                                 Text("Nueva inscripción")
                             }
                             if (actions.onBack != null) {
@@ -345,7 +414,7 @@ class FormActions(
                 state.issues.forEach { Text("${fieldLabel(it.field)}: ${issueLabel(it.code)}", color = MaterialTheme.colorScheme.error) }
                 state.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 if (actions.save != null) {
-                    Button(
+                    PrimaryActionButton(
                         onClick = { actions.save.invoke(SaveIntent.CONFIRM_REGISTRATION) },
                         enabled = saveEnabled && !state.isSaving && !state.isAcquiringLocation && state.locationCandidate == null && !state.isQrScannerOpen,
                         modifier = Modifier.fillMaxWidth(),
@@ -360,7 +429,7 @@ class FormActions(
                         Text("Guardar borrador")
                     }
                 }
-                Button({ actions.validate(SaveIntent.CONFIRM_REGISTRATION) }, enabled = !state.isSaving, modifier = Modifier.fillMaxWidth()) { Text("Validar inscripción") }
+                PrimaryActionButton({ actions.validate(SaveIntent.CONFIRM_REGISTRATION) }, enabled = !state.isSaving, modifier = Modifier.fillMaxWidth()) { Text("Validar inscripción") }
                 if (allowDraft) OutlinedButton({ actions.validate(SaveIntent.SAVE_DRAFT) }, enabled = !state.isSaving, modifier = Modifier.fillMaxWidth()) { Text("Validar borrador") }
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton({ confirmDiscard = true }, enabled = !state.isSaving) { Text(if (editing) "Descartar edición" else "Descartar formulario") }
@@ -373,7 +442,7 @@ class FormActions(
     }
 }
 @Composable private fun FormText(label: String, field: AdmissionField, value: String, state: AdmissionFormState,
-    actions: FormActions, keyboard: KeyboardType = KeyboardType.Text, locked: Boolean = false, requester: FocusRequester? = null) {
+    actions: FormActions, keyboard: KeyboardType = KeyboardType.Text, locked: Boolean = false, requester: FocusRequester? = null, trailing: (@Composable () -> Unit)? = null) {
     val isPhone = field == AdmissionField.PHONE
     val displayedValue = if (isPhone) value.removePrefix("+56") else value
     val issue = state.issues.firstOrNull { it.field == field }
@@ -384,7 +453,7 @@ class FormActions(
         modifier = Modifier.fillMaxWidth().then(if (requester != null) Modifier.focusRequester(requester) else Modifier),
         enabled = !state.isSaving && !state.isSaved && !locked,
         supportingText = issue?.let { { Text(issueLabel(it.code)) } },
-        trailingIcon = issue?.let { { Text("!", color = MaterialTheme.colorScheme.error) } },
+        trailingIcon = trailing ?: issue?.let { { Text("!", color = MaterialTheme.colorScheme.error) } },
         isError = state.issues.any { it.field == field }, keyboardOptions = KeyboardOptions(keyboardType = keyboard, autoCorrectEnabled = if (keyboard == KeyboardType.Email || keyboard == KeyboardType.Phone) false else null),
         singleLine = field != AdmissionField.NOTES)
 }
@@ -392,8 +461,22 @@ class FormActions(
     Column { Text(title); options.forEach { option -> FilterChip(option == selected, { action(option) }, label = { Text(label(option)) }, modifier = Modifier.fillMaxWidth()) } }
 }
 @Composable private fun <T> OptionalChoices(title: String, options: List<T>, selected: T?, label: (T) -> String, action: (T?) -> Unit) {
-    Choices(title, options, selected, label, action)
-    TextButton({ action(null) }, enabled = selected != null) { Text("Dejar sin respuesta") }
+    var expanded by remember { mutableStateOf(false) }
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(title, style = MaterialTheme.typography.labelLarge)
+        Box {
+            OutlinedButton({ expanded = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(selected?.let(label) ?: "Sin respuesta", Modifier.weight(1f))
+                DesignIcon(R.drawable.g6_capture_frame3)
+            }
+            DropdownMenu(expanded, { expanded = false }) {
+                DropdownMenuItem(text = { Text("Dejar sin respuesta") }, onClick = { action(null); expanded = false })
+                options.forEach { option ->
+                    DropdownMenuItem(text = { Text(label(option)) }, onClick = { action(option); expanded = false })
+                }
+            }
+        }
+    }
 }
 private fun normalized(value: String) = Normalizer.normalize(value, Normalizer.Form.NFD).replace(Regex("\\p{M}+"), "").lowercase(java.util.Locale.ROOT)
 private fun activityLabel(value: CurrentActivity) = when (value) {
@@ -424,3 +507,12 @@ private fun issueLabel(value: ValidationCode) = when (value) {
 private val textFields = setOf(AdmissionField.GIVEN_NAMES, AdmissionField.FAMILY_NAMES, AdmissionField.RUT,
     AdmissionField.EMAIL, AdmissionField.PHONE, AdmissionField.BIRTH_DATE, AdmissionField.RESIDENCE_COMMUNE,
     AdmissionField.ACTIVITY_OTHER, AdmissionField.ESTABLISHMENT, AdmissionField.ESTABLISHMENT_COMMUNE, AdmissionField.NOTES)
+
+@Composable private fun AdaptiveFields(first: @Composable () -> Unit, second: @Composable () -> Unit) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        if (maxWidth >= 600.dp) Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Box(Modifier.weight(1f)) { first() }
+            Box(Modifier.weight(1f)) { second() }
+        } else Column(verticalArrangement = Arrangement.spacedBy(16.dp)) { first(); second() }
+    }
+}

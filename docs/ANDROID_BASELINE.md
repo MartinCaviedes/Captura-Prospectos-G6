@@ -1,5 +1,18 @@
 # Evidencia de la base Android
 
+## V3 Conexiones nativa · 11/10/2026
+
+Candidato `feature/e1-ui-conexiones` sobre `dad8a5b` (PR público #8), sin merge ni aceptación humana. **187 JVM aprobadas**, cero fallos/errores/omitidas; ambas APK construidas; **Lint 27 avisos/0 errores**, controles activos y sin baseline nueva. Las 27 advertencias incluyen versiones de dependencias, recursos históricos y metadatos existentes; no se atribuyen a fallos de ejecución. [Adaptación y límites de V3](UI_CONEXIONES_E1.md), [fuentes/APK identificadas](evidencias/conexiones-2026-10-11.json), [procedencia de recursos y licencia](evidencias/conexiones-assets-2026-10-11.json).
+
+Una ejecución final conjunta sobre las APK definitivas en Xiaomi 11T Android 14/API 34: **28 pruebas aprobadas en 244.441 s**. Acceso/carga aislada cifrada, menú compacto/ampliado, selección de contexto, formulario/calendario/descarte, candidatos QR/GPS, bandeja/detalle/conflictos, métricas y administración. [Salida íntegra](evidencias/android-conexiones-final-2026-10-11.txt). Las bases instrumentales son aisladas; instalar con `-r -t` conserva los datos existentes. No se concedieron permisos por ADB ni se borraron datos.
+
+La apertura de ComponentActivity recibió asistencia ADB. El detector heredado buscaba `mResumedActivity` y no reconocía los alias `topResumedActivity`/`ResumedActivity` de este Android; pudo repetir aperturas innecesarias. Por ello no se acredita arranque desatendido ni se atribuye cada asistencia a bloqueo MIUI. MainActivity real se abrió después y su foco se comprobó con los alias correctos y la ventana de la app.
+
+Un intento inicial tuvo nueve fallos de interacción/visibilidad tras cambiar los diseños: controles fuera de la composición/área visible y confirmación reactiva aún no observada. Se adaptaron desplazamiento, visibilidad y espera conservando aserciones de campos, consentimiento, persistencia y navegación; la ejecución final completa pasó. Calendario y credenciales permanecen en memoria: se excluye el registro SavedState interno de DatePicker, sin cambios en negocio/Room.
+
+Se inspeccionó la bienvenida real en orientación horizontal. MIUI rechazó la inyección de gestos y las escrituras de ajustes por ADB; los valores de rotación permanecen `accelerometer_rotation=1`, `user_rotation=0`, iguales al inicio. Revisión visual completa y giro físico de esta APK se solicitan al usuario; no se extrapola su aprobación del refinamiento anterior. La simulación Density no acredita un tablet físico. QR/GPS con dobles no acredita cámara/enfoque ni adquisición física nueva. TalkBack sigue pospuesto expresamente; permisos adversos, portal cautivo, revisión cruzada, aceptación contractual y ensayo P3 pendientes. Las suites de datos/nativos y el ensayo de 400 de los apartados inferiores son históricos respecto a V3.
+
+
 ## Refinamiento visual y acceso demo — 11/10/2026
 
 Candidato `feature/e1-ui-refinement` sobre `161f635`, sin merge ni aceptación humana. **187 JVM aprobadas**, sin fallos/errores/omitidas; APK principal e instrumental construidas; **Lint 25 avisos/0 errores**. No cambian Room, migraciones, dependencias ni transporte. [Guía, credenciales y alcance](UI_REFINEMENT_E1.md), [controles y hashes de fuentes/APK](evidencias/ui-refinement-2026-10-11.json).

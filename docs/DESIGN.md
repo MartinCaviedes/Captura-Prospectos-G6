@@ -1,5 +1,7 @@
 # Sistema de diseño y flujos
 
+**Tema vigente del candidato V3 · 11/10/2026:** [Conexiones](UI_CONEXIONES_E1.md) sustituye la adaptación inicial de tema/fuentes descrita abajo, conservando las reglas del formulario y E1. Fondo azul #0B1525, superficie #172B46, acción dorada #FFB800, formulario claro #EDF3FB y texto #132B45/#52657A. Manrope local en títulos y Roboto nativa en cuerpo. En el formulario, acciones secundarias en tinta y principales doradas con texto azul oscuro. Las tablas de paleta anteriores son antecedentes; no alternar ambos sistemas entre pantallas nuevas.
+
 UI F2027 del 06/10: diferenciar campos obligatorios/condicionales/opcionales; ninguna preferencia preseleccionada. Sugerencia de establecimiento desde evento identificado necesita confirmación y permite editar; no sobrescribe datos al cambiar contexto. Mostrar jornada, nivel y motivación como opcionales, sin campo libre para motivación. Conservar ingreso manual de nacimiento, sin prometer que el lector lo extrae.
 
 Acuerdo F01: las opciones pueden ordenarse alfabéticamente; el resumen de hasta tres seleccionadas se ordena por prioridad e incluye controles accesibles para reordenar. F03: mostrar por separado contexto del captador y preferencia de sede; múltiples sedes opcionales sin máximo adicional, sin preseleccionar la del evento. F02 aclarado el 06/10.

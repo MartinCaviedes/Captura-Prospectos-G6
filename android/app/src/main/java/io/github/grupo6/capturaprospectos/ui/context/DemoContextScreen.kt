@@ -24,6 +24,14 @@ import io.github.grupo6.capturaprospectos.domain.capture.LocalRole
 import io.github.grupo6.capturaprospectos.domain.context.DemoContextState
 import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
 import java.util.UUID
+import io.github.grupo6.capturaprospectos.domain.capture.CaptureEvent
+import io.github.grupo6.capturaprospectos.ui.components.*
+import io.github.grupo6.capturaprospectos.R
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 /** El consumidor confirma cambios con un nuevo estado; un clic no simula persistencia. */
 @Composable
@@ -39,18 +47,18 @@ fun DemoContextScreen(
     onCreateEvent: () -> Unit = {},
     showProfiles: Boolean = true,
 ) {
+    ConexionesBackground(modifier) {
     LazyColumn(
-        modifier = modifier,
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(24.dp),
     ) {
         item {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Captura de prospectos", style = MaterialTheme.typography.headlineMedium,
+                Text("Tu punto de partida", style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.semantics { heading() })
-                Text("Demo local · Grupo 6", style = MaterialTheme.typography.titleMedium)
-                Text("Perfiles y eventos ficticios. Seleccionar un perfil no autentica tu identidad.")
-                Text("Envío no habilitado en esta entrega", style = MaterialTheme.typography.bodyMedium)
+                Text("Elige el evento de tu jornada.", style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         if (state.busy) item {
@@ -114,7 +122,7 @@ fun DemoContextScreen(
                             Text("No hay eventos configurados para tus sedes. Pulsa 'Nuevo evento' para crear uno.")
                         }
                         items(snapshot.availableEvents, key = { "event-${it.id}" }) { event ->
-                            ContextChoice(event.name, snapshot.selectedEvent?.id == event.id,
+                            EventChoice(event, snapshot.selectedEvent?.id == event.id,
                                 enabled = !state.busy, onClick = { onEventSelected(event.id) })
                         }
                         snapshot.selectedEvent?.let { event -> item {
@@ -158,6 +166,29 @@ fun DemoContextScreen(
                         Text("Salir conserva los registros guardados en este dispositivo.", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
+            }
+        }
+    }
+}
+}
+
+@Composable private fun EventChoice(event: CaptureEvent, isSelected: Boolean, enabled: Boolean, onClick: () -> Unit) {
+    GlassCard(Modifier.fillMaxWidth(), border = BorderStroke(if (isSelected) 2.dp else 1.dp,
+        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            ContextChoice(event.name, isSelected, enabled, onClick)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                DesignIcon(R.drawable.g6_event_frame)
+                val start = event.startsAt.atZone(event.timeZone)
+                val end = event.endsAt.atZone(event.timeZone)
+                Text("${start.format(DateTimeFormatter.ofPattern("d MMM yyyy · HH:mm", Locale.forLanguageTag("es-CL")))} – ${end.format(DateTimeFormatter.ofPattern("d MMM · HH:mm", Locale.forLanguageTag("es-CL")))}",
+                    style = MaterialTheme.typography.labelLarge)
+            }
+            Image(painterResource(R.drawable.g6_event_journey_dotted_divider), null, Modifier.fillMaxWidth().height(1.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                DesignIcon(R.drawable.g6_event_frame1)
+                Text(if (event.location == null) "Sin ubicación de referencia" else "Ubicación de referencia del evento",
+                    style = MaterialTheme.typography.bodySmall)
             }
         }
     }

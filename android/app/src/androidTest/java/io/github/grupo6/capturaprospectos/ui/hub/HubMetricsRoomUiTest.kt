@@ -51,7 +51,7 @@ class HubMetricsRoomUiTest {
         val offline=object:ConnectivityObserver { override fun observe()=flowOf(ConnectivityStatus.OFFLINE) }
         compose.setContent { var summary by remember { mutableStateOf(false) }; CapturaProspectosG6Theme { MainHubRoute(snapshot.currentProfile!!,snapshot.selectedEvent!!,offline,{}, {},recordRepository=repo,suppliedMetrics=vm,summaryOnly=summary,onOpenSummary={summary=true}) } }
         compose.waitUntil(10000) { vm.uiState.value.metrics != null }
-        if(summaryOnStart) { scroll("Ver resumen y gráficos");compose.onNodeWithText("Ver resumen y gráficos").performClick() }
+        if(summaryOnStart) { scroll("Ver resumen");compose.onNodeWithText("Ver resumen").performClick() }
     }
     private fun scroll(text:String) { compose.onNode(hasScrollAction()).performScrollToNode(hasText(text)) }
     @After fun cleanup() { compose.runOnIdle { store.clear() };handle?.close();check(name.startsWith("test-hub-metrics-"));context.deleteDatabase(name)
@@ -60,8 +60,8 @@ class HubMetricsRoomUiTest {
     }
     @Test fun supervisorSeesAuthorizedEventAndLocalCountsWithoutCapturePermission() {
         start(supervisor=true,summaryOnStart=false)
-        scroll("Nueva Captura de Prospecto");compose.onNodeWithText("Nueva Captura de Prospecto").assertIsNotEnabled()
-        scroll("Ver resumen y gráficos");compose.onNodeWithText("Ver resumen y gráficos").performClick()
+        scroll("Nueva captura");compose.onNodeWithText("Nueva captura").assertIsNotEnabled()
+        scroll("Ver resumen");compose.onNodeWithText("Ver resumen").performClick()
         scroll("Personas distintas: 1");compose.onNodeWithText("Personas distintas: 1").assertExists()
         assertEquals(DemoSeed.sites.first().name,vm.uiState.value.metrics!!.siteMetrics.single().siteName)
         assertNull(runBlocking(Dispatchers.IO) { ctx.environment(id("event-a")) })
@@ -72,6 +72,7 @@ class HubMetricsRoomUiTest {
         scroll("Actualizar");compose.onNodeWithText("Actualizar").performClick()
         compose.waitUntil(10000) { vm.uiState.value.metrics?.totalCaptures==0 }
         assertEquals(1,vm.uiState.value.metrics!!.cancelledCount)
+        scroll("Elegir período");compose.onNodeWithText("Elegir período").performClick()
         scroll("Desde (aaaa-mm-dd)");compose.onNode(hasText("Desde (aaaa-mm-dd)") and hasSetTextAction()).performTextReplacement("2026-02-30")
         scroll("Hasta inclusive (aaaa-mm-dd)");compose.onNode(hasText("Hasta inclusive (aaaa-mm-dd)") and hasSetTextAction()).performTextReplacement("2026-03-01")
         scroll("Aplicar rango");compose.onNodeWithText("Aplicar rango").performClick()

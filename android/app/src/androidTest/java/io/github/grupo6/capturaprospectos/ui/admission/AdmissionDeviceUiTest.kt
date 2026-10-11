@@ -58,8 +58,11 @@ class AdmissionDeviceUiTest {
         }
         compose.onNodeWithText("Confirmar RUT candidato").assertIsNotEnabled()
         compose.runOnIdle { assertEquals("11111111-1", vm.uiState.value.input.rut) }
-        compose.onNodeWithText("Confirmo reemplazar el RUT escrito por el candidato.").performClick()
+        compose.onNodeWithText("Confirmo reemplazar el RUT escrito por el candidato.").performScrollTo().assertIsDisplayed().performClick()
+        compose.onNodeWithText("Confirmo reemplazar el RUT escrito por el candidato.").assertIsOn()
+        compose.onNodeWithText("Confirmar RUT candidato").assertIsEnabled()
         compose.onNodeWithText("Confirmar RUT candidato").performClick()
+        compose.waitUntil(5000) { !vm.uiState.value.isQrScannerOpen }
         compose.runOnIdle {
             assertEquals("12345678-5", vm.uiState.value.input.rut)
             assertEquals("Nombres manuales", vm.uiState.value.input.givenNames)

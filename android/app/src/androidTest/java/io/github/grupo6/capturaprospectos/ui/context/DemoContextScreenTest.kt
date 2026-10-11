@@ -32,42 +32,46 @@ class DemoContextScreenTest {
             } }
         }
     }
+    private fun scroll(text: String): SemanticsNodeInteraction {
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText(text))
+        return compose.onNodeWithText(text).performScrollTo()
+    }
     @Test fun initializationRequiresExplicitAction() {
         var calls = 0
         render(DemoContextUiState(DemoContextState.NotInitialized), initialize = { calls++ })
         compose.runOnIdle { assertEquals(0, calls) }
-        compose.onNodeWithText("Preparar demo local").performScrollTo().performClick()
+        scroll("Preparar demo local").performClick()
         compose.runOnIdle { assertEquals(1, calls) }
     }
     @Test fun unavailableOffersReadRetryNotInitialization() {
         var calls = 0
         render(DemoContextUiState(DemoContextState.StorageUnavailable), retry = { calls++ })
         compose.onNodeWithText("Preparar demo local").assertDoesNotExist()
-        compose.onNodeWithText("Reintentar lectura").performScrollTo().performClick()
+        scroll("Reintentar lectura").performClick()
         compose.runOnIdle { assertEquals(1, calls) }
     }
     @Test fun selectionEmitsIdWithoutClaimingPersistence() {
         var selected: UUID? = null
         render(DemoContextUiState(ready()), selectEvent = { selected = it })
-        compose.onNodeWithText("Evento ficticio").performScrollTo().performClick()
+        scroll("Evento ficticio").performClick()
         compose.runOnIdle { assertEquals(event.id, selected) }
         compose.onNodeWithText("Evento ficticio").assertIsNotSelected()
     }
     @Test fun busyDisablesMutations() {
         render(DemoContextUiState(ready(), busy = true))
-        compose.onNodeWithText("Captador ficticio · Seleccionado").performScrollTo().assertIsNotEnabled()
-        compose.onNodeWithText("Evento ficticio").performScrollTo().assertIsNotEnabled()
-        compose.onNodeWithText("Salir de la selección").performScrollTo().assertIsNotEnabled()
+        scroll("Captador ficticio · Seleccionado").assertIsNotEnabled()
+        scroll("Evento ficticio").assertIsNotEnabled()
+        scroll("Salir de la selección").assertIsNotEnabled()
     }
     @Test fun supervisorCanEnterItsEventPanelWithoutCaptureAction() {
         render(DemoContextUiState(ready(supervisor = true, selected = true)))
-        compose.onNodeWithText("Ir al panel de supervisión").performScrollTo().assertIsEnabled()
+        scroll("Ir al panel de supervisión").assertIsEnabled()
         compose.onNodeWithText("Ir al panel de captura").assertDoesNotExist()
     }
     @Test fun clearSelectionIsAnExplicitCallback() {
         var calls = 0
         render(DemoContextUiState(ready(selected = true)), clear = { calls++ })
-        compose.onNodeWithText("Salir de la selección").performScrollTo().performClick()
+        scroll("Salir de la selección").performClick()
         compose.runOnIdle { assertEquals(1, calls) }
     }
 }

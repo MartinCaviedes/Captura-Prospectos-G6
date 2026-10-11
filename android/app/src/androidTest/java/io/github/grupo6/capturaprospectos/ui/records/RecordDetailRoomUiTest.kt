@@ -48,6 +48,8 @@ class RecordDetailRoomUiTest {
         }
         compose.setContent { CapturaProspectosG6Theme { RecordTrayRoute(vm,{}) } }
         compose.waitUntil(10000) { vm.uiState.value.items.isNotEmpty() }
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Ver ficha completa"))
+        compose.onNodeWithText("Ver ficha completa").assertIsDisplayed()
         compose.onNodeWithText("Ver ficha completa").performClick()
         compose.waitUntil(10000) { vm.uiState.value.selectedRecord != null }
         compose.onNodeWithText("Editar ficha").performClick()

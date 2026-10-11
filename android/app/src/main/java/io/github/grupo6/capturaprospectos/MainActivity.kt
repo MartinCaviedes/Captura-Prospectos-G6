@@ -91,10 +91,16 @@ class MainActivity : ComponentActivity() {
                                             }
                                             AppScreen.TRAY -> {
                                                 val tray = owner.tray(profile.actor)
-                                                Box(modifier, contentAlignment = Alignment.TopCenter) {
+                                                val trayState by tray.uiState.collectAsStateWithLifecycle()
+                                                val trayNavigation = canNavigate && !trayState.isMutating &&
+                                                    !trayState.isDetailOpen && !trayState.isReadingDetail &&
+                                                    !trayState.isEditing && trayState.targetForCancellation == null
+                                                AppNavigation(active, trayNavigation, { destination ->
+                                                    if (trayNavigation && owner.releaseTray()) active = destination
+                                                }, modifier) { body ->
                                                     io.github.grupo6.capturaprospectos.ui.records.RecordTrayRoute(tray,
                                                         onNavigateBack = { if (owner.releaseTray()) active = AppScreen.HUB },
-                                                        modifier = Modifier.widthIn(max = 1100.dp).fillMaxSize())
+                                                        modifier = body)
                                                 }
                                             }
                                             else -> AppNavigation(active, canNavigate, { active = it }, modifier) { body ->

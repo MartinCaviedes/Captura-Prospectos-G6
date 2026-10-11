@@ -19,7 +19,7 @@ class AdmissionFormUiTest {
     private val store = ViewModelStore()
     @After fun cleanup() { compose.runOnIdle { store.clear() } }
     @Test fun volatileFieldsActivityConfirmationAndConsentGate() = verifyForm(false, 1f)
-    @Test fun darkThemeAndLargeTextKeepFormActionsUsable() = verifyForm(true, 1.5f)
+    @Test fun largeTextKeepsLightFormActionsUsableInsideDarkShell() = verifyForm(true, 1.5f)
     private fun scrollTo(label: String): SemanticsNodeInteraction {
         compose.onNode(hasScrollAction()).performScrollToNode(hasText(label))
         return compose.onNodeWithText(label).performScrollTo()
@@ -43,6 +43,13 @@ class AdmissionFormUiTest {
         compose.runOnIdle { assertEquals("+56987654321", vm.uiState.value.input.phone) }
         compose.onNodeWithText("Teléfono").performTextClearance()
         compose.runOnIdle { assertEquals("", vm.uiState.value.input.phone) }
+        scrollTo("Nacimiento (aaaa-mm-dd)").performTextInput("2000-01-01")
+        compose.onNodeWithContentDescription("Elegir fecha de nacimiento").performClick()
+        compose.onNodeWithText("Cancelar fecha").performClick()
+        compose.runOnIdle { assertEquals("2000-01-01", vm.uiState.value.input.birthDate) }
+        compose.onNodeWithContentDescription("Elegir fecha de nacimiento").performClick()
+        compose.onNodeWithText("Usar fecha").performClick()
+        compose.runOnIdle { assertEquals("2000-01-01", vm.uiState.value.input.birthDate) }
         scrollTo("Otra actividad").performClick()
         scrollTo("Detalle de otra actividad").performTextInput("Detalle ficticio")
         scrollTo("4° medio").performClick()

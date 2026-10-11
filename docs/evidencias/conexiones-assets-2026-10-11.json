@@ -1,0 +1,1062 @@
+{
+  "figmaFile": "vVcMyy72PsACIh4stMKMKG",
+  "page": "48:2594",
+  "conversion": "SVG completo rasterizado a 4x; PNG originales conservados; deduplicación sólo por SHA256 idéntico",
+  "assets": [
+    {
+      "resource": "g6_welcome_identity_ambient_light",
+      "sha256": "78efc1ddb000d0c42d0fbe9a54f4d97533658663debd4dd1bff84678ef629360",
+      "sourceGeometry": [
+        390,
+        844
+      ],
+      "rasterGeometry": [
+        1560,
+        3376
+      ],
+      "slots": [
+        {
+          "screen": "welcome",
+          "slots": [
+            [
+              "01 · Bienvenida",
+              "Identity / Ambient light"
+            ]
+          ]
+        },
+        {
+          "screen": "login",
+          "slots": [
+            [
+              "02 · Acceso",
+              "Identity / Ambient light"
+            ]
+          ]
+        },
+        {
+          "screen": "event",
+          "slots": [
+            [
+              "03 · Evento",
+              "Identity / Ambient light"
+            ]
+          ]
+        },
+        {
+          "screen": "home",
+          "slots": [
+            [
+              "04 · Inicio",
+              "Identity / Ambient light"
+            ]
+          ]
+        },
+        {
+          "screen": "records",
+          "slots": [
+            [
+              "06 · Registros",
+              "Identity / Ambient light"
+            ]
+          ]
+        },
+        {
+          "screen": "summary",
+          "slots": [
+            [
+              "07 · Resumen",
+              "Identity / Ambient light"
+            ]
+          ]
+        },
+        {
+          "screen": "profile",
+          "slots": [
+            [
+              "08 · Perfil",
+              "Identity / Ambient light"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/components/ConexionesComponents.kt"
+      ]
+    },
+    {
+      "resource": "g6_welcome_g6_v3_identidad_conexiones",
+      "sha256": "0e1c1861e8bc979b6cc24f31d773aafa2738a311643e02ac9c0b7887a4160036",
+      "sourceGeometry": [
+        28,
+        28
+      ],
+      "rasterGeometry": [
+        112,
+        112
+      ],
+      "slots": [
+        {
+          "screen": "welcome",
+          "slots": [
+            [
+              "Product identity",
+              "G6 monogram",
+              "G6 V3/Identidad Conexiones"
+            ]
+          ]
+        },
+        {
+          "screen": "login",
+          "slots": [
+            [
+              "Product identity",
+              "G6 monogram",
+              "G6 V3/Identidad Conexiones"
+            ]
+          ]
+        },
+        {
+          "screen": "tablet-home",
+          "slots": [
+            [
+              "Product identity",
+              "G6 monogram",
+              "G6 V3/Identidad Conexiones"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/components/ConexionesComponents.kt"
+      ]
+    },
+    {
+      "resource": "g6_welcome_g6_v3_trayectorias",
+      "sha256": "01c2a51205163b20d1708c3888db7982a1d56a189b8843068e9a2fd64425cad0",
+      "sourceGeometry": [
+        310,
+        164
+      ],
+      "rasterGeometry": [
+        1240,
+        656
+      ],
+      "slots": [
+        {
+          "screen": "welcome",
+          "slots": [
+            [
+              "Hero",
+              "Material / Glass",
+              "G6 V3/Trayectorias"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/access/DemoAccessScreen.kt"
+      ]
+    },
+    {
+      "resource": "g6_welcome_frame",
+      "sha256": "b7ba97efdd78d33de8a98156e60447a54713d02bcf945e6d9cfe6e2918d7e509",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "welcome",
+          "slots": [
+            [
+              "Context highlight",
+              "G6 V2/Icon pin",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/access/DemoAccessScreen.kt"
+      ]
+    },
+    {
+      "resource": "g6_login_frame",
+      "sha256": "7e1cae516e43ce782cacf3a8507266eebe936501b3699fc949f53c4d78ba9479",
+      "sourceGeometry": [
+        21,
+        21
+      ],
+      "rasterGeometry": [
+        84,
+        84
+      ],
+      "slots": [
+        {
+          "screen": "login",
+          "slots": [
+            [
+              "G6 V2/Brand Microsoft",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/access/DemoAccessScreen.kt",
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/hub/MainHubScreen.kt"
+      ]
+    },
+    {
+      "resource": "g6_login_g6_v2_brand_google",
+      "sha256": "d1ce9c2af0b10a7333abc99bc706f9a6a199e5b65bf3e3009624f076b8638e6a",
+      "sourceGeometry": [
+        200,
+        204
+      ],
+      "rasterGeometry": [
+        200,
+        204
+      ],
+      "slots": [
+        {
+          "screen": "login",
+          "slots": [
+            [
+              "G6 V2/Sign in Google",
+              "G6 V2/Brand Google"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/access/DemoAccessScreen.kt"
+      ]
+    },
+    {
+      "resource": "g6_login_frame1",
+      "sha256": "dd397953ba8916c0d62db781b109252fe30661a0cef36f564e8f7cfc480d16b5",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "login",
+          "slots": [
+            [
+              "G6 V2/Icon eye",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/access/DemoAccessScreen.kt"
+      ]
+    },
+    {
+      "resource": "g6_login_frame2",
+      "sha256": "e4327305191c548a8403f7209e84de533f7c41490de508eccfb19d39b2ff4613",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "login",
+          "slots": [
+            [
+              "Disclosure",
+              "G6 V2/Icon down",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "summary",
+          "slots": [
+            [
+              "G6 V2/Icon down",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/access/DemoAccessScreen.kt",
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/hub/MainHubScreen.kt"
+      ]
+    },
+    {
+      "resource": "g6_event_frame",
+      "sha256": "e87a630d7ac56cbb806b4077f9bff9aefc21173b635fe1b3c33495f78cad5a64",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "event",
+          "slots": [
+            [
+              "Event identity",
+              "G6 V2/Icon calendar",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextScreen.kt"
+      ]
+    },
+    {
+      "resource": "g6_event_journey_dotted_divider",
+      "sha256": "09d694f57449d75caed609fab797e80ad63aa42f0272025ba54f1e7720884932",
+      "sourceGeometry": [
+        310,
+        1
+      ],
+      "rasterGeometry": [
+        1240,
+        4
+      ],
+      "slots": [
+        {
+          "screen": "event",
+          "slots": [
+            [
+              "Journey / Dotted divider"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextScreen.kt"
+      ]
+    },
+    {
+      "resource": "g6_event_frame1",
+      "sha256": "a422053267d20a24fd1ea2f7b0bdf71da062dbbd324c4e6d4fa289b4a6e6808a",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "event",
+          "slots": [
+            [
+              "Map marker",
+              "G6 V2/Icon pin",
+              "Frame"
+            ],
+            [
+              "GPS context",
+              "G6 V2/Icon pin",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/DemoContextScreen.kt"
+      ]
+    },
+    {
+      "resource": "g6_home_frame",
+      "sha256": "5d9955b97bf8355f6aba2681de3c361caeb19b72f5efcbed9fe50351382afa27",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "home",
+          "slots": [
+            [
+              "Avatar",
+              "G6 V2/Icon person",
+              "Frame"
+            ],
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon person",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "records",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon person",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "summary",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon person",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "tablet-home",
+          "slots": [
+            [
+              "Sidebar / Perfil",
+              "G6 V2/Icon person",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/hub/MainHubScreen.kt",
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/shell/AppNavigation.kt"
+      ]
+    },
+    {
+      "resource": "g6_home_frame1",
+      "sha256": "5be581d4a77ceafab40d1916f8e1705ea689a6e8b272815268100257c2b67ad3",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "home",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon home",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/shell/AppNavigation.kt"
+      ]
+    },
+    {
+      "resource": "g6_home_frame2",
+      "sha256": "d5a83861320d3ea26abbe3862a908575570a826a51a34ab01cc4708886827b06",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "home",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon records",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "summary",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon records",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "profile",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon records",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "tablet-home",
+          "slots": [
+            [
+              "Sidebar / Registros",
+              "G6 V2/Icon records",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/shell/AppNavigation.kt"
+      ]
+    },
+    {
+      "resource": "g6_home_frame3",
+      "sha256": "33ea48030761ebd9f191b5fc87b5cd9fdcb4f60b09b4f47fcd52c5c0a7f59968",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "home",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon chart",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "records",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon chart",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "profile",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon chart",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "tablet-home",
+          "slots": [
+            [
+              "Sidebar / Resumen",
+              "G6 V2/Icon chart",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/shell/AppNavigation.kt"
+      ]
+    },
+    {
+      "resource": "g6_capture_identity_ambient_light",
+      "sha256": "d217f1b25e17f387f901914d800af44f6ad79d422605d0c9cccb589166fe2244",
+      "sourceGeometry": [
+        390,
+        844
+      ],
+      "rasterGeometry": [
+        1560,
+        3376
+      ],
+      "slots": [
+        {
+          "screen": "capture",
+          "slots": [
+            [
+              "05 · Captura",
+              "Identity / Ambient light"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/components/ConexionesComponents.kt"
+      ]
+    },
+    {
+      "resource": "g6_capture_frame",
+      "sha256": "325fdc8f0af99f0552e0501e9ec1f8bc40f922ccd6658b87487333b87792d3f7",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "capture",
+          "slots": [
+            [
+              "Back",
+              "G6 V2/Icon back",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt"
+      ]
+    },
+    {
+      "resource": "g6_capture_frame1",
+      "sha256": "8b966095e52f9d44c9d79e6afbdc30fb4faf56726c060035621ccb81c5687937",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "capture",
+          "slots": [
+            [
+              "QR entry",
+              "G6 V2/Icon qr",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "tablet-capture",
+          "slots": [
+            [
+              "G6 V2/Icon qr",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt"
+      ]
+    },
+    {
+      "resource": "g6_capture_frame2",
+      "sha256": "6202b61b8f116a55676bd334bb038055b66c8ff0fb499771199b1726b3eaf719",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "capture",
+          "slots": [
+            [
+              "G6 V2/Icon calendar",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "tablet-capture",
+          "slots": [
+            [
+              "G6 V2/Icon calendar",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt"
+      ]
+    },
+    {
+      "resource": "g6_capture_frame3",
+      "sha256": "6743a9980e71966fcccebdb4825e1cc31ee19c9d9ebe1ea7d2de898ab2381951",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "capture",
+          "slots": [
+            [
+              "G6 V2/Icon down",
+              "Frame"
+            ],
+            [
+              "G6 V2/Icon down",
+              "Frame"
+            ],
+            [
+              "G6 V2/Icon down",
+              "Frame"
+            ],
+            [
+              "G6 V2/Icon down",
+              "Frame"
+            ],
+            [
+              "G6 V2/Icon down",
+              "Frame"
+            ],
+            [
+              "G6 V2/Icon down",
+              "Frame"
+            ],
+            [
+              "G6 V2/Icon down",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "tablet-capture",
+          "slots": [
+            [
+              "G6 V2/Icon down",
+              "Frame"
+            ],
+            [
+              "G6 V2/Icon down",
+              "Frame"
+            ],
+            [
+              "G6 V2/Icon down",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt"
+      ]
+    },
+    {
+      "resource": "g6_capture_frame4",
+      "sha256": "ef4fcad7e42b4e7bc64fa849cf2bc0232c87c3e51ae43150fec1dae4a4c90957",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "capture",
+          "slots": [
+            [
+              "G6 V2/Icon search",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "tablet-capture",
+          "slots": [
+            [
+              "G6 V2/Icon search",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt"
+      ]
+    },
+    {
+      "resource": "g6_capture_frame5",
+      "sha256": "010246ad9f0d10729fd5d4a87c304c75752a4ac687a6a37ebf8cb5e3ffb87f13",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "capture",
+          "slots": [
+            [
+              "Location",
+              "G6 V2/Icon pin",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt"
+      ]
+    },
+    {
+      "resource": "g6_records_frame",
+      "sha256": "8f4f97f72b72b1d569f4aaa35db7479ba6d53c2fd7790c91fea8fc49c6517cf3",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "records",
+          "slots": [
+            [
+              "G6 V2/Icon search",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/records/RecordTrayScreen.kt",
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/shell/AppNavigation.kt"
+      ]
+    },
+    {
+      "resource": "g6_records_frame1",
+      "sha256": "8db5cacb1a95eb9cefc379eb3a5bc3f0a214101087e61c07fabb5c4b7c317af0",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "records",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon home",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "summary",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon home",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "profile",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon home",
+              "Frame"
+            ]
+          ]
+        },
+        {
+          "screen": "tablet-home",
+          "slots": [
+            [
+              "Sidebar / Inicio",
+              "G6 V2/Icon home",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/shell/AppNavigation.kt"
+      ]
+    },
+    {
+      "resource": "g6_records_frame2",
+      "sha256": "48614525ea2568da1f1fc6c4fb693931648f84c8f62b1cceea58415f7e67a133",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "records",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon records",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/shell/AppNavigation.kt"
+      ]
+    },
+    {
+      "resource": "g6_summary_frame3",
+      "sha256": "a25f726ec1f0428c7562f41b088290fc5ebf411103b77c5e3e53827bca6c1bbd",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "summary",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon chart",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/shell/AppNavigation.kt"
+      ]
+    },
+    {
+      "resource": "g6_profile_frame3",
+      "sha256": "8ad21d703fcca724b62579fca41352510819a5459f9546d30551a52028f74b68",
+      "sourceGeometry": [
+        24,
+        24
+      ],
+      "rasterGeometry": [
+        96,
+        96
+      ],
+      "slots": [
+        {
+          "screen": "profile",
+          "slots": [
+            [
+              "G6 V2/Navigation",
+              "G6 V2/Icon person",
+              "Frame"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/shell/AppNavigation.kt"
+      ]
+    },
+    {
+      "resource": "g6_tablet_home_identity_ambient_light",
+      "sha256": "bd986c270d687307fc2be10fa643e19c24ed4b99dfb5df0b270396bfb1b724da",
+      "sourceGeometry": [
+        1024,
+        768
+      ],
+      "rasterGeometry": [
+        4096,
+        3072
+      ],
+      "slots": [
+        {
+          "screen": "tablet-home",
+          "slots": [
+            [
+              "Tablet · Inicio",
+              "Identity / Ambient light"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/components/ConexionesComponents.kt"
+      ]
+    },
+    {
+      "resource": "g6_tablet_capture_identity_ambient_light",
+      "sha256": "83c1d605b3d7c7d9b3aaafd6b32213d95fa550c4c4ef22697703e79ab91b6e15",
+      "sourceGeometry": [
+        1024,
+        768
+      ],
+      "rasterGeometry": [
+        4096,
+        3072
+      ],
+      "slots": [
+        {
+          "screen": "tablet-capture",
+          "slots": [
+            [
+              "Tablet · Captura",
+              "Identity / Ambient light"
+            ]
+          ]
+        }
+      ],
+      "callSites": [
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/components/ConexionesComponents.kt"
+      ]
+    }
+  ]
+}

@@ -34,6 +34,7 @@ class AdmissionFormNavigationTest {
 
     @Test fun systemBackAsksBeforeClearingVolatileData() {
         start()
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Nombres"))
         compose.onNodeWithText("Nombres").performTextInput("Persona ficticia")
         compose.runOnIdle { compose.activity.onBackPressedDispatcher.onBackPressed() }
         compose.onNodeWithText("¿Descartar formulario?").assertIsDisplayed()

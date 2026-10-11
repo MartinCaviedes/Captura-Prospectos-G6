@@ -25,19 +25,35 @@ class DemoVisualUiTest {
                     { email,password -> submitted = email to password }) }
             }
         }
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Ingresar a la demo"))
-        compose.onNodeWithText("Ingresar a la demo").performClick()
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Iniciar sesión"))
+        compose.onNodeWithText("Iniciar sesión").performClick()
         compose.runOnIdle { assertEquals("" to "", submitted) }
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Correo demo"))
-        compose.onNode(hasText("Correo demo") and hasSetTextAction()).performTextInput("captador.a@g6.example")
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Contraseña demo"))
-        compose.onNode(hasText("Contraseña demo") and hasSetTextAction()).performTextInput("DemoG6!2026")
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Ingresar a la demo"))
-        compose.onNodeWithText("Ingresar a la demo").performClick()
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Correo electrónico"))
+        compose.onNode(hasText("Correo electrónico") and hasSetTextAction()).performTextInput("captador.a@g6.example")
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Contraseña"))
+        compose.onNode(hasText("Contraseña") and hasSetTextAction()).performTextInput("DemoG6!2026")
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Iniciar sesión"))
+        compose.onNodeWithText("Iniciar sesión").performClick()
         compose.runOnIdle { assertEquals("captador.a@g6.example" to "DemoG6!2026",submitted) }
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Google · Próximamente"))
-        compose.onNodeWithText("Google · Próximamente").assertIsNotEnabled()
-        compose.onNodeWithText("Microsoft · Próximamente").performScrollTo().assertIsNotEnabled()
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Continuar con Google"))
+        compose.onNodeWithText("Continuar con Google").assertIsNotEnabled()
+        compose.onNodeWithText("Continuar con Microsoft").performScrollTo().assertIsNotEnabled()
+    }
+    @Test fun sampleAccountFillsCredentialsWithoutSigningIn() {
+        var submitted: Pair<String,String>? = null
+        compose.setContent { CapturaProspectosG6Theme {
+            DemoAccessScreen(DemoAccessState(welcome=false),true,false,{ email,password -> submitted=email to password })
+        } }
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Cuentas de muestra"))
+        compose.onNodeWithText("Cuentas de muestra").performClick()
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Captador A"))
+        compose.onNodeWithText("Captador A").performClick()
+        compose.runOnIdle { assertNull(submitted) }
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Correo electrónico"))
+        compose.onNode(hasText("Correo electrónico") and hasSetTextAction()).assertTextContains("captador.a@g6.example")
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Iniciar sesión"))
+        compose.onNodeWithText("Iniciar sesión").performClick()
+        compose.runOnIdle { assertEquals("captador.a@g6.example" to "DemoG6!2026",submitted) }
     }
     @Test fun phoneNavigationChangesDestinationsAndDisablesDuringOperation() = navigation(false)
     @Test fun expandedLayoutUsesSideMenuWithSimulatedWindowWidthAndLargeText() = navigation(true)
@@ -52,7 +68,7 @@ class DemoVisualUiTest {
                 } }
             }
         }
-        if(expanded) compose.onNodeWithText("CAPTURA G6").assertIsDisplayed()
+        if(expanded) compose.onNodeWithContentDescription("Captura de Prospectos · Grupo 6").assertIsDisplayed()
         else compose.onNodeWithText("CAPTURA G6").assertDoesNotExist()
         compose.onNodeWithText("Perfil").performClick()
         compose.onNodeWithText("Vista PROFILE").assertIsDisplayed()
