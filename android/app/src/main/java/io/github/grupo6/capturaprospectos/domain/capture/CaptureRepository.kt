@@ -23,6 +23,10 @@ interface CaptureContextSource {
 }
 
 object LocalCaptureAccess {
+    /** Selección para consultar: supervisor en su sede, sin permiso de crear como captador. */
+    fun canSelectEvent(actor: LocalActor, event: CaptureEvent): Boolean = canCreate(actor,event) ||
+        (actor.role == LocalRole.SUPERVISOR && event.siteId in actor.siteIds && event.startsAt < event.endsAt && event.name.isNotBlank())
+
     fun canCreate(actor: LocalActor, event: CaptureEvent): Boolean =
         actor.role == LocalRole.CAPTOR && event.siteId in actor.siteIds &&
             actor.id in event.assignedCaptorIds && event.startsAt < event.endsAt && event.name.isNotBlank()

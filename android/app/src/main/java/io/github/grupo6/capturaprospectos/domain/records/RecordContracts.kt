@@ -5,7 +5,7 @@ import io.github.grupo6.capturaprospectos.domain.capture.*
 import java.time.Instant
 import java.util.UUID
 
-/** Propuesta R1, sin implementación Room. Requiere revisión antes de crear consumidores. */
+/** Contratos locales candidatos con consumidores Room probados; aceptación humana pendiente. */
 data class RecordFilter(
     val query: String = "", val eventId: UUID? = null,
     val states: Set<CaptureState> = emptySet(),
@@ -73,7 +73,23 @@ data class DeviceMetrics(
     val needsContextCount: Int,
     val cancelledCount: Int,
     val siteMetrics: List<SiteMetrics> = emptyList(),
+    val distinctPeople: Int = totalCaptures,
+    val programMetrics: List<ProgramMetrics> = emptyList(),
+    val fromInclusive: Instant? = null, val untilExclusive: Instant? = null,
 )
+
+/** Completa activa = READY o NEEDS_CONTEXT; borradores/anuladas se presentan por separado. */
+data class ProgramMetrics(val programId: UUID, val snapshotName: String, val registrations: Int)
+data class MetricsQuery(val eventId: UUID, val fromInclusive: Instant? = null, val untilExclusive: Instant? = null) {
+    fun isValid() = (fromInclusive == null && untilExclusive == null) ||
+        (fromInclusive != null && untilExclusive != null && fromInclusive < untilExclusive)
+}
+sealed interface MetricsResult {
+    data class Calculated(val metrics: DeviceMetrics) : MetricsResult
+    data object InvalidQuery : MetricsResult
+    data object Unavailable : MetricsResult
+    data object StorageUnavailable : MetricsResult
+}
 
 /** Contexto confiable para editar: catálogo actual y evidencia del registro, nunca alta implícita. */
 sealed interface RecordEditContextResult {
@@ -86,7 +102,7 @@ interface RecordRepository {
     suspend fun editContext(id: UUID): RecordEditContextResult = RecordEditContextResult.Unavailable
     suspend fun list(query: RecordQuery): RecordPageResult
     suspend fun get(id: UUID): ReadAdmissionResult
-    suspend fun getMetrics(eventId: UUID): DeviceMetrics
+    suspend fun getMetrics(query: MetricsQuery): MetricsResult = MetricsResult.StorageUnavailable
     suspend fun edit(command: EditAdmission): RecordMutationResult
     suspend fun cancel(command: CancelRecord): RecordMutationResult
 }
