@@ -79,7 +79,7 @@ internal class RoomAdmissionRepository(
     }
 }
 
-private fun AdmissionPreparation.Prepared.toAdmissionRow(id: UUID, env: CaptureEnvironment, now: Instant): CaptureRow {
+internal fun AdmissionPreparation.Prepared.toAdmissionRow(id: UUID, env: CaptureEnvironment, now: Instant): CaptureRow {
     val v = input
     val device = location as? CaptureLocation.Device
     val event = location as? CaptureLocation.EventConfirmed
@@ -95,7 +95,7 @@ private fun AdmissionPreparation.Prepared.toAdmissionRow(id: UUID, env: CaptureE
         v.establishmentCommune, v.formPersonalOption?.name, v.preferredSchedule?.name, v.interestLevel?.name, v.motivation?.name, v.modality)
 }
 
-private fun CaptureRow.toAdmission(interests: List<InterestRow>, preferences: List<SitePreferenceRow>): StoredAdmission {
+internal fun CaptureRow.toAdmission(interests: List<InterestRow>, preferences: List<SitePreferenceRow>): StoredAdmission {
     val programs = interests.map { SelectedProgram(UUID.fromString(it.programId), it.programName, it.catalogVersion,
         requireNotNull(it.section), requireNotNull(it.priority), it.mentionId?.let(UUID::fromString), it.mentionName) }
     val sites = preferences.map { SiteOption(UUID.fromString(it.siteId), it.name, it.catalogVersion) }

@@ -7,7 +7,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /** El punto de composición entregará un ViewModel con dueño/fábrica explícitos. */
 @Composable
-fun DemoContextRoute(viewModel: DemoContextViewModel, modifier: Modifier = Modifier) {
+fun DemoContextRoute(
+    viewModel: DemoContextViewModel,
+    modifier: Modifier = Modifier,
+    onContinueToHub: () -> Unit = {},
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     DemoContextScreen(
         state = state,
@@ -17,5 +21,6 @@ fun DemoContextRoute(viewModel: DemoContextViewModel, modifier: Modifier = Modif
         onEventSelected = { viewModel.selectEvent(it) },
         onClearSelection = { viewModel.clearSelection() },
         modifier = modifier,
+        onContinueToHub = onContinueToHub,
     )
 }
