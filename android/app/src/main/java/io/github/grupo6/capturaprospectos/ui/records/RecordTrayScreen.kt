@@ -29,8 +29,10 @@ fun RecordTrayScreen(
     onConfirmCancel: (String) -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onLoadMore: () -> Unit = {},
+    onRefresh: () -> Unit = {},
 ) {
-    var reasonInput by remember { mutableStateOf("") }
+    var reasonInput by remember(state.targetForCancellation?.id) { mutableStateOf("") }
 
     if (state.targetForCancellation != null) {
         AlertDialog(
@@ -49,22 +51,23 @@ fun RecordTrayScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = false,
                         maxLines = 4,
+                        enabled = !state.isMutating,
                     )
+                    state.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
                         onConfirmCancel(reasonInput)
-                        reasonInput = ""
                     },
-                    enabled = reasonInput.trim().length in 5..300,
+                    enabled = !state.isMutating && reasonInput.trim().length in 5..300,
                 ) {
                     Text("Confirmar anulación")
                 }
             },
             dismissButton = {
-                TextButton(onClick = {
+                TextButton(enabled = !state.isMutating, onClick = {
                     reasonInput = ""
                     onCloseCancel()
                 }) {
@@ -80,10 +83,9 @@ fun RecordTrayScreen(
         contentPadding = PaddingValues(24.dp),
     ) {
         item {
-            Row(
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column {
                     Text(
@@ -93,13 +95,14 @@ fun RecordTrayScreen(
                     )
                     Text("Gestión local en este dispositivo", style = MaterialTheme.typography.bodyMedium)
                 }
-                OutlinedButton(onClick = onNavigateBack) {
+                OutlinedButton(enabled = !state.isMutating, onClick = onNavigateBack) {
                     Text("Volver")
                 }
             }
         }
+        item { OutlinedButton(onClick = onRefresh, enabled = !state.isLoading && !state.isMutating) { Text("Actualizar lista") } }
 
-        if (state.isLoading) {
+        if (state.isLoading || state.isMutating) {
             item {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
@@ -129,32 +132,43 @@ fun RecordTrayScreen(
                 label = { Text("Buscar por nombre o RUT...") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
+                enabled = !state.isMutating,
             )
         }
 
         item {
             Text("Filtrar por estado:", style = MaterialTheme.typography.labelLarge)
-            Row(
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val currentStates = state.filter.states
                 FilterChip(
+                    enabled = !state.isMutating,
                     selected = currentStates.isEmpty(),
                     onClick = { onStateFilterSelected(null) },
                     label = { Text("Todos") },
                 )
                 FilterChip(
+                    enabled = !state.isMutating,
                     selected = CaptureState.READY in currentStates,
                     onClick = { onStateFilterSelected(CaptureState.READY) },
                     label = { Text("Confirmadas") },
                 )
                 FilterChip(
+                    enabled = !state.isMutating,
                     selected = CaptureState.DRAFT in currentStates,
                     onClick = { onStateFilterSelected(CaptureState.DRAFT) },
                     label = { Text("Borradores") },
                 )
                 FilterChip(
+                    enabled = !state.isMutating,
+                    selected = CaptureState.NEEDS_CONTEXT in currentStates,
+                    onClick = { onStateFilterSelected(CaptureState.NEEDS_CONTEXT) },
+                    label = { Text("Falta contexto") },
+                )
+                FilterChip(
+                    enabled = !state.isMutating,
                     selected = CaptureState.CANCELLED in currentStates,
                     onClick = { onStateFilterSelected(CaptureState.CANCELLED) },
                     label = { Text("Anuladas") },
@@ -162,7 +176,7 @@ fun RecordTrayScreen(
             }
         }
 
-        if (state.items.isEmpty() && !state.isLoading) {
+        if (state.items.isEmpty() && !state.isLoading && state.message == null) {
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -180,8 +194,13 @@ fun RecordTrayScreen(
                 RecordItemCard(
                     item = item,
                     onCancelClick = { onOpenCancel(item) },
+                    enabled = !state.isMutating,
                 )
             }
+        }
+        if (state.nextCursor != null) item {
+            Button(onClick = onLoadMore, enabled = !state.isLoading && !state.isMutating,
+                modifier = Modifier.fillMaxWidth()) { Text("Cargar más registros") }
         }
     }
 }
@@ -190,6 +209,7 @@ fun RecordTrayScreen(
 private fun RecordItemCard(
     item: RecordSummary,
     onCancelClick: () -> Unit,
+    enabled: Boolean = true,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -227,7 +247,7 @@ private fun RecordItemCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                 ) {
-                    TextButton(onClick = onCancelClick) {
+                    TextButton(onClick = onCancelClick, enabled = enabled) {
                         Text("Anular captura", color = MaterialTheme.colorScheme.error)
                     }
                 }

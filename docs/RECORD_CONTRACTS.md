@@ -1,6 +1,6 @@
 # Propuesta de consultas y mutaciones locales · RECORDS-01-A
 
-09/10/2026. Contrato Kotlin compilable en `domain/records/RecordContracts.kt`, **propuesto para revisión, sin implementación Room ni consumidores**. Extiende el alcance semántico de [LOCAL_MODEL](LOCAL_MODEL.md); no cambia AdmissionRepository.create/get ni el esquema v3. Antes de RECORDS-01-B/C, registrar revisión y fijar esta propuesta como contrato compartido o corregirla una sola vez.
+Actualizado 10/10/2026. Contrato Kotlin en `domain/records/RecordContracts.kt`, **propuesto y pendiente de aceptación humana**. La rama ronda2-records-tray incorpora un candidato Room y bandeja corregidos/pruebas nuevas; ver [ROUND2_RECORDS_TRAY](ROUND2_RECORDS_TRAY.md). No se atribuye aceptación por existir consumidores. Extiende [LOCAL_MODEL](LOCAL_MODEL.md), conserva AdmissionRepository.create/get y propone auditoría aditiva v4; las ramas dependientes deben incorporar la misma corrección, sin reservar otra migración v4.
 
 ## Consulta
 
@@ -33,10 +33,10 @@ Orden transaccional: resolver actor/autorización y registro → comparar revisi
 
 Propuestas a revisar: motivo no vacío de 5–300 caracteres tras trim para anulación y edición supervisora; ReasonRequired si vacío, InvalidReason si fuera de rango. En borrador propio se permite corregir RUT antes de confirmar; una inscripción activa conserva RUT. Corrección supervisada anular/recrear enlazada necesita contrato/operación específica posterior, no dos llamadas independientes con riesgo de pérdida. Retirada institucional del consentimiento no se equipara a este procedimiento académico.
 
-La auditoría actual v3 no almacena todos los atributos necesarios para edición/anulación. RECORDS-01-B deberá coordinar migración aditiva para motivo, revisión anterior y campos modificados (nombres de campo, sin duplicar sus valores personales), y enlaces de corrección cuando se implemente esa operación. Este documento no reserva una versión Room ni declara la migración hecha.
+El candidato v4 agrega motivo, revisión anterior y campos modificados (sólo nombres de campo) a local_audit. La migración 3→4 preserva auditorías antiguas con NULL en atributos desconocidos y pasó la prueba cifrada registrada. Enlaces de corrección anular/recrear siguen fuera del candidato; no hay esa operación ni aceptación humana del contrato/migración.
 
 ## Casos de revisión y trabajo independiente
 
-[Fixtures de contrato](fixtures/records-contract.json) describen permisos, conflicto, transición, unicidad y rollback. Son ejemplos esperados; las dos pruebas JVM actuales sólo verifican límites de consulta y diagnóstico sin PII. **No acreditan mutaciones ni autorización ejecutada**, que necesitan tests Room de ronda 2.
+[Fixtures de contrato](fixtures/records-contract.json) describen permisos, conflicto, transición, unicidad y rollback. Son ejemplos esperados; las dos pruebas JVM actuales sólo verifican límites de consulta y diagnóstico sin PII. **No acreditan por sí mismas mutaciones ni autorización ejecutada**. La evidencia nueva de Room cifrado se registra en ROUND2_RECORDS_TRAY y ANDROID_BASELINE, separada de los fixtures y pruebas con doble.
 
 Después de revisar las firmas: persistencia implementa este contrato; UI de bandeja puede usar un doble identificado con los mismos resultados. Ningún consumidor debe inventar una API alternativa ni presentar éxito simulado como guardado. Formulario de alta y dispositivos no dependen de completar estas mutaciones.

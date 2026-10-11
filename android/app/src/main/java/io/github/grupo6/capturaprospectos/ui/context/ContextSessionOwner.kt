@@ -10,6 +10,8 @@ import io.github.grupo6.capturaprospectos.domain.records.RecordRepository
 import io.github.grupo6.capturaprospectos.domain.admission.AdmissionEnvironment
 import io.github.grupo6.capturaprospectos.domain.context.EstablishmentSuggestion
 import io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormViewModel
+import io.github.grupo6.capturaprospectos.ui.records.RecordTrayViewModel
+import io.github.grupo6.capturaprospectos.domain.capture.LocalActor
 import io.github.grupo6.capturaprospectos.domain.context.ContextSession
 import io.github.grupo6.capturaprospectos.domain.context.ContextOpenFailure
 import kotlinx.coroutines.*
@@ -38,6 +40,9 @@ class ContextSessionOwner(
     private val forms = ViewModelStore()
     private var formKey: String? = null
     private var formConsumer: AdmissionFormViewModel? = null
+    private val trays = ViewModelStore()
+    private var trayActor: LocalActor? = null
+    private var trayConsumer: RecordTrayViewModel? = null
     init { start() }
 
     /** Retiene sólo memoria en recreaciones de Activity; nunca utiliza SavedState para PII. */
@@ -70,6 +75,25 @@ class ContextSessionOwner(
     }
 
     @MainThread
+    fun tray(actor: LocalActor): RecordTrayViewModel {
+        if (actor != trayActor) { check(releaseTray()); trayActor = actor }
+        return ViewModelProvider(trays, object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                require(modelClass == RecordTrayViewModel::class.java)
+                return RecordTrayViewModel((state.value as ContextSessionState.Ready).recordRepository) as T
+            }
+        })[RecordTrayViewModel::class.java].also { trayConsumer = it }
+    }
+
+    @MainThread
+    fun releaseTray(): Boolean {
+        if (trayConsumer?.uiState?.value?.isMutating == true) return false
+        trays.clear(); trayActor = null; trayConsumer = null
+        return true
+    }
+
+    @MainThread
     fun retry() {
         if (state.value == ContextSessionState.Unavailable && opening?.isActive != true) start()
     }
@@ -97,10 +121,15 @@ class ContextSessionOwner(
             } finally {
                 withContext(NonCancellable) {
                     val pendingForm = formConsumer
+                    val pendingTray = trayConsumer
                     forms.clear()
+                    trays.clear()
                     pendingForm?.viewModelScope?.coroutineContext?.get(Job)?.join()
+                    pendingTray?.viewModelScope?.coroutineContext?.get(Job)?.join()
                     formConsumer = null
                     formKey = null
+                    trayActor = null
+                    trayConsumer = null
                     children.clear()
                     consumer?.viewModelScope?.coroutineContext?.get(Job)?.join()
                     withContext(io) { resource?.close() }
