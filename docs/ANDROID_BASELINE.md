@@ -10,7 +10,7 @@ Corrección sobre `f4d1ac6`, misma rama/PR #9: diálogo y selección provisional
 
 [Fuentes/APK y alcance](evidencias/calendario-giro-2026-10-11.json), [salida final](evidencias/android-calendario-giro-2026-10-11.txt). Intent MAIN/LAUNCHER alineado con apertura asistida MIUI. Intentos iniciales del fixture/proceso y mes inicial corregidos antes de esta ejecución; no se cuentan como éxitos. Sin reset de datos ni permisos concedidos por ADB.
 
-Las 12/28 Android de cortes anteriores y suites de datos/nativos/400 son históricas respecto a esta nueva APK; no sumar resultados. Confirmación del giro físico con diálogo abierto solicitada al usuario. TalkBack sigue pospuesto; tablet físico, permisos adversos, portal cautivo, revisión cruzada/contratos y P3 pendientes. Retención durante recreación no implica persistencia tras muerte del proceso.
+Las 12/28 Android de cortes anteriores y suites de datos/nativos/400 son históricas respecto a esta nueva APK; no sumar resultados. Martín confirmó después que todo funcionó al realizar el recorrido propuesto en la APK `4df4046a…`: giro vertical/horizontal con calendario abierto, candidata, cancelación/confirmación y rango desplegado. Esta comprobación humana se registra por separado de las 14 automáticas; no acredita TalkBack ni aceptación contractual. TalkBack sigue pospuesto; tablet físico, permisos adversos, portal cautivo, revisión cruzada/contratos y P3 pendientes. Retención durante recreación no implica persistencia tras muerte del proceso.
 
 
 ## Ajustes tras prueba humana de V3 · 11/10/2026

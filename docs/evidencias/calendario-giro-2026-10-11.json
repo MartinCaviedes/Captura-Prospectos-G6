@@ -176,7 +176,7 @@
     "reported_issue": "Calendario abierto se cierra al girar y se colapsan los campos de rango; se pueden reabrir.",
     "scope": "Respuesta humana del usuario; no TalkBack ni aceptación contractual."
   },
-  "new_manual_status": "Giro físico con calendario abierto en APK nueva pendiente de confirmación",
+  "new_manual_status": "Aprobado por Martín: funciona todo tras realizar el recorrido propuesto en Xiaomi; giro físico con calendario abierto y rango desplegado.",
   "development_attempts": [
     "Fixture inicial en otro proceso: corregido para usar ComponentActivity existente",
     "Intent inicial no coincidía con apertura asistida MIUI: ejecución detenida sin borrar datos, corregido a MAIN/LAUNCHER",
@@ -350,8 +350,20 @@
   "source_hash_normalization": "LF para Kotlin/XML/JSON/TOML/TXT; bytes originales para PNG/TTF",
   "limits": [
     "No se repitieron suites completas de datos/nativos/400; evidencias anteriores son históricas",
-    "Recreación no acredita giro físico ni muerte/reinicio de proceso",
+    "Las pruebas automáticas recrean Activity; el giro físico se acredita por respuesta humana separada. No prueba muerte/reinicio del proceso.",
     "No se restaura PII tras muerte de proceso; estado sólo en memoria, sin Saver ni almacenamiento",
     "TalkBack pospuesto; tablet físico, permisos adversos, portal cautivo, revisión cruzada/contratos y P3 pendientes"
-  ]
+  ],
+  "user_manual_current_apk": {
+    "apk_sha256": "4df4046a29f3debfaf9b58d27b35d97f9a937272cdab571d600d134d803380b1",
+    "device": "Xiaomi 11T",
+    "date": "2026-10-11",
+    "reported_result": "Funciona todo perfectamente tras realizar el recorrido propuesto",
+    "requested_route": [
+      "Resumen Desde: seleccionar candidata sin confirmar, girar vertical-horizontal-vertical, cancelar sin cambiar el campo ni colapsar el rango",
+      "Resumen Hasta: giro con calendario abierto y confirmación con Usar fecha",
+      "Calendario de nacimiento: giro y descarte del formulario sin guardar"
+    ],
+    "scope": "Respuesta humana al recorrido solicitado; no revisión cruzada, TalkBack, permisos adversos, portal cautivo ni aceptación contractual."
+  }
 }

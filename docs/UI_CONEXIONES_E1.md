@@ -34,7 +34,7 @@ No cambian dominio, Room v4, migraciones, SQLCipher/Keystore, catálogos, provee
 
 El usuario confirmó el contraste y los calendarios de la APK de ajustes (`aa46a797…`), pero detectó cierre del diálogo y colapso de los campos al girar. El estado del calendario (abierto, fecha provisional, mes y modo) ahora vive en memoria del ViewModel de formulario/resumen; el rango expandido forma parte del StateFlow del resumen. Se conservan durante recreación de Activity y se limpian con cancelación, confirmación o liberación del dueño; nacimiento también se limpia al descartar/resetear. No se guardan en SavedState ni disco. La candidata sólo cambia el campo al confirmar; calcular sigue requiriendo Aplicar rango. Un reinicio de proceso no restaura datos personales sin guardar.
 
-La prueba automática recrea Activity y recompone con el mismo ViewModel; la comprobación física del giro en MainActivity queda pendiente. [Evidencia y separación de versiones](evidencias/calendario-giro-2026-10-11.json). TalkBack continúa pospuesto.
+La prueba automática recrea Activity y recompone con el mismo ViewModel. Después, Martín confirmó el recorrido físico propuesto en Xiaomi con APK `4df4046a…`: calendario abierto y candidata conservados al girar, cancelar/confirmar y rango desplegado. La respuesta humana se distingue de las pruebas automáticas y no implica aceptación contractual. [Evidencia y separación de versiones](evidencias/calendario-giro-2026-10-11.json). TalkBack continúa pospuesto.
 
 ## Ajustes de contraste y calendario · 11/10
 
