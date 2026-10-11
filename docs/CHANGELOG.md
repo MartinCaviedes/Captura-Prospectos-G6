@@ -1,5 +1,10 @@
 # Cambios del producto
 
+## Corrección R2 · alta/hub — 10/10/2026
+
+Corrige compilación y el dueño del formulario: retención en memoria por contexto, liberación/cancelación antes de cerrar Room, Atrás con confirmación y guardado excluyente. Sin segunda alta implícita después de éxito ni llamada al repositorio sin consentimiento. Feedback por campo y filas adaptables. Controles/pendientes en [ROUND2_FORM_HUB](ROUND2_FORM_HUB.md); sin migración, backend, merge ni aceptación humana.
+
+
 ## Ronda 2 — 10/10/2026
 
 DEVICE-01-B: Recursos nativos de GPS y Cámara (`feature/e1-ronda2-device-resources`). Implementación de `AndroidLocationProvider` vía LocationManager con permisos de tiempo de ejecución, timeout de 10s y política de calidad de captura (100 m / 5 min). Asistente visual de lectura QR con `DemoQrParser` para fixtures sintéticos `G6DEMO:1`, retroalimentación accesible y confirmación manual sin almacenar datos crudos ni imágenes. Conexión de ubicación en alta: capturas con ubicación quedan en `READY` y sin ubicación en `NEEDS_CONTEXT`. 21 pruebas JVM nuevas en `LocationPolicyTest`, `AndroidLocationProviderTest` y `AdmissionFormDeviceTest`, más prueba instrumental `LocationAndroidTest`. Ver [ROUND2_DEVICE_RESOURCES](ROUND2_DEVICE_RESOURCES.md).
