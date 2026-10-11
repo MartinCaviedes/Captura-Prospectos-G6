@@ -34,6 +34,7 @@ fun DemoContextScreen(
     onEventSelected: (UUID) -> Unit,
     onClearSelection: () -> Unit,
     modifier: Modifier = Modifier,
+    onContinueToHub: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier,
@@ -104,7 +105,16 @@ fun DemoContextScreen(
                                 enabled = !state.busy, onClick = { onEventSelected(event.id) })
                         }
                         snapshot.selectedEvent?.let { event -> item {
-                            Text("Contexto seleccionado: ${event.name}. El formulario se incorporará en el siguiente incremento.")
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Contexto seleccionado: ${event.name}.", style = MaterialTheme.typography.bodyMedium)
+                                Button(
+                                    onClick = onContinueToHub,
+                                    enabled = !state.busy,
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text("Ir al panel de captura")
+                                }
+                            }
                         } }
                     }
                 }

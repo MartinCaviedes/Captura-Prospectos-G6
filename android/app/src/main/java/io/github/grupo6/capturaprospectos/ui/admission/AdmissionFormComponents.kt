@@ -1,6 +1,7 @@
 package io.github.grupo6.capturaprospectos.ui.admission
 
 import androidx.compose.foundation.layout.*
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.selection.toggleable
@@ -25,15 +26,25 @@ class FormActions(
     val program: (UUID) -> Unit, val move: (UUID, Int) -> Unit, val mention: (UUID, UUID?) -> Unit,
     val site: (UUID) -> Unit, val mode: (AcceptanceMode) -> Unit, val consent: (Boolean) -> Unit,
     val validate: (SaveIntent) -> Unit, val discard: () -> Unit,
+    val save: ((SaveIntent) -> Unit)? = null,
+    val reset: (() -> Unit)? = null,
+    val onBack: (() -> Unit)? = null,
 )
 /** Compone el formulario a partir del estado y las acciones del ViewModel.
  * La navegación y la confirmación de guardado pertenecen al consumidor. */
-@Composable fun AdmissionFormRoute(vm: AdmissionFormViewModel, modifier: Modifier = Modifier) {
+@Composable fun AdmissionFormRoute(
+    vm: AdmissionFormViewModel,
+    modifier: Modifier = Modifier,
+    onNavigateBack: () -> Unit = {},
+) {
     val state by vm.uiState.collectAsStateWithLifecycle()
-    AdmissionFormComponents(state, vm.environment, vm.suggestion, remember(vm) {
-        FormActions(vm::text, vm::activity, vm::confirmActivityDiscard, vm::acceptEstablishmentSuggestion,
+    AdmissionFormComponents(state, vm.environment, vm.suggestion, remember(vm, onNavigateBack) {
+        FormActions(
+            vm::text, vm::activity, vm::confirmActivityDiscard, vm::acceptEstablishmentSuggestion,
             vm::personal, vm::schedule, vm::interestLevel, vm::motivation, vm::program, vm::moveProgram,
-            vm::mention, vm::site, vm::mode, vm::consent, vm::validate, vm::discard)
+            vm::mention, vm::site, vm::mode, vm::consent, vm::validate, vm::discard,
+            save = vm::save, reset = vm::reset, onBack = onNavigateBack,
+        )
     }, modifier)
 }
 
@@ -44,6 +55,11 @@ class FormActions(
     // La búsqueda se conserva sólo durante esta composición para evitar restaurar datos personales.
     var search by remember { mutableStateOf("") }
     var confirmDiscard by remember { mutableStateOf(false) }
+    BackHandler(enabled = actions.onBack != null) {
+        if (!state.isSaving) {
+            if (state.isSaved) actions.onBack?.invoke() else confirmDiscard = true
+        }
+    }
     val input = state.input
     if (state.pendingActivity != null) AlertDialog(onDismissRequest = { actions.discardActivity(false) },
         title = { Text("¿Cambiar actividad?") }, text = { Text("Se quitará el detalle escrito para Otra actividad.") },
@@ -51,11 +67,11 @@ class FormActions(
         dismissButton = { TextButton(onClick = { actions.discardActivity(false) }) { Text("Conservar") } })
     if (confirmDiscard) AlertDialog(onDismissRequest = { confirmDiscard = false },
         title = { Text("¿Descartar formulario?") }, text = { Text("Se quitarán los datos que aún están sólo en memoria.") },
-        confirmButton = { TextButton(onClick = { actions.discard(); search = ""; confirmDiscard = false }) { Text("Descartar datos") } },
+        confirmButton = { TextButton(enabled = !state.isSaving, onClick = { actions.discard(); search = ""; confirmDiscard = false; actions.onBack?.invoke() }) { Text("Descartar datos") } },
         dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text("Seguir editando") } })
     LazyColumn(modifier, contentPadding = PaddingValues(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item { Text("Inscripción de prospecto", style = MaterialTheme.typography.headlineMedium)
-            Text("Los datos permanecen sin guardar. Validar no guarda ni envía la inscripción.") }
+            Text(if (state.isSaved) "Registro confirmado en este dispositivo." else "Los datos permanecen sin guardar. Validar no guarda ni envía la inscripción.") }
         item { FormText("Nombres", AdmissionField.GIVEN_NAMES, input.givenNames, state, actions) }
         item { FormText("Apellidos", AdmissionField.FAMILY_NAMES, input.familyNames, state, actions) }
         item { FormText("RUT", AdmissionField.RUT, input.rut, state, actions) }
@@ -84,7 +100,7 @@ class FormActions(
             input.interests.forEach { selected ->
                 val program = environment.programs.firstOrNull { it.id == selected.programId }
                 Text("${selected.priority}. ${program?.name ?: "Carrera no disponible"}")
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton({ actions.move(selected.programId, -1) }, enabled = selected.priority > 1) { Text("Subir") }
                     TextButton({ actions.move(selected.programId, 1) }, enabled = selected.priority < input.interests.size) { Text("Bajar") }
                     TextButton({ actions.program(selected.programId) }) { Text("Quitar") }
@@ -113,11 +129,66 @@ class FormActions(
             }
         }
         item {
-            state.issues.forEach { Text("${fieldLabel(it.field)}: ${issueLabel(it.code)}", color = MaterialTheme.colorScheme.error) }
-            state.message?.let { Text(it) }
-            Button({ actions.validate(SaveIntent.CONFIRM_REGISTRATION) }) { Text("Validar inscripción") }
-            OutlinedButton({ actions.validate(SaveIntent.SAVE_DRAFT) }) { Text("Validar borrador") }
-            TextButton({ confirmDiscard = true }) { Text("Descartar formulario") }
+            if (state.isSaving) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                Text("Guardando en base de datos local…", style = MaterialTheme.typography.bodyMedium)
+            }
+            if (state.isSaved) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            "¡Registro guardado con éxito!",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                        Text(
+                            state.message ?: "",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(onClick = { actions.reset?.invoke() }) {
+                                Text("Nueva inscripción")
+                            }
+                            if (actions.onBack != null) {
+                                OutlinedButton(onClick = { actions.onBack.invoke() }) {
+                                    Text("Volver al panel")
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                state.issues.forEach { Text("${fieldLabel(it.field)}: ${issueLabel(it.code)}", color = MaterialTheme.colorScheme.error) }
+                state.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                if (actions.save != null) {
+                    Button(
+                        onClick = { actions.save.invoke(SaveIntent.CONFIRM_REGISTRATION) },
+                        enabled = !state.isSaving,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("Guardar inscripción")
+                    }
+                    OutlinedButton(
+                        onClick = { actions.save.invoke(SaveIntent.SAVE_DRAFT) },
+                        enabled = !state.isSaving,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("Guardar borrador")
+                    }
+                }
+                Button({ actions.validate(SaveIntent.CONFIRM_REGISTRATION) }, enabled = !state.isSaving, modifier = Modifier.fillMaxWidth()) { Text("Validar inscripción") }
+                OutlinedButton({ actions.validate(SaveIntent.SAVE_DRAFT) }, enabled = !state.isSaving, modifier = Modifier.fillMaxWidth()) { Text("Validar borrador") }
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton({ confirmDiscard = true }, enabled = !state.isSaving) { Text("Descartar formulario") }
+                    if (actions.onBack != null) {
+                        TextButton(enabled = !state.isSaving, onClick = { confirmDiscard = true }) { Text("Volver al panel") }
+                    }
+                }
+            }
         }
     }
 }
@@ -125,11 +196,15 @@ class FormActions(
     actions: FormActions, keyboard: KeyboardType = KeyboardType.Text) {
     val isPhone = field == AdmissionField.PHONE
     val displayedValue = if (isPhone) value.removePrefix("+56") else value
+    val issue = state.issues.firstOrNull { it.field == field }
     OutlinedTextField(displayedValue, { edited ->
         val input = if (isPhone && edited.isNotBlank() && !edited.startsWith("+56")) "+56$edited" else edited
         actions.text(field, input)
     }, label = { Text(label) }, prefix = if (isPhone) ({ Text("+56") }) else null,
         modifier = Modifier.fillMaxWidth(),
+        enabled = !state.isSaving && !state.isSaved,
+        supportingText = issue?.let { { Text(issueLabel(it.code)) } },
+        trailingIcon = issue?.let { { Text("!", color = MaterialTheme.colorScheme.error) } },
         isError = state.issues.any { it.field == field }, keyboardOptions = KeyboardOptions(keyboardType = keyboard),
         singleLine = field != AdmissionField.NOTES)
 }
