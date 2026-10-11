@@ -1,34 +1,25 @@
-# Ronda 2 · RECORDS-01-B y Bandeja de capturas locales
+# Ronda 2 · registros locales corregidos
 
-Incremento local sobre la base de ronda 2 (`feature/e1-ronda2-records-tray`). Implementa el repositorio de consulta y gestión de capturas en Room cifrado (`RoomRecordRepository`), así como la interfaz gráfica de bandeja de capturas (`RecordTrayScreen`, `RecordTrayViewModel`) accesible desde el Hub principal.
+Candidato en `feature/e1-ronda2-records-tray`, sobre 08df94f con la corrección previa de alta/hub. RECORD_CONTRACTS conserva su carácter de propuesta pendiente de aceptación humana; esta rama prepara y prueba su implementación técnica. No constituye integración en develop ni cierre de ronda/RF.
 
-## Alcance técnico implementado
+## Comportamiento
 
-| Entregable | Responsabilidad e integración |
-|---|---|
-| **RECORDS-01-B (Repositorio)** | `RoomRecordRepository` cumpliendo `RecordContracts.kt`. Implementa `list(RecordQuery)` con aislamiento por rol (Captador ve sus propias capturas; Supervisor ve sedes autorizadas sin borradores ajenos), filtrado por estado, texto normalizado, fecha y paginación por cursor `(capturedAt DESC, id DESC)`. `cancel(CancelRecord)` con motivo validado (5–300 caracteres), transacción atómica de revocación de clave activa (`active_registration_keys`) y registro en `local_audit`. |
-| **DAO & Sesión** | Métodos `@Query` en `CaptureDao` (`capturesByOwner`, `capturesBySitesExcludingDraft`, `updateState`, `deleteKey`) sin alteración de esquema Room v3. Exposición en `ContextSession`, `RoomContextSession` y `ContextSessionOwner`. |
-| **UI Bandeja (RECORDS-01-B)** | `RecordTrayScreen`, `RecordTrayRoute` y `RecordTrayViewModel`. Barra de búsqueda, chips de filtro por estado (`Todos`, `Listos`, `Borradores`, `Cancelados`), tarjeta de captura con datos esenciales, estado de sincronización explícito (`Local - NOT_QUEUED`) y modal de cancelación accesible con validación. |
-| **NAV-01-B** | Integración del flujo de navegación desde el Hub (`AppScreen.TRAY`) con retorno al panel principal y preservación del estado de sesión activo. |
+El repositorio original devolvía Saved para edit sin escribir. Ahora edición/anulación se resuelven dentro de una transacción Room cifrada: autorización uniforme por propiedad/sede/rol, revisión, transición, validación F2027 con PrepareAdmission, duplicados, fila/selecciones/clave activa y auditoría. La UI de detalle pertenece a la rama siguiente; esta bandeja sólo consulta y anula.
 
-## Reglas de negocio y privacidad preservadas
+Las inscripciones activas conservan RUT normalizado, autor, sede/evento, instalación, instante y consentimiento; no se degradan a borrador. Un borrador propio puede corregirse/confirmarse; NEEDS_CONTEXT puede recibir ubicación nueva válida. Ubicación ausente conserva la evidencia histórica, sin exigir que un GPS original siga siendo reciente. Las selecciones de catálogo sin cambios conservan sus snapshots. Los valores opcionales pueden retirarse explícitamente. LEGACY admite lectura/listado y anulación conservadora, con edición F2027 UnsupportedContract.
 
-1. **Aislamiento de datos por rol:**
-   - **Captador:** Solo puede listar, buscar o cancelar capturas asociadas a su propio `ownerId`.
-   - **Supervisor:** Puede visualizar las capturas de las sedes autorizadas para supervisión, excluyendo estrictamente los borradores (`DRAFT`) de otros captadores para salvaguardar la privacidad de prospectos no finalizados.
-2. **Liberación de claves activas en cancelación:** Al cancelar una captura, se elimina su registro en `active_registration_keys`, permitiendo una nueva captura legítima del mismo RUT en el evento sin colisiones espurias.
-3. **Auditoría local inmutable:** Toda cancelación inserta un registro en la tabla `local_audit` con el actor responsable, marca de tiempo y motivo.
-4. **Cero transmisiones remotas:** Las tarjetas y estados informan inequívocamente que los registros son locales (`NOT_QUEUED`). No se simulan envíos a la nube ni estados `SYNCED`.
+Captador: registros propios dentro de sus sedes. Supervisor: registros de sus sedes sin borradores ajenos; edición ajena requiere motivo. Un registro inaccesible no revela revisión ni existencia. Un fallo de SQLite produce resultado tipado, conserva datos y revierte toda mutación. CancellationException se propaga.
 
-## Pruebas agregadas
+Consulta normalizada por nombre/RUT, fechas UTC, evento y estado. La autorización precede a la paginación exclusiva (instante DESC, UUID canónico DESC). La bandeja consume páginas de 50 con «Cargar más registros», refresca desde inicio al cambiar filtros y cancela lecturas obsoletas. No ofrece snapshot entre páginas. Conserva el motivo ante fallo de almacenamiento y bloquea segundo envío, cierre y salida mientras muta. Su ViewModel se retiene por actor/rol/sedes y se cancela antes de cerrar Room. No se simula sincronización.
 
-- `RecordTrayViewModelTest`: 8 pruebas unitarias en JVM que verifican:
-  - Carga inicial y mapeo de capturas a la bandeja.
-  - Filtrado reactivo por texto (nombre, apellido, RUT).
-  - Filtrado por estado de captura (`READY`, `DRAFT`, `CANCELLED`).
-  - Restricción de supervisor (exclusión de borradores).
-  - Cancelación exitosa con motivo válido y actualización en vivo del estado.
-  - Validación de motivo de cancelación (rechazo de motivos vacíos o menores a 5 caracteres).
-  - Manejo de error de almacenamiento sin quiebre de la UI.
-  - Paginación de registros mediante cursor.
-- Verificación de esquema y migraciones: Aprobados scripts `verify_migration_sql.py` y `verify_context_migration_sql.py`.
+## Auditoría y migración candidata
+
+Room v4 añade a local_audit previousRevision, reasonText y changedFields mediante 3→4 aditiva. Los atributos desconocidos de auditorías históricas quedan NULL; no se fabrican motivos. Una mutación efectiva aumenta la revisión una vez y guarda actor, fecha, acción, revisión anterior/resultante, motivo cuando corresponde y nombres de campos modificados. No duplica los valores personales en changedFields; una edición sin cambios no crea otra revisión. Se conservan los esquemas 1/2/3/4 y todas las migraciones, sin fallback destructivo.
+
+La prueba cifrada compara todos los valores v3 y los índices/FK antes/después, con capturas DRAFT/READY/NEEDS_CONTEXT/CANCELLED, claves y auditorías. Nuevos consumidores deben incorporar esta corrección completa, no introducir otra migración v4. La coordinación/aceptación humana del contrato sigue pendiente.
+
+## Controles y límites
+
+121 JVM aprobadas, build de ambas APK y Lint 20 avisos/0 errores. En Xiaomi Android 14/API 34: 37 cifradas y dos UI, ejecutadas por separado. Las diez pruebas nuevas de Room cubren escritura real, autorización, revisión, transición, unicidad, auditoría y rollback, además de 120 registros paginados. Las ocho JVM originales son pruebas con doble, sin certificar reglas SQL; se conservan y agregan cuatro de paginación/cancelación. La UI también usa doble y apertura asistida ADB; no certifica accesibilidad completa ni un recorrido conjunto con Room. Detalle, giro real de MainActivity, TalkBack, cámara/GPS y revisión cruzada pendientes.
+
+[Resultados y reproducción](ANDROID_BASELINE.md), [fuentes/APK](evidencias/records-correction-2026-10-10.json). No se acredita cierre E1 ni aceptación del contrato.

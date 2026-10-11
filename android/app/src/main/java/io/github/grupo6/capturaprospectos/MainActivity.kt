@@ -106,14 +106,10 @@ class MainActivity : ComponentActivity() {
                                         )
                                     }
                                     AppScreen.TRAY -> {
-                                        val trayVm = remember(profile.actor.id, event.id, current.recordRepository) {
-                                            io.github.grupo6.capturaprospectos.ui.records.RecordTrayViewModel(
-                                                repository = current.recordRepository,
-                                            )
-                                        }
+                                        val trayVm = owner.tray(profile.actor)
                                         io.github.grupo6.capturaprospectos.ui.records.RecordTrayRoute(
                                             viewModel = trayVm,
-                                            onNavigateBack = { activeScreen = AppScreen.HUB },
+                                            onNavigateBack = { if (owner.releaseTray()) activeScreen = AppScreen.HUB },
                                             modifier = modifier,
                                         )
                                     }
