@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-10",
+  "base": "0ce3fc208d5d11aa3f34ac9f24ac5a84b5bd30f7",
+  "jvm": {
+    "tests": 155,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 24
+  },
+  "android": {
+    "data": {
+      "passed": 3,
+      "seconds": 1.214,
+      "assisted_launch": false
+    },
+    "ui": {
+      "passed": 8,
+      "seconds": 68.764,
+      "assisted_launch": true
+    }
+  },
+  "apks_installed_match_build": {
+    "outputs/apk/demo/debug/app-demo-debug.apk": "6a96eddf7584661e7e42933e109e1bec05a771549e3fc44b4fa33f3e2fdfa09f",
+    "outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk": "cccc37953eeab4adbece45c5a6ec079c94b8a991a882a7c6b9587b7448f3379c"
+  },
+  "sources_sha256": {
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/device/AndroidLocationProvider.kt": "b11781c0c4ce51990b6a48a15f69814a9ec59ebdc2496634800962cf9b28446a",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt": "ec18d834a97b5233558420dd52cfeaa64725ab481f1dbd2f34b323a3c03a983e",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/data/device/LocationAcquisitionTest.kt": "727357c93d36af66351cc29cc339bdfee8adb4b31e043b3a56914176bf33257c"
+  },
+  "manual": {
+    "qr": "Usuario reporta lectura física G6DEMO:1 y aplicación sólo del RUT en 0ce3fc2. Nombres/apellidos permanecen manuales, según contrato.",
+    "gps_before_fix": "Dos intentos con permiso preciso y ubicación activada agotaron 10 s, incluido cerca de ventana. Se detectó selección exclusiva de GPS al estar habilitado.",
+    "gps_after_fix": "En la APK corregida, el usuario reportó una ubicación candidata con precisión de 12–100 m y comprobó las acciones de confirmar y descartar. No se registraron coordenadas reales ni se atribuye la muestra a un proveedor específico."
+  },
+  "limits": [
+    "Pruebas automáticas con fuentes ficticias no acreditan adquisición física.",
+    "No se concedieron permisos por ADB; permisos actuales proceden de la prueba del usuario.",
+    "No se borró la base de usuario ni se registraron coordenadas reales.",
+    "Giro real, permisos permanentes/TalkBack/portal cautivo y revisión humana pendientes."
+  ]
+}
