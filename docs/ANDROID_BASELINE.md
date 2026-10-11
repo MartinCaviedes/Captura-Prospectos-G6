@@ -1,5 +1,14 @@
 # Evidencia de la base Android
 
+## Verificación nueva · 11/10/2026
+
+**165 JVM**, ambas APK y Lint **0 errores/25 avisos**. Incluye las doce pruebas originales de bandeja, seis regresiones nuevas de edición y la corrección GPS propagada. Xiaomi 11T Android 14/API 34: **39 cifradas (49.303 s)** sobre ef940a4, concluidas durante el corte; **11 UI (107.106 s)** sobre el build final, en un grupo separado con asistencia MIUI. Tres UI nuevas usan Room cifrado real: completar borrador y confirmar el mismo registro, error/foco/reintento con retirada de notas opcionales, conflicto con descarte explícito. Ocho regresiones de formulario, recursos y bandeja también aprobadas. Fuentes/APK identificadas en [evidencia](evidencias/detail-correction-2026-10-11.json).
+
+La primera ejecución después de la pausa encontró APK instaladas diferentes y clases ausentes; se reinstalaron los builds propios con -r -t y SHA256 verificado. No se toma aquel intento como fallo de producto. Los intentos válidos posteriores detectaron un selector incorrecto del RUT deshabilitado y feedback repetido: corregidos antes de la suite final. Se conservan las pruebas originales; no se omiten aserciones de campos, persistencia o revisión.
+
+Giro real de MainActivity, TalkBack/visual completa, aceptación humana de contrato/v4 y ensayo P3 pendientes. La cámara/GPS físicos fueron comprobados por el usuario en el incremento nativo; no se extrapola ese resultado a todo el recorrido E1. Sin merge ni cierre de RF.
+
+
 ## Corrección de adquisición tras prueba física · 10/10/2026
 
 El usuario comprobó cámara física con el QR ficticio: se detectan fullName/RUT y se aplica sólo RUT, sin dividir nombres. Dos intentos de GPS agotaron 10 s con permiso preciso y ubicación activada (uno cerca de ventana). Estos intentos anteriores no acreditaban adquisición ni confirmación.

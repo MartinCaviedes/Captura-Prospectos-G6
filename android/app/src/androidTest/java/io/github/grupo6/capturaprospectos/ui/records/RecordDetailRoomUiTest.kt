@@ -76,7 +76,7 @@ class RecordDetailRoomUiTest {
         val pending=stored(); assertEquals(CaptureState.NEEDS_CONTEXT,pending.state); assertEquals(original.id,pending.id)
         assertEquals(original.consent,pending.consent); assertEquals(original.capturedAt,pending.capturedAt)
         compose.onNodeWithText("Editar ficha").performClick(); compose.waitUntil(10000) { vm.uiState.value.editForm != null }
-        scroll("RUT"); compose.onNode(hasText("RUT") and hasSetTextAction()).assertIsNotEnabled()
+        scroll("RUT"); compose.onNodeWithText("RUT").assertIsNotEnabled()
         scroll("Confirmar evento"); compose.onNodeWithText("Confirmar evento").performClick()
         save(); compose.waitUntil(10000) { !vm.uiState.value.isEditing && !vm.uiState.value.isReadingDetail }
         val ready=stored(); assertEquals(CaptureState.READY,ready.state); assertEquals(3L,ready.revision)
