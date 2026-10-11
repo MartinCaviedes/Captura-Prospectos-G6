@@ -1,5 +1,16 @@
 # Evidencia de la base Android
 
+## Corrección R2 · recursos nativos — 10/10/2026
+
+Rama `feature/e1-ronda2-device-resources`, sobre 925810f con las correcciones previas de alta/hub y registros. **147 JVM aprobadas**, cero fallos/errores/omitidas; ambas APK compiladas; **Lint 24 avisos/0 errores**. Los cuatro avisos adicionales corresponden a dependencias/UseKtx; no se modifican las versiones previas por estilo.
+
+Nuevas ejecuciones en Xiaomi 11T Android 14/API 34: **tres nativas/decoder** (0.227 s) y **ocho UI** (68.595 s), en grupos separados. El lector ML Kit incluido decodifica bitmaps QR ficticios y el parser rechaza una URL reconocida, sin permiso INTERNET. El proveedor Android devuelve PermissionDenied con permisos de ubicación denegados. Eso no acredita adquisición GPS ni lectura física con cámara. La UI prueba confirmación de candidato de ubicación y reemplazo explícito de RUT, más seis regresiones de formulario/Atrás/bandeja, con dobles y apertura asistida ADB en MIUI. No se conceden/revocan permisos ni se borra la base del usuario.
+
+Las APK instaladas coinciden con el build por SHA256. [Alcance y comprobación física pendiente](ROUND2_DEVICE_RESOURCES.md), [fuentes/APK/suites](evidencias/device-correction-2026-10-10.json), [runner nativo](evidencias/android-device-data-2026-10-10.txt), [runner UI](evidencias/android-device-ui-2026-10-10.txt). Se corrigió además una referencia original a un doble privado de otro archivo que impedía compilar las pruebas; se conservan los nueve casos originales y se ajustan las expectativas incompatibles con el contrato (confirmación GPS y nombres manuales), agregando cinco regresiones de cancelación/estado.
+
+Quedan lectura física de QR ficticio/enfoque/giro/cierre de cámara, permiso aproximado/preciso, denegación permanente y ajustes, servicios GPS apagados, timeout/precisión y confirmación sobre ubicación real. TalkBack/visual completa, aceptación del contrato de registros y cierre E1 siguen pendientes. La evidencia de Room v4 pertenece al bloque previo y no se presenta como una nueva prueba nativa conjunta.
+
+
 ## Corrección R2 · registros — 10/10/2026
 
 Rama `feature/e1-ronda2-records-tray`, sobre 08df94f e incorporando la corrección de alta/hub 0fc8b41. **121 JVM sin fallos/errores/omitidas**, APK principal/instrumental correctos y **Lint 20 avisos/0 errores**. Nuevas ejecuciones en Xiaomi 11T Android 14/API 34: **37 pruebas cifradas** (48.262 s), incluidas diez nuevas de registros/migración y 27 de regresión; **dos UI** (16.334 s), por separado y con apertura asistida ADB en MIUI. Se usan bases test-* y datos ficticios, sin borrar la base del usuario ni conceder permisos peligrosos. Ambas APK instaladas coinciden por SHA256 con el build.

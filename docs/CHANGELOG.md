@@ -1,6 +1,12 @@
 # Cambios del producto
 
 ## Ronda 3 â€” 10/10/2026
+## Corrección R2 · recursos nativos — 10/10/2026
+
+Cámara real CameraX + lector QR offline incluido; permisos contextuales, RUT confirmado/reemplazo explícito y nombres manuales. GPS candidato requiere confirmación y las solicitudes/callbacks se cancelan al descartar/liberar. Corrección de acceso a doble privado en pruebas. 147 JVM, Lint 24 avisos/0 errores; Xiaomi tres decoder/proveedor y ocho UI con dobles por separado. [Comprobaciones físicas y límites](ROUND2_DEVICE_RESOURCES.md). Sin cierre E1.
+
+
+## Corrección R2 · registros — 10/10/2026
 
 RF09 y RF10: Resumen operativo local y panel de supervisor (`feature/e1-ronda3-hub-metrics`). Resumen estadístico reactivo en `MainHubScreen` con métricas locales directas de Room cifrado (`DeviceMetrics`, `SiteMetrics`). Conteo en tiempo real de capturas por estado (Total, Confirmadas `READY`, Borradores `DRAFT`, Sin ubicación `NEEDS_CONTEXT`, Anuladas `CANCELLED`). Panel exclusivo de supervisión con distribución por sedes autorizadas y captadores de terreno. Aislamiento estricto por rol (captador sólo ve sus capturas; supervisor ve sus sedes sin borradores). 3 pruebas JVM en `MainHubMetricsTest`. Ver [ROUND3_HUB_METRICS](ROUND3_HUB_METRICS.md).
 

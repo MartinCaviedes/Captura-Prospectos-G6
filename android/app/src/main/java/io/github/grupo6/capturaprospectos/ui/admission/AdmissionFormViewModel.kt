@@ -13,6 +13,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 
 data class AdmissionFormState(
     val input: AdmissionInput = AdmissionInput(),
@@ -26,6 +28,7 @@ data class AdmissionFormState(
     val savedId: UUID? = null,
     val savedState: CaptureState? = null,
     val location: CaptureLocation? = null,
+    val locationCandidate: CaptureLocation.Device? = null,
     val isAcquiringLocation: Boolean = false,
     val locationStatus: String? = null,
     val qrCandidate: QrCandidate? = null,
@@ -46,7 +49,10 @@ class AdmissionFormViewModel(
 ) : ViewModel() {
     private val state = MutableStateFlow(AdmissionFormState())
     val uiState = state.asStateFlow()
-    private val canEdit get() = !state.value.isSaving && !state.value.isSaved
+    private var active = true
+    private val canEdit get() = active && !state.value.isSaving && !state.value.isSaved
+    private var locationJob: Job? = null
+    private var locationGeneration = 0L
     private fun change(transform: (AdmissionInput) -> AdmissionInput) {
         if (!canEdit) return
         state.value = state.value.copy(
@@ -148,15 +154,19 @@ class AdmissionFormViewModel(
 
     @MainThread
     fun requestLocation(customProvider: LocationProvider? = null): Job? {
+        if (!canEdit || state.value.isQrScannerOpen) return null
         val current = state.value
         if (current.isAcquiringLocation) return null
         val provider = customProvider ?: locationProvider ?: run {
             state.value = current.copy(locationStatus = "Proveedor de ubicación no disponible.")
             return null
         }
-        state.value = current.copy(isAcquiringLocation = true, locationStatus = "Adquiriendo ubicación GPS…")
+        val generation = ++locationGeneration
+        state.value = current.copy(isAcquiringLocation = true, locationCandidate = null, locationStatus = "Adquiriendo ubicación…")
         return viewModelScope.launch {
             val result = provider.request(LocationRequestDefaults.timeout)
+            currentCoroutineContext().ensureActive()
+            if (generation != locationGeneration || !canEdit) return@launch
             val latest = state.value
             val context = environment.context
             val now = clock.instant()
@@ -167,8 +177,8 @@ class AdmissionFormViewModel(
                     if (isValid) {
                         latest.copy(
                             isAcquiringLocation = false,
-                            location = result.position,
-                            locationStatus = "Ubicación GPS confirmada (precisión ${result.position.accuracyMeters.toInt()}m).",
+                            locationCandidate = result.position,
+                            locationStatus = "Ubicación candidata (precisión ${result.position.accuracyMeters.toInt()} m). Confirma antes de usarla.",
                         )
                     } else {
                         latest.copy(
@@ -194,11 +204,27 @@ class AdmissionFormViewModel(
                     locationStatus = "Ubicación GPS no disponible en este momento.",
                 )
             }
+        }.also { locationJob = it }
+    }
+
+    @MainThread fun confirmDeviceLocation() {
+        if (!canEdit) return
+        val candidate = state.value.locationCandidate ?: return
+        if (!LocationPolicy().isValid(candidate, clock.instant(), environment.context.actor.id, environment.context.event.location)) {
+            state.value = state.value.copy(locationCandidate = null, locationStatus = "La ubicación candidata ya no es válida; adquiere otra.")
+            return
         }
+        state.value = state.value.copy(location = candidate, locationCandidate = null, locationStatus = "Ubicación GPS confirmada por el usuario.")
+    }
+    @MainThread fun dismissLocationCandidate() {
+        if (!canEdit) return
+        cancelLocation()
+        state.value = state.value.copy(locationCandidate = null, isAcquiringLocation = false, locationStatus = null)
     }
 
     @MainThread
     fun confirmEventLocation() {
+        if (!canEdit || state.value.isAcquiringLocation) return
         val eventLoc = environment.context.event.location
         if (eventLoc != null) {
             val confirmed = CaptureLocation.EventConfirmed(
@@ -207,7 +233,7 @@ class AdmissionFormViewModel(
                 confirmedBy = environment.context.actor.id,
             )
             state.value = state.value.copy(
-                location = confirmed,
+                location = confirmed, locationCandidate = null,
                 locationStatus = "Ubicación confirmada según sede del evento.",
             )
         } else {
@@ -219,23 +245,28 @@ class AdmissionFormViewModel(
 
     @MainThread
     fun clearLocation() {
-        state.value = state.value.copy(location = null, locationStatus = null)
+        if (!canEdit) return
+        cancelLocation()
+        state.value = state.value.copy(location = null, locationCandidate = null, isAcquiringLocation = false, locationStatus = null)
     }
 
     // --- Asistencia por Cámara / QR sintético (RF11) ---
 
     @MainThread
     fun openQrScanner() {
+        if (!canEdit || state.value.isAcquiringLocation) return
         state.value = state.value.copy(isQrScannerOpen = true, qrCandidate = null, qrError = null)
     }
 
     @MainThread
     fun closeQrScanner() {
+        if (!canEdit) return
         state.value = state.value.copy(isQrScannerOpen = false, qrCandidate = null, qrError = null)
     }
 
     @MainThread
     fun processQrPayload(rawPayload: String) {
+        if (!canEdit || !state.value.isQrScannerOpen) return
         when (val result = qrParser.parse(rawPayload)) {
             is QrResult.Candidate -> {
                 state.value = state.value.copy(qrCandidate = result.value, qrError = null)
@@ -256,12 +287,17 @@ class AdmissionFormViewModel(
     }
 
     @MainThread
-    fun applyQrCandidate() {
+    fun applyQrCandidate(replaceExistingRut: Boolean = false) {
+        if (!canEdit || !state.value.isQrScannerOpen) return
         val candidate = state.value.qrCandidate ?: return
+        val previous = state.value.input.rut
+        if (previous.isNotBlank() && RutValidator.normalize(previous) != candidate.rut && !replaceExistingRut) {
+            state.value = state.value.copy(qrError = "Confirma explícitamente el reemplazo del RUT escrito o conserva la entrada manual.")
+            return
+        }
         change { input ->
             input.copy(
                 rut = candidate.rut,
-                givenNames = if (input.givenNames.isBlank()) candidate.fullName else input.givenNames,
             )
         }
         state.value = state.value.copy(isQrScannerOpen = false, qrCandidate = null, qrError = null)
@@ -269,7 +305,12 @@ class AdmissionFormViewModel(
 
     @MainThread
     fun dismissQrError() {
+        if (!canEdit) return
         state.value = state.value.copy(qrError = null)
+    }
+
+    @MainThread fun cameraUnavailable() {
+        if (canEdit && state.value.isQrScannerOpen) state.value = state.value.copy(qrError = "Cámara no disponible. Puedes continuar con ingreso manual.")
     }
 
     // --- Validación y persistencia (FORM-01-B) ---
@@ -291,6 +332,7 @@ class AdmissionFormViewModel(
     fun save(intent: SaveIntent): Job? {
         val current = state.value
         if (!canEdit) return null
+        if (current.isAcquiringLocation || current.isQrScannerOpen || current.locationCandidate != null) return null
         if (current.consent == null) {
             state.value = current.copy(
                 issues = listOf(AdmissionIssue(AdmissionField.CONSENT, ValidationCode.REQUIRED)),
@@ -350,7 +392,8 @@ class AdmissionFormViewModel(
             }
         }
     }
-    @MainThread fun reset() { if (!state.value.isSaving) state.value = AdmissionFormState() }
-    @MainThread fun discard() { if (!state.value.isSaving) state.value = AdmissionFormState() }
-    override fun onCleared() { state.value = AdmissionFormState() }
+    private fun cancelLocation() { locationGeneration++; locationJob?.cancel(); locationJob = null }
+    @MainThread fun reset() { if (!state.value.isSaving) { cancelLocation(); state.value = AdmissionFormState() } }
+    @MainThread fun discard() { if (!state.value.isSaving) { cancelLocation(); state.value = AdmissionFormState() } }
+    override fun onCleared() { active = false; cancelLocation(); state.value = AdmissionFormState() }
 }
