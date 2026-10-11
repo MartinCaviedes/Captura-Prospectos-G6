@@ -77,6 +77,7 @@ class MainActivity : ComponentActivity() {
                                         connectivityObserver = connectivityObserver,
                                         recordRepository = current.recordRepository,
                                         contextViewModel = current.viewModel,
+                                        suppliedMetrics = owner.hub(profile.actor,event),
                                         onNewCapture = { activeScreen = AppScreen.FORM },
                                         onChangeContext = { activeScreen = AppScreen.CONTEXT_SELECTOR },
                                         onOpenTray = { activeScreen = AppScreen.TRAY },
