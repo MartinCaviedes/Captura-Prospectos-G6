@@ -35,7 +35,9 @@ class AdmissionFormViewModel(
 ) : ViewModel() {
     private val state = MutableStateFlow(AdmissionFormState())
     val uiState = state.asStateFlow()
+    private val canEdit get() = !state.value.isSaving && !state.value.isSaved
     private fun change(transform: (AdmissionInput) -> AdmissionInput) {
+        if (!canEdit) return
         state.value = state.value.copy(
             input = transform(state.value.input),
             issues = emptyList(),
@@ -60,6 +62,7 @@ class AdmissionFormViewModel(
         else -> input // Sin catálogo de modalidad/canal: no inventar opciones.
     } }
     @MainThread fun activity(value: CurrentActivity) {
+        if (!canEdit) return
         val input = state.value.input
         if (input.currentActivity == CurrentActivity.OTHER && value != CurrentActivity.OTHER && !input.currentActivityOther.isNullOrBlank()) {
             state.value = state.value.copy(pendingActivity = value); return
@@ -67,6 +70,7 @@ class AdmissionFormViewModel(
         change { it.copy(currentActivity = value, currentActivityOther = if (value == CurrentActivity.OTHER) it.currentActivityOther else null) }
     }
     @MainThread fun confirmActivityDiscard(confirmed: Boolean) {
+        if (!canEdit) return
         val pending = state.value.pendingActivity ?: return
         if (confirmed) change { it.copy(currentActivity = pending, currentActivityOther = null) }
         state.value = state.value.copy(pendingActivity = null)
@@ -107,15 +111,18 @@ class AdmissionFormViewModel(
         change { input -> input.copy(preferredSiteIds = if (id in input.preferredSiteIds) input.preferredSiteIds - id else input.preferredSiteIds + id) }
     }
     @MainThread fun mode(value: AcceptanceMode) {
+        if (!canEdit) return
         state.value = state.value.copy(mode = value, consent = null, issues = emptyList(), message = null)
     }
     @MainThread fun consent(accepted: Boolean) {
+        if (!canEdit) return
         val current = state.value
         val evidence = if (accepted && current.mode != null) ConsentEvidence(environment.context.consentVersion,
             clock.instant(), environment.context.actor.id, current.mode) else null
         state.value = current.copy(consent = evidence, issues = emptyList(), message = null)
     }
     @MainThread fun validate(intent: SaveIntent) {
+        if (!canEdit) return
         val current = state.value; val context = environment.context
         val result = prepare.prepare(current.input, intent, current.consent, context.consentVersion,
             context.actor.id, environment.programs, environment.sites, null, context.event.location,
@@ -129,7 +136,14 @@ class AdmissionFormViewModel(
     @MainThread
     fun save(intent: SaveIntent): Job? {
         val current = state.value
-        if (current.isSaving) return null
+        if (!canEdit) return null
+        if (current.consent == null) {
+            state.value = current.copy(
+                issues = listOf(AdmissionIssue(AdmissionField.CONSENT, ValidationCode.REQUIRED)),
+                message = "Registra el consentimiento para guardar.",
+            )
+            return null
+        }
         val repo = repository ?: run {
             state.value = current.copy(message = "Repositorio local no disponible para guardar.")
             return null
@@ -182,7 +196,7 @@ class AdmissionFormViewModel(
             }
         }
     }
-    @MainThread fun reset() { state.value = AdmissionFormState() }
-    @MainThread fun discard() { state.value = AdmissionFormState() }
+    @MainThread fun reset() { if (!state.value.isSaving) state.value = AdmissionFormState() }
+    @MainThread fun discard() { if (!state.value.isSaving) state.value = AdmissionFormState() }
     override fun onCleared() { state.value = AdmissionFormState() }
 }

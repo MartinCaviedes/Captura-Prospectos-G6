@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
                                                     actor = profile.actor,
                                                     event = event,
                                                     deviceId = snapshot.deviceId,
-                                                    captures = emptyList(),
+                                                    offerings = emptyList(),
                                                     consentVersion = snapshot.consentVersion,
                                                     consentText = snapshot.consentText,
                                                 ),
@@ -95,19 +95,12 @@ class MainActivity : ComponentActivity() {
                                                 sites = snapshot.catalog.sites,
                                             )
                                         }
-                                        val formVm = remember(profile.actor.id, event.id, current.admissionRepository) {
-                                            AdmissionFormViewModel(
-                                                environment = env,
-                                                suggestion = snapshot.establishmentSuggestion,
-                                                repository = current.admissionRepository,
-                                            )
-                                        }
+                                        val formVm = owner.form(env, snapshot.establishmentSuggestion)
                                         AdmissionFormRoute(
                                             vm = formVm,
                                             modifier = modifier,
                                             onNavigateBack = {
-                                                formVm.discard()
-                                                activeScreen = AppScreen.HUB
+                                                if (owner.releaseForm()) activeScreen = AppScreen.HUB
                                             },
                                         )
                                     }
