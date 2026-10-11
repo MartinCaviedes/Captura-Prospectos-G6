@@ -81,7 +81,8 @@ class ContextSessionOwner(
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 require(modelClass == RecordTrayViewModel::class.java)
-                return RecordTrayViewModel((state.value as ContextSessionState.Ready).recordRepository) as T
+                val ready = state.value as ContextSessionState.Ready
+                return RecordTrayViewModel(ready.recordRepository, ready.locationProvider) as T
             }
         })[RecordTrayViewModel::class.java].also { trayConsumer = it }
     }

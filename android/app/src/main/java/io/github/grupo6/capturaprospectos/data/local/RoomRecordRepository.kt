@@ -79,6 +79,41 @@ internal class RoomRecordRepository(
         }
     }
 
+    override suspend fun editContext(id: UUID): RecordEditContextResult = withContext(dispatcher) {
+        try {
+            db.withTransaction {
+                val actor = context.currentActor() ?: return@withTransaction RecordEditContextResult.Unavailable
+                val dao = db.captures()
+                val row = dao.capture(id.toString()) ?: return@withTransaction RecordEditContextResult.Unavailable
+                if (!canAccess(actor, row) || row.contractVersion != "F2027_1" || row.state == "CANCELLED")
+                    return@withTransaction RecordEditContextResult.Unavailable
+                val old = row.toAdmission(dao.interests(row.id), dao.sites(row.id))
+                val catalog = db.context()
+                val eventRow = catalog.events().singleOrNull { it.id == row.eventId }
+                    ?: return@withTransaction RecordEditContextResult.Unavailable
+                val version = catalog.state()?.catalogVersion ?: return@withTransaction RecordEditContextResult.Unavailable
+                val coordinates = if (eventRow.latitude == null && eventRow.longitude == null) null
+                    else Coordinates(requireNotNull(eventRow.latitude), requireNotNull(eventRow.longitude))
+                val event = CaptureEvent(old.eventId, old.siteId, eventRow.name,
+                    Instant.parse(eventRow.startsAt), Instant.parse(eventRow.endsAt), java.time.ZoneId.of(eventRow.timeZone),
+                    catalog.assignments(row.eventId).map { UUID.fromString(it.profileId) }.toSet(), coordinates)
+                val retainedPrograms = old.programs.map { p -> ProgramOption(p.id, p.name, p.catalogVersion, p.section,
+                    mentions = if (p.mentionId == null) emptyMap() else mapOf(p.mentionId to requireNotNull(p.mentionName))) }
+                val programs = catalog.programs(version).map { p -> ProgramOption(UUID.fromString(p.id), p.name,
+                    p.catalogVersion, p.section, p.enabled, catalog.mentions(p.id).associate { UUID.fromString(it.id) to it.name }) }
+                val sites = catalog.sites(version).map { SiteOption(UUID.fromString(it.id), it.name, it.catalogVersion, it.enabled) }
+                val consentText = dao.consent(old.consent.version)?.text ?: return@withTransaction RecordEditContextResult.Unavailable
+                RecordEditContextResult.Available(AdmissionEnvironment(CaptureEnvironment(actor, event, old.deviceId,
+                    emptyList(), old.consent.version, consentText),
+                    retainedPrograms.map { oldProgram -> oldProgram.copy(mentions = programs.firstOrNull { it.id == oldProgram.id }?.mentions.orEmpty() + oldProgram.mentions) } + programs.filterNot { p -> retainedPrograms.any { it.id == p.id } },
+                    old.sites + sites.filterNot { s -> old.sites.any { it.id == s.id } }),
+                    eventRow.establishment?.let { io.github.grupo6.capturaprospectos.domain.context.EstablishmentSuggestion(it, eventRow.establishmentCommune) })
+            }
+        } catch (_: SQLiteException) { RecordEditContextResult.StorageUnavailable }
+        catch (_: IllegalArgumentException) { RecordEditContextResult.StorageUnavailable }
+        catch (_: DateTimeException) { RecordEditContextResult.StorageUnavailable }
+    }
+
     override suspend fun list(query: RecordQuery): RecordPageResult = withContext(dispatcher) {
         if (!query.isValid()) return@withContext RecordPageResult.InvalidQuery
         try {
