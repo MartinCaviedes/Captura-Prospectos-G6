@@ -1,5 +1,18 @@
 # Evidencia de la base Android
 
+## Calendarios abiertos al recrear Activity · 11/10/2026
+
+Prueba humana recibida sobre APK `aa46a797…`: contraste de título, enunciados y consentimiento aprobado; selección/cambio/confirmación de fechas y uso horizontal aprobados. Detectó cierre del calendario y colapso del rango al girar con el diálogo abierto. Esta respuesta corresponde a esa APK, no a la nueva corrección.
+
+Corrección sobre `f4d1ac6`, misma rama/PR #9: diálogo y selección provisional (fecha, mes y modo) se retienen sólo en memoria del ViewModel; expansión de rango en su StateFlow. Nacimiento y Desde/Hasta comparten el controlador sin Saver, SavedState, disco ni cambios de Room/contratos. Cancelar no aplica la candidata; confirmar sólo rellena el campo. Aplicar rango conserva el control existente. Descarte/reset/liberación del dueño limpian el calendario; un dueño nuevo comienza sin candidata.
+
+**191 JVM aprobadas**, cero fallos/errores/omitidas; ambas APK; **Lint 27 avisos/0 errores**. Xiaomi 11T Android 14/API 34: **14 pruebas dirigidas aprobadas en 142.14 s**, una ejecución final. Incluye las 12 regresiones de formulario/consentimiento/navegación/candidatos/edición/resumen Room y dos nuevas con ActivityScenario.recreate: nacimiento, ambos extremos y campos expandidos sobreviven a una nueva Activity con ViewModel retenido, se confirma o cancela explícitamente y se limpia al cerrar el dueño. Estos dos casos usan ComponentActivity aislada recompuesta al recrear, no MainActivity ni giro físico.
+
+[Fuentes/APK y alcance](evidencias/calendario-giro-2026-10-11.json), [salida final](evidencias/android-calendario-giro-2026-10-11.txt). Intent MAIN/LAUNCHER alineado con apertura asistida MIUI. Intentos iniciales del fixture/proceso y mes inicial corregidos antes de esta ejecución; no se cuentan como éxitos. Sin reset de datos ni permisos concedidos por ADB.
+
+Las 12/28 Android de cortes anteriores y suites de datos/nativos/400 son históricas respecto a esta nueva APK; no sumar resultados. Confirmación del giro físico con diálogo abierto solicitada al usuario. TalkBack sigue pospuesto; tablet físico, permisos adversos, portal cautivo, revisión cruzada/contratos y P3 pendientes. Retención durante recreación no implica persistencia tras muerte del proceso.
+
+
 ## Ajustes tras prueba humana de V3 · 11/10/2026
 
 Martín comprobó el recorrido de V3 sobre APK `f6d350b…`: acceso de muestra, evento, captura/calendario y giro en todas las ventanas, sin recortes ni problemas al ingresar campos. Reportó textos blancos sobre captura clara y ausencia del calendario en el rango del resumen. Esto acredita sólo su recorrido en esa APK; no acredita TalkBack ni aceptación contractual.

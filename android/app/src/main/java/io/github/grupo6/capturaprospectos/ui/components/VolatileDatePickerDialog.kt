@@ -9,7 +9,6 @@ import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneOffset
 import java.util.Locale
 
@@ -17,15 +16,24 @@ import java.util.Locale
  * La fecha, el mes y el modo de ingreso no se guardan en SavedState. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun VolatileDatePickerDialog(
-    initialValue: String, title: String,
+    controller: VolatileDatePickerController, title: String,
     yearRange: IntRange = 1900..2100,
     onDismiss: () -> Unit, onConfirm: (String) -> Unit,
 ) {
-    val picker = remember(initialValue, yearRange) {
-        val date = runCatching { LocalDate.parse(initialValue) }.getOrNull()
+    val draft by controller.draft.collectAsState()
+    val current = draft ?: return
+    val picker = remember(current.id, yearRange) {
         DatePickerState(locale = Locale.getDefault(),
-            initialSelectedDateMillis = date?.takeIf { it.year in yearRange }
-                ?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli(), yearRange = yearRange)
+            initialSelectedDateMillis = current.selectedMillis?.takeIf {
+                Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).year in yearRange
+            }, initialDisplayedMonthMillis = current.displayedMonthMillis ?: current.selectedMillis?.takeIf {
+                Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).year in yearRange
+            }, yearRange = yearRange,
+            initialDisplayMode = if (current.inputMode) DisplayMode.Input else DisplayMode.Picker)
+    }
+    LaunchedEffect(picker, controller, current.id) {
+        snapshotFlow { Triple(picker.selectedDateMillis, picker.displayedMonthMillis, picker.displayMode == DisplayMode.Input) }
+            .collect { (selected, month, input) -> controller.update(current.id, selected, month, input) }
     }
     DatePickerDialog(onDismissRequest = onDismiss,
         confirmButton = { TextButton(enabled = picker.selectedDateMillis != null, onClick = {

@@ -52,6 +52,7 @@ class AdmissionFormViewModel(
         AdmissionFormState(input = it.input, mode = it.consent.mode, consent = it.consent, location = it.location)
     } ?: AdmissionFormState())
     val uiState = state.asStateFlow()
+    val birthCalendar = io.github.grupo6.capturaprospectos.ui.components.VolatileDatePickerController()
     private var active = true
     private val canEdit get() = active && !state.value.isSaving && !state.value.isSaved
     private var locationJob: Job? = null
@@ -400,7 +401,7 @@ class AdmissionFormViewModel(
         if (initialRecord != null && active) state.value = state.value.copy(isSaving = saving, issues = issues, message = message)
     }
     private fun cancelLocation() { locationGeneration++; locationJob?.cancel(); locationJob = null }
-    @MainThread fun reset() { if (initialRecord == null && !state.value.isSaving) { cancelLocation(); state.value = AdmissionFormState() } }
-    @MainThread fun discard() { if (initialRecord == null && !state.value.isSaving) { cancelLocation(); state.value = AdmissionFormState() } }
-    override fun onCleared() { active = false; cancelLocation(); state.value = AdmissionFormState() }
+    @MainThread fun reset() { if (initialRecord == null && !state.value.isSaving) { cancelLocation(); birthCalendar.close(); state.value = AdmissionFormState() } }
+    @MainThread fun discard() { if (initialRecord == null && !state.value.isSaving) { cancelLocation(); birthCalendar.close(); state.value = AdmissionFormState() } }
+    override fun onCleared() { active = false; cancelLocation(); birthCalendar.close(); state.value = AdmissionFormState() }
 }

@@ -26,6 +26,7 @@ data class MainHubUiState(
     val connectivity: ConnectivityStatus = ConnectivityStatus.UNKNOWN,
     val metrics: DeviceMetrics? = null, val isLoadingMetrics: Boolean = false,
     val metricsError: String? = null, val fromDate: String = "", val untilDate: String = "",
+    val showRange: Boolean = false,
 )
 
 @Composable fun MainHubScreen(
@@ -35,16 +36,16 @@ data class MainHubUiState(
     onFromDate: (String) -> Unit = {}, onUntilDate: (String) -> Unit = {},
     onToday: () -> Unit = {}, onAll: () -> Unit = {}, onRange: () -> Unit = {},
     summaryOnly: Boolean = false, onOpenSummary: () -> Unit = {},
+    calendar: VolatileDatePickerController = remember { VolatileDatePickerController() }, onToggleRange: () -> Unit = {},
 ) {
     val m = state.metrics
-    var showRange by remember { mutableStateOf(false) }
-    var pickingFrom by remember { mutableStateOf<Boolean?>(null) }
-    pickingFrom?.let { from ->
-        VolatileDatePickerDialog(if (from) state.fromDate else state.untilDate,
-            if (from) "Fecha desde" else "Fecha hasta inclusive",
-            onDismiss = { pickingFrom = null }, onConfirm = {
+    val draft by calendar.draft.collectAsState()
+    draft?.let { current ->
+        val from = current.target == DatePickerTarget.FROM
+        VolatileDatePickerDialog(calendar, if (from) "Fecha desde" else "Fecha hasta inclusive",
+            onDismiss = calendar::close, onConfirm = {
                 if (from) onFromDate(it) else onUntilDate(it)
-                pickingFrom = null
+                calendar.close()
             })
     }
     LazyColumn(modifier, contentPadding = PaddingValues(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -107,19 +108,19 @@ data class MainHubUiState(
             item { FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(false, onToday, enabled = !state.isLoadingMetrics, label = { Text("Hoy") })
                 FilterChip(false, onAll, enabled = !state.isLoadingMetrics, label = { Text("Todo el evento") })
-                FilterChip(showRange, { showRange = !showRange }, label = { Text("Elegir período") },
+                FilterChip(state.showRange, onToggleRange, label = { Text("Elegir período") },
                     trailingIcon = { DesignIcon(R.drawable.g6_login_frame2) })
                 TextButton(onRefreshMetrics, enabled = !state.isLoadingMetrics) { Text("Actualizar") }
             } }
-            if (showRange) item {
+            if (state.showRange) item {
                 GlassCard {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         OutlinedTextField(state.fromDate, onFromDate, label = { Text("Desde (aaaa-mm-dd)") },
-                            trailingIcon = { IconButton({ pickingFrom = true }, enabled = !state.isLoadingMetrics) {
+                            trailingIcon = { IconButton({ calendar.open(DatePickerTarget.FROM, state.fromDate) }, enabled = !state.isLoadingMetrics) {
                                 Icon(painterResource(R.drawable.g6_capture_frame2), "Elegir fecha desde")
                             } }, modifier = Modifier.fillMaxWidth())
                         OutlinedTextField(state.untilDate, onUntilDate, label = { Text("Hasta inclusive (aaaa-mm-dd)") },
-                            trailingIcon = { IconButton({ pickingFrom = false }, enabled = !state.isLoadingMetrics) {
+                            trailingIcon = { IconButton({ calendar.open(DatePickerTarget.UNTIL, state.untilDate) }, enabled = !state.isLoadingMetrics) {
                                 Icon(painterResource(R.drawable.g6_capture_frame2), "Elegir fecha hasta")
                             } }, modifier = Modifier.fillMaxWidth())
                         OutlinedButton(onRange, enabled = !state.isLoadingMetrics) { Text("Aplicar rango") }

@@ -61,4 +61,11 @@ class MainHubMetricsStateTest {
         repo.wait=CompletableDeferred(); vm.refresh(); runCurrent(); store.clear(); repo.wait!!.complete(Unit); runCurrent()
         assertNull(vm.uiState.value.metrics); assertFalse(vm.uiState.value.isLoading)
     }
+    @Test fun ownerReleaseClearsExpandedRangeAndUnconfirmedCalendar()=runTest(dispatcher) {
+        val vm=vm(); runCurrent()
+        vm.toggleRange(); vm.calendar.open(io.github.grupo6.capturaprospectos.ui.components.DatePickerTarget.FROM, "2000-01-01")
+        assertTrue(vm.uiState.value.showRange)
+        store.clear()
+        assertFalse(vm.uiState.value.showRange); assertNull(vm.calendar.draft.value)
+    }
 }

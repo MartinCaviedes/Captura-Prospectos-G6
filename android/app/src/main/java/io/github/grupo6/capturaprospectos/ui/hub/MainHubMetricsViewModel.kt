@@ -9,13 +9,15 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
 data class HubMetricsState(val metrics: DeviceMetrics? = null, val isLoading: Boolean = false,
-    val fromDate: String = "", val untilDate: String = "", val error: String? = null)
+    val fromDate: String = "", val untilDate: String = "", val error: String? = null, val showRange: Boolean = false)
 
 /** Retiene el último cálculo del contexto; error/desconocido nunca se convierten en ceros. */
 class MainHubMetricsViewModel(private val repository: RecordRepository?, private val event: CaptureEvent,
     private val clock: Clock = Clock.systemUTC()): ViewModel() {
     private val mutable=MutableStateFlow(HubMetricsState())
     val uiState=mutable.asStateFlow()
+    val calendar = io.github.grupo6.capturaprospectos.ui.components.VolatileDatePickerController()
+    fun toggleRange() { mutable.update { it.copy(showRange = !it.showRange) } }
     private var reading:Job?=null
     private var query=MetricsQuery(event.id)
     init { refresh() }
@@ -52,5 +54,5 @@ class MainHubMetricsViewModel(private val repository: RecordRepository?, private
     }
     private fun parseDate(value:String):LocalDate? = if (!Regex("[0-9]{4}-[0-9]{2}-[0-9]{2}").matches(value)) null
         else try { LocalDate.parse(value) } catch (_:DateTimeException) { null }
-    override fun onCleared() { reading?.cancel(); mutable.value=HubMetricsState() }
+    override fun onCleared() { calendar.close(); reading?.cancel(); mutable.value=HubMetricsState() }
 }

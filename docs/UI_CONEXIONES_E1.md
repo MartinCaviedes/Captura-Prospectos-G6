@@ -30,6 +30,12 @@ El material se adapta con tarjetas Compose, gradiente translúcido, borde y elev
 
 No cambian dominio, Room v4, migraciones, SQLCipher/Keystore, catálogos, proveedor nativo, parser QR, Gradle, manifest ni transporte. Calendario y credenciales usan memoria volátil; no guardan PII en SavedState. Confirmar una fecha sólo rellena ISO y la validación de negocio existente sigue siendo obligatoria. Cancelar conserva el texto manual.
 
+## Continuidad de calendarios al girar · 11/10
+
+El usuario confirmó el contraste y los calendarios de la APK de ajustes (`aa46a797…`), pero detectó cierre del diálogo y colapso de los campos al girar. El estado del calendario (abierto, fecha provisional, mes y modo) ahora vive en memoria del ViewModel de formulario/resumen; el rango expandido forma parte del StateFlow del resumen. Se conservan durante recreación de Activity y se limpian con cancelación, confirmación o liberación del dueño; nacimiento también se limpia al descartar/resetear. No se guardan en SavedState ni disco. La candidata sólo cambia el campo al confirmar; calcular sigue requiriendo Aplicar rango. Un reinicio de proceso no restaura datos personales sin guardar.
+
+La prueba automática recrea Activity y recompone con el mismo ViewModel; la comprobación física del giro en MainActivity queda pendiente. [Evidencia y separación de versiones](evidencias/calendario-giro-2026-10-11.json). TalkBack continúa pospuesto.
+
 ## Ajustes de contraste y calendario · 11/10
 
 La prueba humana de la primera APK V3 confirmó acceso, evento, captura y giro sin recortes; señaló texto blanco heredado en la captura clara. Ahora una Surface local establece onSurface y el recurso de fondo claro. Cambiar MaterialTheme por sí solo no sustituía el color de contenido heredado de la pantalla oscura; [referencia Material 3 de Surface](https://android.googlesource.com/platform/frameworks/support/+/dcaa116fbfda77e64a319e1668056ce3b032469f/compose/material3/material3/src/commonMain/kotlin/androidx/compose/material3/Surface.kt).

@@ -85,19 +85,21 @@ class FormActions(
             dismissQrError = vm::dismissQrError,
         )
     }, modifier, editing = vm.initialRecord != null,
-        allowDraft = vm.initialRecord == null || vm.initialRecord.state == CaptureState.DRAFT, saveEnabled = canSaveEdit)
+        allowDraft = vm.initialRecord == null || vm.initialRecord.state == CaptureState.DRAFT, saveEnabled = canSaveEdit,
+        birthCalendar = vm.birthCalendar)
 }
 
 @Composable fun AdmissionFormComponents(
     state: AdmissionFormState, environment: AdmissionEnvironment,
     suggestion: EstablishmentSuggestion?, actions: FormActions, modifier: Modifier = Modifier,
     editing: Boolean = false, allowDraft: Boolean = true, saveEnabled: Boolean = true,
+    birthCalendar: VolatileDatePickerController = remember { VolatileDatePickerController() },
 ) {
     CapturaProspectosG6Theme(darkTheme = false) {
         Surface(modifier, color = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onSurface) {
             ConexionesBackground(Modifier.fillMaxSize(), light = true) {
-                FormContent(state, environment, suggestion, actions, Modifier.fillMaxSize(), editing, allowDraft, saveEnabled)
+                FormContent(state, environment, suggestion, actions, Modifier.fillMaxSize(), editing, allowDraft, saveEnabled, birthCalendar)
             }
         }
     }
@@ -107,7 +109,7 @@ class FormActions(
 @Composable private fun FormContent(
     state: AdmissionFormState, environment: AdmissionEnvironment,
     suggestion: EstablishmentSuggestion?, actions: FormActions, modifier: Modifier,
-    editing: Boolean, allowDraft: Boolean, saveEnabled: Boolean,
+    editing: Boolean, allowDraft: Boolean, saveEnabled: Boolean, birthCalendar: VolatileDatePickerController,
 ) {
     val listState = rememberLazyListState()
     val fieldPositions = remember { mutableMapOf<AdmissionField, Int>() }
@@ -123,7 +125,7 @@ class FormActions(
     var search by remember { mutableStateOf("") }
     var confirmDiscard by remember { mutableStateOf(false) }
     var showConsentText by remember { mutableStateOf(false) }
-    var showBirthPicker by remember { mutableStateOf(false) }
+    val birthDraft by birthCalendar.draft.collectAsState()
     BackHandler(enabled = actions.onBack != null) {
         if (!state.isSaving) {
             if (state.isSaved) actions.onBack?.invoke() else confirmDiscard = true
@@ -131,11 +133,11 @@ class FormActions(
     }
     val input = state.input
 
-    if (showBirthPicker) {
-        VolatileDatePickerDialog(input.birthDate, "Fecha de nacimiento",
+    if (birthDraft != null) {
+        VolatileDatePickerDialog(birthCalendar, "Fecha de nacimiento",
             yearRange = 1900..LocalDate.now().year,
-            onDismiss = { showBirthPicker = false }, onConfirm = {
-                actions.text(AdmissionField.BIRTH_DATE, it); showBirthPicker = false
+            onDismiss = birthCalendar::close, onConfirm = {
+                actions.text(AdmissionField.BIRTH_DATE, it); birthCalendar.close()
             })
     }
     if (showConsentText) AlertDialog(onDismissRequest = { showConsentText = false },
@@ -225,7 +227,7 @@ class FormActions(
                 second = { FormText("Teléfono", AdmissionField.PHONE, input.phone, state, actions, KeyboardType.Phone, requester = requesters.getValue(AdmissionField.PHONE)) })
         }
         entry(AdmissionField.BIRTH_DATE) { FormText("Nacimiento (aaaa-mm-dd)", AdmissionField.BIRTH_DATE, input.birthDate, state, actions, requester = requesters.getValue(AdmissionField.BIRTH_DATE),
-            trailing = { IconButton({ showBirthPicker = true }, enabled = !state.isSaving && !state.isSaved) {
+            trailing = { IconButton({ birthCalendar.open(DatePickerTarget.BIRTH, input.birthDate) }, enabled = !state.isSaving && !state.isSaved) {
                 DesignIcon(R.drawable.g6_capture_frame2, description = "Elegir fecha de nacimiento")
             } }) }
         entry(AdmissionField.RESIDENCE_COMMUNE) { FormText("Comuna de residencia", AdmissionField.RESIDENCE_COMMUNE, input.residenceCommune, state, actions, requester = requesters.getValue(AdmissionField.RESIDENCE_COMMUNE)) }
