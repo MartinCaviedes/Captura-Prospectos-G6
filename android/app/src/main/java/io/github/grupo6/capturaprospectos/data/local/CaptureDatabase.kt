@@ -52,7 +52,11 @@ internal data class ActiveKeyRow(val eventId: String, val rut: String, val captu
 @Entity(tableName = "local_audit", foreignKeys = [ForeignKey(
     entity = CaptureRow::class, parentColumns = ["id"], childColumns = ["captureId"],
 )], indices = [Index("captureId")])
-internal data class AuditRow(@PrimaryKey val id: String, val captureId: String, val actorId: String, val occurredAt: String, val action: String, val resultingRevision: Long)
+internal data class AuditRow(
+    @PrimaryKey val id: String, val captureId: String, val actorId: String, val occurredAt: String,
+    val action: String, val resultingRevision: Long,
+    val previousRevision: Long? = null, val reasonText: String? = null, val changedFields: String? = null,
+) { override fun toString() = "AuditRow(personalData=redacted)" }
 
 @Entity(tableName = "capture_site_preferences", primaryKeys = ["captureId", "siteId"], foreignKeys = [ForeignKey(
     entity = CaptureRow::class, parentColumns = ["id"], childColumns = ["captureId"],
@@ -74,6 +78,12 @@ internal interface CaptureDao {
     @Query("SELECT captures.* FROM captures INNER JOIN active_registration_keys ON captures.id = active_registration_keys.captureId WHERE active_registration_keys.eventId = :eventId AND active_registration_keys.rut = :rut")
     fun duplicate(eventId: String, rut: String): CaptureRow?
     @Query("SELECT COUNT(*) FROM captures") fun count(): Int
+    @Query("SELECT * FROM local_audit WHERE captureId = :id ORDER BY resultingRevision, id") fun audit(id: String): List<AuditRow>
+    @Update fun updateCapture(row: CaptureRow): Int
+    @Query("DELETE FROM capture_interests WHERE captureId = :id") fun deleteInterests(id: String)
+    @Query("DELETE FROM capture_site_preferences WHERE captureId = :id") fun deleteSites(id: String)
+    @Query("SELECT * FROM captures WHERE siteId IN (:siteIds) AND (ownerId = :ownerId OR (:supervisor AND state != 'DRAFT')) ORDER BY capturedAt DESC, id DESC")
+    fun capturesForActor(ownerId: String, siteIds: List<String>, supervisor: Boolean): List<CaptureRow>
     @Query("DELETE FROM active_registration_keys WHERE captureId = :captureId") fun deleteKey(captureId: String): Int
     @Query("UPDATE captures SET state = :state, revision = :newRevision WHERE id = :id AND revision = :expectedRevision")
     fun updateState(id: String, state: String, newRevision: Long, expectedRevision: Long): Int
@@ -83,7 +93,7 @@ internal interface CaptureDao {
     fun capturesBySitesExcludingDraft(siteIds: List<String>): List<CaptureRow>
 }
 
-@Database(entities = [ConsentTextRow::class, CaptureRow::class, InterestRow::class, ActiveKeyRow::class, AuditRow::class, SitePreferenceRow::class, CatalogVersionRow::class, DemoSiteRow::class, DemoProfileRow::class, ProfileSiteRow::class, DemoEventRow::class, DemoAssignmentRow::class, DemoProgramRow::class, DemoMentionRow::class, DemoContextRow::class], version = 3, exportSchema = true)
+@Database(entities = [ConsentTextRow::class, CaptureRow::class, InterestRow::class, ActiveKeyRow::class, AuditRow::class, SitePreferenceRow::class, CatalogVersionRow::class, DemoSiteRow::class, DemoProfileRow::class, ProfileSiteRow::class, DemoEventRow::class, DemoAssignmentRow::class, DemoProgramRow::class, DemoMentionRow::class, DemoContextRow::class], version = 4, exportSchema = true)
 internal abstract class CaptureDatabase : RoomDatabase() {
     abstract fun captures(): CaptureDao
     abstract fun context(): ContextDao

@@ -5,7 +5,9 @@ import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
 
-/** Altas F2027: sin DAO, GPS, scanner ni inferencias de establecimiento. No valida lecturas históricas. */
+/** Valida escrituras F2027, sin DAO ni inferencias de establecimiento.
+ * En edición, consentActorId identifica al registrador de la evidencia persistida e inmutable;
+ * actorId sigue identificando a quien confirma una ubicación nueva. No revalida lecturas históricas. */
 class PrepareAdmission(
     private val validator: AdmissionValidator = AdmissionValidator(),
     private val locations: LocationPolicy = LocationPolicy(),
@@ -15,14 +17,14 @@ class PrepareAdmission(
         expectedConsentVersion: String, actorId: UUID,
         availablePrograms: List<ProgramOption>, availableSites: List<SiteOption>,
         location: CaptureLocation?, declaredEventLocation: Coordinates?,
-        now: Instant, eventZone: ZoneId,
+        now: Instant, eventZone: ZoneId, consentActorId: UUID = actorId,
     ): AdmissionPreparation {
         if (consent == null) return AdmissionPreparation.ConsentRequired
         val v = validator.normalize(input)
         val issues = validator.validate(v, intent, now.atZone(eventZone).toLocalDate()).toMutableList()
         fun issue(f: AdmissionField, c: ValidationCode) { issues += AdmissionIssue(f, c) }
         if (expectedConsentVersion.isBlank() || consent.version != expectedConsentVersion ||
-            consent.recordedBy != actorId || consent.acceptedAt.isAfter(now)) issue(AdmissionField.CONSENT, ValidationCode.INVALID_EVIDENCE)
+            consent.recordedBy != consentActorId || consent.acceptedAt.isAfter(now)) issue(AdmissionField.CONSENT, ValidationCode.INVALID_EVIDENCE)
         if (intent == SaveIntent.CONFIRM_REGISTRATION && v.interests.size !in 1..3) issue(AdmissionField.INTERESTS, ValidationCode.LENGTH)
         if (v.interests.map { it.programId }.distinct().size != v.interests.size) issue(AdmissionField.INTERESTS, ValidationCode.DUPLICATE)
         if (v.interests.map { it.priority }.sorted() != (1..v.interests.size).toList()) issue(AdmissionField.INTERESTS, ValidationCode.FORMAT)
