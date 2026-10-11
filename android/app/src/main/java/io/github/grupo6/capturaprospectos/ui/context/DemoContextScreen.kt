@@ -56,7 +56,7 @@ fun DemoContextScreen(
             Text("Procesando operación local…", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
-        state.message?.let { message -> item {
+        state.message?.takeIf { state.eventEditor == null }?.let { message -> item {
             Text(message, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
             if (state.context != DemoContextState.StorageUnavailable) {
                 TextButton(onClick = onRetry, enabled = !state.busy) { Text("Reintentar lectura") }

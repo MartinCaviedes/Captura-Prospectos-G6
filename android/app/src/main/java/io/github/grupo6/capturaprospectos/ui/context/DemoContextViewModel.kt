@@ -1,5 +1,7 @@
 package io.github.grupo6.capturaprospectos.ui.context
 
+import io.github.grupo6.capturaprospectos.domain.context.*
+import io.github.grupo6.capturaprospectos.domain.capture.LocalRole
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -55,6 +57,28 @@ class DemoContextViewModel(private val repository: DemoContextRepository) : View
         else -> null
     }
 
+    @MainThread fun beginEventEditor(edit:Boolean=false) {
+        val snapshot=(uiState.value.context as? DemoContextState.Ready)?.snapshot ?: return
+        if(uiState.value.busy || snapshot.currentProfile?.actor?.role != LocalRole.SUPERVISOR) return
+        val input=if(edit) snapshot.selectedEvent?.let { EventEditorInput.from(it,snapshot.establishmentSuggestion) } ?: return
+            else EventEditorInput()
+        mutableState.update { it.copy(eventEditor=input,confirmEventDiscard=false,message=null) }
+    }
+    @MainThread fun eventInput(change:(EventEditorInput)->EventEditorInput) {
+        if(!uiState.value.busy) mutableState.update { state -> state.eventEditor?.let { state.copy(eventEditor=change(it),message=null) } ?: state }
+    }
+    @MainThread fun dismissEventEditor() { if(!uiState.value.busy && uiState.value.eventEditor != null) mutableState.update { it.copy(confirmEventDiscard=true) } }
+    @MainThread fun confirmEventDiscard(discard:Boolean) {
+        if(!uiState.value.busy) mutableState.update { it.copy(confirmEventDiscard=false,eventEditor=if(discard) null else it.eventEditor,message=if(discard) null else it.message) }
+    }
+    @MainThread fun saveEventEditor():Job? {
+        if(uiState.value.busy) return null
+        val input=uiState.value.eventEditor ?: return null
+        return when(val prepared=prepareEvent(input)) {
+            is EventPreparation.Invalid -> { mutableState.update { it.copy(message=prepared.issues.joinToString(" ")) };null }
+            is EventPreparation.Ready -> saveEvent(prepared.command)
+        }
+    }
     @MainThread
     fun saveEvent(
         command: io.github.grupo6.capturaprospectos.domain.context.SaveDemoEvent,
@@ -66,6 +90,7 @@ class DemoContextViewModel(private val repository: DemoContextRepository) : View
             try {
                 observation?.cancelAndJoin()
                 val result = repository.saveEvent(command)
+                if (result is SaveEventResult.Success) repository.selectEvent(result.eventId)
                 val context = repository.snapshot()
                 val msg = when (result) {
                     is io.github.grupo6.capturaprospectos.domain.context.SaveEventResult.Success ->
@@ -77,7 +102,7 @@ class DemoContextViewModel(private val repository: DemoContextRepository) : View
                     io.github.grupo6.capturaprospectos.domain.context.SaveEventResult.StorageUnavailable ->
                         "No se pudo guardar el evento localmente. Reintenta."
                 }
-                mutableState.update { it.copy(context = context, message = msg) }
+                mutableState.update { it.copy(context = context, message = msg, eventEditor = if(result is SaveEventResult.Success) null else it.eventEditor, confirmEventDiscard = false) }
                 onResult(result)
             } finally {
                 mutableState.update { it.copy(busy = false) }
@@ -91,7 +116,7 @@ class DemoContextViewModel(private val repository: DemoContextRepository) : View
 
     /** Una acción en curso descarta nuevos clics: no encola eventos contra un perfil obsoleto. */
     private fun perform(operation: suspend () -> ContextChange?): Job? {
-        if (uiState.value.busy || !viewModelScope.isActive) return null
+        if (uiState.value.busy || uiState.value.eventEditor != null || !viewModelScope.isActive) return null
         mutableState.update { it.copy(busy = true, message = null) }
         return viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
             try {
