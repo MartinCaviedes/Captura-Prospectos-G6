@@ -2,14 +2,16 @@ package io.github.grupo6.capturaprospectos
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -19,12 +21,13 @@ import io.github.grupo6.capturaprospectos.domain.admission.AdmissionEnvironment
 import io.github.grupo6.capturaprospectos.domain.capture.CaptureEnvironment
 import io.github.grupo6.capturaprospectos.domain.context.DemoContextState
 import io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormRoute
-import io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormViewModel
 import io.github.grupo6.capturaprospectos.ui.context.*
+import io.github.grupo6.capturaprospectos.ui.access.*
 import io.github.grupo6.capturaprospectos.ui.hub.MainHubRoute
+import io.github.grupo6.capturaprospectos.ui.shell.*
 import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
 
-enum class AppScreen { CONTEXT_SELECTOR, HUB, FORM, TRAY }
+enum class AppScreen { CONTEXT_SELECTOR, HUB, FORM, TRAY, SUMMARY, PROFILE }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,88 +35,90 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val appContext = applicationContext
         val owner = ViewModelProvider(this, object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            @Suppress("UNCHECKED_CAST") override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 require(modelClass == ContextSessionOwner::class.java)
                 return ContextSessionOwner({ openContextSession(appContext) }) as T
             }
         })[ContextSessionOwner::class.java]
-        val connectivityObserver = AndroidConnectivityObserver(appContext)
-
+        val access = ViewModelProvider(this)[DemoAccessViewModel::class.java]
+        val connectivity = AndroidConnectivityObserver(appContext)
         setContent {
             CapturaProspectosG6Theme {
                 val session by owner.uiState.collectAsStateWithLifecycle()
+                val accessState by access.uiState.collectAsStateWithLifecycle()
                 Scaffold(Modifier.fillMaxSize()) { padding ->
-                    val modifier = Modifier.fillMaxSize().padding(padding)
-                    when (val current = session) {
+                    val modifier = Modifier.fillMaxSize().padding(padding).imePadding()
+                    if (accessState.welcome) WelcomeScreen(access::begin, modifier)
+                    else when (val current = session) {
                         ContextSessionState.Opening -> DemoContextScreen(DemoContextUiState(), {}, {}, {}, {}, {}, modifier)
                         ContextSessionState.Unavailable -> DemoContextScreen(
                             DemoContextUiState(DemoContextState.StorageUnavailable), {}, owner::retry, {}, {}, {}, modifier)
                         is ContextSessionState.Ready -> {
                             val contextUi by current.viewModel.uiState.collectAsStateWithLifecycle()
-                            val readyState = contextUi.context as? DemoContextState.Ready
-                            val snapshot = readyState?.snapshot
+                            val snapshot = (contextUi.context as? DemoContextState.Ready)?.snapshot
                             val profile = snapshot?.currentProfile
                             val event = snapshot?.selectedEvent
-
-                            if (profile == null || event == null) {
-                                DemoContextRoute(
-                                    viewModel = current.viewModel,
-                                    modifier = modifier,
-                                )
-                            } else {
-                                var activeScreen by rememberSaveable(profile.actor.id, event.id) {
-                                    mutableStateOf(AppScreen.HUB)
-                                }
-                                when (activeScreen) {
-                                    AppScreen.CONTEXT_SELECTOR -> DemoContextRoute(
-                                        viewModel = current.viewModel,
-                                        modifier = modifier,
-                                        onContinueToHub = { activeScreen = AppScreen.HUB },
-                                    )
-                                    AppScreen.HUB -> MainHubRoute(
-                                        profile = profile,
-                                        event = event,
-                                        connectivityObserver = connectivityObserver,
-                                        recordRepository = current.recordRepository,
-                                        contextViewModel = current.viewModel,
-                                        suppliedMetrics = owner.hub(profile.actor,event),
-                                        onNewCapture = { activeScreen = AppScreen.FORM },
-                                        onChangeContext = { activeScreen = AppScreen.CONTEXT_SELECTOR },
-                                        onOpenTray = { activeScreen = AppScreen.TRAY },
-                                        modifier = modifier,
-                                    )
-                                    AppScreen.FORM -> {
-                                        val env = remember(profile.actor.id, event.id) {
-                                            AdmissionEnvironment(
-                                                context = CaptureEnvironment(
-                                                    actor = profile.actor,
-                                                    event = event,
-                                                    deviceId = snapshot.deviceId,
-                                                    offerings = emptyList(),
-                                                    consentVersion = snapshot.consentVersion,
-                                                    consentText = snapshot.consentText,
-                                                ),
-                                                programs = snapshot.catalog.programs,
-                                                sites = snapshot.catalog.sites,
-                                            )
-                                        }
-                                        val formVm = owner.form(env, snapshot.establishmentSuggestion)
-                                        AdmissionFormRoute(
-                                            vm = formVm,
-                                            modifier = modifier,
-                                            onNavigateBack = {
-                                                if (owner.releaseForm()) activeScreen = AppScreen.HUB
-                                            },
-                                        )
+                            when {
+                                snapshot == null -> DemoContextRoute(current.viewModel, modifier, showProfiles = false)
+                                accessState.actorId == null || profile == null || profile.actor.id != accessState.actorId -> DemoAccessScreen(
+                                    accessState, true, contextUi.busy,
+                                    { email, password -> access.submit(email, password, current.viewModel) }, modifier)
+                                else -> {
+                                    var active by rememberSaveable(accessState.actorId) { mutableStateOf(AppScreen.CONTEXT_SELECTOR) }
+                                    val dataVm = owner.data()
+                                    val data by dataVm.uiState.collectAsStateWithLifecycle()
+                                    LaunchedEffect(profile.actor.id, event?.id) { dataVm.clearMessage() }
+                                    val canNavigate = !data.busy && !contextUi.busy && contextUi.eventEditor == null
+                                    BackHandler(active in setOf(AppScreen.SUMMARY, AppScreen.PROFILE)) {
+                                        if (canNavigate) active = AppScreen.HUB
                                     }
-                                    AppScreen.TRAY -> {
-                                        val trayVm = owner.tray(profile.actor)
-                                        io.github.grupo6.capturaprospectos.ui.records.RecordTrayRoute(
-                                            viewModel = trayVm,
-                                            onNavigateBack = { if (owner.releaseTray()) activeScreen = AppScreen.HUB },
-                                            modifier = modifier,
-                                        )
+                                    if (active == AppScreen.CONTEXT_SELECTOR || event == null) {
+                                        DemoContextRoute(current.viewModel, modifier,
+                                            onContinueToHub = { active = AppScreen.HUB }, showProfiles = false)
+                                    } else {
+                                        val env = remember(profile.actor.id, event.id) {
+                                            AdmissionEnvironment(CaptureEnvironment(profile.actor, event, snapshot.deviceId,
+                                                emptyList(), snapshot.consentVersion, snapshot.consentText),
+                                                snapshot.catalog.programs, snapshot.catalog.sites)
+                                        }
+                                        when (active) {
+                                            AppScreen.FORM -> {
+                                                val form = owner.form(env, snapshot.establishmentSuggestion)
+                                                Box(modifier, contentAlignment = Alignment.TopCenter) {
+                                                    AdmissionFormRoute(form, Modifier.widthIn(max = 840.dp).fillMaxSize(),
+                                                        onNavigateBack = { if (owner.releaseForm()) active = AppScreen.HUB })
+                                                }
+                                            }
+                                            AppScreen.TRAY -> {
+                                                val tray = owner.tray(profile.actor)
+                                                Box(modifier, contentAlignment = Alignment.TopCenter) {
+                                                    io.github.grupo6.capturaprospectos.ui.records.RecordTrayRoute(tray,
+                                                        onNavigateBack = { if (owner.releaseTray()) active = AppScreen.HUB },
+                                                        modifier = Modifier.widthIn(max = 1100.dp).fillMaxSize())
+                                                }
+                                            }
+                                            else -> AppNavigation(active, canNavigate, { active = it }, modifier) { body ->
+                                                if (active == AppScreen.PROFILE) ProfileScreen(profile, event, data,
+                                                    onChangeEvent = { active = AppScreen.CONTEXT_SELECTOR },
+                                                    onLoadData = { dataVm.load(env) },
+                                                    onLogout = {
+                                                        if (canNavigate && owner.releaseForm() && owner.releaseTray()) {
+                                                            current.viewModel.clearSelection()
+                                                            access.logout()
+                                                        }
+                                                    }, modifier = body)
+                                                else MainHubRoute(profile, event, connectivity,
+                                                    onNewCapture = { active = AppScreen.FORM },
+                                                    onChangeContext = { active = AppScreen.CONTEXT_SELECTOR },
+                                                    modifier = body,
+                                                    onOpenTray = { active = AppScreen.TRAY },
+                                                    recordRepository = current.recordRepository,
+                                                    suppliedMetrics = owner.hub(profile.actor, event),
+                                                    contextViewModel = current.viewModel,
+                                                    summaryOnly = active == AppScreen.SUMMARY,
+                                                    onOpenSummary = { active = AppScreen.SUMMARY })
+                                            }
+                                        }
                                     }
                                 }
                             }

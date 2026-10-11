@@ -1,6 +1,8 @@
 package io.github.grupo6.capturaprospectos.ui.admission
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -99,12 +101,19 @@ class FormActions(
     // La búsqueda se conserva sólo durante esta composición para evitar restaurar datos personales.
     var search by remember { mutableStateOf("") }
     var confirmDiscard by remember { mutableStateOf(false) }
+    var showConsentText by remember { mutableStateOf(false) }
     BackHandler(enabled = actions.onBack != null) {
         if (!state.isSaving) {
             if (state.isSaved) actions.onBack?.invoke() else confirmDiscard = true
         }
     }
     val input = state.input
+    if (showConsentText) AlertDialog(onDismissRequest = { showConsentText = false },
+        title = { Text("Texto de consentimiento") },
+        text = { androidx.compose.foundation.layout.Column(Modifier.verticalScroll(rememberScrollState())) {
+            Text(environment.context.consentText)
+            Text("Leer este texto no registra aceptación. Confírmala en la sección de consentimiento antes de guardar.")
+        } }, confirmButton = { TextButton({ showConsentText = false }) { Text("Cerrar consentimiento") } })
 
     if (state.pendingActivity != null) AlertDialog(onDismissRequest = { actions.discardActivity(false) },
         title = { Text("¿Cambiar actividad?") }, text = { Text("Se quitará el detalle escrito para Otra actividad.") },
@@ -136,6 +145,8 @@ class FormActions(
             Text(if (editing) "Los cambios permanecen en memoria hasta guardar. El consentimiento original se conserva." else if (state.isSaved) "Registro confirmado en este dispositivo." else "Los datos permanecen sin guardar. Validar no guarda ni envía la inscripción.")
         }
 
+        entry { OutlinedButton({ showConsentText = true }) { Text("Leer consentimiento") } }
+
         // Asistente de escaneo QR (RF11)
         if (!editing || allowDraft) entry {
             Card(
@@ -159,6 +170,7 @@ class FormActions(
             }
         }
 
+        entry { Text("Datos personales y contacto", style = MaterialTheme.typography.titleLarge) }
         entry(AdmissionField.GIVEN_NAMES) { FormText("Nombres", AdmissionField.GIVEN_NAMES, input.givenNames, state, actions, requester = requesters.getValue(AdmissionField.GIVEN_NAMES)) }
         entry(AdmissionField.FAMILY_NAMES) { FormText("Apellidos", AdmissionField.FAMILY_NAMES, input.familyNames, state, actions, requester = requesters.getValue(AdmissionField.FAMILY_NAMES)) }
         entry(AdmissionField.RUT) { FormText("RUT", AdmissionField.RUT, input.rut, state, actions, locked = editing && !allowDraft, requester = requesters.getValue(AdmissionField.RUT)) }
@@ -174,6 +186,7 @@ class FormActions(
         }
         entry(AdmissionField.ESTABLISHMENT) { FormText("Establecimiento", AdmissionField.ESTABLISHMENT, input.establishment.orEmpty(), state, actions, requester = requesters.getValue(AdmissionField.ESTABLISHMENT)) }
         entry(AdmissionField.ESTABLISHMENT_COMMUNE) { FormText("Comuna del establecimiento (opcional)", AdmissionField.ESTABLISHMENT_COMMUNE, input.establishmentCommune.orEmpty(), state, actions, requester = requesters.getValue(AdmissionField.ESTABLISHMENT_COMMUNE)) }
+        entry { Text("Preferencias de admisión", style = MaterialTheme.typography.titleLarge) }
         entry { OptionalChoices("Opción personal (opcional)", PersonalOption.entries, input.formPersonalOption,
             { when (it) { PersonalOption.FEMALE -> "Femenino"; PersonalOption.MALE -> "Masculino"; PersonalOption.NOT_STATED -> "No indica" } }, actions.personal) }
         entry { OptionalChoices("Jornada (opcional)", PreferredSchedule.entries, input.preferredSchedule,
@@ -221,7 +234,7 @@ class FormActions(
                             Text(
                                 "Ubicación GPS confirmada (${loc.coordinates.latitude}, ${loc.coordinates.longitude}) · Precisión: ${loc.accuracyMeters.toInt()}m",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
                             OutlinedButton(enabled = !state.isSaving && !state.isSaved, onClick = { actions.clearLocation?.invoke() }) {
                                 Text(if (editing) "Restaurar ubicación original" else "Quitar ubicación")
@@ -231,7 +244,7 @@ class FormActions(
                             Text(
                                 "Ubicación confirmada según sede del evento (${loc.coordinates.latitude}, ${loc.coordinates.longitude})",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
                             OutlinedButton(enabled = !state.isSaving && !state.isSaved, onClick = { actions.clearLocation?.invoke() }) {
                                 Text(if (editing) "Restaurar ubicación original" else "Quitar ubicación")
@@ -372,7 +385,7 @@ class FormActions(
         enabled = !state.isSaving && !state.isSaved && !locked,
         supportingText = issue?.let { { Text(issueLabel(it.code)) } },
         trailingIcon = issue?.let { { Text("!", color = MaterialTheme.colorScheme.error) } },
-        isError = state.issues.any { it.field == field }, keyboardOptions = KeyboardOptions(keyboardType = keyboard),
+        isError = state.issues.any { it.field == field }, keyboardOptions = KeyboardOptions(keyboardType = keyboard, autoCorrectEnabled = if (keyboard == KeyboardType.Email || keyboard == KeyboardType.Phone) false else null),
         singleLine = field != AdmissionField.NOTES)
 }
 @Composable private fun <T> Choices(title: String, options: List<T>, selected: T?, label: (T) -> String, action: (T) -> Unit) {

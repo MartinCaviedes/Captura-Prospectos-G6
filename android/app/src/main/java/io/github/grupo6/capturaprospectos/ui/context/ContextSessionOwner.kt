@@ -3,6 +3,7 @@ package io.github.grupo6.capturaprospectos.ui.context
 import io.github.grupo6.capturaprospectos.ui.hub.MainHubMetricsViewModel
 import io.github.grupo6.capturaprospectos.domain.capture.CaptureEvent
 import androidx.annotation.MainThread
+import io.github.grupo6.capturaprospectos.ui.access.DemoDataViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelProvider
@@ -45,6 +46,8 @@ class ContextSessionOwner(
     private val hubs = ViewModelStore()
     private var hubKey: Pair<LocalActor,CaptureEvent>? = null
     private var hubConsumer: MainHubMetricsViewModel? = null
+    private val demoData = ViewModelStore()
+    private var dataConsumer: DemoDataViewModel? = null
     private val trays = ViewModelStore()
     private var trayActor: LocalActor? = null
     private var trayConsumer: RecordTrayViewModel? = null
@@ -109,6 +112,13 @@ class ContextSessionOwner(
     }
 
     @MainThread
+    fun data(): DemoDataViewModel =
+        ViewModelProvider(demoData, object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST") override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                DemoDataViewModel((state.value as ContextSessionState.Ready).admissionRepository) as T
+        })[DemoDataViewModel::class.java].also { dataConsumer = it }
+
+    @MainThread
     fun retry() {
         if (state.value == ContextSessionState.Unavailable && opening?.isActive != true) start()
     }
@@ -138,10 +148,14 @@ class ContextSessionOwner(
                     val pendingForm = formConsumer
                     val pendingTray = trayConsumer
                     val pendingHub = hubConsumer
+                    val pendingData = dataConsumer
+                    demoData.clear()
                     forms.clear()
                     trays.clear(); hubs.clear()
                     pendingForm?.viewModelScope?.coroutineContext?.get(Job)?.join()
                     pendingHub?.viewModelScope?.coroutineContext?.get(Job)?.join()
+                    pendingData?.viewModelScope?.coroutineContext?.get(Job)?.join()
+                    dataConsumer = null
                     pendingTray?.viewModelScope?.coroutineContext?.get(Job)?.join()
                     formConsumer = null
                     formKey = null

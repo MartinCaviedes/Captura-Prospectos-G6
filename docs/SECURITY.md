@@ -63,3 +63,8 @@ Pendiente nombrar custodio y suplente de firma. Password/keystore fuera de Git; 
 Comprobar por hito: E1 controles locales/recursos y E2 controles remotos/release; el reparto no elimina ninguna evidencia final. No declarar autorización de servidor probada por el simple filtrado de perfiles demo. Firma en E1 según aclaración docente; en E2 explícita. La solicitud de llave de la pauta P4 no autoriza publicar el `.jks`; resolver canal restringido/llave de evaluación con el docente y custodio.
 
 Lectura directa de base cifrada rechazada sin clave; logs sin PII; permisos denegados sin crash; acceso cruzado a sede/usuario rechazado; no datos personales de borrador sin consentimiento; pendientes intactos tras logout/reinicio/24 h; release sin flags de demo inseguros; firma verificada. Hasta ejecutar estas pruebas, indicar «pendiente de verificar».
+
+
+### Acceso ficticio E1 candidato · 11/10
+
+El refinamiento visual autorizado incorpora una contraseña pública inventada de evaluación y correos reservados `.example`, descritos en [UI_REFINEMENT_E1](UI_REFINEMENT_E1.md). Es una barrera didáctica para recorrer credenciales; no autentica a una persona ni protege la selección de perfil frente a manipulación local. Se conserva el filtrado funcional de Room. La contraseña no se guarda, no hay tokens y un proceso nuevo requiere entrada explícita. Estos fixtures no sustituyen las reglas de secretos, configuración y autenticación real E2. No enviar sus datos ni sus evidencias sintéticas a un servidor por habilitar red.

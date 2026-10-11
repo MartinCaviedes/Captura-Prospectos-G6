@@ -37,6 +37,7 @@ fun DemoContextScreen(
     modifier: Modifier = Modifier,
     onContinueToHub: () -> Unit = {},
     onCreateEvent: () -> Unit = {},
+    showProfiles: Boolean = true,
 ) {
     LazyColumn(
         modifier = modifier,
@@ -86,10 +87,10 @@ fun DemoContextScreen(
             }
             is DemoContextState.Ready -> {
                 val snapshot = context.snapshot
-                item { Text("1. Selecciona un perfil", style = MaterialTheme.typography.titleLarge,
+                if (showProfiles) item { Text("1. Selecciona un perfil", style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.semantics { heading() }) }
                 if (snapshot.profiles.isEmpty()) item { Text("No hay perfiles disponibles. Solicita revisión del contexto.") }
-                items(snapshot.profiles, key = { "profile-${it.actor.id}" }) { profile ->
+                if (showProfiles) items(snapshot.profiles, key = { "profile-${it.actor.id}" }) { profile ->
                     ContextChoice(profile.displayName, snapshot.currentProfile?.actor?.id == profile.actor.id,
                         enabled = !state.busy, onClick = { onProfileSelected(profile.actor.id) })
                 }
@@ -151,7 +152,7 @@ fun DemoContextScreen(
                         } }
                     }
                 }
-                if (snapshot.currentProfile != null) item {
+                if (showProfiles && snapshot.currentProfile != null) item {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(onClick = onClearSelection, enabled = !state.busy) { Text("Salir de la selección") }
                         Text("Salir conserva los registros guardados en este dispositivo.", style = MaterialTheme.typography.bodyMedium)

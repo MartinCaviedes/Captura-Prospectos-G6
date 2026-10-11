@@ -23,6 +23,8 @@ fun MainHubRoute(
     recordRepository: RecordRepository? = null,
     suppliedMetrics: MainHubMetricsViewModel? = null,
     contextViewModel: io.github.grupo6.capturaprospectos.ui.context.DemoContextViewModel? = null,
+    summaryOnly: Boolean = false,
+    onOpenSummary: () -> Unit = {},
 ) {
     val connectivity by connectivityObserver.observe().collectAsStateWithLifecycle(initialValue = ConnectivityStatus.UNKNOWN)
     val localStore = remember(profile.actor, event, recordRepository) { androidx.lifecycle.ViewModelStore() }
@@ -48,6 +50,7 @@ fun MainHubRoute(
         onNewCapture = onNewCapture,
         onChangeContext = onChangeContext,
         modifier = modifier,
+        summaryOnly = summaryOnly, onOpenSummary = onOpenSummary,
         onOpenTray = onOpenTray,
         onCreateEvent = { contextViewModel?.beginEventEditor() },
         onEditEvent = { contextViewModel?.beginEventEditor(edit=true) },

@@ -84,3 +84,10 @@ Animaciones discretas: transición de bandeja a detalle, aparición de errores y
 ## Revisión visual por RF
 
 Evidencia de estado normal, vacío, error y carga; captura con datos ficticios; revisión por compañero. Mantener guía actualizada si se agrega un patrón, evitando variantes locales del mismo componente. Que el código compile no demuestra que teclado, permisos, cámara o texto ampliado sean utilizables.
+
+
+## Refinamiento E1 candidato · 11/10
+
+Por encargo explícito se prepara bienvenida, acceso con fixtures locales, menú, perfil y resumen con gráficos. Ver [alcance y pruebas manuales](UI_REFINEMENT_E1.md). La paleta anterior describe la adaptación inicial: el candidato mantiene amarillo #FFB800/negro #1A1A1A y añade azul #112B46 como apoyo propio, fondo claro #F3F5F8 y fondo oscuro #101B28 / superficie #1B2A3B. No usar amarillo como texto normal sobre blanco. Se conservan fuentes nativas y controles Material 3; tarjetas de radios 12/20/28 dp y elevaciones discretas. Se priorizan superficies opacas para texto y formularios.
+
+Google/Microsoft se anuncian deshabilitados. Registro remoto/perfil editable institucional siguen en E2; el perfil E1 muestra identidad y contexto ficticios. La carga opcional de prospectos inventados conserva validación, consentimiento sintético, permisos de alta y duplicados de los repositorios. No implica aceptación del cliente ni del contrato de registros. Menú lateral desde 840 dp disponibles; los datos siguen separados por actor y ámbito. El prototipo editable propone una composición tablet; la APK debe validarse por separado con teclado, giro y letra ampliada.

@@ -1,5 +1,7 @@
 # Cambios del producto
 
+11/10/2026 · Candidato visual E1 sobre 161f635: bienvenida, credenciales demo explícitas, menú compacto/ampliado, perfil, carga voluntaria de 24 ficticios y gráficos con métricas reales. Google/Microsoft se anuncian para el futuro sin conexión. Mejora contraste, lectura del consentimiento y autocorrección de correo/teléfono. Sin migraciones ni dependencias nuevas. 187 JVM, 5 + 22 Android separados y Lint 25 avisos/0 errores; usuario confirma acceso/formulario y giro en Xiaomi sin recortes ni pérdida de texto. [Guía y pendientes](UI_REFINEMENT_E1.md). Sin integración ni cierre humano de rondas.
+
 ## Comprobación acumulada y dataset real · 11/10/2026
 
 187 JVM, cero fallos/errores/omitidas; ambas APK y Lint 0 errores/25 avisos. Xiaomi 11T Android 14/API 34: **51 de datos/nativos (93.926 s)** y **22 UI (180.681 s)** en grupos separados; apertura asistida MIUI en UI. Mismas APK verificadas por SHA256, identificadas con fuentes y runners en [evidencia](evidencias/dataset-correction-2026-10-11.json). Las 51 incluyen 48 cifradas (el ensayo nuevo de 400 y 47 regresiones) y tres decoder/proveedor. Las 22 reúnen selector/contexto, formulario/dispositivo, bandeja/detalle, métricas y administración. No se suman ejecuciones históricas como si fueran una suite actual.

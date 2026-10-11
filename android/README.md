@@ -1,6 +1,6 @@
 # Captura de Prospectos — Android
 
-Rama acumulada E1: selector demo → panel/red real → alta F2027 consentida y Room cifrado; bandeja/cursor, detalle/edición/anulación, cámara QR sintética y GPS confirmado, métricas locales por período y administración de eventos. Auditoría v4 candidata con migración aditiva. Cámara/QR y GPS físicos comprobados por el usuario en el incremento nativo; permisos restantes, giro real, TalkBack/visual, portal cautivo, aceptación contractual y revisión cruzada pendientes. No acredita cierre E1. [Dataset real y controles acumulados](../docs/ROUND3_DATASET_400.md).
+Rama acumulada E1: bienvenida → acceso con credenciales demo → evento → menú de inicio/registros/resumen/perfil → alta F2027 consentida y Room cifrado; bandeja/cursor, detalle/edición/anulación, cámara QR sintética y GPS confirmado, métricas locales por período y administración de eventos. Auditoría v4 candidata con migración aditiva. Cámara/QR y GPS físicos comprobados por el usuario en el incremento nativo; Acceso, formulario y giro vertical/horizontal comprobados por el usuario también en esta APK. Permisos restantes, TalkBack/visual, portal cautivo, tablet, aceptación contractual y revisión cruzada pendientes. [Credenciales y recorridos nuevos](../docs/UI_REFINEMENT_E1.md). No acredita cierre E1. [Dataset real y controles acumulados](../docs/ROUND3_DATASET_400.md).
 
 Consultar [R0](../docs/ROUND0_BASE.md), [R1](../docs/ROUND1_INTERFACES.md) y [evidencia de pruebas](../docs/ANDROID_BASELINE.md).
 

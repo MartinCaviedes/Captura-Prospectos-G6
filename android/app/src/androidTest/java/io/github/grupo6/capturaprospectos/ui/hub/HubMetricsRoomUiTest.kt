@@ -1,6 +1,7 @@
 package io.github.grupo6.capturaprospectos.ui.hub
 
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.*
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.ViewModelStore
@@ -32,7 +33,7 @@ class HubMetricsRoomUiTest {
     private lateinit var vm:MainHubMetricsViewModel
     private lateinit var saved:UUID
     private fun id(key:String)=UUID.fromString(DemoSeed.id(key))
-    private fun start(supervisor:Boolean=false) {
+    private fun start(supervisor:Boolean=false,summaryOnStart:Boolean=true) {
         val snapshot=runBlocking(Dispatchers.IO) {
             handle=EncryptedDatabase.open(context,name);ctx=RoomDemoContextRepository(handle!!.database)
             ctx.initialize();ctx.selectProfile(id("captor-a"));ctx.selectEvent(id("event-a"))
@@ -48,8 +49,9 @@ class HubMetricsRoomUiTest {
         }
         compose.runOnIdle { vm=MainHubMetricsViewModel(repo,snapshot.selectedEvent!!);store.put("metrics",vm) }
         val offline=object:ConnectivityObserver { override fun observe()=flowOf(ConnectivityStatus.OFFLINE) }
-        compose.setContent { CapturaProspectosG6Theme { MainHubRoute(snapshot.currentProfile!!,snapshot.selectedEvent!!,offline,{}, {},recordRepository=repo,suppliedMetrics=vm) } }
+        compose.setContent { var summary by remember { mutableStateOf(false) }; CapturaProspectosG6Theme { MainHubRoute(snapshot.currentProfile!!,snapshot.selectedEvent!!,offline,{}, {},recordRepository=repo,suppliedMetrics=vm,summaryOnly=summary,onOpenSummary={summary=true}) } }
         compose.waitUntil(10000) { vm.uiState.value.metrics != null }
+        if(summaryOnStart) { scroll("Ver resumen y gráficos");compose.onNodeWithText("Ver resumen y gráficos").performClick() }
     }
     private fun scroll(text:String) { compose.onNode(hasScrollAction()).performScrollToNode(hasText(text)) }
     @After fun cleanup() { compose.runOnIdle { store.clear() };handle?.close();check(name.startsWith("test-hub-metrics-"));context.deleteDatabase(name)
@@ -57,8 +59,9 @@ class HubMetricsRoomUiTest {
         KeyStore.getInstance("AndroidKeyStore").apply { load(null);deleteEntry("g6.database.$name") }
     }
     @Test fun supervisorSeesAuthorizedEventAndLocalCountsWithoutCapturePermission() {
-        start(supervisor=true)
+        start(supervisor=true,summaryOnStart=false)
         scroll("Nueva Captura de Prospecto");compose.onNodeWithText("Nueva Captura de Prospecto").assertIsNotEnabled()
+        scroll("Ver resumen y gráficos");compose.onNodeWithText("Ver resumen y gráficos").performClick()
         scroll("Personas distintas: 1");compose.onNodeWithText("Personas distintas: 1").assertExists()
         assertEquals(DemoSeed.sites.first().name,vm.uiState.value.metrics!!.siteMetrics.single().siteName)
         assertNull(runBlocking(Dispatchers.IO) { ctx.environment(id("event-a")) })

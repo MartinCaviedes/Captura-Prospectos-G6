@@ -1,5 +1,21 @@
 # Evidencia de la base Android
 
+## Refinamiento visual y acceso demo — 11/10/2026
+
+Candidato `feature/e1-ui-refinement` sobre `161f635`, sin merge ni aceptación humana. **187 JVM aprobadas**, sin fallos/errores/omitidas; APK principal e instrumental construidas; **Lint 25 avisos/0 errores**. No cambian Room, migraciones, dependencias ni transporte. [Guía, credenciales y alcance](UI_REFINEMENT_E1.md), [controles y hashes de fuentes/APK](evidencias/ui-refinement-2026-10-11.json).
+
+Ejecuciones nuevas separadas en Xiaomi 11T Android 14/API 34, con las mismas APK e inicio de actividad asistido por ADB donde MIUI lo bloqueaba:
+
+| Grupo | Resultado | Alcance |
+|---|---|---|
+| DemoAccessRoomTest + DemoVisualUiTest | 5 aprobadas, 22,763 s | Credenciales contra perfiles reales, aislamiento/carga voluntaria de 24 ficticios por AdmissionRepository cifrado, idempotencia, métricas, acceso y menú compacto/ampliado con semántica |
+| Regresiones de contexto, formulario, dispositivos UI, registros, detalle, métricas y eventos | 22 aprobadas, 186,189 s | Confirmaciones/descarte, error/reintento, edición/conflictos, permisos por rol y recorrido inicio→resumen con Room |
+
+[Salida de acceso](evidencias/android-ui-access-2026-10-11.txt) y [regresiones](evidencias/android-ui-regressions-2026-10-11.txt). No sumar grupos como una ejecución conjunta. La simulación Density de ancho ampliado no acredita tablet Android. Las 51 pruebas cifradas/nativas anteriores no se repitieron; cámara/GPS físicos anteriores siguen siendo históricos respecto a esta nueva interfaz. La bienvenida real se abrió y se inspeccionó en Xiaomi sin borrar datos ni conceder permisos por ADB.
+
+Un primer compile señaló referencia nullable/import y se corrigió. Un intento de Lint quedó detenido y se canceló; el reintento en proceso nuevo con memoria 4 GB y dos workers terminó con todas las reglas activas. No se ocultaron avisos ni se bajaron exigencias. Pendientes: TalkBack completo, cámara/enfoque/giro, permisos adversos, portal cautivo real, tablet y revisiones humanas.
+
+
 ## Comprobación acumulada y dataset real · 11/10/2026
 
 187 JVM, cero fallos/errores/omitidas; ambas APK y Lint 0 errores/25 avisos. Xiaomi 11T Android 14/API 34: **51 de datos/nativos (93.926 s)** y **22 UI (180.681 s)** en grupos separados; apertura asistida MIUI en UI. Mismas APK verificadas por SHA256, identificadas con fuentes y runners en [evidencia](evidencias/dataset-correction-2026-10-11.json). Las 51 incluyen 48 cifradas (el ensayo nuevo de 400 y 47 regresiones) y tres decoder/proveedor. Las 22 reúnen selector/contexto, formulario/dispositivo, bandeja/detalle, métricas y administración. No se suman ejecuciones históricas como si fueran una suite actual.
@@ -158,3 +174,7 @@ Las correcciones acumuladas de selector/alta, registros, nativos, detalle, métr
 ## Pendientes para Entrega 2 (E2)
 
 Integración remota (backend Spring Boot, PostgreSQL, API REST, OpenAPI/Retrofit), sincronización en segundo plano con WorkManager (`PENDING` / `SENDING` / `SYNCED`), autenticación con tokens/servidor, consolidación multi-dispositivo y empaquetado release firmado para producción.
+
+## Comprobación manual del candidato — 11/10/2026
+
+En la APK con SHA-256 `c78e6dd1dffe26c427267e0ec9d71b0fb0ab179388b0c2cb7ada22518c1279ff`, el usuario respondió al recorrido solicitado de acceso, teclado de correo, giro, desplazamiento y descarte: todo funciona en vertical y horizontal, sin botones cortados ni problemas con el texto ingresado. Es evidencia manual de este recorrido en Xiaomi; no acredita TalkBack, tablet, redes especiales ni revisión independiente.

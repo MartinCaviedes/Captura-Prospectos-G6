@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +46,7 @@ fun MainHubScreen(
     onEditEvent: () -> Unit = {},
     onFromDate: (String) -> Unit = {}, onUntilDate: (String) -> Unit = {},
     onToday: () -> Unit = {}, onAll: () -> Unit = {}, onRange: () -> Unit = {},
+    summaryOnly: Boolean = false, onOpenSummary: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier,
@@ -54,14 +56,14 @@ fun MainHubScreen(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    "Captura de Prospectos",
+                    if (summaryOnly) "Resumen de jornada" else "Hola, ${state.profile.displayName}",
                     style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.semantics { heading() },
                 )
                 Text(
                     "Duoc UC · Grupo 6",
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     "Demostración local — Entrega 1",
@@ -98,7 +100,7 @@ fun MainHubScreen(
             ConnectivityBanner(state.connectivity)
         }
 
-        item {
+        if (!summaryOnly) item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
@@ -136,7 +138,24 @@ fun MainHubScreen(
         }
 
         // Resumen Operativo Local (RF09)
-        item {
+        if (!summaryOnly) item {
+            Card(Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(2.dp)) {
+                Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Tu jornada, en un vistazo", style = MaterialTheme.typography.titleLarge)
+                    if (state.isLoadingMetrics) LinearProgressIndicator(Modifier.fillMaxWidth())
+                    state.metricsError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                    val metrics = state.metrics
+                    if (metrics == null) Text("Resumen aún no disponible.")
+                    else {
+                        Text("${metrics.distinctPeople} personas · ${metrics.needsContextCount} sin contexto")
+                        Text("${metrics.readyCount} con contexto confirmado · ${metrics.draftCount} borradores · ${metrics.cancelledCount} anuladas")
+                        if (state.metricsError != null) Text("Último cálculo disponible; revisa su período en Resumen.")
+                    }
+                    OutlinedButton(onOpenSummary) { Text("Ver resumen y gráficos") }
+                }
+            }
+        }
+        if (summaryOnly) item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -146,10 +165,9 @@ fun MainHubScreen(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    Row(
+                    FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Text(
                             "Resumen operativo (este dispositivo)",
@@ -185,22 +203,35 @@ fun MainHubScreen(
                     if (m != null) {
                         Text("Personas distintas: ${m.distinctPeople}")
                         Text(if (m.fromInclusive == null) "Período calculado: todo el evento" else "Período calculado: ${m.fromInclusive.atZone(state.event.timeZone).toLocalDate()} a ${m.untilExclusive!!.minusNanos(1).atZone(state.event.timeZone).toLocalDate()} (${state.event.timeZone.id})")
-                        Text("READY y NEEDS_CONTEXT cuentan como inscripciones activas; borradores/anuladas se separan.")
-                        m.programMetrics.forEach { Text("${it.snapshotName}: ${it.registrations} interés(es)") }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            MetricStatCard("Inscripciones activas", "${m.totalCaptures}", MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.weight(1f))
-                            MetricStatCard("Confirmadas", "${m.readyCount}", MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.weight(1f))
+                        Text("Las inscripciones activas incluyen las que tienen contexto confirmado y las que aún necesitan ubicación; borradores y anuladas se muestran por separado.")
+                        Text("Interés por carrera", style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
+                        Text("Una persona puede elegir varias carreras. Cada interés mantiene su cifra visible.")
+                        val maximum = m.programMetrics.maxOfOrNull { it.registrations }?.coerceAtLeast(1) ?: 1
+                        m.programMetrics.forEach { program ->
+                            Column(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text("${program.snapshotName}: ${program.registrations} interés(es)")
+                                LinearProgressIndicator(progress = { program.registrations.toFloat() / maximum },
+                                    modifier = Modifier.fillMaxWidth().height(12.dp).clearAndSetSemantics {},
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    trackColor = MaterialTheme.colorScheme.surfaceVariant)
+                            }
                         }
-                        Row(
+                        FlowRow(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            MetricStatCard("Borradores", "${m.draftCount}", MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.weight(1f))
-                            MetricStatCard("Falta contexto", "${m.needsContextCount}", MaterialTheme.colorScheme.tertiaryContainer, modifier = Modifier.weight(1f))
-                            MetricStatCard("Anuladas", "${m.cancelledCount}", MaterialTheme.colorScheme.errorContainer, modifier = Modifier.weight(1f))
+                            MetricStatCard("Inscripciones activas", "${m.totalCaptures}", MaterialTheme.colorScheme.primaryContainer, modifier = Modifier.widthIn(min = 160.dp, max = 260.dp))
+                            MetricStatCard("Confirmadas", "${m.readyCount}", MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.widthIn(min = 160.dp, max = 260.dp))
+                        }
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            MetricStatCard("Borradores", "${m.draftCount}", MaterialTheme.colorScheme.surfaceVariant, modifier = Modifier.widthIn(min = 160.dp, max = 260.dp))
+                            MetricStatCard("Falta contexto", "${m.needsContextCount}", MaterialTheme.colorScheme.tertiaryContainer, modifier = Modifier.widthIn(min = 160.dp, max = 260.dp))
+                            MetricStatCard("Anuladas", "${m.cancelledCount}", MaterialTheme.colorScheme.errorContainer, modifier = Modifier.widthIn(min = 160.dp, max = 260.dp))
                         }
                     }
                 }
@@ -222,7 +253,7 @@ fun MainHubScreen(
                         Text(
                             "Panel de Supervisión Local",
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.semantics { heading() },
                         )
                         Text(
@@ -357,11 +388,7 @@ private fun ConnectivityBanner(status: ConnectivityStatus) {
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Text(
-                    text = status.name,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+
             }
             Text(
                 text = statusText,
