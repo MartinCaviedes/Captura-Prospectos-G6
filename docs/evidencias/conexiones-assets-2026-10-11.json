@@ -709,7 +709,8 @@
         }
       ],
       "callSites": [
-        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt"
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt",
+        "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/hub/MainHubScreen.kt"
       ]
     },
     {

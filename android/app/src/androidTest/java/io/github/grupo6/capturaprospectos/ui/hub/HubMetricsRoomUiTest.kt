@@ -1,8 +1,11 @@
 package io.github.grupo6.capturaprospectos.ui.hub
 
 import androidx.activity.ComponentActivity
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.test.*
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.ViewModelStore
 import androidx.test.platform.app.InstrumentationRegistry
@@ -16,6 +19,9 @@ import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
 import java.io.File
 import java.security.KeyStore
 import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
+import java.util.Locale
 import java.util.UUID
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.flowOf
@@ -79,5 +85,54 @@ class HubMetricsRoomUiTest {
         compose.waitUntil(10000) { vm.uiState.value.error != null }
         assertEquals(1,vm.uiState.value.metrics!!.cancelledCount)
         compose.onNodeWithText("Se conserva el último cálculo; revisa su período antes de usarlo.").assertExists()
+    }
+    @Test fun rangeCalendarsCancelOrFillOnlyTheirFieldUntilRangeIsApplied() {
+        start()
+        val previous = vm.uiState.value.metrics
+        compose.runOnIdle { vm.fromDate("2000-01-01"); vm.untilDate("2000-01-02") }
+        scroll("Elegir período"); compose.onNodeWithText("Elegir período").performClick()
+        scroll("Desde (aaaa-mm-dd)")
+        compose.onNodeWithContentDescription("Elegir fecha desde").performClick()
+        compose.onNodeWithText("Cancelar fecha").performClick()
+        compose.runOnIdle { assertEquals("2000-01-01", vm.uiState.value.fromDate) }
+        compose.onNodeWithContentDescription("Elegir fecha desde").performClick()
+        selectCalendarDay("2000-01-02")
+        compose.onNodeWithText("Usar fecha").performClick()
+        compose.runOnIdle {
+            assertEquals("2000-01-02", vm.uiState.value.fromDate)
+            assertEquals("2000-01-02", vm.uiState.value.untilDate)
+            assertSame(previous, vm.uiState.value.metrics)
+        }
+        scroll("Hasta inclusive (aaaa-mm-dd)")
+        compose.onNodeWithContentDescription("Elegir fecha hasta").performClick()
+        selectCalendarDay("2000-01-03")
+        compose.onNodeWithText("Usar fecha").performClick()
+        compose.runOnIdle {
+            assertEquals("2000-01-02", vm.uiState.value.fromDate)
+            assertEquals("2000-01-03", vm.uiState.value.untilDate)
+            assertSame(previous, vm.uiState.value.metrics)
+        }
+        compose.onNode(hasText("Hasta inclusive (aaaa-mm-dd)") and hasSetTextAction()).performTextClearance()
+        compose.onNodeWithContentDescription("Elegir fecha hasta").performClick()
+        compose.onNodeWithText("Usar fecha").assertIsNotEnabled()
+        compose.onNodeWithText("Cancelar fecha").performClick()
+        scroll("Aplicar rango"); compose.onNodeWithText("Aplicar rango").performClick()
+        compose.waitUntil(10000) { vm.uiState.value.error != null }
+        assertSame(previous, vm.uiState.value.metrics)
+    }
+    @OptIn(ExperimentalMaterial3Api::class)
+    private fun selectCalendarDay(iso: String) {
+        val millis = LocalDate.parse(iso).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        val description = DatePickerDefaults.dateFormatter()
+            .formatDate(millis, Locale.getDefault(), forContentDescription = true)!!
+        val matcher = hasText(description, substring = true, ignoreCase = true) or
+            hasContentDescription(description, substring = true, ignoreCase = true)
+        if (compose.onAllNodes(matcher).fetchSemanticsNodes().isEmpty()) {
+            compose.onNode(isDialog()).performTouchInput { swipeUp() }
+        }
+        assertEquals("Día accesible del calendario: $description", 1,
+            compose.onAllNodes(matcher).fetchSemanticsNodes().size)
+        compose.onNode(matcher)
+            .performScrollTo().performClick()
     }
 }

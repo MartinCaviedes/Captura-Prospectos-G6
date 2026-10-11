@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.Role
-import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.grupo6.capturaprospectos.domain.admission.*
 import io.github.grupo6.capturaprospectos.domain.capture.*
@@ -26,8 +25,6 @@ import io.github.grupo6.capturaprospectos.domain.context.EstablishmentSuggestion
 import java.text.Normalizer
 import java.util.UUID
 import java.time.LocalDate
-import java.time.Instant
-import java.time.ZoneOffset
 import androidx.compose.ui.Alignment
 import io.github.grupo6.capturaprospectos.R
 import io.github.grupo6.capturaprospectos.ui.components.*
@@ -97,8 +94,11 @@ class FormActions(
     editing: Boolean = false, allowDraft: Boolean = true, saveEnabled: Boolean = true,
 ) {
     CapturaProspectosG6Theme(darkTheme = false) {
-        ConexionesBackground(modifier) {
-            FormContent(state, environment, suggestion, actions, Modifier.fillMaxSize(), editing, allowDraft, saveEnabled)
+        Surface(modifier, color = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onSurface) {
+            ConexionesBackground(Modifier.fillMaxSize(), light = true) {
+                FormContent(state, environment, suggestion, actions, Modifier.fillMaxSize(), editing, allowDraft, saveEnabled)
+            }
         }
     }
 }
@@ -132,26 +132,11 @@ class FormActions(
     val input = state.input
 
     if (showBirthPicker) {
-        val parsed = runCatching { LocalDate.parse(input.birthDate) }.getOrNull()
-        // La fecha sigue siendo memoria volátil, sin Saver ni SavedState.
-        val picker = remember {
-            DatePickerState(locale = java.util.Locale.getDefault(),
-            initialSelectedDateMillis = parsed?.takeIf { it.year in 1900..LocalDate.now().year }?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli(),
+        VolatileDatePickerDialog(input.birthDate, "Fecha de nacimiento",
             yearRange = 1900..LocalDate.now().year,
-            )
-        }
-        DatePickerDialog(onDismissRequest = { showBirthPicker = false },
-            confirmButton = { TextButton(enabled = picker.selectedDateMillis != null, onClick = {
-                picker.selectedDateMillis?.let { actions.text(AdmissionField.BIRTH_DATE,
-                    Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate().toString()) }
-                showBirthPicker = false
-            }) { Text("Usar fecha") } },
-            dismissButton = { TextButton({ showBirthPicker = false }) { Text("Cancelar fecha") } }) {
-            // El modo de ingreso y el mes del calendario tampoco se restauran desde disco.
-            CompositionLocalProvider(LocalSaveableStateRegistry provides null) {
-                DatePicker(picker, title = { Text("Fecha de nacimiento", Modifier.padding(24.dp)) })
-            }
-        }
+            onDismiss = { showBirthPicker = false }, onConfirm = {
+                actions.text(AdmissionField.BIRTH_DATE, it); showBirthPicker = false
+            })
     }
     if (showConsentText) AlertDialog(onDismissRequest = { showConsentText = false },
         title = { Text("Texto de consentimiento") },

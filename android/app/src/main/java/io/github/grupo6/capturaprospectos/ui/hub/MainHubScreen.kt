@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
 import io.github.grupo6.capturaprospectos.R
@@ -37,6 +38,15 @@ data class MainHubUiState(
 ) {
     val m = state.metrics
     var showRange by remember { mutableStateOf(false) }
+    var pickingFrom by remember { mutableStateOf<Boolean?>(null) }
+    pickingFrom?.let { from ->
+        VolatileDatePickerDialog(if (from) state.fromDate else state.untilDate,
+            if (from) "Fecha desde" else "Fecha hasta inclusive",
+            onDismiss = { pickingFrom = null }, onConfirm = {
+                if (from) onFromDate(it) else onUntilDate(it)
+                pickingFrom = null
+            })
+    }
     LazyColumn(modifier, contentPadding = PaddingValues(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -104,8 +114,14 @@ data class MainHubUiState(
             if (showRange) item {
                 GlassCard {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        OutlinedTextField(state.fromDate, onFromDate, label = { Text("Desde (aaaa-mm-dd)") }, modifier = Modifier.fillMaxWidth())
-                        OutlinedTextField(state.untilDate, onUntilDate, label = { Text("Hasta inclusive (aaaa-mm-dd)") }, modifier = Modifier.fillMaxWidth())
+                        OutlinedTextField(state.fromDate, onFromDate, label = { Text("Desde (aaaa-mm-dd)") },
+                            trailingIcon = { IconButton({ pickingFrom = true }, enabled = !state.isLoadingMetrics) {
+                                Icon(painterResource(R.drawable.g6_capture_frame2), "Elegir fecha desde")
+                            } }, modifier = Modifier.fillMaxWidth())
+                        OutlinedTextField(state.untilDate, onUntilDate, label = { Text("Hasta inclusive (aaaa-mm-dd)") },
+                            trailingIcon = { IconButton({ pickingFrom = false }, enabled = !state.isLoadingMetrics) {
+                                Icon(painterResource(R.drawable.g6_capture_frame2), "Elegir fecha hasta")
+                            } }, modifier = Modifier.fillMaxWidth())
                         OutlinedButton(onRange, enabled = !state.isLoadingMetrics) { Text("Aplicar rango") }
                     }
                 }

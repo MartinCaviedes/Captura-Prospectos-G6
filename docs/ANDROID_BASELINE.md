@@ -1,5 +1,18 @@
 # Evidencia de la base Android
 
+## Ajustes tras prueba humana de V3 · 11/10/2026
+
+Martín comprobó el recorrido de V3 sobre APK `f6d350b…`: acceso de muestra, evento, captura/calendario y giro en todas las ventanas, sin recortes ni problemas al ingresar campos. Reportó textos blancos sobre captura clara y ausencia del calendario en el rango del resumen. Esto acredita sólo su recorrido en esa APK; no acredita TalkBack ni aceptación contractual.
+
+Corrección sobre `ef11807`, misma rama `feature/e1-ui-conexiones` y PR #9: Surface local fija el color de contenido de captura y usa el fondo claro. El calendario volátil se comparte con los campos Desde/Hasta; confirmar sólo rellena ISO, cancelar preserva el valor y Aplicar rango conserva validación/cálculo existentes. No se modifica el dominio ni la persistencia.
+
+**187 JVM aprobadas**, cero fallos/errores/omitidas; ambas APK construidas; **Lint 27 avisos/0 errores**. Xiaomi 11T Android 14/API 34: **12 pruebas dirigidas aprobadas en 132.892 s**, una ejecución final. Formulario en entorno de contenido blanco, contraste de títulos/cuerpo >=4,5:1 y letra 150 %, nacimiento, consentimiento/descarte, candidatos QR/GPS, edición/conflictos y resumen con Room. La prueba nueva cambia cada extremo desde su calendario, comprueba cancelación, que no recalcula antes de Aplicar, y que un extremo vacío conserva el último cálculo tras rechazo.
+
+[Fuentes/APK](evidencias/conexiones-ajustes-2026-10-11.json), [salida final](evidencias/android-conexiones-ajustes-2026-10-11.txt), [reproducción del contraste anterior](evidencias/android-contraste-reproduccion-2026-10-11.txt). La regresión nueva se ejecutó primero contra la APK principal anterior, con instrumental nuevo: falló por blanco en lugar de G6Ink, como se esperaba. Un primer intento del grupo nuevo tuvo un fallo de selector de día: DatePicker expone la fecha completa como etiqueta accesible; se corrigió el selector localizado sin retirar aserciones y el grupo final pasó.
+
+El runner nuevo reconoce los alias de foco de este Android y asiste la apertura cuando ComponentActivity no está enfocada; no se declara arranque desatendido. Instalación `-r -t`, sin borrar datos ni conceder permisos por ADB. El grupo de 28 de V3 y las suites de datos/nativos de abajo son históricos respecto a esta nueva APK; no sumarlos. La confirmación visual nueva del contraste/rango se solicita al usuario. TalkBack continúa pospuesto; tablet físico, permisos adversos, portal cautivo, revisión cruzada/contratos y P3 pendientes.
+
+
 ## V3 Conexiones nativa · 11/10/2026
 
 Candidato `feature/e1-ui-conexiones` sobre `dad8a5b` (PR público #8), sin merge ni aceptación humana. **187 JVM aprobadas**, cero fallos/errores/omitidas; ambas APK construidas; **Lint 27 avisos/0 errores**, controles activos y sin baseline nueva. Las 27 advertencias incluyen versiones de dependencias, recursos históricos y metadatos existentes; no se atribuyen a fallos de ejecución. [Adaptación y límites de V3](UI_CONEXIONES_E1.md), [fuentes/APK identificadas](evidencias/conexiones-2026-10-11.json), [procedencia de recursos y licencia](evidencias/conexiones-assets-2026-10-11.json).
