@@ -1,0 +1,64 @@
+{
+  "date_local": "2026-10-10",
+  "branch": "feature/e1-ronda2-records-tray",
+  "original_base_sha": "08df94f79f92f73c15b7ebaa21895769290519ab",
+  "inherited_form_correction": "0fc8b41c199f2421a4b4574ae9a2aad7509f4fcc",
+  "sources_sha256": {
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/MainActivity.kt": "492509a7cf7f91e4e623a697eaac79ba9f2935d35b34e794e9346bb1fa97b41f",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/CaptureDatabase.kt": "d153499e5452c6f5e8cc46fa70e8beb671bf6d4425f38f3c4b37e7062c2a2161",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/EncryptedDatabase.kt": "2a5e7f77f558b62a0c00b2d40da92931d2a997b8b7b259d4a7ad437c6dc2f0b6",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/RoomAdmissionRepository.kt": "cb8f3309800a1ae5f76dc45d298ece04e6e236969243ab6a092c59351ae93061",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/RoomRecordRepository.kt": "8d0e842be0181082e7c39f3156342f5bc32ce4b3d76cfcfbb2d12bb4a5a471a5",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/domain/admission/PrepareAdmission.kt": "452762400f270cd73b94a63847b9133049709039692283b499f8eaecf1d69249",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/ContextSessionOwner.kt": "241262c9ea35d49e804c6ffbf3f35abd5fcac35b4a8a945c26f75a3cc824da37",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/records/RecordTrayRoute.kt": "d51f2a0da7531e03b43c8bb0bbe5f523bb312a47f0732009b8ed0b569c6ffb11",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/records/RecordTrayScreen.kt": "5605144aeda8ecf09bec7e3b09ce526387a9a95d3126578d1ed18ac97e02a22c",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/records/RecordTrayViewModel.kt": "c3078be63c1ada18da28daab92ae6a4ef7846997bccf15ff6d71e990aff6297e",
+    "android/app/schemas/io.github.grupo6.capturaprospectos.data.local.CaptureDatabase/4.json": "a250eaa23976d07bdfaebb1a2e75500bf75c783b881fa59135d56082ceca82ea",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/data/local/RecordAuditMigrationTest.kt": "b4cc66bc3b47a874a362310b680034a10c5ba0f34320e694140a4b567be5cd52",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/data/local/RecordStorageTest.kt": "b8339b327279517bbceef8bf47de5fae5c02a5092770f1b646a3757d931cdbc1",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/records/RecordTrayUiTest.kt": "45df8234ca6bfde34657fa7a47e883e66651024cabf69aa1681276f01ef27032",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/CaptureMigration3To4.kt": "4fd0856b744fb05950549aea520ecdf979cfa3a4dd656248a0c98af5429847e0",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/ui/records/RecordTrayPaginationTest.kt": "74cab03e301d694aee44ceb167cf3b15695afd4ab308f8c5df4dc26391eade98"
+  },
+  "apks_sha256_installed_matches_build": {
+    "outputs/apk/demo/debug/app-demo-debug.apk": "b5aad2d97f3dec1a8e736eb1325e85bc9b345259d4ade4454e97cba4b32ac9d1",
+    "outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk": "957c2f8094efdf9ff2fc965002501a8089770c45c3a684589545d30863a30dbc"
+  },
+  "jvm": {
+    "tests": 121,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 20
+  },
+  "android": {
+    "data": {
+      "passed": 37,
+      "seconds": 48.262,
+      "new_run": true,
+      "launch_assisted_by_adb": false
+    },
+    "ui": {
+      "passed": 2,
+      "seconds": 16.334,
+      "new_run": true,
+      "launch_assisted_by_adb": true
+    }
+  },
+  "device": {
+    "model": "Xiaomi 11T / 21081111RG",
+    "android": "14",
+    "api": 34
+  },
+  "room_schema": 4,
+  "migration": "3 -> 4 aditiva; nuevos atributos históricos NULL",
+  "limits": [
+    "UI con doble; paginación/autorización/mutaciones con Room cifrado en grupo separado.",
+    "Sin aceptación humana de RECORD_CONTRACTS, merge ni cierre E1.",
+    "Giro real de MainActivity, TalkBack/visual completa y recursos cámara/GPS pendientes."
+  ]
+}
