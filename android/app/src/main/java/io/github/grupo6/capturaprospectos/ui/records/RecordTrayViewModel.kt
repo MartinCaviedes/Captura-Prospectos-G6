@@ -156,7 +156,7 @@ class RecordTrayViewModel(private val repository: RecordRepository?, private val
                 RecordMutationResult.Unavailable -> "Registro no disponible o fuera de su alcance autorizado."
                 else -> "No fue posible guardar las modificaciones. Los cambios se conservan."
             }
-            current.editForm?.editingMutation(false, (result as? RecordMutationResult.Invalid)?.issues.orEmpty(), message)
+            current.editForm?.editingMutation(false, (result as? RecordMutationResult.Invalid)?.issues.orEmpty())
             mutableState.update { it.copy(isSavingEdit = false, isMutating = false, message = message,
                 editConflict = result == RecordMutationResult.RevisionConflict) }
             if (result is RecordMutationResult.Saved) {
