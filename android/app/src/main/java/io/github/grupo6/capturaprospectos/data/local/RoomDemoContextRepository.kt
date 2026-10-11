@@ -97,7 +97,7 @@ internal class RoomDemoContextRepository(
             CaptureEvent(UUID.fromString(row.id), UUID.fromString(row.siteId), row.name, Instant.parse(row.startsAt), Instant.parse(row.endsAt), ZoneId.of(row.timeZone),
                 dao.assignments(row.id).map { UUID.fromString(it.profileId) }.toSet(), coordinates)
         }.filter { profile != null && LocalCaptureAccess.canSelectEvent(profile.actor, it) }
-        val selected = state.eventId?.let { id -> requireNotNull(available.singleOrNull { it.id.toString() == id }) }
+        val selected = state.eventId?.let { id -> UUID.fromString(id); available.singleOrNull { it.id.toString() == id } }
         val eventRow = rows.singleOrNull { it.id == selected?.id.toString() }
         val suggestion = eventRow?.establishment?.let { EstablishmentSuggestion(it, eventRow.establishmentCommune) }
         val version = requireNotNull(dao.catalog(state.catalogVersion))
@@ -110,70 +110,37 @@ internal class RoomDemoContextRepository(
         return DemoContextSnapshot(UUID.fromString(state.deviceId), profiles, profile, available, selected, suggestion, catalog, consent.version, consent.text)
     }
 
+    /** Autoriza origen/destino y asignaciones en la misma transacción que escribe el evento. */
     override suspend fun saveEvent(command: SaveDemoEvent): SaveEventResult = withContext(dispatcher) {
         try {
-            val actor = currentActor() ?: return@withContext SaveEventResult.Unauthorized
-            if (actor.role != LocalRole.SUPERVISOR) return@withContext SaveEventResult.Unauthorized
-            if (command.siteId !in actor.siteIds) return@withContext SaveEventResult.Unauthorized
-
-            val issues = mutableListOf<String>()
-            val name = command.name.trim()
-            if (name.length !in 3..100) {
-                issues.add("El nombre del evento debe tener entre 3 y 100 caracteres.")
-            }
-            if (!command.startsAt.isBefore(command.endsAt)) {
-                issues.add("La fecha de inicio debe ser anterior a la fecha de término.")
-            }
-            command.coordinates?.let {
-                if (!it.isValid()) issues.add("Las coordenadas geográficas no son válidas.")
-            }
-
-            if (issues.isNotEmpty()) return@withContext SaveEventResult.Invalid(issues)
-
             db.withTransaction {
-                val dao = db.context()
-                val eventId = command.eventId ?: UUID.randomUUID()
-                val row = DemoEventRow(
-                    id = eventId.toString(),
-                    siteId = command.siteId.toString(),
-                    name = name,
-                    startsAt = command.startsAt.toString(),
-                    endsAt = command.endsAt.toString(),
-                    timeZone = command.timeZone.id,
-                    latitude = command.coordinates?.latitude,
-                    longitude = command.coordinates?.longitude,
-                    establishment = command.establishment?.trim()?.ifBlank { null },
-                    establishmentCommune = command.establishmentCommune?.trim()?.ifBlank { null },
-                )
-                val existing = dao.event(eventId.toString())
-                if (existing != null) {
-                    dao.updateEvent(row)
-                } else {
-                    dao.insertEvent(row)
-                }
-
-                dao.deleteAssignments(eventId.toString())
-                if (command.assignedCaptorIds.isNotEmpty()) {
-                    val assignmentRows = command.assignedCaptorIds.map { captorId ->
-                        DemoAssignmentRow(eventId = eventId.toString(), profileId = captorId.toString())
-                    }
-                    dao.insertAssignments(assignmentRows)
-                }
-
-                // Notificar observadores actualizando contexto activo
-                val currentState = dao.state()
-                if (currentState != null) {
-                    dao.select(currentState.profileId, currentState.eventId)
-                }
-
-                SaveEventResult.Success(eventId)
+                val snapshot=readSnapshot() ?: return@withTransaction SaveEventResult.Unauthorized
+                val actor=snapshot.currentProfile?.actor ?: return@withTransaction SaveEventResult.Unauthorized
+                val dao=db.context()
+                if(actor.role != LocalRole.SUPERVISOR || command.siteId !in actor.siteIds)
+                    return@withTransaction SaveEventResult.Unauthorized
+                val existing=command.eventId?.let { dao.event(it.toString()) }
+                if(command.eventId != null && (existing==null || UUID.fromString(existing.siteId) !in actor.siteIds))
+                    return@withTransaction SaveEventResult.Unauthorized
+                if(snapshot.catalog.sites.none { it.id==command.siteId && it.enabled }) return@withTransaction SaveEventResult.Unauthorized
+                val issues=eventIssues(command).toMutableList()
+                val captors=snapshot.profiles.filter { it.actor.role==LocalRole.CAPTOR && command.siteId in it.actor.siteIds }.map { it.actor.id }.toSet()
+                if(!captors.containsAll(command.assignedCaptorIds)) issues += "Sólo se asignan captadores habilitados para la sede elegida."
+                if(issues.isNotEmpty()) return@withTransaction SaveEventResult.Invalid(issues)
+                val id=command.eventId ?: UUID.randomUUID()
+                val row=DemoEventRow(id.toString(),command.siteId.toString(),command.name.trim(),command.startsAt.toString(),command.endsAt.toString(),command.timeZone.id,
+                    command.coordinates?.latitude,command.coordinates?.longitude,command.establishment?.trim()?.ifEmpty { null },command.establishmentCommune?.trim()?.ifEmpty { null })
+                if(existing==null) dao.insertEvent(row) else dao.updateEvent(row)
+                dao.deleteAssignments(id.toString())
+                dao.insertAssignments(command.assignedCaptorIds.map { DemoAssignmentRow(id.toString(),it.toString()) })
+                // Invalida el contexto observado sin seleccionar por inferencia ni modificar capturas.
+                val state=requireNotNull(dao.state());dao.select(state.profileId,state.eventId)
+                SaveEventResult.Success(id)
             }
-        } catch (_: SQLiteException) {
-            SaveEventResult.StorageUnavailable
-        } catch (_: IllegalArgumentException) {
-            SaveEventResult.StorageUnavailable
-        } catch (_: DateTimeException) {
-            SaveEventResult.StorageUnavailable
-        }
+        } catch(cancelled:kotlinx.coroutines.CancellationException) { throw cancelled }
+        catch(_:SQLiteException) { SaveEventResult.StorageUnavailable }
+        catch(_:IllegalArgumentException) { SaveEventResult.StorageUnavailable }
+        catch(_:DateTimeException) { SaveEventResult.StorageUnavailable }
+        catch(_:IllegalStateException) { SaveEventResult.StorageUnavailable }
     }
 }

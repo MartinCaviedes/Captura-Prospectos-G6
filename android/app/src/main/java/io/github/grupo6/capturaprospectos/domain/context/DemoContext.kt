@@ -2,6 +2,8 @@ package io.github.grupo6.capturaprospectos.domain.context
 
 import io.github.grupo6.capturaprospectos.domain.admission.*
 import io.github.grupo6.capturaprospectos.domain.capture.*
+import java.time.Instant
+import java.time.ZoneId
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 
@@ -25,8 +27,6 @@ sealed interface DemoContextState {
 }
 enum class ContextChange { APPLIED, ALREADY_INITIALIZED, INVALID_SELECTION, NOT_INITIALIZED, INCOMPATIBLE_SEED, STORAGE_UNAVAILABLE }
 
-import java.time.Instant
-import java.time.ZoneId
 
 data class SaveDemoEvent(
     val eventId: UUID? = null,

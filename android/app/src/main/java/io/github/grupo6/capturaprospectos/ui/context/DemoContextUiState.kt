@@ -7,5 +7,7 @@ data class DemoContextUiState(
     val context: DemoContextState? = null,
     val busy: Boolean = false,
     val message: String? = null,
+    val eventEditor: io.github.grupo6.capturaprospectos.domain.context.EventEditorInput? = null,
+    val confirmEventDiscard: Boolean = false,
 )
 

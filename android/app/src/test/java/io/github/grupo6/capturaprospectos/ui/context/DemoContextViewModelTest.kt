@@ -151,7 +151,7 @@ class DemoContextViewModelTest {
         }
         advanceUntilIdle()
         assertTrue(callbackInvoked)
-        assertEquals(listOf("saveEvent:Nuevo Evento Demo", "snapshot"), repo.calls)
+        assertEquals(listOf("saveEvent:Nuevo Evento Demo", "event:${repo.event.id}", "snapshot"), repo.calls)
         assertTrue(vm.uiState.value.message!!.contains("guardado correctamente"))
     }
 
@@ -168,6 +168,36 @@ class DemoContextViewModelTest {
         advanceUntilIdle()
         assertTrue(vm.uiState.value.message!!.contains("No tienes permisos"))
     }
+    private fun supervisorEditing() {
+        val supervisor=repo.profile.copy(actor=repo.profile.actor.copy(role=LocalRole.SUPERVISOR))
+        repo.state.value=DemoContextState.Ready(repo.base.copy(currentProfile=supervisor,selectedEvent=repo.event,
+            establishmentSuggestion=EstablishmentSuggestion("Colegio ficticio","Comuna ficticia")))
+        dispatcher.scheduler.runCurrent();vm.beginEventEditor(edit=true)
+    }
+    @Test fun editorRetainsFieldsOnErrorAndDiscardMustBeConfirmed()=runTest(dispatcher) {
+        supervisorEditing();val original=vm.uiState.value.eventEditor!!
+        vm.eventInput { it.copy(name="Evento corregido ficticio") }
+        vm.dismissEventEditor();assertTrue(vm.uiState.value.confirmEventDiscard);vm.confirmEventDiscard(false)
+        assertEquals("Evento corregido ficticio",vm.uiState.value.eventEditor!!.name)
+        repo.saveResult=SaveEventResult.Unauthorized;vm.saveEventEditor()!!.join()
+        assertEquals("Colegio ficticio",vm.uiState.value.eventEditor!!.establishment)
+        assertEquals(original.startsAt,vm.uiState.value.eventEditor!!.startsAt)
+        assertEquals(repo.event.id,repo.lastSaveCommand!!.eventId)
+        assertTrue(vm.uiState.value.message!!.contains("No tienes permisos"))
+        vm.dismissEventEditor();vm.confirmEventDiscard(true);assertNull(vm.uiState.value.eventEditor)
+    }
+    @Test fun pendingEventSaveBlocksWritesFieldChangesDismissAndContextSwitch()=runTest(dispatcher) {
+        supervisorEditing();val original=vm.uiState.value.eventEditor!!
+        repo.gate=CompletableDeferred();repo.saveResult=SaveEventResult.StorageUnavailable
+        val save=vm.saveEventEditor()!!;runCurrent();assertTrue(vm.uiState.value.busy)
+        assertNull(vm.saveEventEditor());vm.eventInput { it.copy(name="Tardío") };vm.dismissEventEditor()
+        assertNull(vm.selectProfile(repo.other.actor.id));assertEquals(original,vm.uiState.value.eventEditor)
+        assertFalse(vm.uiState.value.confirmEventDiscard)
+        repo.gate!!.complete(Unit);save.join();assertFalse(vm.uiState.value.busy)
+        assertEquals(original,vm.uiState.value.eventEditor)
+        assertEquals(1,repo.calls.count { it.startsWith("saveEvent:") })
+    }
+
 }
 
 /** Doble de contrato: no acredita permisos, Room ni persistencia real. */
@@ -210,6 +240,7 @@ private class FakeContextRepository : DemoContextRepository {
     var lastSaveCommand: SaveDemoEvent? = null
     override suspend fun saveEvent(command: SaveDemoEvent): SaveEventResult {
         calls += "saveEvent:${command.name}"
+        gate?.await()
         lastSaveCommand = command
         return saveResult
     }
