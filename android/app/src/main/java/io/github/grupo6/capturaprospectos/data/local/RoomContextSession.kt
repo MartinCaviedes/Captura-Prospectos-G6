@@ -16,8 +16,15 @@ internal fun openContextSession(context: Context): ContextSession {
     catch (_: IOException) { throw ContextOpenFailure() }
     catch (_: SecurityException) { throw ContextOpenFailure() }
     catch (_: IllegalStateException) { throw ContextOpenFailure() } // Apertura/esquema incompatible, sin reset.
+    val demoRepo = RoomDemoContextRepository(handle.database)
+    val admissionRepo = RoomAdmissionRepository(handle.database, demoRepo)
+    val recordRepo = RoomRecordRepository(handle.database, demoRepo)
+    val locationProvider = io.github.grupo6.capturaprospectos.data.device.AndroidLocationProvider(context.applicationContext)
     return object : ContextSession {
-        override val repository = RoomDemoContextRepository(handle.database)
+        override val repository = demoRepo
+        override val admissionRepository = admissionRepo
+        override val recordRepository = recordRepo
+        override val locationProvider = locationProvider
         override fun close() = handle.close()
     }
 }

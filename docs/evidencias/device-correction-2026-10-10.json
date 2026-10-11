@@ -1,0 +1,75 @@
+{
+  "date_local": "2026-10-10",
+  "branch": "feature/e1-ronda2-device-resources",
+  "original_base_sha": "925810f0cdaca4af41b45004a20b26c73a6c02e3",
+  "inherited_corrections": [
+    "0fc8b41c199f2421a4b4574ae9a2aad7509f4fcc",
+    "1f9af48a5d28569c00e0c0410487babfe9b1a708"
+  ],
+  "jvm": {
+    "tests": 147,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 24
+  },
+  "android": {
+    "data": {
+      "passed": 3,
+      "seconds": 0.227,
+      "new_run": true,
+      "launch_assisted_by_adb": false
+    },
+    "ui": {
+      "passed": 8,
+      "seconds": 68.595,
+      "new_run": true,
+      "launch_assisted_by_adb": true
+    }
+  },
+  "sources_sha256": {
+    "android/app/build.gradle.kts": "01e8154ec3b30bf396f018d386631d4f9c75cef0fee31abf7f9746af4feb1331",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/data/device/LocationAndroidTest.kt": "58d3245caf1c72ede3bec33e0a203e58086cce8896d19851dd55d8debfcba1ff",
+    "android/app/src/main/AndroidManifest.xml": "98322bc213eeaa2fa4a42c8bf680f27ca546b8e90d3abe28ba12b3ce2638d6df",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/device/AndroidLocationProvider.kt": "3f549e309c6b3ca62e98e26045424b7cd4173abfc02ec70cade965444ca70d84",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt": "a1252f3cca82f5587629d93f3bc14f36701cc37969eadec2f39b175482cd1533",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormViewModel.kt": "63f12abcf72617094db0c6b1ef85ee4bc0bbc192daa85d8132a31686de981462",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormDeviceTest.kt": "6783e82636380a881c9e47d5a91da41f755cb9d2457477f2eaedc7d9656b1bdd",
+    "android/gradle/libs.versions.toml": "40aa5c035aeddbb5061badbe3323d468cea121d573ce12664662edbd56c32539",
+    "android/app/src/androidTest/assets/qr-synthetic.png": "b763518a8987dc953dbb7dcd6e1972a37c5628f63d6a391058144f13cb032f4b",
+    "android/app/src/androidTest/assets/qr-unsupported.png": "01c4b162e91fa19bafc05e2fa9898f9bf23745934afc90c2b3feb66117926d53",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/data/device/OfflineQrDecoderTest.kt": "a97a410094830ab0e8143d490a09342e410a0f0588434fa54e618de4b018f850",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionDeviceUiTest.kt": "89f9252b777527ae4265d3e457b10c4ee051e716400f1b54423881595c4dea26",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/DevicePermissionActions.kt": "ed8cf0a348da5ddce61db985a402033daa256e59a08113542e26921ee30f6e01",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/QrCameraDialog.kt": "78394cfff498a346b944b5397f41373680edc9f4eab5c640f3edc99dc54fd1d1"
+  },
+  "apks_sha256_installed_matches_build": {
+    "outputs/apk/demo/debug/app-demo-debug.apk": "a13ac90bbd857c2d750dbc0ab9260bd12b39c485ca2f37c30748ead50ab0ff1a",
+    "outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk": "9add2817a64257db7435317edbea220540bbb48d58e5feefc54d918e165a4181"
+  },
+  "dependencies": {
+    "camerax": "1.5.3",
+    "bundled_mlkit_barcode": "17.3.0"
+  },
+  "device": {
+    "model": "Xiaomi 11T / 21081111RG",
+    "android": "14",
+    "api": 34
+  },
+  "observed_permissions": {
+    "camera_granted": false,
+    "fine_location_granted": false,
+    "coarse_location_granted": false,
+    "internet_declared": false
+  },
+  "limits": [
+    "Decoder real sobre bitmaps; no lectura física de un QR a través de cámara.",
+    "Proveedor nativo devolvió PermissionDenied; no acredita adquisición GPS.",
+    "UI con candidatos ficticios/dobles y apertura asistida ADB; sin concesión/revocación de permisos.",
+    "Permisos/rationale/denegación permanente y recuperación desde ajustes pendientes de revisión humana.",
+    "Sin nuevo recorrido conjunto UI+Room, giro físico, TalkBack/visual completa ni aceptación/cierre E1."
+  ]
+}

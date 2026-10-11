@@ -2,6 +2,7 @@ package io.github.grupo6.capturaprospectos.ui.context
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,6 +35,8 @@ fun DemoContextScreen(
     onEventSelected: (UUID) -> Unit,
     onClearSelection: () -> Unit,
     modifier: Modifier = Modifier,
+    onContinueToHub: () -> Unit = {},
+    onCreateEvent: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier,
@@ -53,7 +56,7 @@ fun DemoContextScreen(
             Text("Procesando operación local…", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
-        state.message?.let { message -> item {
+        state.message?.takeIf { state.eventEditor == null }?.let { message -> item {
             Text(message, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
             if (state.context != DemoContextState.StorageUnavailable) {
                 TextButton(onClick = onRetry, enabled = !state.busy) { Text("Reintentar lectura") }
@@ -92,8 +95,39 @@ fun DemoContextScreen(
                 }
                 when {
                     snapshot.currentProfile == null -> item { Text("Elige un perfil para consultar sus eventos.") }
-                    snapshot.currentProfile.actor.role == LocalRole.SUPERVISOR -> item {
-                        Text("Perfil supervisor: la selección de eventos para capturar no está disponible. La supervisión se incorporará en otro incremento.")
+                    snapshot.currentProfile.actor.role == LocalRole.SUPERVISOR -> {
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                            ) {
+                                Text("2. Evento para supervisar", style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.semantics { heading() })
+                                FilledTonalButton(onClick = onCreateEvent, enabled = !state.busy) {
+                                    Text("Nuevo evento")
+                                }
+                            }
+                        }
+                        if (snapshot.availableEvents.isEmpty()) item {
+                            Text("No hay eventos configurados para tus sedes. Pulsa 'Nuevo evento' para crear uno.")
+                        }
+                        items(snapshot.availableEvents, key = { "event-${it.id}" }) { event ->
+                            ContextChoice(event.name, snapshot.selectedEvent?.id == event.id,
+                                enabled = !state.busy, onClick = { onEventSelected(event.id) })
+                        }
+                        snapshot.selectedEvent?.let { event -> item {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Evento en supervisión: ${event.name}.", style = MaterialTheme.typography.bodyMedium)
+                                Button(
+                                    onClick = onContinueToHub,
+                                    enabled = !state.busy,
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text("Ir al panel de supervisión")
+                                }
+                            }
+                        } }
                     }
                     else -> {
                         item { Text("2. Selecciona un evento", style = MaterialTheme.typography.titleLarge,
@@ -104,7 +138,16 @@ fun DemoContextScreen(
                                 enabled = !state.busy, onClick = { onEventSelected(event.id) })
                         }
                         snapshot.selectedEvent?.let { event -> item {
-                            Text("Contexto seleccionado: ${event.name}. El formulario se incorporará en el siguiente incremento.")
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Contexto seleccionado: ${event.name}.", style = MaterialTheme.typography.bodyMedium)
+                                Button(
+                                    onClick = onContinueToHub,
+                                    enabled = !state.busy,
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text("Ir al panel de captura")
+                                }
+                            }
                         } }
                     }
                 }
