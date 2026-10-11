@@ -1,36 +1,23 @@
-# Ronda 3 · RECORDS-01-C: Detalle y edición local de capturas (RF07)
+# Ronda 3 · RECORDS-01-C: detalle y edición local (RF07)
 
-Incremento local sobre la base de ronda 2 (`feature/e1-ronda3-record-detail`). Completa el ciclo funcional de gestión local de capturas exigido para la entrega E1 (P2/P3), permitiendo la inspección detallada de las fichas de prospectos y la edición controlada en Room cifrado sin alterar identificadores ni violar reglas de privacidad.
+Candidato técnico en `feature/e1-ronda3-record-detail`, sobre el incremento original 290e479 y las correcciones de alta/hub, registros y recursos nativos. Sin merge ni cierre de E1. RECORD_CONTRACTS y la auditoría Room v4 conservan su aceptación humana pendiente.
 
-## Alcance técnico implementado
+## Corrección preparada
 
-| Entregable | Responsabilidad e integración |
-|---|---|
-| **RECORDS-01-C (Lectura de Ficha)** | `RecordRepository.get(id)` delega de forma tipada en la consulta versionada de admisiones, recuperando `StoredAdmission` con validación de acceso por rol (`LocalCaptureAccess.canRead`). |
-| **RECORDS-01-C (Edición en Room)** | `RoomRecordRepository.edit(EditAdmission)` implementa la actualización transaccional de campos mutables (`email`, `phone`, `residenceCommune`, `establishment`, `notes`, etc.) mediante `CaptureDao.updateCapture`. Valida coincidencia de revisión (`expectedRevision`), prohíbe mutar el RUT en altas `READY`, exige motivo obligatorio (5–300 caracteres) a supervisores sobre registros no propios, e inserta auditoría local inmutable (`local_audit`). |
-| **UI Detalle (RF07)** | `RecordDetailDialog` en Compose. Ficha completa con datos personales, académicos, preferencias, 1–3 carreras priorizadas con mención, sedes de interés, consentimiento versionado, coordenadas/fuente de ubicación y rótulo explícito de transporte local (`NOT_QUEUED`). |
-| **UI Edición (RF07)** | Modo de edición integrado en `RecordDetailDialog` y orquestado por `RecordTrayViewModel`. Permite corregir datos de contacto o notas, y guarda los cambios reactivamente actualizando la bandeja y la revisión de la ficha. |
+- `get(id)` conserva lectura F2027 tipada y autorización; LEGACY se informa sin convertirlo a admisión.
+- `editContext(id)` prepara un contexto autorizado para el registro: su evento real, texto de consentimiento original, catálogo actual y snapshots seleccionados conservados. Devuelve Available, Unavailable o StorageUnavailable; no usa el evento seleccionado como si fuera el de la captura. Extensión técnica propuesta de RECORD_CONTRACTS, pendiente de aceptación.
+- `RecordDetailDialog` reutiliza el formulario F2027 para todos sus campos, carreras/prioridades/menciones y preferencias. No crea otra admisión: guarda mediante `RecordRepository.edit`, cuya transacción se corrigió en la rama de registros.
+- Borrador propio puede completarse y confirmar; NEEDS_CONTEXT puede adquirir/confirmar ubicación nueva para READY. El RUT activo permanece bloqueado, también para QR; consentimiento, propietario y contexto original no son editables. La ubicación original no se descarta accidentalmente al retirar una candidata nueva.
+- ViewModel retiene editor y motivos sólo en memoria, sin SavedState de datos personales. Campos/acciones y salida se bloquean durante commit. Cancelar el editor retira sus trabajos/listeners.
+- Invalid muestra los errores por campo y lleva al primer campo inválido; si es textual, solicita foco. Duplicados propios/restringidos y fallos de almacenamiento conservan lo escrito.
+- RevisionConflict conserva editor, motivo y revisión; no recarga ni sobreescribe silenciosamente. Reintento bloqueado hasta recarga explícita con confirmación de descarte. Atrás/salida en edición exige descarte explícito.
+- Bandeja conserva la paginación y las correcciones previas. El motivo de anulación también pertenece al ViewModel en el consumidor real, para retención durante recreación.
+- El detalle presenta los datos de forma desplazable y botones adaptables; alcance de transporte NOT_QUEUED, sin backend E2.
 
-## Reglas de negocio y privacidad preservadas
+## Verificación en curso
 
-1. **Inmutabilidad de la identidad y claves activas:**
-   - En una captura confirmada (`READY`), el RUT no puede ser modificado mediante edición para evitar inconsistencias con la reserva activa (`active_registration_keys`).
-   - Las capturas anuladas (`CANCELLED`) no admiten edición ni reactivación (`InvalidTransition`).
-2. **Aislamiento por rol:**
-   - El captador solo puede inspeccionar y editar sus propias capturas.
-   - El supervisor puede inspeccionar y editar capturas en sus sedes asignadas, pero no puede editar borradores ajenos ni modificar registros sin proporcionar un motivo auditable.
-3. **Auditoría local estricta:**
-   - Toda edición incrementa la revisión en +1 y genera un registro en `local_audit` indicando el actor, instante y acción (`EDITED` o `SUPERVISOR_EDITED`).
-4. **Transporte estrictamente local:**
-   - La ficha exhibe con claridad que el registro permanece en almacenamiento seguro del dispositivo con transporte `NOT_QUEUED`, sin anticipar sincronizaciones de backend en E1.
+La primera ejecución posterior a propagación detectó firmas DAO duplicadas de los incrementos originales y se resolvieron conservando una sola implementación. Build posterior correcto: 157 JVM (incluidas las doce originales de bandeja y seis regresiones nuevas de edición), APK principal/instrumental y Lint sin errores. Las modificaciones finales de catálogo/foco/restauración se incluyeron en un segundo build correcto de 157 JVM, ambas APK y Lint 0 errores/25 avisos. Las ejecuciones Xiaomi siguen pendientes; no se atribuye evidencia Android nueva a este checkpoint local.
 
-## Pruebas agregadas y verificadas
+Las seis regresiones de `RecordDetailStateTest` comprueban intención de confirmar el mismo ID, preservación ante conflicto/duplicado/error, guardado excluyente, identidad/consentimiento y cancelación de lectura/editor. Se agregan dos casos Room de contexto autorizado y tres recorridos `RecordDetailRoomUiTest` con repositorios reales/base cifrada test-detail-*; todavía pendientes de ejecución en este corte. No se borra la base instalada del usuario.
 
-- `RecordTrayViewModelTest`: 12 pruebas unitarias en JVM que verifican:
-  - Carga y filtrado de la bandeja.
-  - Apertura del diálogo de detalle cargando el `StoredAdmission` tipado.
-  - Cierre y descarte seguro del detalle en memoria.
-  - Activación y cancelación del modo de edición.
-  - Guardado exitoso de edición con actualización de revisión y mensaje accesible.
-  - Flujo de anulación con motivo y control de concurrencia/conflictos de revisión.
-- Verificación de esquema SQLite: Aprobados scripts `verify_migration_sql.py` y `verify_context_migration_sql.py`.
+Pendientes: controles finales y Xiaomi, giro físico de MainActivity, TalkBack/visual completa, aceptación cruzada de contrato/v4 y ensayo P3. El resultado del GPS corregido se registra en la rama nativa por separado. Ninguna prueba con doble equivale a comprobación física.

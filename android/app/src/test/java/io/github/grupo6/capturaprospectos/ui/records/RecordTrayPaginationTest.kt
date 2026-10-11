@@ -21,7 +21,8 @@ class RecordTrayPaginationTest {
         var listResult: suspend (RecordQuery) -> RecordPageResult = { RecordPageResult.Page(emptyList(), null) }
         var mutation: suspend () -> RecordMutationResult = { RecordMutationResult.StorageUnavailable }
         var cancellations = 0
-        override suspend fun list(query: RecordQuery): RecordPageResult { queries += query; return listResult(query) }
+        override suspend fun get(id: java.util.UUID): io.github.grupo6.capturaprospectos.domain.admission.ReadAdmissionResult = io.github.grupo6.capturaprospectos.domain.admission.ReadAdmissionResult.Unavailable
+            override suspend fun list(query: RecordQuery): RecordPageResult { queries += query; return listResult(query) }
         override suspend fun cancel(command: CancelRecord): RecordMutationResult { cancellations++; return mutation() }
         override suspend fun edit(command: EditAdmission) = RecordMutationResult.UnsupportedContract
     }
