@@ -10,6 +10,10 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
+import androidx.lifecycle.ViewModelStore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
 import org.junit.After
@@ -34,7 +38,14 @@ class AdmissionFormDeviceTest {
         sites
     )
 
-    private val fakeRepo = FakeAdmissionRepository()
+    private val fakeRepo = object : AdmissionRepository {
+        var calls = 0
+        override suspend fun create(request: NewAdmission): CreateAdmissionResult {
+            calls++
+            return CreateAdmissionResult.Saved(UUID(0, 30), 1, CaptureState.DRAFT)
+        }
+        override suspend fun get(id: UUID) = ReadAdmissionResult.Unavailable
+    }
 
     private fun vm(
         repo: AdmissionRepository? = fakeRepo,
@@ -60,7 +71,7 @@ class AdmissionFormDeviceTest {
     }
 
     @Test
-    fun requestLocationAppliesCandidateWhenValid() = runTest(dispatcher) {
+    fun requestLocationRequiresConfirmationForValidCandidate() = runTest(dispatcher) {
         val deviceLoc = CaptureLocation.Device(
             coordinates = eventCoords,
             measuredAt = now.minusSeconds(10),
@@ -74,8 +85,12 @@ class AdmissionFormDeviceTest {
 
         val state = vm.uiState.value
         assertFalse(state.isAcquiringLocation)
-        assertEquals(deviceLoc, state.location)
-        assertTrue(state.locationStatus!!.contains("Ubicación GPS confirmada"))
+        assertNull(state.location)
+        assertEquals(deviceLoc, state.locationCandidate)
+        vm.confirmDeviceLocation()
+        assertEquals(deviceLoc, vm.uiState.value.location)
+        assertNull(vm.uiState.value.locationCandidate)
+        assertTrue(vm.uiState.value.locationStatus!!.contains("Ubicación GPS confirmada"))
     }
 
     @Test
@@ -161,7 +176,8 @@ class AdmissionFormDeviceTest {
         assertFalse(finalState.isQrScannerOpen)
         assertNull(finalState.qrCandidate)
         assertEquals("12345678-5", finalState.input.rut)
-        assertEquals("Persona Ficticia Alfa", finalState.input.givenNames)
+        assertEquals("", finalState.input.givenNames)
+        assertEquals("", finalState.input.familyNames)
     }
 
     @Test
@@ -189,5 +205,78 @@ class AdmissionFormDeviceTest {
         assertFalse(vm.uiState.value.isQrScannerOpen)
         assertNull(vm.uiState.value.qrCandidate)
         assertEquals("", vm.uiState.value.input.rut)
+    }
+
+    @Test fun discardedAcquisitionCannotRestoreLocationAfterLateResult() = runTest(dispatcher) {
+        val result = CompletableDeferred<LocationResult>()
+        val vm = vm(locationProvider = LocationProvider { withContext(NonCancellable) { result.await() } })
+        val job = vm.requestLocation()!!; runCurrent()
+        vm.discard()
+        result.complete(LocationResult.Candidate(CaptureLocation.Device(eventCoords, now, 10.0)))
+        runCurrent(); job.join()
+        assertTrue(job.isCancelled)
+        assertEquals(AdmissionFormState(), vm.uiState.value)
+    }
+
+    @Test fun releasedOwnerRejectsLatePermissionAndScannerCallbacks() = runTest(dispatcher) {
+        val vm = vm(); val store = ViewModelStore()
+        store.put("form", vm)
+        vm.openQrScanner()
+        store.clear()
+        vm.openQrScanner(); vm.confirmEventLocation(); vm.text(AdmissionField.RUT, "11111111-1")
+        vm.processQrPayload("G6DEMO:1:{\"fullName\":\"Persona Ficticia Alfa\",\"rut\":\"12345678-5\"}")
+        assertNull(vm.requestLocation())
+        assertEquals(AdmissionFormState(), vm.uiState.value)
+    }
+
+    @Test fun poorOrOldCandidateDoesNotReplacePreviouslyConfirmedContext() = runTest(dispatcher) {
+        val vm = vm(); vm.confirmEventLocation()
+        val previous = vm.uiState.value.location
+        for (location in listOf(CaptureLocation.Device(eventCoords, now, 101.0),
+                CaptureLocation.Device(eventCoords, now.minusSeconds(301), 15.0),
+                CaptureLocation.Device(eventCoords, now.plusSeconds(1), 15.0))) {
+            vm.requestLocation(LocationProvider { LocationResult.Candidate(location) }); runCurrent()
+            assertEquals(previous, vm.uiState.value.location)
+            assertNull(vm.uiState.value.locationCandidate)
+        }
+        vm.requestLocation(LocationProvider { LocationResult.Candidate(CaptureLocation.Device(eventCoords, now, 15.0)) }); runCurrent()
+        vm.dismissLocationCandidate()
+        assertEquals(previous, vm.uiState.value.location)
+        assertNull(vm.uiState.value.locationCandidate)
+    }
+
+    @Test fun qrRequiresExplicitReplacementAndNeverSplitsFullName() = runTest(dispatcher) {
+        val vm = vm()
+        vm.text(AdmissionField.RUT, "11111111-1")
+        vm.text(AdmissionField.GIVEN_NAMES, "Nombres manuales")
+        vm.text(AdmissionField.FAMILY_NAMES, "Apellidos manuales")
+        vm.openQrScanner()
+        vm.processQrPayload("G6DEMO:1:{\"fullName\":\"Persona Ficticia Alfa\",\"rut\":\"12345678-5\"}")
+        vm.applyQrCandidate()
+        assertEquals("11111111-1", vm.uiState.value.input.rut)
+        assertTrue(vm.uiState.value.isQrScannerOpen)
+        vm.applyQrCandidate(replaceExistingRut = true)
+        assertEquals("12345678-5", vm.uiState.value.input.rut)
+        assertEquals("Nombres manuales", vm.uiState.value.input.givenNames)
+        assertEquals("Apellidos manuales", vm.uiState.value.input.familyNames)
+        val previous = vm.uiState.value
+        vm.processQrPayload("G6DEMO:1:{\"fullName\":\"Otro Ficticio\",\"rut\":\"11111111-1\"}")
+        assertEquals(previous, vm.uiState.value)
+    }
+
+    @Test fun acquisitionAndUnconfirmedLocationBlockSaveAndSavedDataBlocksDeviceCallbacks() = runTest(dispatcher) {
+        val result = CompletableDeferred<LocationResult>()
+        val vm = vm(locationProvider = LocationProvider { result.await() })
+        vm.mode(AcceptanceMode.DIRECT); vm.consent(true)
+        vm.requestLocation(); runCurrent()
+        assertNull(vm.save(SaveIntent.SAVE_DRAFT)); assertEquals(0, fakeRepo.calls)
+        result.complete(LocationResult.Candidate(CaptureLocation.Device(eventCoords, now, 15.0))); runCurrent()
+        assertNull(vm.save(SaveIntent.SAVE_DRAFT)); assertEquals(0, fakeRepo.calls)
+        vm.confirmDeviceLocation(); vm.save(SaveIntent.SAVE_DRAFT); runCurrent()
+        assertEquals(1, fakeRepo.calls)
+        val saved = vm.uiState.value
+        vm.openQrScanner(); vm.confirmEventLocation(); vm.clearLocation()
+        assertNull(vm.requestLocation())
+        assertEquals(saved, vm.uiState.value)
     }
 }

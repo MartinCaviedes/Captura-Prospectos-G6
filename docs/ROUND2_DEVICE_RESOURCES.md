@@ -1,47 +1,25 @@
-# Ronda 2 · DEVICE-01-B: Recursos nativos (GPS y Cámara)
+# Ronda 2 · recursos nativos corregidos
 
-Incremento local sobre la base de ronda 2 (`feature/e1-ronda2-device-resources`). Implementa los recursos nativos exigidos para la entrega E1 (P2/P3): proveedor de ubicación GPS nativo (`AndroidLocationProvider`), asistente de cámara y lectura de códigos QR sintéticos (`DemoQrParser`), e integración completa con el formulario de admisión y persistencia.
+Candidato en `feature/e1-ronda2-device-resources`, sobre 925810f con las correcciones de alta/hub y registros. La revisión encontró un escáner que sólo pegaba texto/fixtures y GPS aplicado automáticamente; este candidato corrige ambos. No acredita cierre E1 ni revisión humana.
 
-## Alcance técnico implementado
+## Cámara y QR
 
-| Entregable | Responsabilidad e integración |
-|---|---|
-| **GPS-01-A (RF04)** | `AndroidLocationProvider` mediante `LocationManager` del framework de Android. Verificación de permisos de tiempo de ejecución (`ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`), estado de proveedores satelitales/red, timeout de trabajo (10s) y cancelación reactiva inmediata sin fugas de listeners, sin caché arbitrario ni fallbacks implícitos. |
-| **POL-01-A (Ubicación)** | Aplicación de `LocationPolicy` (precisión <= 100 m, antigüedad <= 5 min, coordenadas válidas). Diferenciación estricta entre candidato GPS (`CaptureLocation.Device`) y confirmación explícita de ubicación de evento (`CaptureLocation.EventConfirmed`). |
-| **CAM-01-A (RF11)** | Asistente de lectura QR en interfaz Compose (`AdmissionFormComponents`). Integración con `DemoQrParser` para formato sintético `G6DEMO:1:{"fullName":"...","rut":"..."}`. Validación de formato, visualización de candidato reconocido y confirmación manual obligatoria antes de volcar al formulario. Cero almacenamiento de imágenes o payloads crudos. |
-| **FORM-01-C (Persistencia)** | Vinculación de ubicación en `AdmissionFormViewModel.save()`. Las admisiones completas con ubicación confirmada se registran en estado `READY`; las completas sin ubicación confirmada se guardan en estado `NEEDS_CONTEXT`; los borradores consentidos se guardan en `DRAFT`. |
-| **PERM-01-A (Manifiesto)** | Declaración en `AndroidManifest.xml` de permisos `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `CAMERA` y de features no obligatorias correspondientes. |
+CameraX enlaza Preview e ImageAnalysis al ciclo de vida. ML Kit decodifica sólo QR con modelo incluido en la APK; las imágenes se procesan en memoria, cada ImageProxy se cierra y el analizador/observador/scanner se liberan al salir. Los callbacks tardíos se ignoran. El permiso CAMERA se solicita al pulsar «Escanear código QR asistido», con denegación, explicación, reintento/ajustes e ingreso manual. No hay cuadro para pegar texto presentado como cámara.
 
-## Reglas de negocio y privacidad preservadas
+El payload se pasa transitoriamente a DemoQrParser: sólo G6DEMO:1 con fullName y rut, límites vigentes y sin URLs/cédula real/nacimiento. El candidato se muestra y el usuario confirma el RUT compatible; si ya escribió otro RUT, debe aceptar explícitamente su reemplazo. fullName no se divide ni se copia a givenNames; nombres/apellidos se completan manualmente. Cerrar conserva los campos escritos y elimina el candidato. No se guardan imágenes ni payloads crudos, ni se ejecutan URLs.
 
-1. **Sin inferencia ni fallbacks implícitos:** El GPS nunca infiere automáticamente la comuna de residencia o el establecimiento educativo del prospecto. La confirmación de las coordenadas de la sede del evento es una acción explícita del captador, nunca un sustituto silencioso de una falla de GPS.
-2. **Privacidad del código QR:** El asistente no ejecuta URLs, no abre navegadores ni envía datos a servicios externos. La cédula real no se procesa sin especificación autorizada; únicamente se acepta el formato sintético de prueba.
-3. **No persistencia de imágenes ni datos crudos:** La cámara no almacena fotografías en almacenamiento local ni temporal; el texto escaneado es efímero y se descarta si el usuario cancela o sale del diálogo.
-4. **Estados de captura acordes al contrato:**
-   - Captura completa + consentimiento + ubicación válida → `READY` (transporte `NOT_QUEUED`).
-   - Captura completa + consentimiento + sin ubicación → `NEEDS_CONTEXT` (transporte `NOT_QUEUED`).
-   - Borrador explícito + consentimiento → `DRAFT` (transporte `NOT_QUEUED`).
+Dependencias nuevas y fijas: CameraX camera2/lifecycle/view 1.5.3 y com.google.mlkit:barcode-scanning 17.3.0 (modelo incluido). Son necesarias para cámara real y lectura offline, compatibles con minSdk 26/compileSdk 37; no se actualizan las versiones existentes. Referencias primarias: [CameraX](https://developer.android.com/jetpack/androidx/releases/camera), [análisis de imágenes](https://developer.android.com/media/camera/camerax/analyze), [ML Kit Android](https://developers.google.com/ml-kit/vision/barcode-scanning/android). El manifiesto E1 retira INTERNET añadido por bibliotecas; la decodificación comprobada funciona sin ese permiso.
 
-## Pruebas agregadas
+## Ubicación y estado
 
-- `LocationPolicyTest` (9 pruebas JVM):
-  - Aceptación de posición GPS dentro de umbrales (15 m, antigüedad 10s).
-  - Rechazo de precisión insuficiente (> 100 m).
-  - Rechazo de posiciones antiguas (> 5 min) o en el futuro.
-  - Rechazo de coordenadas inválidas (fuera de rango latitud/longitud o NaN).
-  - Aceptación de confirmación de evento cuando coincide con la sede y actor declarados.
-  - Rechazo de confirmación de evento con coordenadas o actor no coincidentes.
-- `AndroidLocationProviderTest` (3 pruebas JVM):
-  - Exigencia de timeout estrictamente positivo.
-  - Detección de permisos denegados sin quiebre.
-  - Manejo de LocationManager no disponible.
-- `AdmissionFormDeviceTest` (9 pruebas JVM):
-  - Adquisición de GPS y aplicación de candidato validado según política.
-  - Manejo tipado de permisos denegados, servicios desactivados y timeout.
-  - Confirmación manual de ubicación del evento.
-  - Limpieza de ubicación asignada.
-  - Lectura de código QR sintético válido y precarga de nombres/RUT tras confirmación.
-  - Reporte de error ante código QR no compatible o JSON mal formado.
-  - Descarte del modal de escaneo sin alterar datos del formulario.
-- `LocationAndroidTest` (1 prueba instrumental Android):
-  - Inicialización y consulta segura de `AndroidLocationProvider` en entorno de dispositivo/emulador.
+Al pulsar «Adquirir GPS» se solicitan FINE y COARSE en contexto. Sin permisos se conserva la entrada y se explica la alternativa manual o confirmación del evento. LocationManager usa GPS sólo con permiso preciso; con permiso aproximado utiliza el proveedor de red, sin fingir precisión. ServicesDisabled, PermissionDenied, TimedOut y Unavailable se muestran como resultados distintos. Solicitud acotada a 10 s, listener retirado al cancelar y protección de la carrera cancelación/registro.
+
+LocationPolicy valida coordenadas, precisión <=100 m y edad <=5 min. Un candidato válido sigue sin aplicarse hasta confirmación explícita; al confirmar se revalida. Rechazarlo preserva ubicación anterior; mala precisión/antigüedad no la sustituye. Confirmar coordenadas del evento es otra acción explícita, sin deducir comuna/establecimiento ni inventar GPS. Guardar se bloquea durante adquisición, escaneo o candidato pendiente de confirmación. Descartar/reset/liberar el formulario cancela solicitudes y bloquea resultados/callbacks tardíos. Guardado en curso y alta ya confirmada no aceptan cambios nativos. El dueño retenido conserva memoria por perfil/evento, sin SavedState con datos personales.
+
+## Controles realizados y pendientes
+
+147 JVM aprobadas, ambas APK y Lint 24 avisos/0 errores. En Xiaomi Android 14/API 34: tres pruebas nativas/decoder y ocho UI por separado, con hashes APK coincidentes. Decoder real sobre dos bitmaps QR ficticios en androidTest/assets: candidato válido y URL rechazada. El test de proveedor nativo comprueba PermissionDenied con FINE/COARSE sin conceder; no se presenta ese resultado como GPS obtenido. UI: dos nuevos casos de confirmación/reemplazo y seis regresiones, con dobles y apertura asistida ADB. Las pruebas originales se conservan; las expectativas de aplicación automática/nombre se corrigen contra ROUND1_INTERFACES.
+
+Comprobación física pendiente en el Xiaomi (sólo datos ficticios): enfocar el QR de prueba con cámara, aceptar/rechazar CAMERA y salir/girar sin pérdida ni cámara activa; conceder ubicación aproximada/precisa y comprobar precisión/edad antes de confirmar; negar permanentemente y recuperar desde ajustes; servicios apagados, timeout y alternativa explícita del evento. No se ha realizado esa matriz ni se ha concedido ningún permiso durante estos tests. Giro real de MainActivity, recorrido UI+Room conjunto, TalkBack y revisión visual completa también pendientes.
+
+[Resultados separados](ANDROID_BASELINE.md), [fuentes/APK/suites](evidencias/device-correction-2026-10-10.json). La prueba cifrada de Room v4 es la del bloque previo, no una prueba nueva de captura nativa persistida. Sin backend, ACK, integración en develop ni aceptación humana/cierre de E1.

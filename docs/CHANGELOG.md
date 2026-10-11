@@ -1,5 +1,10 @@
 # Cambios del producto
 
+## Corrección R2 · recursos nativos — 10/10/2026
+
+Cámara real CameraX + lector QR offline incluido; permisos contextuales, RUT confirmado/reemplazo explícito y nombres manuales. GPS candidato requiere confirmación y las solicitudes/callbacks se cancelan al descartar/liberar. Corrección de acceso a doble privado en pruebas. 147 JVM, Lint 24 avisos/0 errores; Xiaomi tres decoder/proveedor y ocho UI con dobles por separado. [Comprobaciones físicas y límites](ROUND2_DEVICE_RESOURCES.md). Sin cierre E1.
+
+
 ## Corrección R2 · registros — 10/10/2026
 
 Edición transaccional efectiva y validación F2027; alcance uniforme por sede/rol, identidad/consentimiento preservados, revisión y duplicados. Auditoría candidata v4 con migración aditiva probada en SQLCipher. Bandeja con cursor consumido, lecturas obsoletas canceladas y anulación excluyente sin perder motivo. 121 JVM, Lint 20 avisos/0 errores; Xiaomi 37 cifradas y dos UI por separado. [Controles y pendientes](ROUND2_RECORDS_TRAY.md). Sin aceptación humana, merge ni cierre E1.
