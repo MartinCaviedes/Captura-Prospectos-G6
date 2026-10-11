@@ -1,5 +1,12 @@
 # Evidencia de la base Android
 
+## Corrección R2 · alta/hub — 10/10/2026
+
+Rama `feature/e1-ronda2-form-hub`, corrección sobre ef5a0f4. 109 JVM sin fallos/errores/omitidas; APK principal/instrumental y Lint correctos (20 avisos/0 errores). Ejecuciones nuevas en Xiaomi 11T Android 14/API 34: 27 de persistencia cifrada (29.645 s) y cuatro UI de formulario/Atrás (40.641 s), en grupos separados. UI asistida por ADB en MIUI; ninguna concesión de permisos ni limpieza de la base del usuario. Los cuatro casos UI usan estado/doble; no sustituyen un recorrido nuevo conjunto de alta con Room ni el giro real de MainActivity. Retención/cancelación/cierre están cubiertos con ViewModelStore en JVM.
+
+[Alcance y pendientes](ROUND2_FORM_HUB.md), [fuentes/APK/suites](evidencias/form-correction-2026-10-10.json), [runner UI](evidencias/android-form-correction-2026-10-10.txt). Sin aceptación humana ni cierre global E1; las secciones siguientes siguen siendo evidencia histórica por incremento.
+
+
 ## Revisión R0/R1 — 10/10/2026
 
 Sobre la base publicada 0f43a21, rama fix/e1-revision-rondas-0-1. Correcciones: escapes QR limitados a hexadecimal ASCII y prefijo +56 visible en formulario, con pegado de número completo sin duplicación y borrado a vacío. Sin cambios de Room v3, dependencias ni reglas de negocio.
