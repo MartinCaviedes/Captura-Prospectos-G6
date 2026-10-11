@@ -1,5 +1,21 @@
 # Cambios del producto
 
+## Corrección R2 · registros — 10/10/2026
+
+Edición transaccional efectiva y validación F2027; alcance uniforme por sede/rol, identidad/consentimiento preservados, revisión y duplicados. Auditoría candidata v4 con migración aditiva probada en SQLCipher. Bandeja con cursor consumido, lecturas obsoletas canceladas y anulación excluyente sin perder motivo. 121 JVM, Lint 20 avisos/0 errores; Xiaomi 37 cifradas y dos UI por separado. [Controles y pendientes](ROUND2_RECORDS_TRAY.md). Sin aceptación humana, merge ni cierre E1.
+
+
+## Corrección R2 · alta/hub — 10/10/2026
+
+Corrige compilación y el dueño del formulario: retención en memoria por contexto, liberación/cancelación antes de cerrar Room, Atrás con confirmación y guardado excluyente. Sin segunda alta implícita después de éxito ni llamada al repositorio sin consentimiento. Feedback por campo y filas adaptables. Controles/pendientes en [ROUND2_FORM_HUB](ROUND2_FORM_HUB.md); sin migración, backend, merge ni aceptación humana.
+
+
+## Ronda 2 — 10/10/2026
+
+RECORDS-01-B y bandeja de capturas locales (`feature/e1-ronda2-records-tray`). Implementación de `RoomRecordRepository` con soporte completo de filtros por rol (Captador ve sus registros; Supervisor ve sedes asignadas excluyendo borradores), texto, estado y paginación por cursor. Cancelación atómica con liberación de claves activas y auditoría local. Interfaz `RecordTrayScreen` y `RecordTrayViewModel` accesible desde el Hub principal con estado de sincronización local (`NOT_QUEUED`). 8 pruebas JVM en `RecordTrayViewModelTest`. Ver [ROUND2_RECORDS_TRAY](ROUND2_RECORDS_TRAY.md).
+
+FORM-01-B, navegación y Hub de conectividad (`feature/e1-ronda2-form-hub`). Integración de flujo completo en MainActivity: selector de contexto → Hub principal con estado de red nativo → formulario de admisión con guardado real en Room cifrado. Soporte de altas READY/DRAFT, detección de duplicados, retroalimentación accesible y 9 pruebas JVM nuevas en AdmissionFormSaveTest. Sin cambios de esquema ni backend. Ver [ROUND2_FORM_HUB](ROUND2_FORM_HUB.md).
+
 ## Rondas 0 y 1 — 09/10/2026
 
 Selector real, apertura cifrada y observador de red; formulario volátil, QR sintético y propuestas de interfaces GPS/registros. Sin cambios de esquema ni backend. [Evidencia](ANDROID_BASELINE.md), [base](ROUND0_BASE.md) e [interfaces](ROUND1_INTERFACES.md). Revisión humana pendiente.

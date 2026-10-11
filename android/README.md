@@ -1,6 +1,6 @@
 # Captura de Prospectos — Android
 
-Base R0/R1: selector de perfiles y eventos conectado a Room cifrado, observador de red y componentes del formulario F2027. El formulario todavía no se abre desde MainActivity ni guarda desde la UI. Cámara/GPS reales, bandeja y edición/anulación corresponden a los próximos incrementos.
+Rama R2 alta/hub: selector de perfiles/eventos → panel con red real → formulario F2027 conectado a AdmissionRepository/Room cifrado. Formulario retenido en memoria por contexto, Atrás con confirmación y guardado excluyente. Esta rama también incorpora la bandeja paginada, anulación y repositorio de edición con auditoría candidata v4. Cámara/GPS y UI de detalle siguen en sus ramas dependientes. Ver [registros y controles](../docs/ROUND2_RECORDS_TRAY.md). Ver [alcance y controles R2](../docs/ROUND2_FORM_HUB.md); no acredita cierre de E1.
 
 Consultar [R0](../docs/ROUND0_BASE.md), [R1](../docs/ROUND1_INTERFACES.md) y [evidencia de pruebas](../docs/ANDROID_BASELINE.md).
 
@@ -55,7 +55,7 @@ La evidencia más reciente se obtuvo en grupos separados: 28 pruebas de datos/re
 
 Nuevas altas: `domain.admission` → `AdmissionRepository` / `RoomAdmissionRepository`. `PrepareAdmission` prepara una entrada; el repositorio valida autorización/consentimiento y confirma guardado tras commit. El contrato antiguo `domain.capture` se conserva para compatibilidad; no convertir altas F2027 a `CaptureInput`.
 
-Room v3 conserva esquemas 1/2/3 y migraciones 1→2→3. No inventa nombres separados, nacimiento, prioridades ni sedes para registros antiguos. La clave SQLCipher se protege con Keystore; fallo de clave no borra la base. No usar migración destructiva.
+Room v4 conserva esquemas 1/2/3/4 y migraciones 1→2→3→4. La migración aditiva de auditoría conserva todos los datos v3 y deja NULL los atributos históricos desconocidos. No inventa nombres separados, nacimiento, prioridades ni sedes para registros antiguos. La clave SQLCipher se protege con Keystore; fallo de clave no borra la base. No usar migración destructiva.
 
 `RoomDemoContextRepository.initialize()` siembra perfiles/eventos/catálogo explícitamente, sin prospectos ni selección automática. El botón «Preparar demo local» del selector invoca esta inicialización. Ver [DEMO_CONTEXT](../docs/DEMO_CONTEXT.md) para el consumidor y sus estados.
 
@@ -68,4 +68,4 @@ python tools/verify_context_migration_sql.py
 
 Ambos controles pasaron en SQLite del host; no sustituyen Room/SQLCipher/Keystore en Android.
 
-Faltan conectar el formulario al guardado y completar bandeja, edición/anulación, cámara/GPS, administración, métricas y revisión cruzada. Backup/transferencia están excluidos por configuración, pendientes de prueba efectiva. El APK debug no acredita release firmado ni RF completos. No guardar secretos, datos reales, build, cachés, local.properties o claves en Git.
+Alta y bandeja están conectadas; el repositorio implementa edición/anulación. Faltan corregir/verificar UI de detalle, cámara/GPS, administración, métricas y revisión cruzada. Backup/transferencia están excluidos por configuración, pendientes de prueba efectiva. El APK debug no acredita release firmado ni RF completos. No guardar secretos, datos reales, build, cachés, local.properties o claves en Git.

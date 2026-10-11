@@ -16,7 +16,7 @@ internal class EncryptedDatabase private constructor(val database: CaptureDataba
                 System.loadLibrary("sqlcipher")
                 database = Room.databaseBuilder(appContext, CaptureDatabase::class.java, name)
                     .openHelperFactory(SupportOpenHelperFactory(password))
-                    .addMigrations(CaptureMigration1To2, CaptureMigration2To3)
+                    .addMigrations(CaptureMigration1To2, CaptureMigration2To3, CaptureMigration3To4)
                     .build()
                 // Fuerza apertura ahora: no devolver éxito cuando aún no se comprobó la clave.
                 database.openHelper.writableDatabase

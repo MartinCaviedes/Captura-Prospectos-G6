@@ -1,5 +1,23 @@
 # Evidencia de la base Android
 
+## Corrección R2 · registros — 10/10/2026
+
+Rama `feature/e1-ronda2-records-tray`, sobre 08df94f e incorporando la corrección de alta/hub 0fc8b41. **121 JVM sin fallos/errores/omitidas**, APK principal/instrumental correctos y **Lint 20 avisos/0 errores**. Nuevas ejecuciones en Xiaomi 11T Android 14/API 34: **37 pruebas cifradas** (48.262 s), incluidas diez nuevas de registros/migración y 27 de regresión; **dos UI** (16.334 s), por separado y con apertura asistida ADB en MIUI. Se usan bases test-* y datos ficticios, sin borrar la base del usuario ni conceder permisos peligrosos. Ambas APK instaladas coinciden por SHA256 con el build.
+
+La suite de datos verifica permisos por sede/rol, paginación real de 120 registros con timestamps empatados, normalización de búsqueda, edición válida/inválida, borrador→NEEDS_CONTEXT→READY, identidad y consentimiento inmutables, duplicados, revisión concurrente, motivo, rollback y migración cifrada v3→v4. La UI verifica carga de siguiente página y bloqueo de anulación/Atrás con conservación del motivo al fallar. Usa un doble: no acredita un recorrido UI+Room conjunto. Las ocho pruebas JVM originales de bandeja se conservan y cuatro nuevas cubren cursor/lecturas obsoletas/mutación excluyente.
+
+[Alcance](ROUND2_RECORDS_TRAY.md), [fuentes/APK/suites](evidencias/records-correction-2026-10-10.json), [runner cifrado](evidencias/android-records-data-2026-10-10.txt), [runner UI](evidencias/android-records-ui-2026-10-10.txt). El primer intento UI falló porque la aserción inspeccionaba el texto hijo sin la semántica del botón; corregido el selector, los dos casos pasaron manteniendo la comprobación. Los scripts SQLite del host de migraciones 1→2→3 también pasaron; no sustituyen la nueva prueba cifrada 3→4.
+
+Room v4 es el candidato de auditoría de esta rama. La aceptación humana de RECORD_CONTRACTS, giro real, TalkBack/visual completa, detalle editable en su rama dependiente y recursos cámara/GPS siguen pendientes. Sin backend, merge ni cierre de E1.
+
+
+## Corrección R2 · alta/hub — 10/10/2026
+
+Rama `feature/e1-ronda2-form-hub`, corrección sobre ef5a0f4. 109 JVM sin fallos/errores/omitidas; APK principal/instrumental y Lint correctos (20 avisos/0 errores). Ejecuciones nuevas en Xiaomi 11T Android 14/API 34: 27 de persistencia cifrada (29.645 s) y cuatro UI de formulario/Atrás (40.641 s), en grupos separados. UI asistida por ADB en MIUI; ninguna concesión de permisos ni limpieza de la base del usuario. Los cuatro casos UI usan estado/doble; no sustituyen un recorrido nuevo conjunto de alta con Room ni el giro real de MainActivity. Retención/cancelación/cierre están cubiertos con ViewModelStore en JVM.
+
+[Alcance y pendientes](ROUND2_FORM_HUB.md), [fuentes/APK/suites](evidencias/form-correction-2026-10-10.json), [runner UI](evidencias/android-form-correction-2026-10-10.txt). Sin aceptación humana ni cierre global E1; las secciones siguientes siguen siendo evidencia histórica por incremento.
+
+
 ## Revisión R0/R1 — 10/10/2026
 
 Sobre la base publicada 0f43a21, rama fix/e1-revision-rondas-0-1. Correcciones: escapes QR limitados a hexadecimal ASCII y prefijo +56 visible en formulario, con pegado de número completo sin duplicación y borrado a vacío. Sin cambios de Room v3, dependencias ni reglas de negocio.
