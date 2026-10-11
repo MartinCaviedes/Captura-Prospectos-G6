@@ -35,7 +35,10 @@ class FormActions(
     val openQrScanner: (() -> Unit)? = null,
     val closeQrScanner: (() -> Unit)? = null,
     val processQrPayload: ((String) -> Unit)? = null,
-    val applyQrCandidate: (() -> Unit)? = null,
+    val applyQrCandidate: ((Boolean) -> Unit)? = null,
+    val cameraUnavailable: (() -> Unit)? = null,
+    val confirmDeviceLocation: (() -> Unit)? = null,
+    val dismissLocationCandidate: (() -> Unit)? = null,
     val dismissQrError: (() -> Unit)? = null,
 )
 
@@ -47,19 +50,24 @@ class FormActions(
     onNavigateBack: () -> Unit = {},
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
-    AdmissionFormComponents(state, vm.environment, vm.suggestion, remember(vm, onNavigateBack) {
+    val requestLocation = rememberDevicePermissionAction(camera = false) { vm.requestLocation() }
+    val openCamera = rememberDevicePermissionAction(camera = true) { vm.openQrScanner() }
+    AdmissionFormComponents(state, vm.environment, vm.suggestion, remember(vm, onNavigateBack, requestLocation, openCamera) {
         FormActions(
             vm::text, vm::activity, vm::confirmActivityDiscard, vm::acceptEstablishmentSuggestion,
             vm::personal, vm::schedule, vm::interestLevel, vm::motivation, vm::program, vm::moveProgram,
             vm::mention, vm::site, vm::mode, vm::consent, vm::validate, vm::discard,
             save = vm::save, reset = vm::reset, onBack = onNavigateBack,
-            requestLocation = { vm.requestLocation() },
+            requestLocation = requestLocation,
             confirmEventLocation = vm::confirmEventLocation,
             clearLocation = vm::clearLocation,
-            openQrScanner = vm::openQrScanner,
+            openQrScanner = openCamera,
             closeQrScanner = vm::closeQrScanner,
             processQrPayload = vm::processQrPayload,
             applyQrCandidate = vm::applyQrCandidate,
+            cameraUnavailable = vm::cameraUnavailable,
+            confirmDeviceLocation = vm::confirmDeviceLocation,
+            dismissLocationCandidate = vm::dismissLocationCandidate,
             dismissQrError = vm::dismissQrError,
         )
     }, modifier)
@@ -89,78 +97,12 @@ class FormActions(
         confirmButton = { TextButton(enabled = !state.isSaving, onClick = { actions.discard(); search = ""; confirmDiscard = false; actions.onBack?.invoke() }) { Text("Descartar datos") } },
         dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text("Seguir editando") } })
 
-    // Modal de asistencia por cámara y lectura de QR sintético (RF11)
-    if (state.isQrScannerOpen) {
-        var testPayload by remember { mutableStateOf("") }
-        AlertDialog(
-            onDismissRequest = { actions.closeQrScanner?.invoke() },
-            title = { Text("Lectura de código QR") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(
-                        "Enfoca un código QR de formato sintético G6DEMO:1. Los campos reconocidos requieren tu confirmación antes de rellenar el formulario.",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-
-                    if (state.qrCandidate != null) {
-                        Card(
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text("Candidato reconocido:", style = MaterialTheme.typography.titleSmall)
-                                Text("Nombre: ${state.qrCandidate.fullName}", style = MaterialTheme.typography.bodyMedium)
-                                Text("RUT: ${state.qrCandidate.rut}", style = MaterialTheme.typography.bodyMedium)
-                                Text("Confirma para cargar al formulario sin alterar campos manuales.", style = MaterialTheme.typography.bodySmall)
-                            }
-                        }
-                    }
-
-                    if (state.qrError != null) {
-                        Text(state.qrError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
-                    }
-
-                    OutlinedTextField(
-                        value = testPayload,
-                        onValueChange = { testPayload = it },
-                        label = { Text("Contenido del código QR") },
-                        placeholder = { Text("G6DEMO:1:{\"fullName\":\"Persona Ficticia Alfa\",\"rut\":\"12345678-5\"}") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                    )
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(
-                            onClick = { actions.processQrPayload?.invoke(testPayload) },
-                            enabled = testPayload.isNotBlank(),
-                        ) {
-                            Text("Procesar QR")
-                        }
-                        OutlinedButton(
-                            onClick = {
-                                testPayload = "G6DEMO:1:{\"fullName\":\"Persona Ficticia Alfa\",\"rut\":\"12345678-5\"}"
-                                actions.processQrPayload?.invoke(testPayload)
-                            },
-                        ) {
-                            Text("Cargar fixture")
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                if (state.qrCandidate != null) {
-                    Button(onClick = { actions.applyQrCandidate?.invoke() }) {
-                        Text("Aplicar al formulario")
-                    }
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { actions.closeQrScanner?.invoke() }) {
-                    Text("Cerrar")
-                }
-            },
-        )
-    }
+    if (state.isQrScannerOpen) QrCameraDialog(state,
+        onPayload = { actions.processQrPayload?.invoke(it) },
+        onUnavailable = { actions.cameraUnavailable?.invoke() },
+        onApply = { actions.applyQrCandidate?.invoke(it) },
+        onRetry = { actions.dismissQrError?.invoke() },
+        onClose = { actions.closeQrScanner?.invoke() })
 
     LazyColumn(modifier, contentPadding = PaddingValues(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item {
@@ -182,6 +124,7 @@ class FormActions(
                     )
                     Button(
                         onClick = { actions.openQrScanner?.invoke() },
+                        enabled = !state.isSaving && !state.isSaved && !state.isAcquiringLocation && state.locationCandidate == null,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text("Escanear código QR asistido")
@@ -238,14 +181,14 @@ class FormActions(
         item { Text("Modalidad y canal de contacto se habilitarán cuando exista un catálogo definido.") }
         item { FormText("Notas (opcional, máximo 500; no amplían la motivación)", AdmissionField.NOTES, input.notes.orEmpty(), state, actions) }
 
-        // Ubicación de captura (RF04)
+        // Ubicación de captura
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             ) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("Ubicación de captura (RF04)", style = MaterialTheme.typography.titleMedium)
+                    Text("Ubicación de captura", style = MaterialTheme.typography.titleMedium)
                     val loc = state.location
                     when (loc) {
                         is CaptureLocation.Device -> {
@@ -254,7 +197,7 @@ class FormActions(
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.primary,
                             )
-                            OutlinedButton(onClick = { actions.clearLocation?.invoke() }) {
+                            OutlinedButton(enabled = !state.isSaving && !state.isSaved, onClick = { actions.clearLocation?.invoke() }) {
                                 Text("Quitar ubicación")
                             }
                         }
@@ -264,7 +207,7 @@ class FormActions(
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.primary,
                             )
-                            OutlinedButton(onClick = { actions.clearLocation?.invoke() }) {
+                            OutlinedButton(enabled = !state.isSaving && !state.isSaved, onClick = { actions.clearLocation?.invoke() }) {
                                 Text("Quitar ubicación")
                             }
                         }
@@ -276,6 +219,13 @@ class FormActions(
                         }
                     }
 
+                    state.locationCandidate?.let { candidate ->
+                        Text("Ubicación candidata: precisión ${candidate.accuracyMeters.toInt()} m. Confirma para utilizarla.")
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(onClick = { actions.confirmDeviceLocation?.invoke() }) { Text("Confirmar GPS candidato") }
+                            OutlinedButton(onClick = { actions.dismissLocationCandidate?.invoke() }) { Text("Descartar candidata") }
+                        }
+                    }
                     if (state.isAcquiringLocation) {
                         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                         Text("Adquiriendo señal GPS (máximo 10s)…", style = MaterialTheme.typography.bodySmall)
@@ -285,16 +235,16 @@ class FormActions(
                         Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
                     }
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(
                             onClick = { actions.requestLocation?.invoke() },
-                            enabled = !state.isAcquiringLocation,
+                            enabled = !state.isAcquiringLocation && !state.isSaving && !state.isSaved && state.locationCandidate == null,
                         ) {
                             Text("Adquirir GPS")
                         }
                         OutlinedButton(
                             onClick = { actions.confirmEventLocation?.invoke() },
-                            enabled = !state.isAcquiringLocation && environment.context.event.location != null,
+                            enabled = !state.isAcquiringLocation && !state.isSaving && !state.isSaved && environment.context.event.location != null,
                         ) {
                             Text("Confirmar evento")
                         }
@@ -352,14 +302,14 @@ class FormActions(
                 if (actions.save != null) {
                     Button(
                         onClick = { actions.save.invoke(SaveIntent.CONFIRM_REGISTRATION) },
-                        enabled = !state.isSaving,
+                        enabled = !state.isSaving && !state.isAcquiringLocation && state.locationCandidate == null && !state.isQrScannerOpen,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text("Guardar inscripción")
                     }
                     OutlinedButton(
                         onClick = { actions.save.invoke(SaveIntent.SAVE_DRAFT) },
-                        enabled = !state.isSaving,
+                        enabled = !state.isSaving && !state.isAcquiringLocation && state.locationCandidate == null && !state.isQrScannerOpen,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text("Guardar borrador")

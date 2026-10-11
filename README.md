@@ -41,7 +41,7 @@ La división mantiene los requisitos finales y los controles de calidad. E1 corr
 
 **Base local en desarrollo, actualizada al 10/10/2026.**
 
-Están implementados el dominio de captura F2027, las altas y lectura de detalle en Room cifrado, las migraciones conservadoras y el contexto/catálogo sintético persistido. La app abre un selector de perfiles/eventos conectado a Room. También están preparados el observador real de conectividad, el formulario volátil conectado al alta desde el panel, el parser QR sintético y las interfaces de GPS/registros. En esta rama están corregidos alta/hub y bandeja, con edición/anulación transaccional y auditoría candidata v4. La UI de detalle, cámara/GPS, métricas y administración se revisan en sus ramas dependientes. Los recorridos completos y la aceptación humana siguen pendientes. El backend se desarrollará en E2.
+Están implementados el dominio de captura F2027, las altas y lectura de detalle en Room cifrado, las migraciones conservadoras y el contexto/catálogo sintético persistido. La app abre un selector de perfiles/eventos conectado a Room. También están preparados el observador real de conectividad, el formulario volátil conectado al alta desde el panel, el parser QR sintético y las interfaces de GPS/registros. En esta rama están corregidos alta/hub y bandeja, con edición/anulación transaccional y auditoría candidata v4. Esta rama conecta cámara QR real y permisos/confirmación de ubicación; lectura física y permisos completos siguen pendientes de comprobación. UI de detalle, métricas y administración se revisan en sus ramas dependientes. Los recorridos completos y la aceptación humana siguen pendientes. El backend se desarrollará en E2.
 
 La revisión histórica R0/R1 del 10/10 registra **97 pruebas JVM aprobadas**, build correcto y Lint sin errores. Dos pruebas de formulario pasaron en Android 14/API 34, en tema claro normal y oscuro con letra al 150 %, con apertura asistida en MIUI. La evidencia anterior conserva las pruebas separadas de persistencia, selector y conectividad. No acredita recorridos pendientes ni accesibilidad completa; ningún RF semestral está cerrado. Consulta [la evidencia técnica](docs/ANDROID_BASELINE.md) para resultados y límites.
 
@@ -49,11 +49,13 @@ La corrección R2 alta/hub registra **109 JVM**, Lint 0 errores/20 avisos, 27 pr
 
 La corrección R2 de registros registra **121 JVM**, Lint 0 errores/20 avisos, 37 pruebas cifradas y dos UI aprobadas en Xiaomi en grupos separados. [Alcance y límites](docs/ROUND2_RECORDS_TRAY.md).
 
+La corrección nativa registra **147 JVM**, Lint 0 errores/24 avisos, tres pruebas de decoder/proveedor y ocho UI aprobadas en Xiaomi. El decoder usa bitmaps y la UI dobles; cámara física, permisos y adquisición GPS aún requieren comprobación. [Alcance y límites](docs/ROUND2_DEVICE_RESOURCES.md).
+
 El desarrollo y la demostración usan únicamente datos ficticios. Los perfiles demo permiten probar el alcance funcional local; la autenticación real pertenece a E2.
 
 ## 🚀 Ejecutar y explorar
 
-Al ejecutar esta versión se verá el selector demo. «Preparar demo local» crea explícitamente perfiles, eventos y catálogo ficticios; después se puede seleccionar perfil/evento y salir de la selección. Abrir la app no selecciona respuestas ni crea prospectos. Tras seleccionar perfil captador y evento se abre el panel; «Nueva Captura de Prospecto» abre el formulario. Al volver al selector con contexto activo, «Ir al panel de captura» retorna al panel. El consentimiento precede al guardado local explícito; el resultado puede ser DRAFT, NEEDS_CONTEXT o READY según el contrato. Cámara/GPS se conectarán en su incremento. La red no implica envío remoto.
+Al ejecutar esta versión se verá el selector demo. «Preparar demo local» crea explícitamente perfiles, eventos y catálogo ficticios; después se puede seleccionar perfil/evento y salir de la selección. Abrir la app no selecciona respuestas ni crea prospectos. Tras seleccionar perfil captador y evento se abre el panel; «Nueva Captura de Prospecto» abre el formulario. Al volver al selector con contexto activo, «Ir al panel de captura» retorna al panel. El consentimiento precede al guardado local explícito; el resultado puede ser DRAFT, NEEDS_CONTEXT o READY según el contrato. La cámara solicita permiso para QR ficticio y confirma sólo RUT; nombres/apellidos se completan manualmente. La ubicación requiere permiso y confirmación del candidato o del evento. La red no implica envío remoto.
 
 Abrir `android/` en Android Studio y seleccionar `demoDebug`. La [guía Android](android/README.md) describe el JDK/SDK, las versiones fijadas y los comandos para construir y probar esta base. No se necesita infraestructura de nube para el build local.
 

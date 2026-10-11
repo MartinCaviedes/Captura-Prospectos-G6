@@ -1,6 +1,12 @@
 # Cambios del producto
 
 ## Ronda 3 â€” 10/10/2026
+## Corrección R2 · recursos nativos — 10/10/2026
+
+Cámara real CameraX + lector QR offline incluido; permisos contextuales, RUT confirmado/reemplazo explícito y nombres manuales. GPS candidato requiere confirmación y las solicitudes/callbacks se cancelan al descartar/liberar. Corrección de acceso a doble privado en pruebas. 147 JVM, Lint 24 avisos/0 errores; Xiaomi tres decoder/proveedor y ocho UI con dobles por separado. [Comprobaciones físicas y límites](ROUND2_DEVICE_RESOURCES.md). Sin cierre E1.
+
+
+## Corrección R2 · registros — 10/10/2026
 
 RECORDS-01-C: Detalle y ediciÃ³n local de capturas (`feature/e1-ronda3-record-detail`). Ficha completa interactiva en Compose (`RecordDetailDialog`) con visualizaciÃ³n de todos los campos F2027, carreras priorizadas, consentimiento versionado, estado de transporte local (`NOT_QUEUED`) y ubicaciÃ³n. EdiciÃ³n controlada en Room cifrado mediante `RoomRecordRepository.edit` y `CaptureDao.updateCapture` con verificaciÃ³n de revisiones, auditorÃ­a local y validaciÃ³n de motivos en supervisiÃ³n. 12 pruebas unitarias en `RecordTrayViewModelTest`. Ver [ROUND3_RECORD_DETAIL](ROUND3_RECORD_DETAIL.md).
 ## CorrecciÃ³n R2 Â· registros â€” 10/10/2026

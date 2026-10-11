@@ -87,7 +87,8 @@ class AndroidLocationProvider(
 
         return try {
             val result = withTimeoutOrNull(timeout.toMillis()) {
-                acquireSingleLocation(manager, isGpsEnabled, isNetworkEnabled)
+                // GPS exige FINE; COARSE utiliza únicamente el proveedor de red.
+                acquireSingleLocation(manager, hasFine && isGpsEnabled, isNetworkEnabled)
             }
             result ?: LocationResult.TimedOut
         } catch (e: CancellationException) {
@@ -121,7 +122,7 @@ class AndroidLocationProvider(
                     } catch (_: Exception) {}
 
                     val coords = Coordinates(loc.latitude, loc.longitude)
-                    if (coords.isValid() && loc.accuracy.isFinite() && loc.accuracy >= 0f) {
+                    if (loc.hasAccuracy() && coords.isValid() && loc.accuracy.isFinite() && loc.accuracy >= 0f) {
                         val deviceLoc = CaptureLocation.Device(
                             coordinates = coords,
                             measuredAt = Instant.ofEpochMilli(loc.time),
@@ -161,6 +162,8 @@ class AndroidLocationProvider(
                 listener,
                 Looper.getMainLooper(),
             )
+            // La cancelación puede ocurrir entre instalar el handler y registrar el listener.
+            if (!continuation.isActive) manager.removeUpdates(listener)
         } catch (_: SecurityException) {
             continuation.resume(LocationResult.PermissionDenied)
         } catch (_: Exception) {
