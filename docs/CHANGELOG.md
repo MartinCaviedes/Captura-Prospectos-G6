@@ -1,6 +1,12 @@
 # Cambios del producto
 
 ## Ronda 3 â€” 10/10/2026
+## Corrección R2 · recursos nativos — 10/10/2026
+
+Cámara real CameraX + lector QR offline incluido; permisos contextuales, RUT confirmado/reemplazo explícito y nombres manuales. GPS candidato requiere confirmación y las solicitudes/callbacks se cancelan al descartar/liberar. Corrección de acceso a doble privado en pruebas. 147 JVM, Lint 24 avisos/0 errores; Xiaomi tres decoder/proveedor y ocho UI con dobles por separado. [Comprobaciones físicas y límites](ROUND2_DEVICE_RESOURCES.md). Sin cierre E1.
+
+
+## Corrección R2 · registros — 10/10/2026
 
 RNF02 y certificación de línea base E1 (`feature/e1-ronda3-dataset-400-baseline`). Validación técnica de capacidad y rendimiento mediante inserción masiva y consultas de 400 registros sintéticos completos F2027 en SQLite (`verify_dataset_400_sql.py`) y pruebas JVM (`StressDataset400Test.kt`). p95 de 0.083 ms (<150 ms objetivo del SRS), consultas métricas <0.3 ms y 0 errores de integridad referencial. Actualización de `ANDROID_BASELINE.md` y `ENTREGAS.md` certificando el cumplimiento del 100% de los requisitos del alcance local para E1. Ver [ROUND3_DATASET_400](ROUND3_DATASET_400.md).
 
