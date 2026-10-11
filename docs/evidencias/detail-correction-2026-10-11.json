@@ -1,0 +1,50 @@
+{
+  "jvm": {
+    "tests": 165,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "Error": 0,
+    "Warning": 25
+  },
+  "apks": {
+    "outputs/apk/demo/debug/app-demo-debug.apk": "7d9eedaa832b8ee9ce5722a0589f5f0cd2d7965e2e8805ba2dd2c93dd796fc10",
+    "outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk": "1fec2345b4d2ebb499a11c0daffa004d67acdf22452acee902f82ad4c58af1c3"
+  },
+  "date": "2026-10-11",
+  "base": "ef940a4",
+  "limits": [
+    "Room v4/RECORD_CONTRACTS candidatos; aceptación humana pendiente.",
+    "Giro real de MainActivity, TalkBack/visual completa y ensayo P3 pendientes.",
+    "La prueba cifrada de datos terminó durante el corte; el build UI final sólo cambia feedback/selectores y conserva ese repositorio.",
+    "Sin cambios en la base instalada del usuario; bases de prueba test-*."
+  ],
+  "android": {
+    "data": {
+      "passed": 39,
+      "seconds": 49.303,
+      "assisted_launch": false,
+      "build": "ef940a4"
+    },
+    "ui": {
+      "passed": 11,
+      "seconds": 107.106,
+      "assisted_launch": true,
+      "build": "final working tree"
+    }
+  },
+  "data_apks": {
+    "outputs/apk/demo/debug/app-demo-debug.apk": "54454fdcd6b723f02a3988236c137243fe51c345362e6886f14647a435f85b10",
+    "outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk": "44d65e49d78476c408829e61b346975b82504324298f66fd873fc78e31e8e3c0"
+  },
+  "sources_sha256": {
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/records/RecordTrayViewModel.kt": "6d9b4db6295ef699282d3814b850874cacd3ae18e78b6fe728cf608358832cf7",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/records/RecordTrayScreen.kt": "d7773d32e7c27418a7065f7be38e33a2cdcec66838cfedfd298af4c14f3c5c97",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/records/RecordDetailDialog.kt": "769a9839f4d6b66d84ef635bffae2b8c69ea0e7d52c233c35a44883212b3b868",
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/data/local/RoomRecordRepository.kt": "dd3a55d57e9d4301324b112a2ee1ed5450f09249a96318d306d201d285ed1e69",
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/records/RecordDetailRoomUiTest.kt": "7e4f4f939c595e69bb9fe285448aeb0898bca2f823ac85719edb02391c153ef1",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/ui/records/RecordDetailStateTest.kt": "7200d86fe93d2bf6480cbcb979bbf25b0c31d1fea07c31fb64cabf36aac7c02a"
+  }
+}
