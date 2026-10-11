@@ -1,6 +1,6 @@
 # Captura de Prospectos — Android
 
-Base R0/R1: selector de perfiles y eventos conectado a Room cifrado, observador de red y componentes del formulario F2027. El formulario todavía no se abre desde MainActivity ni guarda desde la UI. Cámara/GPS reales, bandeja y edición/anulación corresponden a los próximos incrementos.
+Rama R2 alta/hub: selector de perfiles/eventos → panel con red real → formulario F2027 conectado a AdmissionRepository/Room cifrado. Formulario retenido en memoria por contexto, Atrás con confirmación y guardado excluyente. Cámara/GPS, bandeja y edición/anulación siguen en ramas dependientes pendientes de corrección/verificación. Ver [alcance y controles R2](../docs/ROUND2_FORM_HUB.md); no acredita cierre de E1.
 
 Consultar [R0](../docs/ROUND0_BASE.md), [R1](../docs/ROUND1_INTERFACES.md) y [evidencia de pruebas](../docs/ANDROID_BASELINE.md).
 
