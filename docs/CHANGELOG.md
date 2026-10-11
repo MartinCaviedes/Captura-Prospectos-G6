@@ -1,5 +1,10 @@
 # Cambios del producto
 
+## Corrección R2 · alta/hub — 10/10/2026
+
+Corrige compilación y el dueño del formulario: retención en memoria por contexto, liberación/cancelación antes de cerrar Room, Atrás con confirmación y guardado excluyente. Sin segunda alta implícita después de éxito ni llamada al repositorio sin consentimiento. Feedback por campo y filas adaptables. Controles/pendientes en [ROUND2_FORM_HUB](ROUND2_FORM_HUB.md); sin migración, backend, merge ni aceptación humana.
+
+
 ## Ronda 2 — 10/10/2026
 
 FORM-01-B, navegación y Hub de conectividad (`feature/e1-ronda2-form-hub`). Integración de flujo completo en MainActivity: selector de contexto → Hub principal con estado de red nativo → formulario de admisión con guardado real en Room cifrado. Soporte de altas READY/DRAFT, detección de duplicados, retroalimentación accesible y 9 pruebas JVM nuevas en AdmissionFormSaveTest. Sin cambios de esquema ni backend. Ver [ROUND2_FORM_HUB](ROUND2_FORM_HUB.md).
