@@ -1,6 +1,6 @@
 # Captura de Prospectos — Android
 
-Rama R2 alta/hub: selector de perfiles/eventos → panel con red real → formulario F2027 conectado a AdmissionRepository/Room cifrado. Formulario retenido en memoria por contexto, Atrás con confirmación y guardado excluyente. Esta rama también incorpora la bandeja paginada, anulación y repositorio de edición con auditoría candidata v4. Esta rama conecta cámara QR real y permisos/confirmación de ubicación; quedan su comprobación física y UI de detalle. Ver [controles/pendientes nativos](../docs/ROUND2_DEVICE_RESOURCES.md). Ver [registros y controles](../docs/ROUND2_RECORDS_TRAY.md). Ver [alcance y controles R2](../docs/ROUND2_FORM_HUB.md); no acredita cierre de E1.
+Rama acumulada E1: selector demo → panel/red real → alta F2027 consentida y Room cifrado; bandeja/cursor, detalle/edición/anulación, cámara QR sintética y GPS confirmado, métricas locales por período y administración de eventos. Auditoría v4 candidata con migración aditiva. Cámara/QR y GPS físicos comprobados por el usuario en el incremento nativo; permisos restantes, giro real, TalkBack/visual, portal cautivo, aceptación contractual y revisión cruzada pendientes. No acredita cierre E1. [Dataset real y controles acumulados](../docs/ROUND3_DATASET_400.md).
 
 Consultar [R0](../docs/ROUND0_BASE.md), [R1](../docs/ROUND1_INTERFACES.md) y [evidencia de pruebas](../docs/ANDROID_BASELINE.md).
 

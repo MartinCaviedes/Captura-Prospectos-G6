@@ -1,6 +1,6 @@
 # Alcance y aceptación por entrega
 
-Actualización 10/10/2026: Alcance local completo de E1 implementado y verificado. Incluye conexión de altas F2027 a Room cifrado, bandeja de registros con filtrado por rol y cancelación atómica, detalle y edición de fichas (RF07), GPS nativo (AndroidLocationProvider), asistente QR sintético (DemoQrParser), detección reactiva de red, resumen operativo local (RF09), panel de supervisión (RF10), administración local de eventos (RF13) y validación de estrés con 400 registros (RNF02). Sin backend, sin WorkManager y con transporte estrictamente NOT_QUEUED. E2 continúa pendiente para integración remota y sincronización.
+Actualización 11/10/2026: candidato local con las correcciones de las rondas preparadas y verificaciones identificadas en ANDROID_BASELINE. Se retiró la afirmación anterior de alcance E1 completamente verificado: SQLite del host no acreditaba rendimiento Android. Hay ahora un ensayo real de 400 en Room cifrado, sin que ello cierre E1/RF ni sustituya accesibilidad, permisos adversos, revisión cruzada y aceptación de contratos. Sin backend/WorkManager/ACK; transporte NOT_QUEUED. El alcance y criterios siguientes se conservan.
 
 02/10/2026. Distribución de trabajo adoptada por instrucción de Martín: mantener el nivel del producto y progresarlo en dos entregas. No equivale a aprobación adicional del docente/cliente. El SRS define el comportamiento final; este documento determina cuándo se implementa y qué evidencia permite cerrar cada incremento. Los RF no se eliminan ni renumeran.
 

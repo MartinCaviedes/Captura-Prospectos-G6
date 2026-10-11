@@ -1,28 +1,21 @@
-# Ronda 3 · Capacidad y Rendimiento con Dataset de 400 Registros (RNF02)
+# Ronda 3 · Capacidad de 400 capturas y medición local
 
-Incremento de certificación técnica sobre la base de ronda 3 (`feature/e1-ronda3-dataset-400-baseline`). Acredita formalmente el cumplimiento del requisito no funcional **RNF02** (*Capacidad y rendimiento: dataset mínimo 400 capturas/dispositivo; meta PT p95 <150 ms para transacción local sin bloquear UI*) para el cierre definitivo del hito **E1** (P2/P3).
+Candidato de corrección sobre el original 882dfb8 y las seis correcciones precedentes. La afirmación original de certificación total E1 basada en SQLite host/JVM era mayor que su evidencia; se retira. Sin merge, aceptación humana ni cierre RF. Se mantiene E1/E2 del SRS y ENTREGAS.
 
-## Alcance técnico implementado y verificado
+## Comprobación acumulada y dataset real · 11/10/2026
 
-| Entregable | Responsabilidad y evidencia |
-|---|---|
-| **Herramienta de Benchmark (`verify_dataset_400_sql.py`)** | Script en Python 3 que replica exactamente el esquema SQLite de Room v3 con claves foráneas activadas (`PRAGMA foreign_keys=ON`). Genera e inserta 400 fichas F2027 completas con distribución de estados (`READY`, `DRAFT`, `NEEDS_CONTEXT`, `CANCELLED`), intereses académicos (`capture_interests`), claves activas (`active_registration_keys`) y registros de auditoría inmutable (`local_audit`). Mide latencias individuales por transacción y ejecuta consultas de prueba. |
-| **Prueba de Estrés JVM (`StressDataset400Test.kt`)** | Suite unitaria en JVM que valida matemáticamente la capacidad de la capa de datos para gestionar 400 registros simultáneos: verificación de distribución proporcional, paginación por cursor en bloques de 20 registros sin solapamiento ni omisiones, filtrado por estado y aislamiento de datos por roles (`CAPTOR` vs `SUPERVISOR`) a escala. |
-| **Certificación de la Línea Base E1** | Actualización de `docs/ANDROID_BASELINE.md` y `docs/ENTREGAS.md` certificando que el 100% de los requisitos locales de E1 (RF01, RF02, RF04, RF05, RF06, RF07, RF08, RF09, RF10, RF11, RF12, RF13 y RNF02) se encuentran implementados y probados. |
+187 JVM, cero fallos/errores/omitidas; ambas APK y Lint 0 errores/25 avisos. Xiaomi 11T Android 14/API 34: **51 de datos/nativos (93.926 s)** y **22 UI (180.681 s)** en grupos separados; apertura asistida MIUI en UI. Mismas APK verificadas por SHA256, identificadas con fuentes y runners en [evidencia](evidencias/dataset-correction-2026-10-11.json). Las 51 incluyen 48 cifradas (el ensayo nuevo de 400 y 47 regresiones) y tres decoder/proveedor. Las 22 reúnen selector/contexto, formulario/dispositivo, bandeja/detalle, métricas y administración. No se suman ejecuciones históricas como si fueran una suite actual.
 
-## Resultados del Benchmark RNF02 (Host SQLite)
+Dataset400StorageTest creó 400 admisiones mediante AdmissionRepository y anuló 40 mediante RecordRepository, sobre contexto sintético seleccionado y SQLCipher/Room v4 reales. Estados finales: READY 260, NEEDS_CONTEXT 60, DRAFT 40, CANCELLED 40; 600 intereses, 320 claves activas y 440 auditorías. Reapertura conserva filas/claves/auditoría; encabezado cifrado e integridad FK comprobados. Cada captador recupera 200 filas mediante cursor real sin repetición/omisión; supervisor 360, sin borradores ajenos. Por evento: 160 inscripciones activas, 160 personas y conteos de programas 160/80; consulta fuera de alcance denegada.
 
-- **Total de registros insertados:** 400 capturas completas F2027 + 400 intereses + 320 claves activas + 400 registros de auditoría.
-- **Tiempo total de inserción:** 21.14 ms (0.053 ms promedio por transacción).
-- **Percentil 50 (p50):** 0.038 ms
-- **Percentil 95 (p95):** 0.083 ms *(Meta del SRS: <150 ms -> Holgura superior al 99.9%)*
-- **Percentil 99 (p99):** 0.115 ms
-- **Latencia máxima:** 0.142 ms
-- **Consulta de Métricas por Captador (RF09):** 0.128 ms
-- **Consulta de Métricas por Sede Supervisor (RF10):** 0.172 ms
-- **Consulta Bandeja Paginada (20 items ordenados con búsqueda):** 0.149 ms
-- **Verificación de integridad referencial (`PRAGMA foreign_key_check`):** 0 errores.
+Latencia de llamada completa al repositorio (incluye validación, contexto, dispatcher y transacción; excluye inicialización, selección de contexto y GPS/red), elapsedRealtimeNanos y percentiles nearest-rank: altas n=400 p95 **114.626 ms**, anulaciones n=40 p95 **100.073 ms**, conjunto n=440 p95 **113.457 ms**. Altas p99 153.829 ms y máximo 195.897 ms. Meta PT p95 <150 ms observada en este ensayo debug; no significa que toda llamada dure menos de 150 ms. Sin perfilado de frames, no acredita ausencia de jank ni fugas de memoria.
 
-## Conclusión
+StressDataset400Test comprueba distribución y aislamiento con LocalCaptureAccess, incluyendo realmente 50 borradores ajenos en su fixture específico de 350 visibles. Sus lotes en memoria no prueban un cursor ni rendimiento. verify_dataset_400_sql.py usa esquema v4, UUID/RUT/enums coherentes y verifica estructura/FK/conteos/cursor del host; no mide ni certifica Android.
 
-El motor SQLite y el diseño de índices y transacciones atómicas de Room v3 demuestran capacidad sobrada para soportar jornadas operativas masivas en terreno sin saturar los recursos del dispositivo móvil ni degradar la experiencia de usuario.
+Consultas completas observadas: paginar las 200 filas de captador A 652.249 ms y B 557.665 ms (siete llamadas por captador); métricas A 126.099 ms y B 158.650 ms (una muestra por evento). No son percentiles ni la latencia de una página. Se conservan las agregaciones Kotlin sobre consultas Room autorizadas; no se afirma optimización SQL adicional.
+
+## Reproducir
+
+Desde android ejecutar las tareas configuradas testDemoDebugUnitTest, assembleDemoDebug, lintDemoDebug y assembleDemoDebugAndroidTest según README. Instalar ambas APK identificadas y ejecutar AndroidJUnitRunner con la clase io.github.grupo6.capturaprospectos.data.local.Dataset400StorageTest. El runner emite G6_DATASET400_RESULT como JSON, sin datos personales ni identificador ADB. El test sólo crea y limpia bases test-dataset400-* y sus claves, preservando la base de la app. python tools/verify_dataset_400_sql.py ejecuta el control estructural independiente del host.
+
+Pendientes: revisión cruzada de otro integrante, aceptación específica RECORD_CONTRACTS/auditoría v4, giro real de MainActivity, TalkBack/visual completa, permisos restantes/cámara y GPS adversos, portal cautivo, ensayo de defensa P3 y matriz de dispositivos. La lectura física QR y adquisición/confirmación/descarte GPS reportadas por Martín pertenecen al incremento nativo, no a esta prueba con coordenadas ficticias. Backend/auth/sincronización y consolidación remota siguen en E2.

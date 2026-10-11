@@ -1,0 +1,1 @@
+{"captor_cursor_rows": 200, "control": "host SQLite v4 structural smoke only", "counts": {"active_registration_keys": 320, "capture_interests": 600, "captures": 400, "local_audit": 440}, "foreign_key_errors": 0, "states": {"CANCELLED": 40, "DRAFT": 40, "NEEDS_CONTEXT": 60, "READY": 260}}

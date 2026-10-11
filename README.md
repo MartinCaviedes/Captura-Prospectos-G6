@@ -39,7 +39,7 @@ La división mantiene los requisitos finales y los controles de calidad. E1 corr
 
 ## 🚧 Estado actual
 
-**Base local en desarrollo, actualizada al 10/10/2026.**
+**Candidato local E1, corregido y comprobado al 11/10/2026; aceptación humana pendiente.**
 
 Están implementados el dominio de captura F2027, las altas y lectura de detalle en Room cifrado, las migraciones conservadoras y el contexto/catálogo sintético persistido. La app abre un selector de perfiles/eventos conectado a Room. También están preparados el observador real de conectividad, el formulario volátil conectado al alta desde el panel, el parser QR sintético y las interfaces de GPS/registros. En esta rama están corregidos alta/hub y bandeja, con edición/anulación transaccional y auditoría candidata v4. Esta rama conecta cámara QR real y permisos/confirmación de ubicación; el usuario comprobó lectura física del QR y adquisición/confirmación/descarte de ubicación; los restantes recorridos de permisos siguen pendientes. Esta rama corrige la edición completa y conflictos del detalle. Esta rama corrige métricas locales y el acceso de supervisión; administración de eventos se corrige y verifica en esta rama. Los recorridos completos y la aceptación humana siguen pendientes. El backend se desarrollará en E2.
 
@@ -112,3 +112,5 @@ Para comprender el proyecto, comienza por esta portada y Entregas. Para programa
 Grupo 6: [Martín Caviedes](https://github.com/MartinCaviedes), [Jeremy Hanglin](https://github.com/JeremyDylan122) y [Sebastián Diaz](https://github.com/Sebastianidm). Proyecto académico para el caso Duoc UC, con supervisión externa reportada de THERIONLABS.
 
 Administración: 185 JVM, 47 cifradas y 11 UI separadas en Xiaomi. [Alcance y pendientes](docs/ROUND3_EVENT_ADMIN.md).
+
+La comprobación acumulada registra 187 JVM, Lint 0 errores/25 avisos, 51 de datos/nativos y 22 UI separados en Xiaomi. El ensayo de 400 usa repositorios reales y Room cifrado. [Método, mediciones y pendientes](docs/ROUND3_DATASET_400.md).

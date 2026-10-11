@@ -1,7 +1,9 @@
 package io.github.grupo6.capturaprospectos.data.local
 
 import io.github.grupo6.capturaprospectos.domain.capture.CaptureState
-import io.github.grupo6.capturaprospectos.domain.records.RecordTrayFilter
+import io.github.grupo6.capturaprospectos.domain.capture.LocalActor
+import io.github.grupo6.capturaprospectos.domain.capture.LocalRole
+import io.github.grupo6.capturaprospectos.domain.capture.LocalCaptureAccess
 import java.time.Instant
 import java.util.UUID
 import org.junit.Assert.*
@@ -24,7 +26,7 @@ class StressDataset400Test {
     private val ownerId = UUID.randomUUID()
 
     @Test
-    fun generates400RecordsAndValidatesCapacityUnderRnf02() {
+    fun fixtureHas400RowsAndExpectedStateDistribution() {
         val records = (0 until 400).map { i ->
             val state = when (i % 20) {
                 0, 1 -> CaptureState.CANCELLED
@@ -57,7 +59,7 @@ class StressDataset400Test {
         assertEquals(40, cancelledCount)
         assertEquals(400, readyCount + draftCount + needsContextCount + cancelledCount)
 
-        // Simulación de paginación por cursor en memoria (lotes de 20)
+        // Agrupación del fixture: no prueba el cursor Room ni el rendimiento Android.
         val pageSize = 20
         val pages = records.chunked(pageSize)
         assertEquals(20, pages.size)
@@ -82,22 +84,24 @@ class StressDataset400Test {
                 ownerId = if (i % 2 == 0) ownerId else otherOwnerId,
                 siteId = siteId,
                 eventId = eventId,
-                state = if (i % 4 == 0) CaptureState.DRAFT else CaptureState.READY,
+                state = if (i % 4 == 0 || i % 8 == 1) CaptureState.DRAFT else CaptureState.READY,
                 fullName = "Prospecto $i",
                 capturedAt = Instant.now().minusSeconds(i.toLong()),
             )
         }
 
         // Filtro captador: sólo sus propios registros
-        val captorView = mixedRecords.filter { it.ownerId == ownerId }
+        val captor = LocalActor(ownerId, LocalRole.CAPTOR, setOf(siteId))
+        val captorView = mixedRecords.filter { LocalCaptureAccess.canRead(captor,it.ownerId,it.siteId,it.state) }
         assertEquals(200, captorView.size)
 
         // Filtro supervisor: ve todos los de la sede EXCLUYENDO borradores ajenos
-        val supervisorView = mixedRecords.filter {
-            it.siteId == siteId && (it.ownerId == ownerId || it.state != CaptureState.DRAFT)
-        }
-        // En registros de otherOwnerId (200), los DRAFT son 200/4 = 50.
+        val supervisor = captor.copy(role = LocalRole.SUPERVISOR)
+        val supervisorView = mixedRecords.filter { LocalCaptureAccess.canRead(supervisor,it.ownerId,it.siteId,it.state) }
+        // i % 8 == 1 aporta 50 borradores ajenos; i % 4 == 0 aporta 100 propios.
         // Quedan 200 (propios) + 150 (ajenos confirmados) = 350
         assertEquals(350, supervisorView.size)
+        assertEquals(50, mixedRecords.count { it.ownerId == otherOwnerId && it.state == CaptureState.DRAFT })
+        assertTrue(mixedRecords.none { LocalCaptureAccess.canRead(supervisor.copy(siteIds = emptySet()),it.ownerId,it.siteId,it.state) })
     }
 }

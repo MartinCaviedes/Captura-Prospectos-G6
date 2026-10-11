@@ -1,5 +1,16 @@
 # Cambios del producto
 
+## Comprobación acumulada y dataset real · 11/10/2026
+
+187 JVM, cero fallos/errores/omitidas; ambas APK y Lint 0 errores/25 avisos. Xiaomi 11T Android 14/API 34: **51 de datos/nativos (93.926 s)** y **22 UI (180.681 s)** en grupos separados; apertura asistida MIUI en UI. Mismas APK verificadas por SHA256, identificadas con fuentes y runners en [evidencia](evidencias/dataset-correction-2026-10-11.json). Las 51 incluyen 48 cifradas (el ensayo nuevo de 400 y 47 regresiones) y tres decoder/proveedor. Las 22 reúnen selector/contexto, formulario/dispositivo, bandeja/detalle, métricas y administración. No se suman ejecuciones históricas como si fueran una suite actual.
+
+Dataset400StorageTest creó 400 admisiones mediante AdmissionRepository y anuló 40 mediante RecordRepository, sobre contexto sintético seleccionado y SQLCipher/Room v4 reales. Estados finales: READY 260, NEEDS_CONTEXT 60, DRAFT 40, CANCELLED 40; 600 intereses, 320 claves activas y 440 auditorías. Reapertura conserva filas/claves/auditoría; encabezado cifrado e integridad FK comprobados. Cada captador recupera 200 filas mediante cursor real sin repetición/omisión; supervisor 360, sin borradores ajenos. Por evento: 160 inscripciones activas, 160 personas y conteos de programas 160/80; consulta fuera de alcance denegada.
+
+Latencia de llamada completa al repositorio (incluye validación, contexto, dispatcher y transacción; excluye inicialización, selección de contexto y GPS/red), elapsedRealtimeNanos y percentiles nearest-rank: altas n=400 p95 **114.626 ms**, anulaciones n=40 p95 **100.073 ms**, conjunto n=440 p95 **113.457 ms**. Altas p99 153.829 ms y máximo 195.897 ms. Meta PT p95 <150 ms observada en este ensayo debug; no significa que toda llamada dure menos de 150 ms. Sin perfilado de frames, no acredita ausencia de jank ni fugas de memoria.
+
+StressDataset400Test comprueba distribución y aislamiento con LocalCaptureAccess, incluyendo realmente 50 borradores ajenos en su fixture específico de 350 visibles. Sus lotes en memoria no prueban un cursor ni rendimiento. verify_dataset_400_sql.py usa esquema v4, UUID/RUT/enums coherentes y verifica estructura/FK/conteos/cursor del host; no mide ni certifica Android.
+
+
 ## Corrección y comprobación de administración · 11/10/2026
 
 185 JVM, ambas APK, Lint 0 errores/25 avisos. Xiaomi 11T Android 14/API 34: 47 cifradas (60.545 s) y 11 UI (76.858 s), en grupos separados y con apertura asistida MIUI en UI. Cuatro nuevas de almacenamiento verifican autorización de origen/destino/captadores, preservación histórica, rollback y revocación de asignación. Dos nuevas UI prueban edición desde el hub, fechas multidía explícitas, metadatos, validación y confirmación de descarte. Cuatro nuevas JVM prueban preparación y dos estado/bloqueo de guardado; se conservan las pruebas originales. [Evidencia y APK](evidencias/events-correction-2026-10-11.json).
@@ -32,7 +43,7 @@ Cámara real CameraX + lector QR offline incluido; permisos contextuales, RUT co
 
 ## Corrección R2 · registros — 10/10/2026
 
-RNF02 y certificación de línea base E1 (`feature/e1-ronda3-dataset-400-baseline`). Validación técnica de capacidad y rendimiento mediante inserción masiva y consultas de 400 registros sintéticos completos F2027 en SQLite (`verify_dataset_400_sql.py`) y pruebas JVM (`StressDataset400Test.kt`). p95 de 0.083 ms (<150 ms objetivo del SRS), consultas métricas <0.3 ms y 0 errores de integridad referencial. Actualización de `ANDROID_BASELINE.md` y `ENTREGAS.md` certificando el cumplimiento del 100% de los requisitos del alcance local para E1. Ver [ROUND3_DATASET_400](ROUND3_DATASET_400.md).
+Incremento original de dataset 400: añadió control host SQLite y fixture JVM. Su afirmación de certificación total de E1 y extrapolación del p95 host a Android se retiraron en la corrección del 11/10. El fixture no incluía los borradores ajenos esperados. Ver [método y evidencia corregidos](ROUND3_DATASET_400.md); el historial Git conserva el texto anterior.
 
 RF13: Administración local de eventos y asignaciones (`feature/e1-ronda3-event-admin`). Interfaz y lógica para supervisores de sedes autorizadas para crear y editar eventos sintéticos (`SaveDemoEvent`, `EventAdminDialog`), duración simple o multidía (8h / 48h), colegio anfitrión y asignación múltiple de captadores de terreno. Autorización de acceso `LocalCaptureAccess.canSupervise` y `canAccessEvent`. Transacción Room atómica en `ContextDao` y `RoomDemoContextRepository.saveEvent` que actualiza `demo_events` y reasigna `demo_assignments` sin alterar capturas históricas ni violar restricciones de integridad referencial. Pruebas JVM en `EventAdminTest`, `LocalCaptureAccessTest` y `DemoContextViewModelTest`. Ver [ROUND3_EVENT_ADMIN](ROUND3_EVENT_ADMIN.md).
 
