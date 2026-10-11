@@ -87,9 +87,6 @@ internal interface CaptureDao {
     @Query("DELETE FROM active_registration_keys WHERE captureId = :captureId") fun deleteKey(captureId: String): Int
     @Query("UPDATE captures SET state = :state, revision = :newRevision WHERE id = :id AND revision = :expectedRevision")
     fun updateState(id: String, state: String, newRevision: Long, expectedRevision: Long): Int
-    @Update fun updateCapture(row: CaptureRow): Int
-    @Query("DELETE FROM capture_interests WHERE captureId = :captureId") fun deleteInterests(captureId: String): Int
-    @Query("DELETE FROM capture_site_preferences WHERE captureId = :captureId") fun deleteSites(captureId: String): Int
     @Query("SELECT * FROM captures WHERE ownerId = :ownerId ORDER BY capturedAt DESC, id DESC")
     fun capturesByOwner(ownerId: String): List<CaptureRow>
     @Query("SELECT * FROM captures WHERE siteId IN (:siteIds) AND state != 'DRAFT' ORDER BY capturedAt DESC, id DESC")

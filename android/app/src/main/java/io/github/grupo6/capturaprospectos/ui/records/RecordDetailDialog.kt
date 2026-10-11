@@ -5,148 +5,57 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import io.github.grupo6.capturaprospectos.domain.admission.AdmissionInput
 import io.github.grupo6.capturaprospectos.domain.admission.StoredAdmission
-import io.github.grupo6.capturaprospectos.domain.capture.AcceptanceMode
-import io.github.grupo6.capturaprospectos.domain.capture.CaptureLocation
-import io.github.grupo6.capturaprospectos.domain.capture.CaptureState
+import io.github.grupo6.capturaprospectos.domain.capture.*
+import io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormRoute
 
+/** La ficha conserva lectura; la edición usa el mismo formulario F2027 y estado retenido. */
 @Composable
 fun RecordDetailDialog(
     admission: StoredAdmission,
-    isEditing: Boolean,
-    isSaving: Boolean,
+    state: RecordTrayUiState,
     onClose: () -> Unit,
     onStartEdit: () -> Unit,
     onCancelEdit: () -> Unit,
-    onSaveEdit: (AdmissionInput, String?) -> Unit,
+    onSaveEditor: (SaveIntent) -> Unit,
+    onEditReason: (String) -> Unit,
+    onReload: () -> Unit,
     onCancelRecord: () -> Unit,
 ) {
-    var emailInput by remember(admission.id, isEditing) { mutableStateOf(admission.input.email) }
-    var phoneInput by remember(admission.id, isEditing) { mutableStateOf(admission.input.phone) }
-    var residenceInput by remember(admission.id, isEditing) { mutableStateOf(admission.input.residenceCommune) }
-    var establishmentInput by remember(admission.id, isEditing) { mutableStateOf(admission.input.establishment.orEmpty()) }
-    var notesInput by remember(admission.id, isEditing) { mutableStateOf(admission.input.notes.orEmpty()) }
-    var reasonInput by remember(admission.id, isEditing) { mutableStateOf("") }
-
-    Dialog(
-        onDismissRequest = onClose,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(0.95f)
-                .fillMaxHeight(0.92f),
-            shape = MaterialTheme.shapes.large,
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp,
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-            ) {
-                // Encabezado
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = admission.fullNameSnapshot,
-                            style = MaterialTheme.typography.headlineSmall,
-                        )
-                        Text(
-                            text = "RUT: ${admission.input.rut} · Rev #${admission.revision}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+    Dialog(onDismissRequest = { if (!state.isMutating) onClose() },
+        properties = DialogProperties(usePlatformDefaultWidth = false,
+            dismissOnBackPress = !state.isMutating, dismissOnClickOutside = !state.isMutating)) {
+        Surface(Modifier.fillMaxWidth(0.95f).fillMaxHeight(0.95f), shape = MaterialTheme.shapes.large) {
+            Column(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Ficha · Rev #${admission.revision}", style = MaterialTheme.typography.titleMedium)
+                StateBadge(admission.state)
+                Text("Transporte local: ${admission.transportState.name} · Sin envío remoto en E1")
+                state.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                if (state.isEditing) {
+                    OutlinedTextField(state.editReason, onEditReason,
+                        label = { Text("Motivo (5–300 caracteres; obligatorio al editar un registro ajeno)") },
+                        enabled = !state.isMutating, modifier = Modifier.fillMaxWidth())
+                    if (state.editConflict) OutlinedButton(onClick = onReload, enabled = !state.isMutating) {
+                        Text("Recargar ficha y descartar cambios…")
                     }
-                    StateBadge(admission.state)
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Banner de estado de transporte local
-                Surface(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = MaterialTheme.shapes.small,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(
-                        text = "Transporte: Local en este dispositivo (${admission.transportState.name}) · Sin envío remoto en E1",
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Contenido desplazable
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    if (isEditing) {
-                        Text("Edición controlada de la ficha", style = MaterialTheme.typography.titleMedium)
-                        Text(
-                            "Puedes modificar datos de contacto y establecimiento. El RUT y el consentimiento original permanecen inmutables.",
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-
-                        OutlinedTextField(
-                            value = emailInput,
-                            onValueChange = { emailInput = it },
-                            label = { Text("Correo electrónico") },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-
-                        OutlinedTextField(
-                            value = phoneInput,
-                            onValueChange = { phoneInput = it },
-                            label = { Text("Teléfono (+56)") },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-
-                        OutlinedTextField(
-                            value = residenceInput,
-                            onValueChange = { residenceInput = it },
-                            label = { Text("Comuna de residencia") },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-
-                        OutlinedTextField(
-                            value = establishmentInput,
-                            onValueChange = { establishmentInput = it },
-                            label = { Text("Establecimiento") },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-
-                        OutlinedTextField(
-                            value = notesInput,
-                            onValueChange = { notesInput = it },
-                            label = { Text("Notas") },
-                            modifier = Modifier.fillMaxWidth(),
-                            maxLines = 3,
-                        )
-
-                        OutlinedTextField(
-                            value = reasonInput,
-                            onValueChange = { reasonInput = it },
-                            label = { Text("Motivo de edición (opcional si es propio, 5-300 si supervisor)") },
-                            modifier = Modifier.fillMaxWidth(),
-                            maxLines = 3,
-                        )
-                    } else {
+                    val editor = state.editForm
+                    if (editor != null) AdmissionFormRoute(editor, Modifier.weight(1f).fillMaxWidth(),
+                        onNavigateBack = onCancelEdit, onSaveEdit = onSaveEditor, canSaveEdit = !state.editConflict)
+                    else {
+                        if (state.isReadingDetail) LinearProgressIndicator(Modifier.fillMaxWidth())
+                        TextButton(onClick = onCancelEdit, enabled = !state.isMutating) { Text("Volver a la ficha") }
+                    }
+                } else {
+                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        DetailItem("Nombre", admission.fullNameSnapshot)
+                        DetailItem("RUT", admission.input.rut)
+                        DetailItem("Evento", admission.eventName)
+                        DetailItem("Capturado en", admission.capturedAt.toString())
                         // Vista Detallada de Campos
                         SectionHeader("Datos de Contacto y Personales")
                         DetailItem("Correo", admission.input.email)
@@ -231,51 +140,11 @@ fun RecordDetailDialog(
                         DetailItem("Aceptado en", admission.consent.acceptedAt.toString())
                         DetailItem("Registrado por Actor ID", admission.consent.recordedBy.toString())
                     }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Botones de acción inferiores
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    if (isEditing) {
-                        TextButton(onClick = onCancelEdit, enabled = !isSaving) {
-                            Text("Cancelar edición")
-                        }
-                        Button(
-                            onClick = {
-                                val updatedInput = admission.input.copy(
-                                    email = emailInput.trim(),
-                                    phone = phoneInput.trim(),
-                                    residenceCommune = residenceInput.trim(),
-                                    establishment = establishmentInput.trim().ifBlank { null },
-                                    notes = notesInput.trim().ifBlank { null },
-                                )
-                                onSaveEdit(updatedInput, reasonInput.trim().ifBlank { null })
-                            },
-                            enabled = !isSaving,
-                        ) {
-                            Text(if (isSaving) "Guardando…" else "Guardar cambios")
-                        }
-                    } else {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = onClose) {
-                                Text("Volver a bandeja")
-                            }
-                            if (admission.state != CaptureState.CANCELLED) {
-                                TextButton(onClick = onCancelRecord) {
-                                    Text("Anular", color = MaterialTheme.colorScheme.error)
-                                }
-                            }
-                        }
-
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = onClose, enabled = !state.isMutating) { Text("Volver a bandeja") }
                         if (admission.state != CaptureState.CANCELLED) {
-                            Button(onClick = onStartEdit) {
-                                Text("Editar ficha")
-                            }
+                            TextButton(onClick = onCancelRecord, enabled = !state.isMutating) { Text("Anular") }
+                            Button(onClick = onStartEdit, enabled = !state.isMutating && !state.isReadingDetail) { Text("Editar ficha") }
                         }
                     }
                 }
@@ -283,7 +152,6 @@ fun RecordDetailDialog(
         }
     }
 }
-
 @Composable
 private fun SectionHeader(title: String) {
     Text(
@@ -296,11 +164,8 @@ private fun SectionHeader(title: String) {
 
 @Composable
 private fun DetailItem(label: String, value: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Column(Modifier.fillMaxWidth()) {
+        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(value, style = MaterialTheme.typography.bodyMedium)
     }
 }

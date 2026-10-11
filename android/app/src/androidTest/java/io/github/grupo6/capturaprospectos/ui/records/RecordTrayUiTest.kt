@@ -26,7 +26,8 @@ class RecordTrayUiTest {
     private fun start() {
         compose.runOnIdle {
             vm = RecordTrayViewModel(object : RecordRepository {
-                override suspend fun list(query: RecordQuery): RecordPageResult {
+                override suspend fun get(id: java.util.UUID): io.github.grupo6.capturaprospectos.domain.admission.ReadAdmissionResult = io.github.grupo6.capturaprospectos.domain.admission.ReadAdmissionResult.Unavailable
+            override suspend fun list(query: RecordQuery): RecordPageResult {
                     pages++
                     return if (query.after == null) RecordPageResult.Page(listOf(row(1)), RecordCursor(Instant.EPOCH, UUID(0, 1)))
                     else RecordPageResult.Page(listOf(row(2)), null)

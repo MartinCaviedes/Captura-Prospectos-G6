@@ -46,8 +46,11 @@ class AdmissionFormViewModel(
     private val repository: AdmissionRepository? = null,
     private val locationProvider: LocationProvider? = null,
     private val qrParser: QrParser = DemoQrParser(),
+    val initialRecord: StoredAdmission? = null,
 ) : ViewModel() {
-    private val state = MutableStateFlow(AdmissionFormState())
+    private val state = MutableStateFlow(initialRecord?.let {
+        AdmissionFormState(input = it.input, mode = it.consent.mode, consent = it.consent, location = it.location)
+    } ?: AdmissionFormState())
     val uiState = state.asStateFlow()
     private var active = true
     private val canEdit get() = active && !state.value.isSaving && !state.value.isSaved
@@ -68,7 +71,7 @@ class AdmissionFormViewModel(
     @MainThread fun text(field: AdmissionField, value: String) = change { input -> when (field) {
         AdmissionField.GIVEN_NAMES -> input.copy(givenNames = value)
         AdmissionField.FAMILY_NAMES -> input.copy(familyNames = value)
-        AdmissionField.RUT -> input.copy(rut = value)
+        AdmissionField.RUT -> if (initialRecord == null || initialRecord.state == CaptureState.DRAFT) input.copy(rut = value) else input
         AdmissionField.EMAIL -> input.copy(email = value)
         AdmissionField.PHONE -> input.copy(phone = value)
         AdmissionField.BIRTH_DATE -> input.copy(birthDate = value)
@@ -138,12 +141,12 @@ class AdmissionFormViewModel(
     }
 
     @MainThread fun mode(value: AcceptanceMode) {
-        if (!canEdit) return
+        if (initialRecord != null || !canEdit) return
         state.value = state.value.copy(mode = value, consent = null, issues = emptyList(), message = null)
     }
 
     @MainThread fun consent(accepted: Boolean) {
-        if (!canEdit) return
+        if (initialRecord != null || !canEdit) return
         val current = state.value
         val evidence = if (accepted && current.mode != null) ConsentEvidence(environment.context.consentVersion,
             clock.instant(), environment.context.actor.id, current.mode) else null
@@ -247,14 +250,14 @@ class AdmissionFormViewModel(
     fun clearLocation() {
         if (!canEdit) return
         cancelLocation()
-        state.value = state.value.copy(location = null, locationCandidate = null, isAcquiringLocation = false, locationStatus = null)
+        state.value = state.value.copy(location = initialRecord?.location, locationCandidate = null, isAcquiringLocation = false, locationStatus = null)
     }
 
     // --- Asistencia por Cámara / QR sintético (RF11) ---
 
     @MainThread
     fun openQrScanner() {
-        if (!canEdit || state.value.isAcquiringLocation) return
+        if (!canEdit || state.value.isAcquiringLocation || (initialRecord != null && initialRecord.state != CaptureState.DRAFT)) return
         state.value = state.value.copy(isQrScannerOpen = true, qrCandidate = null, qrError = null)
     }
 
@@ -319,8 +322,8 @@ class AdmissionFormViewModel(
         if (!canEdit) return
         val current = state.value; val context = environment.context
         val result = prepare.prepare(current.input, intent, current.consent, context.consentVersion,
-            context.actor.id, environment.programs, environment.sites, current.location, context.event.location,
-            clock.instant(), context.event.timeZone)
+            context.actor.id, environment.programs, environment.sites, current.location?.takeUnless { it == initialRecord?.location }, context.event.location,
+            clock.instant(), context.event.timeZone, consentActorId = initialRecord?.consent?.recordedBy ?: context.actor.id)
         state.value = when (result) {
             AdmissionPreparation.ConsentRequired -> current.copy(issues = listOf(AdmissionIssue(AdmissionField.CONSENT, ValidationCode.REQUIRED)), message = "Registra el consentimiento para validar.")
             is AdmissionPreparation.Invalid -> current.copy(issues = result.issues, message = "Revisa los campos indicados.")
@@ -331,7 +334,7 @@ class AdmissionFormViewModel(
     @MainThread
     fun save(intent: SaveIntent): Job? {
         val current = state.value
-        if (!canEdit) return null
+        if (initialRecord != null || !canEdit) return null
         if (current.isAcquiringLocation || current.isQrScannerOpen || current.locationCandidate != null) return null
         if (current.consent == null) {
             state.value = current.copy(
@@ -392,8 +395,12 @@ class AdmissionFormViewModel(
             }
         }
     }
+    /** El consumidor de edición escribe por RecordRepository y comparte el bloqueo con todos los campos. */
+    @MainThread fun editingMutation(saving: Boolean, issues: List<AdmissionIssue> = emptyList(), message: String? = null) {
+        if (initialRecord != null && active) state.value = state.value.copy(isSaving = saving, issues = issues, message = message)
+    }
     private fun cancelLocation() { locationGeneration++; locationJob?.cancel(); locationJob = null }
-    @MainThread fun reset() { if (!state.value.isSaving) { cancelLocation(); state.value = AdmissionFormState() } }
-    @MainThread fun discard() { if (!state.value.isSaving) { cancelLocation(); state.value = AdmissionFormState() } }
+    @MainThread fun reset() { if (initialRecord == null && !state.value.isSaving) { cancelLocation(); state.value = AdmissionFormState() } }
+    @MainThread fun discard() { if (initialRecord == null && !state.value.isSaving) { cancelLocation(); state.value = AdmissionFormState() } }
     override fun onCleared() { active = false; cancelLocation(); state.value = AdmissionFormState() }
 }

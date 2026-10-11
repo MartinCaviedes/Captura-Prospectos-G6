@@ -177,4 +177,25 @@ class RecordStorageTest {
         }, clock)
         try { cancelled.list(RecordQuery()); fail("Debe propagar cancelación") } catch (_: CancellationException) { }
     }
+    @Test fun editContextUsesRecordEventAndOriginalConsentInsteadOfSelectedEvent() = runBlocking {
+        val old=save(); ctx().selectEvent(id("event-a2"))
+        val loaded=records().editContext(old.id) as RecordEditContextResult.Available
+        assertEquals(old.eventId,loaded.environment.context.event.id)
+        assertEquals(old.consent.version,loaded.environment.context.consentVersion)
+        assertTrue(loaded.environment.programs.isNotEmpty())
+        assertEquals("Colegio ficticio A",loaded.suggestion!!.name)
+        actor=LocalActor(id("supervisor"),LocalRole.SUPERVISOR,setOf(old.siteId))
+        assertTrue(records().editContext(old.id) is RecordEditContextResult.Available)
+        actor=actor.copy(siteIds=emptySet())
+        assertEquals(RecordEditContextResult.Unavailable,records().editContext(old.id))
+    }
+    @Test fun cancelledLegacyAndForeignDraftDoNotExposeEditContext() = runBlocking {
+        val draft=save(AdmissionInput(),draft=true,location=false)
+        actor=LocalActor(id("supervisor"),LocalRole.SUPERVISOR,setOf(draft.siteId))
+        assertEquals(RecordEditContextResult.Unavailable,records().editContext(draft.id))
+        select(); val active=save()
+        records().cancel(CancelRecord(active.id,active.revision,"Anulación ficticia"))
+        assertEquals(RecordEditContextResult.Unavailable,records().editContext(active.id))
+    }
+
 }

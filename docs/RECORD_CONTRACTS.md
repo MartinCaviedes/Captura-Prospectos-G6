@@ -12,6 +12,10 @@ Actualizado 10/10/2026. Contrato Kotlin en `domain/records/RecordContracts.kt`, 
 - Propuesta de paginación: límite 1–100, valor inicial 30; orden `capturedAt DESC, id UUID canónico DESC` con comparación binaria. Cursor exclusivo de la última fila. No garantiza snapshot entre páginas: refrescar desde inicio tras mutación o cambio de actor/filtro, sin repetir registros por un offset desplazado.
 - Resumen: ID, revisión, instante, evento, nombre, RUT, estado y LEGACY/F2027. toString oculta datos personales. No devolver coordenadas ni consentimiento en bandeja.
 
+## Contexto de edición propuesto
+
+`get(id)` devuelve la lectura F2027/LEGACY tipada con el mismo alcance que list. `editContext(id)` propone Available(environment, suggestion), Unavailable o StorageUnavailable: verifica alcance/contrato/estado y devuelve catálogo, evento y texto de consentimiento del registro. La sugerencia de establecimiento requiere confirmación; no se toma del GPS ni del evento seleccionado por error. La UI conserva evidencia original y trabaja sólo en memoria; confirma por edit, nunca por create. Esta extensión de R3 está pendiente de aceptación humana y no habilita conversión de LEGACY.
+
 ## Edición y anulación
 
 `edit(EditAdmission)` lleva ID, expectedRevision, AdmissionInput, intención, ubicación y motivo opcional. `cancel(CancelRecord)` lleva ID, expectedRevision y motivo. El ID del actor, la propiedad, sede/evento, dispositivo, instante original y consentimiento persistido nunca vienen como campos editables. Valores de ubicación nuevos se validan contra LocationPolicy; no retrofechar GPS ni sobreescribir con una ubicación ausente accidental.
