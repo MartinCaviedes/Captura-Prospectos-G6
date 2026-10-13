@@ -1,6 +1,6 @@
 # Alcance y aceptación por entrega
 
-Actualización documental 05/10: F01 incorpora hasta tres carreras priorizadas y F03 separa sede del evento de interés. Son ajustes dentro de la captura/catálogo E1 y se conservan en E2. F02 y cardinalidad F03 aclarados el 06/10; preferencias independientes, jornada/nivel/motivación opcionales; consultar FORMULARIO_ADMISION_2027. Dominio y persistencia F2027 implementados; suite de 24 pruebas Android v3 aprobada; el recorrido funcional y la UI siguen pendientes.
+Actualización 11/10/2026: candidato local con las correcciones de las rondas preparadas y verificaciones identificadas en ANDROID_BASELINE. Se retiró la afirmación anterior de alcance E1 completamente verificado: SQLite del host no acreditaba rendimiento Android. Hay ahora un ensayo real de 400 en Room cifrado, sin que ello cierre E1/RF ni sustituya accesibilidad, permisos adversos, revisión cruzada y aceptación de contratos. Sin backend/WorkManager/ACK; transporte NOT_QUEUED. El alcance y criterios siguientes se conservan.
 
 02/10/2026. Distribución de trabajo adoptada por instrucción de Martín: mantener el nivel del producto y progresarlo en dos entregas. No equivale a aprobación adicional del docente/cliente. El SRS define el comportamiento final; este documento determina cuándo se implementa y qué evidencia permite cerrar cada incremento. Los RF no se eliminan ni renumeran.
 

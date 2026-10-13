@@ -2,6 +2,11 @@ package io.github.grupo6.capturaprospectos.ui.admission
 
 import androidx.compose.ui.test.*
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -9,6 +14,8 @@ import androidx.lifecycle.ViewModelStore
 import io.github.grupo6.capturaprospectos.domain.admission.*
 import io.github.grupo6.capturaprospectos.domain.capture.*
 import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
+import io.github.grupo6.capturaprospectos.ui.theme.G6Ink
+import io.github.grupo6.capturaprospectos.ui.theme.G6Paper
 import java.time.*
 import java.util.UUID
 import org.junit.*
@@ -19,7 +26,7 @@ class AdmissionFormUiTest {
     private val store = ViewModelStore()
     @After fun cleanup() { compose.runOnIdle { store.clear() } }
     @Test fun volatileFieldsActivityConfirmationAndConsentGate() = verifyForm(false, 1f)
-    @Test fun darkThemeAndLargeTextKeepFormActionsUsable() = verifyForm(true, 1.5f)
+    @Test fun largeTextKeepsLightFormActionsUsableInsideDarkShell() = verifyForm(true, 1.5f)
     private fun scrollTo(label: String): SemanticsNodeInteraction {
         compose.onNode(hasScrollAction()).performScrollToNode(hasText(label))
         return compose.onNodeWithText(label).performScrollTo()
@@ -32,9 +39,13 @@ class AdmissionFormUiTest {
         compose.runOnIdle { vm = AdmissionFormViewModel(environment); store.put("form", vm) }
         compose.setContent {
             CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, fontScale)) {
-                CapturaProspectosG6Theme(darkTheme = darkTheme) { AdmissionFormRoute(vm) }
+                CapturaProspectosG6Theme(darkTheme = darkTheme) {
+                    Surface(contentColor = Color.White) { AdmissionFormRoute(vm) }
+                }
             }
         }
+        assertReadableFormText("Nueva captura")
+        assertReadableFormText("Los datos permanecen sin guardar. Validar no guarda ni envía la inscripción.")
         scrollTo("Nombres").performTextInput("Persona ficticia")
         scrollTo("Teléfono").performTextInput("912345678")
         compose.onNodeWithText("+56").assertIsDisplayed()
@@ -43,6 +54,13 @@ class AdmissionFormUiTest {
         compose.runOnIdle { assertEquals("+56987654321", vm.uiState.value.input.phone) }
         compose.onNodeWithText("Teléfono").performTextClearance()
         compose.runOnIdle { assertEquals("", vm.uiState.value.input.phone) }
+        scrollTo("Nacimiento (aaaa-mm-dd)").performTextInput("2000-01-01")
+        compose.onNodeWithContentDescription("Elegir fecha de nacimiento").performClick()
+        compose.onNodeWithText("Cancelar fecha").performClick()
+        compose.runOnIdle { assertEquals("2000-01-01", vm.uiState.value.input.birthDate) }
+        compose.onNodeWithContentDescription("Elegir fecha de nacimiento").performClick()
+        compose.onNodeWithText("Usar fecha").performClick()
+        compose.runOnIdle { assertEquals("2000-01-01", vm.uiState.value.input.birthDate) }
         scrollTo("Otra actividad").performClick()
         scrollTo("Detalle de otra actividad").performTextInput("Detalle ficticio")
         scrollTo("4° medio").performClick()
@@ -54,5 +72,14 @@ class AdmissionFormUiTest {
         scrollTo("Descartar formulario").performClick()
         compose.onNodeWithText("Descartar datos").performClick()
         compose.runOnIdle { assertEquals(AdmissionFormState(), vm.uiState.value) }
+    }
+    private fun assertReadableFormText(text: String) {
+        val node = scrollTo(text).fetchSemanticsNode()
+        val layouts = mutableListOf<TextLayoutResult>()
+        assertTrue(node.config[SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts))
+        val foreground = layouts.single().layoutInput.style.color
+        assertEquals(G6Ink, foreground)
+        val contrast = (G6Paper.luminance() + .05f) / (foreground.luminance() + .05f)
+        assertTrue("Texto sobre formulario claro: $contrast", contrast >= 4.5f)
     }
 }

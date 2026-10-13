@@ -1,5 +1,8 @@
 # Seguridad y demostración reproducible
 
+Candidato nativo 10/10: cámara/ubicación con solicitud contextual, entrada manual preservada y candidatos confirmados. Cámara/QR no escriben imágenes/payloads; se retira INTERNET añadido por bibliotecas en E1 y el modelo incluido decodifica sin ese permiso. FINE/COARSE/CAMERA permanecieron denegados en las ejecuciones automáticas; matriz real de permisos y revisión humana pendientes. Auditoría candidata Room v4 y evidencia por incremento: [registros](ROUND2_RECORDS_TRAY.md), [nativos](ROUND2_DEVICE_RESOURCES.md), [resultados](ANDROID_BASELINE.md). Los estados v3 siguientes son antecedentes fechados.
+
+
 Incremento 06/10: Room v3 y contexto/catálogo sintético descritos en [DEMO_CONTEXT](DEMO_CONTEXT.md); inicialización explícita, sin autenticación real ni seed automático al migrar. Suite completa de 24 pruebas Android aprobada sobre v3; ver evidencia en ANDROID_BASELINE.
 
 Estado local verificado al 06/10: SQLCipher 4.19.1 y clave aleatoria de 32 bytes, envuelta mediante AES-256-GCM con Android Keystore. Blob versionado en noBackupFilesDir, IV generado por Cipher y nombre de base como AAD; contraseña mantenida sólo durante la vida de la conexión y sobrescrita al cerrar. Ante clave/blob inaccesible se falla conservando archivos; sin reset ni migración destructiva. La suite de 24 instrumentadas sobre Room v3 incluye reapertura, rechazo de SQLite sin clave, pérdida de alias, permisos, duplicados, rollback y migraciones. Las 16 de v2 quedan como antecedente en ANDROID_BASELINE. Backup/transferencia efectiva, UI y recursos nativos siguen pendientes; no se declara auditoría de seguridad general.
@@ -60,3 +63,8 @@ Pendiente nombrar custodio y suplente de firma. Password/keystore fuera de Git; 
 Comprobar por hito: E1 controles locales/recursos y E2 controles remotos/release; el reparto no elimina ninguna evidencia final. No declarar autorización de servidor probada por el simple filtrado de perfiles demo. Firma en E1 según aclaración docente; en E2 explícita. La solicitud de llave de la pauta P4 no autoriza publicar el `.jks`; resolver canal restringido/llave de evaluación con el docente y custodio.
 
 Lectura directa de base cifrada rechazada sin clave; logs sin PII; permisos denegados sin crash; acceso cruzado a sede/usuario rechazado; no datos personales de borrador sin consentimiento; pendientes intactos tras logout/reinicio/24 h; release sin flags de demo inseguros; firma verificada. Hasta ejecutar estas pruebas, indicar «pendiente de verificar».
+
+
+### Acceso ficticio E1 candidato · 11/10
+
+El refinamiento visual autorizado incorpora una contraseña pública inventada de evaluación y correos reservados `.example`, descritos en [UI_REFINEMENT_E1](UI_REFINEMENT_E1.md). Es una barrera didáctica para recorrer credenciales; no autentica a una persona ni protege la selección de perfil frente a manipulación local. Se conserva el filtrado funcional de Room. La contraseña no se guarda, no hay tokens y un proceso nuevo requiere entrada explícita. Estos fixtures no sustituyen las reglas de secretos, configuración y autenticación real E2. No enviar sus datos ni sus evidencias sintéticas a un servidor por habilitar red.

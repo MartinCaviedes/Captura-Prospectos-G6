@@ -69,5 +69,9 @@ internal interface ContextDao {
     @Insert fun insertPrograms(rows: List<DemoProgramRow>)
     @Insert fun insertMentions(rows: List<DemoMentionRow>)
     @Insert fun insertState(row: DemoContextRow)
+    @Query("SELECT * FROM demo_events WHERE id = :id") fun event(id: String): DemoEventRow?
+    @Insert fun insertEvent(row: DemoEventRow)
+    @Update fun updateEvent(row: DemoEventRow)
+    @Query("DELETE FROM demo_assignments WHERE eventId = :eventId") fun deleteAssignments(eventId: String)
     @Query("UPDATE demo_context SET profileId = :profileId, eventId = :eventId WHERE singletonId = 1") fun select(profileId: String?, eventId: String?)
 }

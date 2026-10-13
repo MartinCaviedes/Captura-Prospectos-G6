@@ -1,6 +1,8 @@
 # Componentes de entrada al contexto demo
 
-Estado vigente 09/10: [ronda 0](ROUND0_BASE.md) conecta el selector desde MainActivity con apertura cifrada y dueño explícito. Recorrido Compose/Room probado. Los apartados A1/A2 siguientes conservan evidencia histórica; sus pendientes de implementación ya no describen el HEAD actual. Revisión humana y visual aún pendientes.
+Actualización 11/10: [refinamiento E1](UI_REFINEMENT_E1.md) añade acceso demo explícito y oculta los botones de perfil en el selector utilizado por MainActivity. El repositorio sigue confirmando perfil/evento y autorizando operaciones; una selección persistida no autentica. Los componentes conservan showProfiles por defecto para sus pruebas y consumidores anteriores.
+
+Estado del incremento 09/10: [ronda 0](ROUND0_BASE.md) conecta el selector desde MainActivity con apertura cifrada y dueño explícito. Recorrido Compose/Room probado. Los apartados A1/A2 siguientes conservan evidencia histórica; sus pendientes de implementación ya no describen el HEAD actual. Revisión humana y visual aún pendientes.
 
 Antecedente A2 del 09/10/2026: A2 incorpora ViewModel y Route, aún sin apertura de Room ni conexión desde MainActivity. El apartado A1 siguiente conserva el alcance y la evidencia visual del 08/10; no describe un recorrido integrado actual.
 

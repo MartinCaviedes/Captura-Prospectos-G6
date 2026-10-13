@@ -5,7 +5,7 @@ import io.github.grupo6.capturaprospectos.domain.capture.*
 import java.time.Instant
 import java.util.UUID
 
-/** Propuesta R1, sin implementación Room. Requiere revisión antes de crear consumidores. */
+/** Contratos locales candidatos con consumidores Room probados; aceptación humana pendiente. */
 data class RecordFilter(
     val query: String = "", val eventId: UUID? = null,
     val states: Set<CaptureState> = emptySet(),
@@ -54,8 +54,55 @@ sealed interface RecordMutationResult {
     data object DuplicateRestricted : RecordMutationResult
     data object StorageUnavailable : RecordMutationResult
 }
+
+data class SiteMetrics(
+    val siteId: UUID,
+    val siteName: String,
+    val totalCount: Int,
+    val readyCount: Int,
+    val draftCount: Int,
+    val needsContextCount: Int,
+    val cancelledCount: Int,
+)
+
+data class DeviceMetrics(
+    val eventId: UUID,
+    val totalCaptures: Int,
+    val readyCount: Int,
+    val draftCount: Int,
+    val needsContextCount: Int,
+    val cancelledCount: Int,
+    val siteMetrics: List<SiteMetrics> = emptyList(),
+    val distinctPeople: Int = totalCaptures,
+    val programMetrics: List<ProgramMetrics> = emptyList(),
+    val fromInclusive: Instant? = null, val untilExclusive: Instant? = null,
+)
+
+/** Completa activa = READY o NEEDS_CONTEXT; borradores/anuladas se presentan por separado. */
+data class ProgramMetrics(val programId: UUID, val snapshotName: String, val registrations: Int)
+data class MetricsQuery(val eventId: UUID, val fromInclusive: Instant? = null, val untilExclusive: Instant? = null) {
+    fun isValid() = (fromInclusive == null && untilExclusive == null) ||
+        (fromInclusive != null && untilExclusive != null && fromInclusive < untilExclusive)
+}
+sealed interface MetricsResult {
+    data class Calculated(val metrics: DeviceMetrics) : MetricsResult
+    data object InvalidQuery : MetricsResult
+    data object Unavailable : MetricsResult
+    data object StorageUnavailable : MetricsResult
+}
+
+/** Contexto confiable para editar: catálogo actual y evidencia del registro, nunca alta implícita. */
+sealed interface RecordEditContextResult {
+    data class Available(val environment: AdmissionEnvironment,
+        val suggestion: io.github.grupo6.capturaprospectos.domain.context.EstablishmentSuggestion? = null) : RecordEditContextResult
+    data object Unavailable : RecordEditContextResult
+    data object StorageUnavailable : RecordEditContextResult
+}
 interface RecordRepository {
+    suspend fun editContext(id: UUID): RecordEditContextResult = RecordEditContextResult.Unavailable
     suspend fun list(query: RecordQuery): RecordPageResult
+    suspend fun get(id: UUID): ReadAdmissionResult
+    suspend fun getMetrics(query: MetricsQuery): MetricsResult = MetricsResult.StorageUnavailable
     suspend fun edit(command: EditAdmission): RecordMutationResult
     suspend fun cancel(command: CancelRecord): RecordMutationResult
 }

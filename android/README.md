@@ -1,6 +1,6 @@
 # Captura de Prospectos — Android
 
-Base R0/R1: selector de perfiles y eventos conectado a Room cifrado, observador de red y componentes del formulario F2027. El formulario todavía no se abre desde MainActivity ni guarda desde la UI. Cámara/GPS reales, bandeja y edición/anulación corresponden a los próximos incrementos.
+Rama acumulada E1: bienvenida → acceso con credenciales demo → evento → menú de inicio/registros/resumen/perfil → alta F2027 consentida y Room cifrado; bandeja/cursor, detalle/edición/anulación, cámara QR sintética y GPS confirmado, métricas locales por período y administración de eventos. Auditoría v4 candidata con migración aditiva. Cámara/QR y GPS físicos comprobados por el usuario en el incremento nativo; Acceso, formulario y giro vertical/horizontal comprobados por el usuario también en esta APK. Permisos restantes, TalkBack/visual, portal cautivo, tablet, aceptación contractual y revisión cruzada pendientes. [Credenciales y recorridos nuevos](../docs/UI_REFINEMENT_E1.md). No acredita cierre E1. [Dataset real y controles acumulados](../docs/ROUND3_DATASET_400.md).
 
 Consultar [R0](../docs/ROUND0_BASE.md), [R1](../docs/ROUND1_INTERFACES.md) y [evidencia de pruebas](../docs/ANDROID_BASELINE.md).
 
@@ -14,6 +14,7 @@ Consultar [R0](../docs/ROUND0_BASE.md), [R1](../docs/ROUND1_INTERFACES.md) y [ev
 | SDK compile / target / mínimo | 37 / 37 / 26 |
 | Compose plugin / BOM | 2.2.10 / 2026.02.01 |
 | Room / KSP | 2.8.5 / 2.3.10 |
+| CameraX / ML Kit barcode incluido | 1.5.3 / 17.3.0 |
 | SQLCipher / SQLite / coroutines | 4.19.1 / 2.7.0 / 1.10.2 |
 
 Las versiones efectivas están en `gradle/libs.versions.toml`, wrapper y build del módulo; no regenerar el proyecto ni actualizar dependencias para reproducir esta base.
@@ -55,7 +56,7 @@ La evidencia más reciente se obtuvo en grupos separados: 28 pruebas de datos/re
 
 Nuevas altas: `domain.admission` → `AdmissionRepository` / `RoomAdmissionRepository`. `PrepareAdmission` prepara una entrada; el repositorio valida autorización/consentimiento y confirma guardado tras commit. El contrato antiguo `domain.capture` se conserva para compatibilidad; no convertir altas F2027 a `CaptureInput`.
 
-Room v3 conserva esquemas 1/2/3 y migraciones 1→2→3. No inventa nombres separados, nacimiento, prioridades ni sedes para registros antiguos. La clave SQLCipher se protege con Keystore; fallo de clave no borra la base. No usar migración destructiva.
+Room v4 conserva esquemas 1/2/3/4 y migraciones 1→2→3→4. La migración aditiva de auditoría conserva todos los datos v3 y deja NULL los atributos históricos desconocidos. No inventa nombres separados, nacimiento, prioridades ni sedes para registros antiguos. La clave SQLCipher se protege con Keystore; fallo de clave no borra la base. No usar migración destructiva.
 
 `RoomDemoContextRepository.initialize()` siembra perfiles/eventos/catálogo explícitamente, sin prospectos ni selección automática. El botón «Preparar demo local» del selector invoca esta inicialización. Ver [DEMO_CONTEXT](../docs/DEMO_CONTEXT.md) para el consumidor y sus estados.
 
@@ -68,4 +69,4 @@ python tools/verify_context_migration_sql.py
 
 Ambos controles pasaron en SQLite del host; no sustituyen Room/SQLCipher/Keystore en Android.
 
-Faltan conectar el formulario al guardado y completar bandeja, edición/anulación, cámara/GPS, administración, métricas y revisión cruzada. Backup/transferencia están excluidos por configuración, pendientes de prueba efectiva. El APK debug no acredita release firmado ni RF completos. No guardar secretos, datos reales, build, cachés, local.properties o claves en Git.
+Alta y bandeja están conectadas; el repositorio implementa edición/anulación. Faltan corregir/verificar UI de detalle, administración, métricas y revisión cruzada, además de comprobar físicamente cámara/ubicación y su matriz de permisos. Backup/transferencia están excluidos por configuración, pendientes de prueba efectiva. El APK debug no acredita release firmado ni RF completos. No guardar secretos, datos reales, build, cachés, local.properties o claves en Git.

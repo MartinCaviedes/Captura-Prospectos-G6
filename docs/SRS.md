@@ -1,5 +1,7 @@
 # Especificación de requisitos de software
 
+Estado de interfaz actualizado: [V3 Conexiones](UI_CONEXIONES_E1.md) y [evidencia incremental](ANDROID_BASELINE.md). Los estados de implementación/QA del 06/10 que siguen son históricos; esta adaptación visual conserva los requisitos y contratos de datos de la versión 1.4.
+
 Adaptación F2027 acordada: [FORMULARIO_ADMISION_2027](FORMULARIO_ADMISION_2027.md) registra fuente, respuestas y aclaraciones confirmadas por Martín el 06/10. F01–F03 definen reglas objetivo; dominio/persistencia F2027 implementados, con evidencia Android v2; contexto v3 probado en Android; UI pendiente de verificación funcional. Nacimiento desde QR se conserva condicionado a verificar formato, no como función comprobada.
 
 La distribución vigente por hito está en [ENTREGAS.md](ENTREGAS.md): E1 (P2/P3) implementa el incremento local con GPS, cámara y conectividad; E2 (P4/P5) completa la integración. Los criterios finales de este SRS se conservan. No confundir una tarea E1 completada con un RF semestral terminado.

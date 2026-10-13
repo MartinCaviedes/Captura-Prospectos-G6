@@ -76,4 +76,15 @@ class AdmissionFormViewModelTest {
         ViewModelStore().apply { put("form", vm); clear() }
         assertEquals(AdmissionFormState(), vm.uiState.value)
     }
+    @Test fun discardResetAndOwnerReleaseClearProvisionalBirthCalendar() {
+        val vm = vm()
+        val target = io.github.grupo6.capturaprospectos.ui.components.DatePickerTarget.BIRTH
+        vm.birthCalendar.open(target, "2000-01-01"); vm.discard()
+        assertNull(vm.birthCalendar.draft.value)
+        vm.birthCalendar.open(target, "2000-01-01"); vm.reset()
+        assertNull(vm.birthCalendar.draft.value)
+        val store = ViewModelStore(); store.put("form", vm)
+        vm.birthCalendar.open(target, "2000-01-01"); store.clear()
+        assertNull(vm.birthCalendar.draft.value)
+    }
 }

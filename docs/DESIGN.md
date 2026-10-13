@@ -1,5 +1,9 @@
 # Sistema de diseño y flujos
 
+Ajuste V3 tras prueba humana, 11/10: el formulario claro establece su color de contenido en Surface; no hereda blanco del shell oscuro. Nacimiento y filtros Desde/Hasta comparten calendario en memoria; seleccionar no guarda ni aplica el rango automáticamente. [Resultado y evidencia](UI_CONEXIONES_E1.md).
+
+**Tema vigente del candidato V3 · 11/10/2026:** [Conexiones](UI_CONEXIONES_E1.md) sustituye la adaptación inicial de tema/fuentes descrita abajo, conservando las reglas del formulario y E1. Fondo azul #0B1525, superficie #172B46, acción dorada #FFB800, formulario claro #EDF3FB y texto #132B45/#52657A. Manrope local en títulos y Roboto nativa en cuerpo. En el formulario, acciones secundarias en tinta y principales doradas con texto azul oscuro. Las tablas de paleta anteriores son antecedentes; no alternar ambos sistemas entre pantallas nuevas.
+
 UI F2027 del 06/10: diferenciar campos obligatorios/condicionales/opcionales; ninguna preferencia preseleccionada. Sugerencia de establecimiento desde evento identificado necesita confirmación y permite editar; no sobrescribe datos al cambiar contexto. Mostrar jornada, nivel y motivación como opcionales, sin campo libre para motivación. Conservar ingreso manual de nacimiento, sin prometer que el lector lo extrae.
 
 Acuerdo F01: las opciones pueden ordenarse alfabéticamente; el resumen de hasta tres seleccionadas se ordena por prioridad e incluye controles accesibles para reordenar. F03: mostrar por separado contexto del captador y preferencia de sede; múltiples sedes opcionales sin máximo adicional, sin preseleccionar la del evento. F02 aclarado el 06/10.
@@ -84,3 +88,10 @@ Animaciones discretas: transición de bandeja a detalle, aparición de errores y
 ## Revisión visual por RF
 
 Evidencia de estado normal, vacío, error y carga; captura con datos ficticios; revisión por compañero. Mantener guía actualizada si se agrega un patrón, evitando variantes locales del mismo componente. Que el código compile no demuestra que teclado, permisos, cámara o texto ampliado sean utilizables.
+
+
+## Refinamiento E1 candidato · 11/10
+
+Por encargo explícito se prepara bienvenida, acceso con fixtures locales, menú, perfil y resumen con gráficos. Ver [alcance y pruebas manuales](UI_REFINEMENT_E1.md). La paleta anterior describe la adaptación inicial: el candidato mantiene amarillo #FFB800/negro #1A1A1A y añade azul #112B46 como apoyo propio, fondo claro #F3F5F8 y fondo oscuro #101B28 / superficie #1B2A3B. No usar amarillo como texto normal sobre blanco. Se conservan fuentes nativas y controles Material 3; tarjetas de radios 12/20/28 dp y elevaciones discretas. Se priorizan superficies opacas para texto y formularios.
+
+Google/Microsoft se anuncian deshabilitados. Registro remoto/perfil editable institucional siguen en E2; el perfil E1 muestra identidad y contexto ficticios. La carga opcional de prospectos inventados conserva validación, consentimiento sintético, permisos de alta y duplicados de los repositorios. No implica aceptación del cliente ni del contrato de registros. Menú lateral desde 840 dp disponibles; los datos siguen separados por actor y ámbito. El prototipo editable propone una composición tablet; la APK debe validarse por separado con teclado, giro y letra ampliada.

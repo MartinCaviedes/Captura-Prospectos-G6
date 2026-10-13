@@ -34,4 +34,21 @@ class LocalCaptureAccessTest {
         assertFalse(LocalCaptureAccess.canRead(supervisor, owner, site, CaptureState.DRAFT))
         assertFalse(LocalCaptureAccess.canRead(supervisor, owner, UUID.randomUUID(), CaptureState.READY))
     }
+
+    @Test fun supervisorCanSuperviseEventsWithinAssignedSites() {
+        val supervisor = actor.copy(id = UUID.randomUUID(), role = LocalRole.SUPERVISOR)
+        assertTrue(LocalCaptureAccess.canSupervise(supervisor, event))
+        assertFalse(LocalCaptureAccess.canSupervise(supervisor.copy(siteIds = emptySet()), event))
+        assertFalse(LocalCaptureAccess.canSupervise(actor, event))
+    }
+
+    @Test fun accessEventDifferentiatesCaptorAndSupervisor() {
+        val supervisor = actor.copy(id = UUID.randomUUID(), role = LocalRole.SUPERVISOR)
+        assertTrue(LocalCaptureAccess.canAccessEvent(actor, event))
+        assertTrue(LocalCaptureAccess.canAccessEvent(supervisor, event))
+
+        val foreignEvent = event.copy(siteId = UUID.randomUUID())
+        assertFalse(LocalCaptureAccess.canAccessEvent(actor, foreignEvent))
+        assertFalse(LocalCaptureAccess.canAccessEvent(supervisor, foreignEvent))
+    }
 }
