@@ -1,5 +1,15 @@
 # Evidencia de la base Android
 
+## R4 · construcción desde clon remoto limpio · 14/10/2026
+
+Base develop `0c64533`; nuevo clon remoto sin local.properties/archivos privados, rama aislada chore/e1-r4-qa. Windows, SDK 37 y criterio de JDK 25 del proyecto; cachés/dependencias del equipo disponibles, no reproducción de un equipo sin SDK.
+
+**191 JVM aprobadas**, cero fallos/errores/omitidas (incluye una prueba aritmética de plantilla); debug e instrumental construidas y firma verificada; **release unsigned construida**, sin generar llave. **Lint debug: 27 avisos/0 errores**. Gradle correcto en 6 min 6 s, 130 tareas ejecutadas. Ambas variantes sin INTERNET y allowBackup=false; release no depurable/PreviewActivity ausente. zipalign ZIP 16 KB aprobado en tres APK; no acredita ELF/runtime 16 KB. Optimización/R8 sigue desactivada, no se atribuye ofuscación ni firma release.
+
+Los tres scripts SQLite del host pasaron; dataset estructural de 400 con FK intactas. No acredita rendimiento/cifrado Android. No hubo dispositivo autorizado al preparar el corte ni ejecución Android nueva. Los resultados de 11/10 y la revisión humana reportada del 13/10 conservan sus alcances y versiones.
+
+[Guía y casos pendientes](ROUND4_QA.md), [fuentes, hashes y resultados](evidencias/r4-clon-limpio-2026-10-14.json). No se modifica código funcional, Room, dependencias ni reglas; sólo documentación/evidencia. TalkBack pospuesto, permisos/redes adversas, tablet, aceptación de contratos, firma/AVA y P3 pendientes. Los cortes siguientes son históricos.
+
 ## Calendarios abiertos al recrear Activity · 11/10/2026
 
 Prueba humana recibida sobre APK `aa46a797…`: contraste de título, enunciados y consentimiento aprobado; selección/cambio/confirmación de fechas y uso horizontal aprobados. Detectó cierre del calendario y colapso del rango al girar con el diálogo abierto. Esta respuesta corresponde a esa APK, no a la nueva corrección.

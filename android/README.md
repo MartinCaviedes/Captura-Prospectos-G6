@@ -1,6 +1,6 @@
 # Captura de Prospectos — Android
 
-Rama acumulada E1: bienvenida → acceso con credenciales demo → evento → menú de inicio/registros/resumen/perfil → alta F2027 consentida y Room cifrado; bandeja/cursor, detalle/edición/anulación, cámara QR sintética y GPS confirmado, métricas locales por período y administración de eventos. Auditoría v4 candidata con migración aditiva. Cámara/QR y GPS físicos comprobados por el usuario en el incremento nativo; Acceso, formulario y giro vertical/horizontal comprobados por el usuario también en esta APK. Permisos restantes, TalkBack/visual, portal cautivo, tablet, aceptación contractual y revisión cruzada pendientes. [Credenciales y recorridos nuevos](../docs/UI_REFINEMENT_E1.md). No acredita cierre E1. [Dataset real y controles acumulados](../docs/ROUND3_DATASET_400.md).
+Develop `0c64533` integra el flujo E1: bienvenida → credenciales demo → evento → menú → alta F2027 consentida en Room cifrado; bandeja/detalle/edición/anulación, cámara QR sintética, GPS confirmado, métricas y eventos. [R4 QA](../docs/ROUND4_QA.md) registra construcción desde clon remoto limpio del 14/10: 191 JVM, Lint 27 avisos/0 errores y APK debug/instrumental/release unsigned. Evidencias físicas/Android anteriores conservan sus versiones; no se atribuyen a la nueva compilación. Revisión técnica externa reportada al integrar; aceptación contractual, accesibilidad completa, permisos/redes adversas, tablet y entrega pendientes. No acredita cierre E1.
 
 Consultar [R0](../docs/ROUND0_BASE.md), [R1](../docs/ROUND1_INTERFACES.md) y [evidencia de pruebas](../docs/ANDROID_BASELINE.md).
 
@@ -50,7 +50,7 @@ adb install -r -t app/build/outputs/apk/androidTest/demo/debug/app-demo-debug-an
 adb shell am instrument -w -r io.github.grupo6.capturaprospectos.demo.debug.test/androidx.test.runner.AndroidJUnitRunner
 ```
 
-La evidencia más reciente se obtuvo en grupos separados: 28 pruebas de datos/red, una de selector con Room, una de transición Wi-Fi y una de formulario. En MIUI las pruebas UI requirieron apertura asistida por ADB; el comando general no acredita ejecución desatendida de esos casos. La transición Wi-Fi requiere habilitación y preparación específicas; consultar ANDROID_BASELINE. Comprobar resultados individuales y omisiones. La alternativa no concede permisos peligrosos: futuros tests de cámara/GPS necesitarán su propio manejo de permisos.
+El antecedente R0/R1 se obtuvo en grupos separados: 28 pruebas de datos/red, una de selector con Room, una de transición Wi-Fi y una de formulario. Las evidencias posteriores están fechadas en ANDROID_BASELINE; este corte R4 no ejecutó pruebas Android. En MIUI las pruebas UI requirieron apertura asistida por ADB; el comando general no acredita ejecución desatendida de esos casos. La transición Wi-Fi requiere habilitación y preparación específicas; consultar ANDROID_BASELINE. Comprobar resultados individuales y omisiones. La alternativa no concede permisos peligrosos: futuros tests de cámara/GPS necesitarán su propio manejo de permisos.
 
 ## Implementación y continuidad
 
@@ -69,4 +69,4 @@ python tools/verify_context_migration_sql.py
 
 Ambos controles pasaron en SQLite del host; no sustituyen Room/SQLCipher/Keystore en Android.
 
-Alta y bandeja están conectadas; el repositorio implementa edición/anulación. Faltan corregir/verificar UI de detalle, administración, métricas y revisión cruzada, además de comprobar físicamente cámara/ubicación y su matriz de permisos. Backup/transferencia están excluidos por configuración, pendientes de prueba efectiva. El APK debug no acredita release firmado ni RF completos. No guardar secretos, datos reales, build, cachés, local.properties o claves en Git.
+Alta, bandeja/detalle/edición, administración y métricas están integradas en develop, con evidencia por incremento. R4 continúa con la matriz de permisos, redes reales, adaptación/accesibilidad y revisión de aceptación. Backup/transferencia están excluidos por configuración, pendientes de prueba efectiva. Release unsigned compila, pero no acredita firma, instalación o RF completos. No guardar secretos, datos reales, build, cachés, local.properties o claves en Git.
