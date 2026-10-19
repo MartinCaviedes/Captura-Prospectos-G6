@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import io.github.grupo6.capturaprospectos.R
 import io.github.grupo6.capturaprospectos.ui.components.*
 import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
+import io.github.grupo6.capturaprospectos.ui.theme.LocalG6DarkTheme
 
 class FormActions(
     val text: (AdmissionField, String) -> Unit, val activity: (CurrentActivity) -> Unit,
@@ -95,10 +96,10 @@ class FormActions(
     editing: Boolean = false, allowDraft: Boolean = true, saveEnabled: Boolean = true,
     birthCalendar: VolatileDatePickerController = remember { VolatileDatePickerController() },
 ) {
-    CapturaProspectosG6Theme(darkTheme = false) {
+    CapturaProspectosG6Theme(darkTheme = LocalG6DarkTheme.current) {
         Surface(modifier, color = MaterialTheme.colorScheme.background,
             contentColor = MaterialTheme.colorScheme.onSurface) {
-            ConexionesBackground(Modifier.fillMaxSize(), light = true) {
+            ConexionesBackground(Modifier.fillMaxSize()) {
                 FormContent(state, environment, suggestion, actions, Modifier.fillMaxSize(), editing, allowDraft, saveEnabled, birthCalendar)
             }
         }

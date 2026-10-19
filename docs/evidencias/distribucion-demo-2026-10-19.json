@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-19",
+  "release_url": "https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e1-demo-2026-10-19",
+  "tag": "e1-demo-2026-10-19",
+  "release_type": "prerelease",
+  "app_source_commit": "ae68318e99f5ff342f96667544a174200c4ac1da",
+  "apk_sha256": "22d3e9876628f4eb076bee009845737b32f808fdbad670353219c98bb368ae49",
+  "assets": [
+    {
+      "name": "Captura-Prospectos-G6-E1-demo.apk",
+      "sha256": "22d3e9876628f4eb076bee009845737b32f808fdbad670353219c98bb368ae49",
+      "bytes": 46810524
+    },
+    {
+      "name": "QR-FICTICIO-VALIDO.png",
+      "sha256": "b763518a8987dc953dbb7dcd6e1972a37c5628f63d6a391058144f13cb032f4b",
+      "bytes": 1071
+    },
+    {
+      "name": "QR-NO-COMPATIBLE.png",
+      "sha256": "01c4b162e91fa19bafc05e2fa9898f9bf23745934afc90c2b3feb66117926d53",
+      "bytes": 812
+    },
+    {
+      "name": "GUIA-DE-PRUEBAS.md",
+      "sha256": "dd30754b13b9f1c6b3864f6ece0d2f4fde641cb2556326c669ae4ab1a88abc23",
+      "bytes": 5569
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "sha256": "18be20fb4a10070a42cfa8c79142b0da6b2633bc21e68c09739359c524a01776",
+      "bytes": 361
+    }
+  ],
+  "qr": [
+    {
+      "file": "docs/fixtures/qr/qr-ficticio-valido.png",
+      "source": "android/app/src/androidTest/assets/qr-synthetic.png",
+      "sha256": "b763518a8987dc953dbb7dcd6e1972a37c5628f63d6a391058144f13cb032f4b",
+      "validation": "Copia byte a byte del fixture instrumental existente; no nueva decodificación física"
+    },
+    {
+      "file": "docs/fixtures/qr/qr-no-compatible.png",
+      "source": "android/app/src/androidTest/assets/qr-unsupported.png",
+      "sha256": "01c4b162e91fa19bafc05e2fa9898f9bf23745934afc90c2b3feb66117926d53",
+      "validation": "Copia byte a byte del fixture instrumental existente; no nueva decodificación física"
+    }
+  ],
+  "checks": {
+    "android_tree_unchanged": true,
+    "fixture_bytes_equal": true,
+    "new_jvm_android_suites": false
+  },
+  "scope": "Distribución autorizada de demo/debug; QR cédula real aplazado a E2, sin código/dependencias nuevos ni merges"
+}

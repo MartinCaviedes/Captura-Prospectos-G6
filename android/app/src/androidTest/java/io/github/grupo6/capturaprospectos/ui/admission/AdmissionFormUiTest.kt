@@ -3,6 +3,8 @@ package io.github.grupo6.capturaprospectos.ui.admission
 import androidx.compose.ui.test.*
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.semantics.SemanticsActions
@@ -24,9 +26,11 @@ import org.junit.Assert.*
 class AdmissionFormUiTest {
     @get:Rule val compose = createComposeRule()
     private val store = ViewModelStore()
+    private var background = G6Paper
+    private var expectedText = G6Ink
     @After fun cleanup() { compose.runOnIdle { store.clear() } }
     @Test fun volatileFieldsActivityConfirmationAndConsentGate() = verifyForm(false, 1f)
-    @Test fun largeTextKeepsLightFormActionsUsableInsideDarkShell() = verifyForm(true, 1.5f)
+    @Test fun largeTextKeepsDarkFormActionsReadableAndUsable() = verifyForm(true, 1.5f)
     private fun scrollTo(label: String): SemanticsNodeInteraction {
         compose.onNode(hasScrollAction()).performScrollToNode(hasText(label))
         return compose.onNodeWithText(label).performScrollTo()
@@ -40,6 +44,8 @@ class AdmissionFormUiTest {
         compose.setContent {
             CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, fontScale)) {
                 CapturaProspectosG6Theme(darkTheme = darkTheme) {
+                    val colors = MaterialTheme.colorScheme
+                    SideEffect { background = colors.background; expectedText = colors.onSurface }
                     Surface(contentColor = Color.White) { AdmissionFormRoute(vm) }
                 }
             }
@@ -78,8 +84,10 @@ class AdmissionFormUiTest {
         val layouts = mutableListOf<TextLayoutResult>()
         assertTrue(node.config[SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts))
         val foreground = layouts.single().layoutInput.style.color
-        assertEquals(G6Ink, foreground)
-        val contrast = (G6Paper.luminance() + .05f) / (foreground.luminance() + .05f)
-        assertTrue("Texto sobre formulario claro: $contrast", contrast >= 4.5f)
+        assertEquals(expectedText, foreground)
+        val light = maxOf(background.luminance(), foreground.luminance())
+        val dark = minOf(background.luminance(), foreground.luminance())
+        val contrast = (light + .05f) / (dark + .05f)
+        assertTrue("Contraste del texto con la apariencia seleccionada: $contrast", contrast >= 4.5f)
     }
 }

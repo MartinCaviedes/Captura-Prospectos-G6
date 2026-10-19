@@ -26,8 +26,24 @@ import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
             ProductIdentity()
             GlassCard {
                 Column(Modifier.fillMaxWidth().padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-                    Image(painterResource(R.drawable.g6_welcome_g6_v3_trayectorias),null,
-                        Modifier.fillMaxWidth().aspectRatio(310f/164f),contentScale=ContentScale.Fit)
+                    Surface(Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onSurface) {
+                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            listOf("Datos de contacto", "Intereses académicos", "Consentimiento").forEachIndexed { index, label ->
+                                Row(verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    Surface(shape = MaterialTheme.shapes.small,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary) {
+                                        Text("0${index + 1}", Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                            style = MaterialTheme.typography.labelLarge)
+                                    }
+                                    Text(label, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                                }
+                            }
+                        }
+                    }
                     Text("Conecta personas.\nAbre futuros.",style=MaterialTheme.typography.headlineLarge,
                         modifier=Modifier.semantics { heading() })
                     Text("Conecta el interés de hoy con las oportunidades de mañana.")

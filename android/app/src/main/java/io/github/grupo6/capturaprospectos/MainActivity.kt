@@ -26,6 +26,8 @@ import io.github.grupo6.capturaprospectos.ui.access.*
 import io.github.grupo6.capturaprospectos.ui.hub.MainHubRoute
 import io.github.grupo6.capturaprospectos.ui.shell.*
 import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
+import io.github.grupo6.capturaprospectos.ui.theme.AppearanceViewModel
+import io.github.grupo6.capturaprospectos.ui.theme.applySystemBarAppearance
 
 enum class AppScreen { CONTEXT_SELECTOR, HUB, FORM, TRAY, SUMMARY, PROFILE }
 
@@ -41,9 +43,17 @@ class MainActivity : ComponentActivity() {
             }
         })[ContextSessionOwner::class.java]
         val access = ViewModelProvider(this)[DemoAccessViewModel::class.java]
+        val appearance = ViewModelProvider(this, object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST") override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                require(modelClass == AppearanceViewModel::class.java)
+                return AppearanceViewModel(appContext.getSharedPreferences("appearance", MODE_PRIVATE)) as T
+            }
+        })[AppearanceViewModel::class.java]
         val connectivity = AndroidConnectivityObserver(appContext)
         setContent {
-            CapturaProspectosG6Theme {
+            val darkMode by appearance.darkMode.collectAsStateWithLifecycle()
+            SideEffect { applySystemBarAppearance(window, darkMode) }
+            CapturaProspectosG6Theme(darkTheme = darkMode) {
                 val session by owner.uiState.collectAsStateWithLifecycle()
                 val accessState by access.uiState.collectAsStateWithLifecycle()
                 Scaffold(Modifier.fillMaxSize()) { padding ->
@@ -112,7 +122,7 @@ class MainActivity : ComponentActivity() {
                                                             current.viewModel.clearSelection()
                                                             access.logout()
                                                         }
-                                                    }, modifier = body)
+                                                    }, modifier = body, darkMode = darkMode, onDarkModeChange = appearance::setDarkMode)
                                                 else MainHubRoute(profile, event, connectivity,
                                                     onNewCapture = { active = AppScreen.FORM },
                                                     onChangeContext = { active = AppScreen.CONTEXT_SELECTOR },
