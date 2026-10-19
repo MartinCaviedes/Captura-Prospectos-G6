@@ -1,5 +1,9 @@
 # Evidencia de la base Android
 
+## R4 · cámara denegada / Ajustes · 19/10/2026
+
+M01 parcial: reporte humano confirma campos intactos al denegar cámara y continuar manualmente. Al cambiar permisos en Ajustes se observó bienvenida y pérdida de formulario no guardado. ADB de sólo lectura registra cuatro salidas recientes PERMISSION CHANGE, APK b0294e11 comprobada; no se atribuye la causa a un clic específico. Contrato vigente conserva formulario sólo en memoria, no tras muerte del proceso. [Detalle y límite de la guía](ROUND4_QA.md), [evidencia](evidencias/r4-permisos-camara-2026-10-19.json). Cámara tras reingreso/cancelación aún pendiente; sin suites nuevas ni cambio funcional.
+
 ## R4 · Android nuevo sobre APK final · 18/10/2026
 
 APK `b0294e11…` (misma app integrada, build del 14/10): **52 datos/proveedores + 31 UI**, dos invocaciones aprobadas sin fallos/omisiones dentro de la selección. Xiaomi 11T, API 34, páginas 4 KB; apertura UI asistida ADB en MIUI. Sólo bases/alias `test-*`; archivos demo conservados, sin `-g` ni cambios de red/permisos. Dataset 400 cifrado reabierto: alta p95 42,98 ms, 440 escrituras p95 42,44 ms. QR bitmap y proveedores no acreditan cámara física/GPS/portal. Ancho simulado no acredita tablet; TalkBack sigue pospuesto. [Guía y pendientes actuales](ROUND4_QA.md), [evidencia](evidencias/r4-android-2026-10-18.json). Los resultados inferiores conservan su fecha/APK y no se suman como una sola ejecución.

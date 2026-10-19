@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-19",
+  "source_commit": "904667536bbb99609ebb04363d6dc276fcf46c5a",
+  "apk_sha256": "b0294e115bb67972c758b36c7e8ab6dbce5573842bcf00def1f14fa1e5d35684",
+  "case": "M01",
+  "overall": "PARTIAL",
+  "human_report": {
+    "camera_denial_and_continue_manually_preserve_names": "PASS_REPORTED",
+    "return_from_system_settings_after_permission_change": "Welcome shown; unsaved fields lost",
+    "fresh_login_camera_open_cancel_without_applying": "NOT_VERIFIED"
+  },
+  "read_only_adb_observation": {
+    "method": "dumpsys activity exit-info for target package; installed base.apk sha256sum",
+    "recent_exits_device_local": [
+      {
+        "timestamp_device_local": "2026-10-19 00:48:24.593",
+        "reason": 8,
+        "reason_name": "PERMISSION CHANGE"
+      },
+      {
+        "timestamp_device_local": "2026-10-19 00:44:49.781",
+        "reason": 8,
+        "reason_name": "PERMISSION CHANGE"
+      },
+      {
+        "timestamp_device_local": "2026-10-19 00:44:03.278",
+        "reason": 8,
+        "reason_name": "PERMISSION CHANGE"
+      },
+      {
+        "timestamp_device_local": "2026-10-19 00:40:35.960",
+        "reason": 8,
+        "reason_name": "PERMISSION CHANGE"
+      }
+    ],
+    "permissions_or_data_changed_by_agent": false
+  },
+  "interpretation": "Permission-related process death is evidenced. Existing memory-only form/access state does not survive process death; no automatic persistence without consent.",
+  "limits": "History does not establish which individual grant/revoke click caused each exit; no before/after PID trace of the reported transition. No new automated suite, no proof of every camera/permission case, no database read/write by this diagnosis.",
+  "project_contracts": [
+    "docs/ROUND1_INTERFACES.md",
+    "docs/ROUND2_FORM_HUB.md",
+    "docs/SECURITY.md"
+  ],
+  "primary_references": [
+    "https://developer.android.com/reference/android/app/ApplicationExitInfo#REASON_PERMISSION_CHANGE",
+    "https://developer.android.com/topic/libraries/architecture/viewmodel#persistence"
+  ]
+}

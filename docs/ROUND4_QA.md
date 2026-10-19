@@ -30,12 +30,18 @@ El test opt-in de transición Wi-Fi no se invocó: necesita un cambio de red pre
 
 Usar sólo cuentas/fixtures ficticios. Identificar antes la APK y registrar modelo/API, fecha, pasos, resultado esperado/observado y mensajes exactos. No borrar datos para reiniciar el recorrido. Si se cambian permisos o red, empezar sin una captura abierta y restaurar la configuración después. No alterar una red compartida para provocar fallos.
 
+### Resultado parcial M01 · 19/10/2026
+
+El operador reporta que denegar Cámara y elegir «Continuar manualmente» conserva nombres/apellidos. Al ir a Ajustes, cambiar el permiso y volver, aparece bienvenida y se pierde el formulario sin guardar. Consulta ADB de sólo lectura: cuatro salidas recientes del paquete con `reason=8 (PERMISSION CHANGE)`; APK instalada coincide con `b0294e11…`. El historial confirma muertes por cambio de permisos, sin atribuir cada salida a una pulsación concreta de conceder/revocar. [Evidencia y límites](evidencias/r4-permisos-camara-2026-10-19.json).
+
+El formulario y acceso demo sólo viven en memoria; sobreviven a recreación de Activity con su dueño, pero no a muerte del proceso. No es una recuperación garantizada al volver de Ajustes. No se cambia a SavedState ni guardado automático sin consentimiento. Para estas pruebas, ajustar permisos sin una captura pendiente y luego abrir una nueva; si ya existe consentimiento válido, un borrador sólo se conserva tras guardado explícito correcto. Se corrige esta omisión de la guía anterior, sin cambiar código de la app. Apertura/cancelación de cámara después de reingresar sigue por verificar; M01 completo permanece parcial.
+
 ### M01 · cámara denegada y recuperación
 
 1. Sin formulario pendiente, entrar a Ajustes del teléfono → aplicaciones → Captura de Prospectos → permisos; denegar Cámara. No usar Borrar datos.
 2. Abrir una captura nueva y solicitar QR; denegar el permiso si aparece. Esperado: explicación y «Continuar manualmente», sin cierre de la app.
 3. Continuar manualmente; el RUT permanece editable. Volver a solicitar: cuando el sistema no permita repetir, «Abrir ajustes» debe abrir los ajustes de esta app.
-4. Conceder Cámara desde ajustes y volver. Abrir QR, cancelar y comprobar que no se aplicó ningún dato. Descartar sin guardar.
+4. Terminar o descartar la captura de prueba antes de cambiar el permiso en Ajustes. Conceder Cámara y volver; si Android terminó el proceso, reingresar y abrir una captura nueva. Abrir QR, cancelar y comprobar que no se aplicó ningún dato. Descartar sin guardar. La recuperación de un formulario no guardado tras muerte del proceso no forma parte del contrato volátil.
 
 ### M02 · GPS denegado, apagado y aproximado
 
