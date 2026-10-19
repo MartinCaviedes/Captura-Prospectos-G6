@@ -1,5 +1,9 @@
 # Cambios del producto
 
+## 1.0.1 · acción de eventos adaptable · 19/10/2026
+
+Se corrige el botón «Nuevo evento» que quedaba en una columna de letras en vertical. Se distribuye 1.0.1 (2), misma firma e identificador, sin cambios de negocio/datos/permisos/dependencias. 191 JVM y siete Android dirigidas aprobadas, Lint 30 avisos/0 errores; base demo conservada durante pruebas. [Método, alcance y comprobación física](UI_EVENTOS_RESPONSIVE.md). La evidencia previa conserva su APK/fecha; no cierre E1.
+
 11/10/2026 · Candidato visual E1 sobre 161f635: bienvenida, credenciales demo explícitas, menú compacto/ampliado, perfil, carga voluntaria de 24 ficticios y gráficos con métricas reales. Google/Microsoft se anuncian para el futuro sin conexión. Mejora contraste, lectura del consentimiento y autocorrección de correo/teléfono. Sin migraciones ni dependencias nuevas. 187 JVM, 5 + 22 Android separados y Lint 25 avisos/0 errores; usuario confirma acceso/formulario y giro en Xiaomi sin recortes ni pérdida de texto. [Guía y pendientes](UI_REFINEMENT_E1.md). Sin integración ni cierre humano de rondas.
 
 ## Comprobación acumulada y dataset real · 11/10/2026

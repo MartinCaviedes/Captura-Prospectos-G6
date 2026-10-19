@@ -4,7 +4,7 @@ Aplicación Android para registrar personas interesadas en estudiar en Duoc UC d
 
 El proyecto aborda el caso **Inscripción de potenciales clientes**, de la asignatura Desarrollo de Aplicaciones Móviles. Reúne los datos de contacto, los intereses académicos y el contexto de cada inscripción para facilitar el trabajo del equipo de captación, incluso sin conexión a internet.
 
-**[Descargar APK](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/download/e1-demo-2026-10-19/Captura-Prospectos-G6-E1-demo.apk)** · [Guía de instalación](docs/DISTRIBUCION_DEMO.md) · [QR para pruebas](docs/fixtures/qr/README.md) · [Documentación](docs/README.md)
+**[Descargar APK](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/download/e1-demo-1.0.1/Captura-Prospectos-G6-E1-demo.apk)** · [Guía de instalación](docs/DISTRIBUCION_DEMO.md) · [QR para pruebas](docs/fixtures/qr/README.md) · [Documentación](docs/README.md)
 
 ## Caso de negocio
 
@@ -42,9 +42,9 @@ La versión disponible corresponde a **E1**. El acceso es una demostración loca
 
 ## Descargar e instalar la demo E1
 
-Necesitas **Android 8.0 o superior**. La APK de evaluación se descarga gratuitamente desde [GitHub Releases](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e1-demo-2026-10-19), sin iniciar sesión en GitHub ni usar Google Play.
+Necesitas **Android 8.0 o superior**. La APK de evaluación se descarga gratuitamente desde [GitHub Releases](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e1-demo-1.0.1), sin iniciar sesión en GitHub ni usar Google Play.
 
-1. [Descarga Captura-Prospectos-G6-E1-demo.apk](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/download/e1-demo-2026-10-19/Captura-Prospectos-G6-E1-demo.apk) en tu teléfono y abre el archivo. Los ZIP de código fuente no son instaladores.
+1. [Descarga Captura-Prospectos-G6-E1-demo.apk](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/download/e1-demo-1.0.1/Captura-Prospectos-G6-E1-demo.apk) en tu teléfono y abre el archivo. Los ZIP de código fuente no son instaladores.
 2. Si Android lo solicita, permite instalar aplicaciones desde el navegador o gestor de archivos utilizado y completa la instalación.
 3. Abre la app y pulsa **Comenzar**. En **Cuentas de muestra**, elige un perfil para rellenar las credenciales y después pulsa **Ingresar**.
 4. Selecciona un evento para acceder a Inicio, Registros, Resumen y Perfil.

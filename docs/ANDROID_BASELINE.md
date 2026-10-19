@@ -1,5 +1,9 @@
 # Evidencia de la base Android
 
+## 1.0.1 · acción de eventos adaptable · 19/10/2026
+
+Se corrige el botón «Nuevo evento» que quedaba en una columna de letras en vertical. Se distribuye 1.0.1 (2), misma firma e identificador, sin cambios de negocio/datos/permisos/dependencias. 191 JVM y siete Android dirigidas aprobadas, Lint 30 avisos/0 errores; base demo conservada durante pruebas. [Método, alcance y comprobación física](UI_EVENTOS_RESPONSIVE.md). La evidencia previa conserva su APK/fecha; no cierre E1.
+
 ## Bienvenida con contenido de captura · 19/10/2026
 
 Por observación del operador se retira la ilustración de órbitas de WelcomeScreen. Se reemplaza por texto nativo adaptable: **Datos de contacto**, **Intereses académicos** y **Consentimiento**, con numeración informativa sin acciones o datos simulados. Conserva el estilo, tema, logos, título y botón Comenzar. Martín confirma además el icono aplicado en la APK previa 1f5c8b2b; esta confirmación se registra separada del nuevo texto.
