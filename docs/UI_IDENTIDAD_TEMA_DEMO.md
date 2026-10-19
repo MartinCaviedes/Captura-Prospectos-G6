@@ -1,5 +1,11 @@
 # Identidad, apariencia y muestra mixta · E1
 
+## Bienvenida con contenido de captura · 19/10/2026
+
+Por observación del operador se retira la ilustración de órbitas de WelcomeScreen. Se reemplaza por texto nativo adaptable: **Datos de contacto**, **Intereses académicos** y **Consentimiento**, con numeración informativa sin acciones o datos simulados. Conserva el estilo, tema, logos, título y botón Comenzar. Martín confirma además el icono aplicado en la APK previa 1f5c8b2b; esta confirmación se registra separada del nuevo texto.
+
+APK debug 22d3e9876628f4eb076bee009845737b32f808fdbad670353219c98bb368ae49: assembleDemoDebug y lintDemoDebug aprobados, firma/ZIP correctos, instalación -r -t conservando archivos de la base demo. Inspección del agente en screenshot real del Xiaomi oscuro/vertical: etiquetas completas y Comenzar visible. Lint 30 avisos/0 errores; se conserva el recurso gráfico anterior como antecedente, sin suprimir avisos. [Evidencia](evidencias/bienvenida-captura-2026-10-19.json). No suites automáticas nuevas ni release reconstruida por este cambio de presentación; 191 JVM/21 Android mantienen su APK 1f5c8b2b. No nueva validación humana del bloque, claro/horizontal/XXL/TalkBack/tablet ni cierre R4. Se publica en la misma rama/PR #11; sin merge ni cambios de estado, datos o reglas.
+
 19/10/2026. Martín solicita esta iteración e informa recomendación docente de usar logos oficiales para dar realismo. Es autorización de implementación académica, no aprobación institucional de la aplicación ni cambio de alcance remoto. Base pública b73bb00, rama feature/e1-identidad-tema-demo dependiente de [R4 #10](https://github.com/MartinCaviedes/Captura-Prospectos-G6/pull/10). Revisión del nuevo incremento desde esa base; no repetir como nuevo el código ya revisado de rondas anteriores. Sin merge ni cierre de RF/E1.
 
 ## Identidad

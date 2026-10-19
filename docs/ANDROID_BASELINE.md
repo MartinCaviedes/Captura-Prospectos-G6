@@ -1,5 +1,11 @@
 # Evidencia de la base Android
 
+## Bienvenida con contenido de captura · 19/10/2026
+
+Por observación del operador se retira la ilustración de órbitas de WelcomeScreen. Se reemplaza por texto nativo adaptable: **Datos de contacto**, **Intereses académicos** y **Consentimiento**, con numeración informativa sin acciones o datos simulados. Conserva el estilo, tema, logos, título y botón Comenzar. Martín confirma además el icono aplicado en la APK previa 1f5c8b2b; esta confirmación se registra separada del nuevo texto.
+
+APK debug 22d3e9876628f4eb076bee009845737b32f808fdbad670353219c98bb368ae49: assembleDemoDebug y lintDemoDebug aprobados, firma/ZIP correctos, instalación -r -t conservando archivos de la base demo. Inspección del agente en screenshot real del Xiaomi oscuro/vertical: etiquetas completas y Comenzar visible. Lint 30 avisos/0 errores; se conserva el recurso gráfico anterior como antecedente, sin suprimir avisos. [Evidencia](evidencias/bienvenida-captura-2026-10-19.json). No suites automáticas nuevas ni release reconstruida por este cambio de presentación; 191 JVM/21 Android mantienen su APK 1f5c8b2b. No nueva validación humana del bloque, claro/horizontal/XXL/TalkBack/tablet ni cierre R4. Se publica en la misma rama/PR #11; sin merge ni cambios de estado, datos o reglas.
+
 Iteración autorizada 19/10/2026 · identidad, apariencia y muestra mixta E1. Logo oficial Duoc UC desde su sitio, separado del símbolo propio de captura e icono adaptativo. Perfil permite claro/oscuro, preferencia booleana sin PII; fondos, controles, formulario y barras siguen el modo elegido. Carga voluntaria de 60 ficticios: conserva 24 sin contexto y añade 18 listas/12 borradores/6 anuladas, con ubicaciones simuladas declaradas y sin duplicar/reemplazar trabajo manual. 191 JVM/21 Android dirigidas aprobadas; Lint 29 avisos/0 errores. APK 1f5c8b2b: el operador confirma cambio de tema en todas las pestañas sin texto invisible, carga ficticia y visualización correctas. Reporte global, sin conteos numéricos ni validación independiente detallada de cada paso de la guía. Publicación en ramas propias para revisión, sin merge. Rama feature/e1-identidad-tema-demo depende del PR R4 #10; sin integración, nueva autenticación ni cambio de esquema/reglas. [Detalle y límites](UI_IDENTIDAD_TEMA_DEMO.md).
 
 ## R4 · acceso y giro corregido y comprobado · 19/10/2026
