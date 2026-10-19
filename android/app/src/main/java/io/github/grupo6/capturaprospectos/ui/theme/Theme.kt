@@ -1,8 +1,12 @@
 package io.github.grupo6.capturaprospectos.ui.theme
 
+import android.view.Window
+import androidx.core.view.WindowCompat
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
@@ -36,10 +40,22 @@ private val LightColors = lightColorScheme(
     outline = Color(0xFF8496AD), outlineVariant = Color(0xFFC4D0E3),
 )
 
-/** V3 fija la paleta institucional; el formulario usa su variante luminosa. */
+val LocalG6DarkTheme = staticCompositionLocalOf { true }
+
+/** La preferencia de apariencia comparte paleta y estado en todas las pantallas. */
 @Composable
 fun CapturaProspectosG6Theme(darkTheme: Boolean = true, content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = if (darkTheme) DarkColors else LightColors, typography = Typography,
-        shapes = Shapes(small = RoundedCornerShape(12.dp), medium = RoundedCornerShape(20.dp),
-            large = RoundedCornerShape(28.dp)), content = content)
+    CompositionLocalProvider(LocalG6DarkTheme provides darkTheme) {
+        MaterialTheme(colorScheme = if (darkTheme) DarkColors else LightColors, typography = Typography,
+            shapes = Shapes(small = RoundedCornerShape(12.dp), medium = RoundedCornerShape(20.dp),
+                large = RoundedCornerShape(28.dp)), content = content)
+    }
+}
+
+/** Los iconos de barras siguen la apariencia elegida, aunque difiera de la del teléfono. */
+fun applySystemBarAppearance(window: Window, darkMode: Boolean) {
+    WindowCompat.getInsetsController(window, window.decorView).apply {
+        isAppearanceLightStatusBars = !darkMode
+        isAppearanceLightNavigationBars = !darkMode
+    }
 }

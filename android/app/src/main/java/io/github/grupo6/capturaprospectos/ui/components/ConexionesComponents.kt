@@ -17,7 +17,7 @@ import io.github.grupo6.capturaprospectos.R
 import io.github.grupo6.capturaprospectos.ui.theme.*
 
 /** Luz y superficies sin aplicar blur al texto ni exigir APIs exclusivas de Android 12. */
-@Composable fun ConexionesBackground(modifier: Modifier = Modifier, light: Boolean = false,
+@Composable fun ConexionesBackground(modifier: Modifier = Modifier, light: Boolean = !LocalG6DarkTheme.current,
     content: @Composable BoxScope.() -> Unit) {
     BoxWithConstraints(modifier.background(MaterialTheme.colorScheme.background)) {
         val expanded = maxWidth >= 840.dp
@@ -42,18 +42,27 @@ import io.github.grupo6.capturaprospectos.ui.theme.*
 }
 
 @Composable fun DesignIcon(@DrawableRes resource: Int, modifier: Modifier = Modifier, description: String? = null) {
-    Image(painterResource(resource), description, modifier.size(24.dp), contentScale = ContentScale.Fit)
+    Image(painterResource(resource), description, modifier.size(24.dp), contentScale = ContentScale.Fit,
+        colorFilter = ColorFilter.tint(LocalContentColor.current))
 }
 
+/** La marca institucional conserva su trazado y área propia, separada del símbolo de la app. */
 @Composable fun ProductIdentity(modifier: Modifier = Modifier) {
-    Row(modifier.semantics { contentDescription = "Captura de Prospectos · Grupo 6" }, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Box(Modifier.size(44.dp).clip(RoundedCornerShape(20.dp)).background(G6Navy)
-            .border(1.dp, Color.White.copy(alpha=.18f),RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
-            Image(painterResource(R.drawable.g6_welcome_g6_v3_identidad_conexiones),null,Modifier.size(28.dp))
+    Column(modifier.semantics { contentDescription = "Captura de Prospectos · Grupo 6" },
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Box(Modifier.widthIn(max = 220.dp).fillMaxWidth().background(DuocBlack, MaterialTheme.shapes.small)
+            .padding(horizontal = 14.dp, vertical = 12.dp)) {
+            Image(painterResource(R.drawable.duoc_uc_oficial), "Duoc UC",
+                Modifier.fillMaxWidth().height(42.dp), contentScale = ContentScale.Fit)
         }
-        Column(Modifier.weight(1f)) {
-            Text("CAPTURA",style=MaterialTheme.typography.labelLarge)
-            Text("DE PROSPECTOS",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Image(painterResource(R.drawable.g6_capture_mark), null,
+                Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)))
+            Column(Modifier.weight(1f)) {
+                Text("CAPTURA", style = MaterialTheme.typography.labelLarge)
+                Text("DE PROSPECTOS", style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
     }
 }

@@ -1,5 +1,7 @@
 # Evidencia de la base Android
 
+Iteración autorizada 19/10/2026 · identidad, apariencia y muestra mixta E1. Logo oficial Duoc UC desde su sitio, separado del símbolo propio de captura e icono adaptativo. Perfil permite claro/oscuro, preferencia booleana sin PII; fondos, controles, formulario y barras siguen el modo elegido. Carga voluntaria de 60 ficticios: conserva 24 sin contexto y añade 18 listas/12 borradores/6 anuladas, con ubicaciones simuladas declaradas y sin duplicar/reemplazar trabajo manual. 191 JVM/21 Android dirigidas aprobadas; Lint 29 avisos/0 errores. APK 1f5c8b2b instalada; verificación visual humana pendiente. Rama feature/e1-identidad-tema-demo depende del PR R4 #10; sin integración, nueva autenticación ni cambio de esquema/reglas. [Detalle y límites](UI_IDENTIDAD_TEMA_DEMO.md).
+
 ## R4 · acceso y giro corregido y comprobado · 19/10/2026
 
 El operador confirma bienvenida/acceso/evento legibles y alcanzables con XXL, completando el recorrido visual del teléfono en APK 733104d7. Detecta un fallo funcional independiente: el giro borra correo/contraseña rellenados por cuenta de muestra. DemoAccessScreen los mantenía con remember, perdido al recrear Activity. DemoAccessRoute ahora observa DemoAccessViewModel; éste retiene el borrador sólo en memoria, consume la contraseña al enviar y limpia credenciales al logout/onCleared. No SavedState, disco, Room, nuevo proveedor ni cambio de autenticación E1/E2. La contraseña vuelve a estar oculta tras recreación.

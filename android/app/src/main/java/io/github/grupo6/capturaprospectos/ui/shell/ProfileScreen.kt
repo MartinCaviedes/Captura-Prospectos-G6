@@ -15,7 +15,8 @@ import io.github.grupo6.capturaprospectos.ui.components.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun ProfileScreen(profile: DemoProfile,event: CaptureEvent,data: DemoDataState,
-    onChangeEvent: ()->Unit,onLoadData: ()->Unit,onLogout: ()->Unit,modifier: Modifier=Modifier) {
+    onChangeEvent: ()->Unit,onLoadData: ()->Unit,onLogout: ()->Unit,modifier: Modifier=Modifier,
+    darkMode: Boolean = true, onDarkModeChange: (Boolean)->Unit = {}) {
     var confirmLoad by remember { mutableStateOf(false) }
     var photoSheet by remember { mutableStateOf(false) }
     val initials=profile.displayName.split(" ").filter { it.isNotBlank() }.take(2).joinToString("") { it.take(1) }.uppercase()
@@ -31,8 +32,8 @@ import io.github.grupo6.capturaprospectos.ui.components.*
             TextButton({photoSheet=false}) { Text("Cancelar") }
         }
     }
-    if(confirmLoad) AlertDialog(onDismissRequest={confirmLoad=false},title={Text("¿Preparar 24 prospectos ficticios?")},
-        text={Text("Se guardan en el evento demo seleccionado con consentimiento ficticio y sin ubicación. No se borran registros previos. Repetir la carga no duplica inscripciones activas con el mismo RUT.")},
+    if(confirmLoad) AlertDialog(onDismissRequest={confirmLoad=false},title={Text("¿Preparar inscripciones de muestra?")},
+        text={Text("La muestra completa incluye 24 sin contexto, 18 listas, 12 borradores y 6 anuladas. Usará consentimiento y coordenadas simulados; no prueba GPS. Conserva los registros previos y omite los que ya existen, aunque se hayan editado.")},
         confirmButton={TextButton({confirmLoad=false;onLoadData()}) { Text("Crear datos ficticios") }},
         dismissButton={TextButton({confirmLoad=false}) { Text("Cancelar") }})
     LazyColumn(modifier,contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
@@ -44,6 +45,18 @@ import io.github.grupo6.capturaprospectos.ui.components.*
                 Text(DemoAccessFixtures.accounts.firstOrNull { it.actorId==profile.actor.id }?.email.orEmpty(),
                     style=MaterialTheme.typography.labelLarge,color=MaterialTheme.colorScheme.onSurfaceVariant)
                 OutlinedButton({photoSheet=true},modifier=Modifier.fillMaxWidth()) { Text("Cambiar foto") }
+            }
+        } }
+        item { GlassCard {
+            Column(Modifier.fillMaxWidth().padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                Text("Apariencia", style = MaterialTheme.typography.titleMedium)
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Modo oscuro", Modifier.weight(1f))
+                    Switch(darkMode, onDarkModeChange,
+                        modifier = Modifier.semantics { contentDescription = "Modo oscuro" })
+                }
+                Text(if (darkMode) "Oscuro" else "Claro", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } }
         item { GlassCard {

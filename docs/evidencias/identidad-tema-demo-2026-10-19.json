@@ -1,0 +1,257 @@
+{
+  "date": "2026-10-19",
+  "base_commit": "b73bb007d4780e287b33a4343b4d543eff755fd1",
+  "branch": "feature/e1-identidad-tema-demo",
+  "depends_on_public_pr": 10,
+  "scope": "E1 visual autorizado: logo oficial/identidad/icono propio, apariencia elegible y datos ficticios mixtos por repositorios existentes",
+  "jvm": {
+    "tests": 191,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 29,
+    "reviewed_new_warning_types": {
+      "UnusedResources": "Previous identity PNG retained as historical Figma resource",
+      "UseKtx": "SharedPreferences.edit extension suggestion; same behavior, no check disabled"
+    }
+  },
+  "android": {
+    "mode": "after",
+    "pass_result": true,
+    "demo_files_unchanged": true,
+    "seconds": 147.95,
+    "classes": [
+      "ui.access.DemoAccessRoomTest",
+      "ui.access.DemoAccessRecreationTest",
+      "ui.access.DemoVisualUiTest",
+      "ui.admission.AdmissionFormUiTest",
+      "ui.shell.ProfileAppearanceUiTest",
+      "ui.components.CalendarRecreationTest",
+      "ui.hub.HubConnectivityUiTest",
+      "ui.hub.HubMetricsRoomUiTest",
+      "data.device.ConnectivityAndroidTest"
+    ],
+    "apk_sha256": "1f5c8b2bf4165c667aabebd5284511217c8dc13460a125424f2e03968cd77a98",
+    "instrumental_sha256": "348b8a04781b23d74bec176920bddfb728ff2d6f411f229ce4edebdb519db597",
+    "assists": [
+      "interruptedLoadResumesWithoutDuplicatingLegacyDraftOrCancelledSamples",
+      "fixtureMixIsIdempotentPreservesManualEditsAndSupervisorScope",
+      "largeTextKeepsDarkFormActionsReadableAndUsable",
+      "largeTextKeepsDarkFormActionsReadableAndUsable",
+      "profileChangesThemeAndNewOwnerReadsOnlyAppearancePreference",
+      "supervisorSeesAuthorizedEventAndLocalCountsWithoutCapturePermission",
+      "refreshingAfterCancellationUsesRoomAndInvalidRangePreservesLastCalculation",
+      "rangeCalendarsCancelOrFillOnlyTheirFieldUntilRangeIsApplied",
+      "manualEditsSurviveRecreationAndSubmittedPasswordIsNotRestored",
+      "logoutAndNewActivityRequireFreshCredentials",
+      "logoutAndNewActivityRequireFreshCredentials",
+      "sampleCredentialsSurviveRecreationWithoutAutomaticLoginAndPasswordRemainsMasked",
+      "changingObserverReleasesPreviousSubscriptionAndIgnoresItsLateUpdates",
+      "lossAndRecoveryUpdateBannerWithoutNavigationOrRestartingObservation",
+      "birthDialogAndCandidateSurviveRecreationUntilExplicitConfirmationOrCancel",
+      "birthDialogAndCandidateSurviveRecreationUntilExplicitConfirmationOrCancel",
+      "bothRangeDialogsAndExpandedFieldsSurviveRecreationWithoutApplyingRange",
+      "phoneNavigationChangesDestinationsAndDisablesDuringOperation",
+      "expandedLayoutUsesSideMenuWithSimulatedWindowWidthAndLargeText",
+      "credentialsAreRequiredAndExternalProvidersStayDisabledWithLargeText",
+      "sampleAccountFillsCredentialsWithoutSigningIn"
+    ],
+    "tests_ok": [
+      "21"
+    ],
+    "status_codes": {
+      "0": 21,
+      "-1": 0,
+      "-2": 0,
+      "-3": 0,
+      "-4": 0
+    },
+    "failure_expected_credentials_lost": false,
+    "network_or_permission_changes_by_runner": false
+  },
+  "artifacts": {
+    "debug": {
+      "sha256": "1f5c8b2bf4165c667aabebd5284511217c8dc13460a125424f2e03968cd77a98",
+      "bytes": 46810453,
+      "zipalign_16kb_verified": true,
+      "signature_verified": true
+    },
+    "instrumental": {
+      "sha256": "348b8a04781b23d74bec176920bddfb728ff2d6f411f229ce4edebdb519db597",
+      "bytes": 1431573,
+      "zipalign_16kb_verified": true,
+      "signature_verified": true
+    },
+    "release_unsigned": {
+      "sha256": "d10f7938f603ad67f90fc8b4ff65c2a8716ebbcd3f48710192c7eea8da48b0d1",
+      "bytes": 41037673,
+      "zipalign_16kb_verified": true,
+      "unsigned": true,
+      "signature_verified": false,
+      "installed": false
+    }
+  },
+  "native_debug": {
+    "libraries": 20,
+    "identical_to_debug_8a02596d": true,
+    "runtime_16kb_tested": false
+  },
+  "assets": {
+    "date": "2026-10-19",
+    "official_logo_source": "https://www.duoc.cl/wp-content/themes/wordpress-duoc-cl/images/logo-duoc.svg",
+    "manual": "https://www.duoc.cl/wp-content/uploads/2024/11/MANUAL-DE-IDENTIDAD-CORPORATIVA-DUOC-UC-2024_70111139.pdf",
+    "official_logo_transform": "Original SVG preserved; whole SVG rasterized at 4x, no path edits, no tint or aspect change",
+    "app_mark": "Original repository-native vector: person enclosed by four capture corners; navy/gold/white, independent of official logo",
+    "files": {
+      "android/app/src/main/assets/branding/duoc-oficial.svg": {
+        "sha256": "f7af934ef0cbcd9e94634b3007d3c36698708a0c57deb6f10544c9916b713b91",
+        "bytes": 48181
+      },
+      "android/app/src/main/assets/branding/captura-mark.svg": {
+        "sha256": "cfff5cb516af0dbc4797bb97af366418250533e9c9ebe6956133fcaf37ad245d",
+        "bytes": 478
+      },
+      "android/app/src/main/res/drawable-nodpi/duoc_uc_oficial.png": {
+        "sha256": "a7b32944f109540fbc03bcdde6b420bc57a6fd06a893719562c1966055c73b17",
+        "bytes": 97315
+      }
+    }
+  },
+  "fixtures": {
+    "complete_batch": 60,
+    "legacy_needs_context": 24,
+    "new_ready": 18,
+    "new_draft": 12,
+    "new_cancelled": 6,
+    "active_captor_metrics": 42,
+    "captor_drafts": 12,
+    "supervisor_drafts": 0,
+    "cancel_audits": 6,
+    "coordinates": "Device fixture (0,0), 5 m synthetic accuracy; explicitly disclosed on confirmation, not real GPS evidence",
+    "old_data": "Preserved; repetitions include cancelled/draft lookup, manual revisions skipped, interrupted cancel resumed only for unedited owned fixture revision 1",
+    "writes": "AdmissionRepository.create and RecordRepository.cancel; no direct DAO writes by fixture loader"
+  },
+  "appearance": {
+    "default": "dark",
+    "options": [
+      "light",
+      "dark"
+    ],
+    "store": "appearance SharedPreferences, dark_mode Boolean only",
+    "survives": "Fresh preference owner reads saved choice tested; human cold reopening not yet reported",
+    "form": "Theme follows selected appearance, Surface explicitly owns content colors",
+    "logo": "Official white logo on navy reserved area in either theme, no tint; app symbol separately in UI and adaptive launcher"
+  },
+  "sources": {
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/access/DemoAccessRoomTest.kt": {
+      "sha256": "f87b64c6da8e062420389328f556e04cd8ac883f955f770425669cd65db2e0ad"
+    },
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormUiTest.kt": {
+      "sha256": "737671ee387f631c0a7adcbfb917d6352b01566fce8e01bc97d6b18a8f3cb3d1"
+    },
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/shell/ProfileAppearanceUiTest.kt": {
+      "sha256": "61bfc68d838badc6d1a50c33b11c3f0fe907f4b7f16709c3c3115a7814dbf6a3"
+    },
+    "android/app/src/main/assets/branding/captura-mark.svg": {
+      "sha256": "cfff5cb516af0dbc4797bb97af366418250533e9c9ebe6956133fcaf37ad245d"
+    },
+    "android/app/src/main/assets/branding/duoc-oficial.svg": {
+      "sha256": "f7af934ef0cbcd9e94634b3007d3c36698708a0c57deb6f10544c9916b713b91"
+    },
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/MainActivity.kt": {
+      "sha256": "84d340cb4a5fa2c00f79ef5e43c71b183f4dbd012e3b8ec7caebf0f8115f064d"
+    },
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/access/DemoDataViewModel.kt": {
+      "sha256": "c5d05d8a19dbd1d5a0c121be94a0703ff7d2d20a77f28908a6d48252da871a32"
+    },
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/admission/AdmissionFormComponents.kt": {
+      "sha256": "cd55e65fdc4f3f566dd3c6fdcc51f7f6b249e416d4e29cbb1257e68c4976730c"
+    },
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/components/ConexionesComponents.kt": {
+      "sha256": "e29df9c339f3c9e60e6c78bb84ab1ed4633b196fe7971b44fb1c21584002928f"
+    },
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/context/ContextSessionOwner.kt": {
+      "sha256": "6ed71edd2e9633425f0275d1088f38aeed0b6ffab902684a2ec06668359c35b0"
+    },
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/hub/MainHubScreen.kt": {
+      "sha256": "b787604a9a023943854e672de2392ac9087c5ff6a97118eca6b52631c5b6ece0"
+    },
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/shell/ProfileScreen.kt": {
+      "sha256": "95addf47b3e032ad37697315beec0c55342de2baa71ae4dc5e37d51e6ce9caca"
+    },
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/theme/AppearanceViewModel.kt": {
+      "sha256": "38ceb7e5fa59ca368a13ed6713c6c5e33211c57df9eb0e5bcf5f3087a7916247"
+    },
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/theme/Theme.kt": {
+      "sha256": "9fa20193a85d5db4e5c561107952e2939ab580ab2251a81df36ec0864692ff5b"
+    },
+    "android/app/src/main/res/drawable-nodpi/duoc_uc_oficial.png": {
+      "sha256": "a7b32944f109540fbc03bcdde6b420bc57a6fd06a893719562c1966055c73b17"
+    },
+    "android/app/src/main/res/drawable/g6_capture_mark.xml": {
+      "sha256": "e746aa95782161fa71b4692b5ec3dd417117c9e0c6ae8a2763532632bb8db2bc"
+    },
+    "android/app/src/main/res/drawable/ic_launcher_background.xml": {
+      "sha256": "6c3a72a9bb6c9986dc4b61067f5bedb9e8cefc69ce6b4625e08859d889c980f2"
+    },
+    "android/app/src/main/res/drawable/ic_launcher_foreground.xml": {
+      "sha256": "7bc7f67b0d15382fcf020061076f6cd3d1549c02b553d511081f79c50223f866"
+    },
+    "android/app/src/main/res/drawable/ic_launcher_monochrome.xml": {
+      "sha256": "5a51b66312a22722830213e418573d7c8414e16f2ba5f09ad6fc20c9e9360f58"
+    },
+    "android/app/src/main/res/mipmap-anydpi/ic_launcher.xml": {
+      "sha256": "82add00a72df2cdba968fe524e20f108a89b90b1e22ee1f9c8bf6d43f195abea"
+    },
+    "android/app/src/main/res/mipmap-anydpi/ic_launcher_round.xml": {
+      "sha256": "82add00a72df2cdba968fe524e20f108a89b90b1e22ee1f9c8bf6d43f195abea"
+    },
+    "android/app/src/main/res/mipmap-hdpi/ic_launcher.webp": {
+      "sha256": "4af1a3f6cdcde699bcbdb5e58988d3a3dfbed3421d58951ae332f33fcf5636ce"
+    },
+    "android/app/src/main/res/mipmap-hdpi/ic_launcher_round.webp": {
+      "sha256": "b30ac5981abde32cca3981458423cdbc046550f3e07dc0fdc98a21657ebe132a"
+    },
+    "android/app/src/main/res/mipmap-mdpi/ic_launcher.webp": {
+      "sha256": "7d952e7a6978c3019206cf96436967c424c6f6944d14660b38b6634e01ad598b"
+    },
+    "android/app/src/main/res/mipmap-mdpi/ic_launcher_round.webp": {
+      "sha256": "df13e2da6cc6d348f4793bcf84d4e84a3e18a1224cabb83c9642c34ae9bfd329"
+    },
+    "android/app/src/main/res/mipmap-xhdpi/ic_launcher.webp": {
+      "sha256": "256ca485a8626d273cc0fde73e240e7687f34a9e50fd81e67d32ab61e4f5a207"
+    },
+    "android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp": {
+      "sha256": "145536441647315f861543d93fd304512ace244764c85a9927fe49361692147f"
+    },
+    "android/app/src/main/res/mipmap-xxhdpi/ic_launcher.webp": {
+      "sha256": "50158e58237f3e22b952e7bb57b159cfdf6231b336630c97175a1cf3d31160d9"
+    },
+    "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp": {
+      "sha256": "2e48f8d38f0cf81ff1b13a1f4599909fb8dd96d7fda7bd7926a0de63a770b7e9"
+    },
+    "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp": {
+      "sha256": "7cd99f8f3044268c52140fc88164a30e7025097f5cfdb1aac528dcc35f0c52c7"
+    },
+    "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp": {
+      "sha256": "47a8affef074729d52b1bacadcfc64aa80f2a5c1420be59e9666ff379018c7e1"
+    }
+  },
+  "manual_verification": "PENDING: branding/icon, toggle in both directions, visual/giro, manual fixture confirmation and summary counts on installed APK",
+  "prior_pass": {
+    "tests": 21,
+    "apk_sha256": "d3f1ae42481290bacfacba7f1197053179b864cb9d1e44a8e260611415b17c93",
+    "scope": "Before system bar/nodpi/round-icon adjustments, stored separately in first-pass; not summed into final run"
+  },
+  "limits": [
+    "21 selected Android in one run with MIUI UI assistance; preserves demo database files, tests use isolated databases/preferences",
+    "Pixel-perfect visual, TalkBack and physical tablet require operator; automated text contrast is a controlled style check, not a full accessibility audit",
+    "Synthetic GPS/consent in sample rows do not prove location, consent by a real person, presence at event or institutional acceptance",
+    "No Room schema/catalogue change, new dependencies/roles/remote authentication/ACK or E2 work",
+    "Release compiled unsigned, not installed. Native alignment checked statically; no runtime 16KB, backup/transfer or portal evidence",
+    "Depends on published R4 candidate PR #10; no merge or closure E1/RF by this iteration"
+  ]
+}

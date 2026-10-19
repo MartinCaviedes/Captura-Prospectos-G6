@@ -115,7 +115,8 @@ class ContextSessionOwner(
     fun data(): DemoDataViewModel =
         ViewModelProvider(demoData, object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST") override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                DemoDataViewModel((state.value as ContextSessionState.Ready).admissionRepository) as T
+                DemoDataViewModel((state.value as ContextSessionState.Ready).admissionRepository,
+                    (state.value as ContextSessionState.Ready).recordRepository) as T
         })[DemoDataViewModel::class.java].also { dataConsumer = it }
 
     @MainThread
