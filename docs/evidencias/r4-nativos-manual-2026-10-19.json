@@ -187,6 +187,20 @@
         "No acredita TalkBack, tablet físico, todos los equipos ni cierre completo de M06/R4",
         "Sin nueva compilación, APK, instalación o suites automáticas"
       ]
+    },
+    {
+      "id": "M06-entry-visual-pass-login-rotation-failure",
+      "source": "Reporte directo de Martín tras el recorrido inicial con XXL solicitado",
+      "apk_sha256": "733104d7dd1bbbe9c2d916730026d21229fb8abd121760a4e32ff6c51351cc19",
+      "visual_result": "PASS_REPORTED_FOR_GUIDED_SCOPE",
+      "functional_result": "FAIL_REPORTED_LOGIN_CREDENTIALS_LOST_ON_ROTATION",
+      "reported_result": "Bienvenida, login y selección de evento funcionan sin recortes ni controles inaccesibles. Tras rellenar correo/contraseña con cuenta de muestra, girar borra los campos; no depende de la fuente.",
+      "font_setting": "XXL según el recorrido solicitado, escala numérica no medida",
+      "limits": [
+        "Reporte visual no convierte en PASS el fallo funcional de giro",
+        "No afirma recuperación tras muerte del proceso ni pruebas de TalkBack/tablet/portal",
+        "La repetición física del arreglo en APK nueva sigue pendiente"
+      ]
     }
   ],
   "status": {
@@ -195,7 +209,7 @@
     "M03": "Valid QR recognized, confirmed only RUT; unsupported rejected with manual fallback and existing fields preserved: PASS_REPORTED for guided scope",
     "M04": "Initial stale offline banner on b0294e11; corrected 733104d7 loss/recovery without navigation PASS_REPORTED. Earlier form preservation belongs to b0294e11.",
     "M05": "NOT_RUN: operator reports no controlled network available",
-    "M06": "Guided visual flow with Xiaomi font XXL PASS_REPORTED; numeric scale not measured. Welcome/login/event at XXL, deferred TalkBack and physical tablet remain pending."
+    "M06": "Guided phone visual XXL: main/form and welcome/login/event PASS_REPORTED on 733104d7. Separate functional FAIL: login fields lost on rotation. Corrected APK 8a02596d automatic recreation passed; physical retest pending. TalkBack deferred and physical tablet pending."
   },
   "limits": [
     "Human reports only in this file; build and automated fix evidence are recorded separately in r4-conectividad-fix-2026-10-19.json",
@@ -207,7 +221,7 @@
   ],
   "pending": [
     "M05 controlled portal/no internet",
-    "M06 welcome/login/event with XXL; TalkBack deferred; physical tablet",
+    "M06 physical retest of login rotation fix; TalkBack deferred; physical tablet",
     "contract/signing/delivery decisions"
   ]
 }

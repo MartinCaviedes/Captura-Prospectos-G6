@@ -1,5 +1,7 @@
 # Arquitectura propuesta del prototipo
 
+R4 · giro de acceso 19/10: DemoAccessRoute observa DemoAccessViewModel, dueño de correo/contraseña en memoria durante recreación de Activity. El envío consume la contraseña; logout/onCleared limpian el borrador. No SavedState ni persistencia de credenciales, ni restauración tras muerte del proceso. [Evidencia y estado del candidato](ROUND4_QA.md).
+
 Incremento visual E1 del 11/10: MainActivity compone bienvenida, acceso demo transitorio, selector de evento y menú Inicio/Registros/Resumen/Perfil. DemoAccessViewModel conserva actor sólo en memoria y selecciona el perfil confirmado por DemoContextViewModel; no usa tokens ni SavedState. ContextSessionOwner retiene DemoDataViewModel, cancela/espera su trabajo antes de cerrar Room. La carga opcional de fixtures pasa por AdmissionRepository.create; gráficos consumen métricas reales. Formulario y bandeja conservan sus dueños y guardas de descarte/escritura. [Alcance, evidencia y límites](UI_REFINEMENT_E1.md).
 
 Actualización de evidencia 08/10: A06 en 978ca91 mantiene Room v3; 58 JVM y 28 instrumentadas aprobadas. Revisión humana/integración pendientes. Los conteos de 24 en el antecedente del 06/10 identifican la suite anterior; ver [ANDROID_BASELINE](ANDROID_BASELINE.md) para resultados por incremento.

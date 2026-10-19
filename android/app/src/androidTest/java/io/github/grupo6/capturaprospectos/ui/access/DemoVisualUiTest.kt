@@ -1,6 +1,7 @@
 package io.github.grupo6.capturaprospectos.ui.access
 
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -21,7 +22,7 @@ class DemoVisualUiTest {
         var submitted: Pair<String,String>? = null
         compose.setContent {
             CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density,1.5f)) {
-                CapturaProspectosG6Theme(darkTheme = true) { DemoAccessScreen(DemoAccessState(welcome=false),true,false,
+                CapturaProspectosG6Theme(darkTheme = true) { DemoAccessRoute(ViewModelProvider(compose.activity)[DemoAccessViewModel::class.java],true,false,
                     { email,password -> submitted = email to password }) }
             }
         }
@@ -42,7 +43,7 @@ class DemoVisualUiTest {
     @Test fun sampleAccountFillsCredentialsWithoutSigningIn() {
         var submitted: Pair<String,String>? = null
         compose.setContent { CapturaProspectosG6Theme {
-            DemoAccessScreen(DemoAccessState(welcome=false),true,false,{ email,password -> submitted=email to password })
+            DemoAccessRoute(ViewModelProvider(compose.activity)[DemoAccessViewModel::class.java],true,false,{ email,password -> submitted=email to password })
         } }
         compose.onNode(hasScrollAction()).performScrollToNode(hasText("Cuentas de muestra"))
         compose.onNodeWithText("Cuentas de muestra").performClick()

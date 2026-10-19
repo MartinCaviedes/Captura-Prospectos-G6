@@ -12,14 +12,32 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 data class DemoAccessState(val welcome: Boolean = true, val actorId: UUID? = null,
-    val busy: Boolean = false, val error: String? = null)
+    val busy: Boolean = false, val error: String? = null,
+    val email: String = "", val password: String = "") {
+    override fun toString() = "DemoAccessState(welcome=$welcome, actorId=$actorId, busy=$busy, credentials=redacted)"
+}
 
 /** Barrera de evaluación local, no autenticación ni control de seguridad institucional.
- * No guarda contraseñas, tokens o una sesión en SavedState/Room. */
+ * El borrador de credenciales sobrevive a recreaciones sólo en memoria del ViewModel.
+ * No persiste contraseñas, tokens o sesión en SavedState/Room. */
 class DemoAccessViewModel : ViewModel() {
     private val mutable = MutableStateFlow(DemoAccessState())
     val uiState = mutable.asStateFlow()
     fun begin() { mutable.update { it.copy(welcome = false) } }
+    fun editEmail(value: String) { if (!mutable.value.busy) mutable.update { it.copy(email = value, error = null) } }
+    fun editPassword(value: String) { if (!mutable.value.busy) mutable.update { it.copy(password = value, error = null) } }
+    fun selectSample(email: String) {
+        if (mutable.value.busy || DemoAccessFixtures.accounts.none { it.email == email }) return
+        mutable.update { it.copy(email = email, password = DemoAccessFixtures.PASSWORD, error = null) }
+    }
+    /** Consume la contraseña antes de validar; no reaparece al recrear tras un intento fallido. */
+    fun submitDraft(onSubmit: (String, String) -> Unit) {
+        val draft = mutable.value
+        if (draft.busy) return
+        mutable.update { it.copy(password = "") }
+        onSubmit(draft.email, draft.password)
+    }
+
     fun submit(email: String, password: String, context: DemoContextViewModel) {
         if (mutable.value.busy || context.uiState.value.busy) return
         val profiles = (context.uiState.value.context as? DemoContextState.Ready)?.snapshot?.profiles.orEmpty()
@@ -44,4 +62,5 @@ class DemoAccessViewModel : ViewModel() {
         }
     }
     fun logout() { if (!mutable.value.busy) mutable.value = DemoAccessState(welcome = false) }
+    override fun onCleared() { mutable.value = DemoAccessState(); super.onCleared() }
 }

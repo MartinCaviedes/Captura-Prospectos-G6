@@ -1,5 +1,7 @@
 # 📱 Captura de Prospectos — Grupo 6
 
+**R4 · candidato local de giro del acceso 19/10/2026.** Visual XXL inicial comprobado; el operador detecta pérdida de credenciales al girar. Borrador retenido sólo en DemoAccessViewModel, sin almacenamiento. Regresión falla antes/pasa después; 191 JVM, 14 Android dirigidas y Lint 27 avisos/0 errores. APK `8a02596d…` instalada, repetición física pendiente antes de publicar. [QA vigente](docs/ROUND4_QA.md). Sin merge ni cierre R4.
+
 **R4 · visual XXL comprobado 19/10/2026.** El operador completa el recorrido guiado en Xiaomi, fuente XXL, sin botones/textos cortados, ilegibles ni inaccesibles (APK `733104d7…`). Escala numérica no medida; [alcance y pendientes](docs/ROUND4_QA.md). Seguimiento documental, sin nueva APK/suites, merge ni cierre R4.
 
 **R4 · acceso a Ajustes comprobado 19/10/2026.** El operador confirma «Abrir ajustes» desde Cámara denegada, ficha correcta y regreso tras conceder permiso sin reinicio ni descarte en ese intento (APK `733104d7…`). M01 guiado comprobado; no garantiza recuperación tras muerte de proceso. [QA vigente](docs/ROUND4_QA.md). Seguimiento documental, sin nueva APK ni suites; R4 mantiene pendientes y PR #10 sin merge.
