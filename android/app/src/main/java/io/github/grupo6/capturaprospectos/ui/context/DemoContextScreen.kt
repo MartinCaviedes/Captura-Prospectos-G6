@@ -106,14 +106,16 @@ fun DemoContextScreen(
                     snapshot.currentProfile == null -> item { Text("Elige un perfil para consultar sus eventos.") }
                     snapshot.currentProfile.actor.role == LocalRole.SUPERVISOR -> {
                         item {
-                            Row(
+                            FlowRow(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
                                 Text("2. Evento para supervisar", style = MaterialTheme.typography.titleLarge,
-                                    modifier = Modifier.semantics { heading() })
-                                FilledTonalButton(onClick = onCreateEvent, enabled = !state.busy) {
+                                    modifier = Modifier.align(androidx.compose.ui.Alignment.CenterVertically)
+                                        .semantics { heading() })
+                                FilledTonalButton(onClick = onCreateEvent, enabled = !state.busy,
+                                    modifier = Modifier.align(androidx.compose.ui.Alignment.CenterVertically)) {
                                     Text("Nuevo evento")
                                 }
                             }
