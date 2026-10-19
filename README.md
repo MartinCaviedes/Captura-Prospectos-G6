@@ -4,6 +4,20 @@ Aplicación Android para registrar personas interesadas en estudiar en Duoc UC d
 
 El proyecto nace del caso **Inscripción de potenciales clientes**, en la asignatura Desarrollo de Aplicaciones Móviles de Duoc UC Viña del Mar. Su objetivo es digitalizar la captura de datos e intereses académicos, reducir la transcripción manual y conservar registros con su consentimiento y contexto, incluso cuando no haya conexión.
 
+## Descargar e instalar la demo E1
+
+La [versión preliminar de evaluación](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e1-demo-2026-10-19) se distribuye gratuitamente como APK para **Android 8.0 o superior**, sin Google Play. Puedes descargarla sin iniciar sesión en GitHub.
+
+1. **[Descarga Captura-Prospectos-G6-E1-demo.apk](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/download/e1-demo-2026-10-19/Captura-Prospectos-G6-E1-demo.apk)** desde tu teléfono Android y abre el archivo. Los ZIP de código fuente no son instaladores.
+2. Si Android lo solicita, permite Instalar aplicaciones desconocidas para el navegador o gestor de archivos utilizado e instala la app. No necesitas Android Studio ni depuración USB.
+3. Pulsa Comenzar y usa Cuentas de muestra → Captador A para rellenar los campos; después pulsa Ingresar. También puedes escribir `captador.a@g6.example` y la contraseña ficticia `DemoG6!2026`.
+4. Elige un evento. Para ver registros y gráficos, abre Perfil → Preparar datos ficticios, revisa el aviso y confirma. La muestra completa por contexto incluye 18 listas, 24 sin contexto, 12 borradores y 6 anuladas; los totales pueden variar si ya existen datos o modificaciones.
+5. Prueba el escáner con el [QR ficticio válido y el QR no compatible](https://github.com/MartinCaviedes/Captura-Prospectos-G6/tree/e1-demo-2026-10-19/docs/fixtures/qr), mostrados en otra pantalla o impresos. El válido aplica sólo el RUT tras confirmar; el no compatible debe permitir continuar manualmente sin borrar campos.
+
+Consulta la **[guía completa de instalación y pruebas](https://github.com/MartinCaviedes/Captura-Prospectos-G6/blob/e1-demo-2026-10-19/docs/DISTRIBUCION_DEMO.md)** para el acceso como Captador B/Supervisor, los límites y los checksums.
+
+Esta descarga es una demo/debug firmada para desarrollo, con datos ficticios y almacenamiento local por dispositivo, sin sincronización E1. La APK corresponde a la etiqueta enlazada; no se afirma que el código de `main` ya incluya los PR posteriores pendientes. El soporte de cédula real queda aplazado a E2. No desinstales una versión anterior sin considerar sus datos locales.
+
 ## 🎯 Caso de uso
 
 El recorrido previsto comienza con el captador seleccionando su perfil y evento. Luego registra los datos del prospecto, sus carreras de interés y preferencias, confirma el consentimiento y guarda la inscripción. La aplicación permitirá recuperar esos registros y consultar un resumen del trabajo realizado.
