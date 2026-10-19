@@ -1,0 +1,158 @@
+{
+  "date": "2026-10-19",
+  "parent_commit": "b7037e836e649822ca9e0b2915cbf64e40c56782",
+  "scope": "E1 QA / RF01 local / RNF07: borrador de credenciales retenido en DemoAccessViewModel durante recreación; sin SavedState ni persistencia",
+  "functional_change": "DemoAccessRoute observa el estado de acceso; muestra y edita correo/contraseña desde su ViewModel de Activity. Se consume contraseña al enviar y se limpia borrador al logout/onCleared. Estado no imprime credenciales en toString.",
+  "jvm": {
+    "tests": 191,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 27
+  },
+  "artifacts": {
+    "debug": {
+      "sha256": "8a02596d62bb639f52fb37503d3f33b4810fa24450d41c8eeccb441527301654",
+      "bytes": 46053239,
+      "zipalign_16kb_verified": true,
+      "signature_verified": true
+    },
+    "instrumental": {
+      "sha256": "e010ea1b05adfa369025811248a232b52bebc3d8e3f23f1a189f93c04fc96ca7",
+      "bytes": 1395258,
+      "zipalign_16kb_verified": true,
+      "signature_verified": true
+    },
+    "release_unsigned": {
+      "sha256": "af865dde4a05903ea6a4aa6c473031117e205078101a677d345cec6793925521",
+      "bytes": 40970345,
+      "zipalign_16kb_verified": true,
+      "signature_verified": false,
+      "unsigned": true,
+      "installed": false
+    }
+  },
+  "before": {
+    "mode": "before",
+    "pass_result": false,
+    "demo_files_unchanged": true,
+    "seconds": 6.91,
+    "classes": [
+      "ui.access.DemoAccessRecreationTest#sampleCredentialsSurviveRecreationWithoutAutomaticLoginAndPasswordRemainsMasked"
+    ],
+    "apk_sha256": "185dc7f876c349e383de24508b63095ed37689a3b1aeed9d3bd8817cfe63c9ec",
+    "instrumental_sha256": "227914ed6c8eda23bcc6e55d44a4a5b10d10106e2400c26194056b3d1c5bce44",
+    "assists": [
+      "sampleCredentialsSurviveRecreationWithoutAutomaticLoginAndPasswordRemainsMasked"
+    ],
+    "tests_ok": [],
+    "status_codes": {
+      "0": 0,
+      "-1": 0,
+      "-2": 1,
+      "-3": 0,
+      "-4": 0
+    },
+    "failure_expected_credentials_lost": true,
+    "network_or_permission_changes_by_runner": false
+  },
+  "after": {
+    "mode": "after",
+    "pass_result": true,
+    "demo_files_unchanged": true,
+    "seconds": 181.67,
+    "classes": [
+      "ui.access.DemoAccessRecreationTest",
+      "ui.access.DemoVisualUiTest",
+      "ui.access.DemoAccessRoomTest",
+      "ui.components.CalendarRecreationTest",
+      "ui.hub.HubConnectivityUiTest",
+      "data.device.ConnectivityAndroidTest"
+    ],
+    "apk_sha256": "8a02596d62bb639f52fb37503d3f33b4810fa24450d41c8eeccb441527301654",
+    "instrumental_sha256": "e010ea1b05adfa369025811248a232b52bebc3d8e3f23f1a189f93c04fc96ca7",
+    "assists": [
+      "fixtureLoadUsesRealEncryptedRepositoryIsIdempotentAndSupervisorSeesCountsWithoutInventedGps",
+      "manualEditsSurviveRecreationAndSubmittedPasswordIsNotRestored",
+      "logoutAndNewActivityRequireFreshCredentials",
+      "sampleCredentialsSurviveRecreationWithoutAutomaticLoginAndPasswordRemainsMasked",
+      "changingObserverReleasesPreviousSubscriptionAndIgnoresItsLateUpdates",
+      "lossAndRecoveryUpdateBannerWithoutNavigationOrRestartingObservation",
+      "birthDialogAndCandidateSurviveRecreationUntilExplicitConfirmationOrCancel",
+      "bothRangeDialogsAndExpandedFieldsSurviveRecreationWithoutApplyingRange",
+      "phoneNavigationChangesDestinationsAndDisablesDuringOperation",
+      "expandedLayoutUsesSideMenuWithSimulatedWindowWidthAndLargeText",
+      "credentialsAreRequiredAndExternalProvidersStayDisabledWithLargeText",
+      "sampleAccountFillsCredentialsWithoutSigningIn"
+    ],
+    "tests_ok": [
+      "14"
+    ],
+    "status_codes": {
+      "0": 14,
+      "-1": 0,
+      "-2": 0,
+      "-3": 0,
+      "-4": 0
+    },
+    "failure_expected_credentials_lost": false,
+    "network_or_permission_changes_by_runner": false,
+    "additional_ui_assists": [
+      {
+        "test": "logoutAndNewActivityRequireFreshCredentials",
+        "action": "ADB am start ComponentActivity after fresh Activity launch left MIUI launcher focused",
+        "result": "Status ok, WARM, test subsequently passed",
+        "reason": "Runner automatically assists only once per test; this test closes and opens a new Activity"
+      }
+    ]
+  },
+  "native_debug": {
+    "libraries": 20,
+    "identical_to_debug_733104d7": true,
+    "runtime_16kb_tested": false
+  },
+  "sources": {
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/MainActivity.kt": {
+      "sha256_lf": "59524b790c298724f9b20fac44a01ad896ce0066b9084946f876ae8b62608432"
+    },
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/access/DemoAccessScreen.kt": {
+      "sha256_lf": "38d5f22c4f202f6781e630f80c2d5b981c45a34b85917d15ddefd64ae436192c"
+    },
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/access/DemoAccessViewModel.kt": {
+      "sha256_lf": "9d9f6b6c12dd37246ae77d88c3b6b2e510ad50bcec3a39d1ced1f9430a940fc9"
+    },
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/access/DemoVisualUiTest.kt": {
+      "sha256_lf": "640f8cd278339fcaf8678bb58a0ebb868d5bdb6a84dfb8b5abe24c1e0114be19"
+    },
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/access/DemoAccessRecreationTest.kt": {
+      "sha256_lf": "8d137a3d87a835b0068f3a40acaf7f4d3e8bb841e731fb4d08129f1aa497f998"
+    }
+  },
+  "manual_verification": {
+    "id": "M06-access-rotation-fixed-fields-preserved",
+    "source": "Reporte directo de Martín tras repetir giro en APK corregida",
+    "apk_sha256": "8a02596d62bb639f52fb37503d3f33b4810fa24450d41c8eeccb441527301654",
+    "result": "PASS_REPORTED_FOR_FIELDS_PRESERVATION",
+    "reported_result": "Ahora sí, se guardan los campos sin problemas",
+    "observed": {
+      "login_fields_preserved_during_physical_rotation_reported": true
+    },
+    "limits": [
+      "Se interpreta guardar como conservar en memoria durante giro; no persistencia en disco",
+      "El reporte confirma conservación de campos; no detalla por separado cada paso de ingreso/selección de evento solicitado",
+      "No garantiza restauración tras muerte de proceso, otros equipos ni TalkBack/tablet/portal",
+      "Sin nueva APK, suites ni cierre R4 por esta confirmación"
+    ]
+  },
+  "limits": [
+    "Control APK 185dc7f8 adds the route wrapper with unchanged remember fields to reproduce the failure; original human report belongs to 733104d7",
+    "ActivityScenario.recreate tests Activity recreation, not physical rotation or process death",
+    "ViewModel is memory only: no promise of draft/session recovery after process death",
+    "Previous XXL visual PASS applies to 733104d7; retains functional login-rotation failure separately",
+    "14 selected Android in one execution, assisted opening in MIUI; no network/permission mutations; isolated Room test databases",
+    "Release compiled unsigned, not installed; no final R4 acceptance, TalkBack, tablet, portal, backup or 16KB runtime claim"
+  ]
+}

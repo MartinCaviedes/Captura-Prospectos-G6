@@ -13,6 +13,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.grupo6.capturaprospectos.R
 import io.github.grupo6.capturaprospectos.data.local.DemoAccessFixtures
 import io.github.grupo6.capturaprospectos.ui.components.*
@@ -47,11 +48,17 @@ import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
     }
 }
 
-@Composable fun DemoAccessScreen(state: DemoAccessState, ready: Boolean, contextBusy: Boolean,
+/** Conecta el acceso con su dueño de estado de Activity. */
+@Composable fun DemoAccessRoute(model: DemoAccessViewModel, ready: Boolean, contextBusy: Boolean,
     onSubmit: (String, String) -> Unit, modifier: Modifier = Modifier) {
-    // Credenciales en memoria; no se restauran ni se escriben en almacenamiento.
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val state by model.uiState.collectAsStateWithLifecycle()
+    DemoAccessScreen(state, ready, contextBusy, { model.submitDraft(onSubmit) },
+        model::editEmail, model::editPassword, model::selectSample, modifier)
+}
+
+@Composable fun DemoAccessScreen(state: DemoAccessState, ready: Boolean, contextBusy: Boolean,
+    onSubmit: () -> Unit, onEmailChange: (String) -> Unit, onPasswordChange: (String) -> Unit,
+    onSelectSample: (String) -> Unit, modifier: Modifier = Modifier) {
     var showPassword by remember { mutableStateOf(false) }
     var showAccounts by remember { mutableStateOf(false) }
     val enabled=ready&&!state.busy&&!contextBusy
@@ -65,10 +72,10 @@ import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
             }
             GlassCard {
                 Column(Modifier.fillMaxWidth().padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-                    OutlinedTextField(email,{email=it},label={Text("Correo electrónico")},singleLine=true,
+                    OutlinedTextField(state.email,onEmailChange,label={Text("Correo electrónico")},singleLine=true,
                         keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Email,autoCorrectEnabled=false),
                         enabled=enabled,modifier=Modifier.fillMaxWidth())
-                    OutlinedTextField(password,{password=it},label={Text("Contraseña")},singleLine=true,
+                    OutlinedTextField(state.password,onPasswordChange,label={Text("Contraseña")},singleLine=true,
                         visualTransformation=if(showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password,autoCorrectEnabled=false),
                         trailingIcon={IconButton({showPassword=!showPassword},enabled=enabled) {
@@ -82,7 +89,7 @@ import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
                         TextButton({},enabled=false,colors=ButtonDefaults.textButtonColors(
                             disabledContentColor=MaterialTheme.colorScheme.onSurfaceVariant)) { Text("Recuperar acceso",style=MaterialTheme.typography.bodySmall) }
                     }
-                    Button({onSubmit(email,password);password=""},enabled=enabled,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)) { Text("Iniciar sesión") }
+                    Button(onSubmit,enabled=enabled,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)) { Text("Iniciar sesión") }
                     Text("o continúa con",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
                     ProviderButton("Continuar con Google",R.drawable.g6_login_g6_v2_brand_google)
                     ProviderButton("Continuar con Microsoft",R.drawable.g6_login_frame)
@@ -98,7 +105,7 @@ import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
                                 DesignIcon(R.drawable.g6_login_frame2)
                             }
                             if(showAccounts) DemoAccessFixtures.accounts.forEachIndexed { index,account ->
-                                OutlinedButton({email=account.email;password=DemoAccessFixtures.PASSWORD},enabled=enabled,modifier=Modifier.fillMaxWidth()) {
+                                OutlinedButton({onSelectSample(account.email)},enabled=enabled,modifier=Modifier.fillMaxWidth()) {
                                     Column(Modifier.fillMaxWidth()) {
                                         Text(listOf("Captador A","Captador B","Supervisor")[index])
                                         Text(account.email,style=MaterialTheme.typography.bodySmall)

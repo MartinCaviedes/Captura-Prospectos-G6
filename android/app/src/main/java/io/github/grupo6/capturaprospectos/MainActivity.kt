@@ -60,8 +60,8 @@ class MainActivity : ComponentActivity() {
                             val event = snapshot?.selectedEvent
                             when {
                                 snapshot == null -> DemoContextRoute(current.viewModel, modifier, showProfiles = false)
-                                accessState.actorId == null || profile == null || profile.actor.id != accessState.actorId -> DemoAccessScreen(
-                                    accessState, true, contextUi.busy,
+                                accessState.actorId == null || profile == null || profile.actor.id != accessState.actorId -> DemoAccessRoute(
+                                    access, true, contextUi.busy,
                                     { email, password -> access.submit(email, password, current.viewModel) }, modifier)
                                 else -> {
                                     var active by rememberSaveable(accessState.actorId) { mutableStateOf(AppScreen.CONTEXT_SELECTOR) }

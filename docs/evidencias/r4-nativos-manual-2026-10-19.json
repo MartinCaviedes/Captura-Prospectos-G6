@@ -1,0 +1,243 @@
+{
+  "date": "2026-10-19",
+  "source_commit": "352ea817bacb2e37304ef108a1b904f15f01081e",
+  "apk_sha256": "b0294e115bb67972c758b36c7e8ab6dbce5573842bcf00def1f14fa1e5d35684",
+  "apk_identification": "Base b0294e11 para primeros M01/M02/M03/M04; M04 corregido y acceso a Ajustes posterior identifican APK 733104d7 por evento",
+  "device": {
+    "model": "Xiaomi 11T (21081111RG)",
+    "api": 34
+  },
+  "kind": "HUMAN_REPORTED",
+  "events": [
+    {
+      "id": "M01-camera-open-cancel-after-permission-recovery",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "El flujo mencionado funciona perfectamente, se conservan los campos y el escáner no genera problemas",
+      "scope": "Tras permiso concedido y nuevo acceso: nueva captura con datos ficticios, apertura/cierre de escáner sin escanear, campos conservados",
+      "result": "PASS_REPORTED",
+      "not_claimed": [
+        "Lectura/enfoque de QR válido o desconocido (M03)",
+        "Acción Abrir ajustes desde denegación permanente no confirmada explícitamente",
+        "Recuperación de formulario tras muerte del proceso; límite volátil ya documentado",
+        "Pruebas GPS/redes/TalkBack/tablet o nuevas suites automáticas"
+      ]
+    },
+    {
+      "id": "M02-location-permission-denied",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "Ubicación denegada: tras seguir el flujo indicado, los campos conservan el texto y no se aplican coordenadas",
+      "result": "PASS_REPORTED",
+      "observed": {
+        "fields_preserved": true,
+        "coordinates_applied": false
+      },
+      "not_claimed": [
+        "Texto literal del diálogo no reportado",
+        "No acredita adquisición GPS, precisión, confirmación/descarte o M02 completo"
+      ]
+    },
+    {
+      "id": "M02-system-location-disabled",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "Ubicación del teléfono apagada: tras seguir el flujo indicado, el sistema informa que el gps está desactivado, no aplica ninguna coordenada existente o actual",
+      "result": "PASS_REPORTED",
+      "observed": {
+        "disabled_service_message_reported": true,
+        "coordinates_applied": false,
+        "fields_preserved": "NOT_EXPLICITLY_REPORTED"
+      },
+      "not_claimed": [
+        "Aviso descrito por el operador, no transcripción literal",
+        "No acredita adquisición GPS, precisión, confirmación/descarte o M02 completo"
+      ]
+    },
+    {
+      "id": "M02-approximate-location-timeout",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "Ubicación aproximada: tras realizar el flujo y condiciones solicitadas y adquirir gps, el tiempo de espera superó el límite por lo que se rechazó/descartó; los textos ingresados se conservaron y no se aplicó nada de manera autónoma",
+      "result": "PASS_REPORTED",
+      "observed": {
+        "outcome": "TIMEOUT",
+        "fields_preserved": true,
+        "coordinates_applied": false
+      },
+      "not_claimed": [
+        "Adquisición exitosa de posición aproximada",
+        "Mensaje literal y duración exacta del timeout no reportados"
+      ]
+    },
+    {
+      "id": "M02-precise-location-discard-then-confirm",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "Ubicación precisa: apareció una candidata y se descartó; no se conservó la candidata. Tras solicitar gps nuevamente y confirmar, la candidata se aplicó",
+      "result": "PASS_REPORTED",
+      "observed": {
+        "candidate_acquired": true,
+        "discard_did_not_apply": true,
+        "new_acquisition_then_confirmation_applied": true,
+        "accuracy_meters": "NOT_REPORTED"
+      },
+      "not_claimed": [
+        "Precisión numérica/coordenadas no reportadas",
+        "No atribuir la posición exclusivamente a GNSS: el proveedor también admite NETWORK"
+      ]
+    },
+    {
+      "id": "M03-physical-valid-and-unsupported-qr",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "Tras completar nombres y apellidos ficticios, el QR válido se reconoció con los datos indicados; al confirmar se rellenó únicamente RUT sin cambiar nombres/apellidos. El QR no compatible se informó como no válido/no admitido y permitió continuar manualmente manteniendo los datos previos.",
+      "result": "PASS_REPORTED",
+      "observed": {
+        "valid_qr_recognized": true,
+        "explicit_confirmation_fills_only_rut": true,
+        "manual_given_and_family_names_preserved": true,
+        "unsupported_qr_rejected": true,
+        "manual_fallback_preserves_existing_data": true,
+        "external_browser_opened": "NOT_EXPLICITLY_REPORTED",
+        "focus_failures": "NONE_REPORTED; no systematic focus/distance matrix reported"
+      },
+      "fixtures": {
+        "valid_sha256": "b763518a8987dc953dbb7dcd6e1972a37c5628f63d6a391058144f13cb032f4b",
+        "unsupported_sha256": "01c4b162e91fa19bafc05e2fa9898f9bf23745934afc90c2b3feb66117926d53"
+      },
+      "not_claimed": [
+        "Real identity-card support, birth-date extraction, or identity validation",
+        "Explicit overwrite of an already-filled different RUT: this run began with RUT empty",
+        "Every focus/distance condition, every device or no-browser launch explicitly observed",
+        "New automated tests or full R4/RF closure"
+      ]
+    },
+    {
+      "id": "M04-network-loss-stale-banner",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "Inicio conserva Conexión a internet verificada después de apagar conexiones; cambia a offline sólo tras ir a Registros y volver. Al recuperar red se actualiza automáticamente. El formulario conserva campos al desactivar/activar red.",
+      "result": "FAIL_REPORTED_PARTIAL",
+      "observed": {
+        "offline_banner_without_navigation": false,
+        "offline_after_tab_change": true,
+        "recovery_banner_without_navigation": true,
+        "form_fields_preserved": true
+      },
+      "not_claimed": [
+        "M04 completo aprobado",
+        "Red sin internet o portal cautivo",
+        "Nueva suite automática"
+      ]
+    },
+    {
+      "id": "M04-fixed-banner-both-directions",
+      "source": "Reporte del operador durante la repetición guiada",
+      "apk_sha256": "733104d7dd1bbbe9c2d916730026d21229fb8abd121760a4e32ff6c51351cc19",
+      "result": "PASS_REPORTED",
+      "reported_result": "Funciona perfectamente en ambos sentidos sin cambiar de pestaña; detección muy rápida, el mensaje cambia en un segundo como máximo",
+      "observed": {
+        "offline_without_navigation": true,
+        "validated_recovery_without_navigation": true,
+        "latency_estimate_max_seconds": 1
+      },
+      "limits": [
+        "Estimación visual del operador, sin cronómetro/instrumentación ni número de repeticiones reportado; no benchmark ni garantía en otros equipos",
+        "Esta repetición cubre el aviso en Inicio; la conservación de campos fue reportada en b0294e11 antes de la corrección",
+        "No acredita red conectada sin internet ni portal cautivo"
+      ]
+    },
+    {
+      "id": "M01-open-app-settings-after-camera-denial",
+      "source": "Reporte directo de Martín tras el recorrido guiado en Xiaomi",
+      "apk_sha256": "733104d7dd1bbbe9c2d916730026d21229fb8abd121760a4e32ff6c51351cc19",
+      "result": "PASS_REPORTED",
+      "reported_result": "Tras denegar Cámara y solicitar QR aparece Abrir ajustes; abre la ficha de la app. Al conceder nuevamente y volver, la app no se reinició ni descartó la captura.",
+      "observed": {
+        "open_settings_action_visible": true,
+        "correct_app_settings_opened": true,
+        "camera_permission_restored_by_operator": true,
+        "app_restarted_in_this_attempt": false,
+        "capture_discarded_in_this_attempt": false
+      },
+      "limits": [
+        "Conservación observada en este intento; no garantiza recuperación tras muerte del proceso",
+        "El caso anterior con PERMISSION CHANGE y pérdida de memoria sigue siendo evidencia válida en su APK",
+        "No se reporta lectura de un QR después de conceder permiso en esta repetición",
+        "No nuevas suites, compilación, instalación, garantía sobre otros dispositivos o cierre R4/RF"
+      ]
+    },
+    {
+      "id": "M06-visual-xiaomi-xxl",
+      "source": "Reporte directo de Martín tras el recorrido visual solicitado",
+      "apk_sha256": "733104d7dd1bbbe9c2d916730026d21229fb8abd121760a4e32ff6c51351cc19",
+      "result": "PASS_REPORTED_FOR_GUIDED_VISUAL_SCOPE",
+      "reported_result": "Aumenté la fuente a XXL en el Xiaomi, realicé el flujo solicitado y no noté problemas; ningún botón o texto quedó inaccesible, cortado o ilegible.",
+      "font_setting_reported": "XXL",
+      "font_scale_numeric": "NOT_MEASURED",
+      "requested_scope": [
+        "Inicio, Registros, Resumen y Perfil en claro/oscuro y vertical/horizontal",
+        "Captura ficticia, desplazamiento a consentimiento/descarte y giro con calendario abierto",
+        "Comprobar acceso a controles, conservación de campos y fecha candidata; descartar sin guardar"
+      ],
+      "observed": {
+        "operator_reports_requested_flow_completed": true,
+        "clipped_text_or_controls_reported": false,
+        "illegible_text_reported": false,
+        "inaccessible_controls_reported": false
+      },
+      "limits": [
+        "XXL es la opción indicada por el operador; no equivale a un 150 % medido",
+        "El reporte confirma globalmente el recorrido; no aporta resultados individuales ni capturas de cada control o paso",
+        "Bienvenida/acceso/selección de evento con XXL no estaban en este recorrido",
+        "No acredita TalkBack, tablet físico, todos los equipos ni cierre completo de M06/R4",
+        "Sin nueva compilación, APK, instalación o suites automáticas"
+      ]
+    },
+    {
+      "id": "M06-entry-visual-pass-login-rotation-failure",
+      "source": "Reporte directo de Martín tras el recorrido inicial con XXL solicitado",
+      "apk_sha256": "733104d7dd1bbbe9c2d916730026d21229fb8abd121760a4e32ff6c51351cc19",
+      "visual_result": "PASS_REPORTED_FOR_GUIDED_SCOPE",
+      "functional_result": "FAIL_REPORTED_LOGIN_CREDENTIALS_LOST_ON_ROTATION",
+      "reported_result": "Bienvenida, login y selección de evento funcionan sin recortes ni controles inaccesibles. Tras rellenar correo/contraseña con cuenta de muestra, girar borra los campos; no depende de la fuente.",
+      "font_setting": "XXL según el recorrido solicitado, escala numérica no medida",
+      "limits": [
+        "Reporte visual no convierte en PASS el fallo funcional de giro",
+        "No afirma recuperación tras muerte del proceso ni pruebas de TalkBack/tablet/portal",
+        "La repetición física del arreglo en APK nueva sigue pendiente"
+      ]
+    },
+    {
+      "id": "M06-access-rotation-fixed-fields-preserved",
+      "source": "Reporte directo de Martín tras repetir giro en APK corregida",
+      "apk_sha256": "8a02596d62bb639f52fb37503d3f33b4810fa24450d41c8eeccb441527301654",
+      "result": "PASS_REPORTED_FOR_FIELDS_PRESERVATION",
+      "reported_result": "Ahora sí, se guardan los campos sin problemas",
+      "observed": {
+        "login_fields_preserved_during_physical_rotation_reported": true
+      },
+      "limits": [
+        "Se interpreta guardar como conservar en memoria durante giro; no persistencia en disco",
+        "El reporte confirma conservación de campos; no detalla por separado cada paso de ingreso/selección de evento solicitado",
+        "No garantiza restauración tras muerte de proceso, otros equipos ni TalkBack/tablet/portal",
+        "Sin nueva APK, suites ni cierre R4 por esta confirmación"
+      ]
+    }
+  ],
+  "status": {
+    "M01": "Guided denial/manual and recovery/open/cancel on b0294e11; Open settings opens correct app settings on 733104d7, permission restored without restart/discard in this attempt: PASS_REPORTED for guided scope",
+    "M02": "Four guided scenarios PASS_REPORTED: denied, disabled, approximate timeout, precise discard/confirm",
+    "M03": "Valid QR recognized, confirmed only RUT; unsupported rejected with manual fallback and existing fields preserved: PASS_REPORTED for guided scope",
+    "M04": "Initial stale offline banner on b0294e11; corrected 733104d7 loss/recovery without navigation PASS_REPORTED. Earlier form preservation belongs to b0294e11.",
+    "M05": "NOT_RUN: operator reports no controlled network available",
+    "M06": "Phone guided XXL visual PASS_REPORTED on 733104d7; separate login rotation failure corrected. Fields preservation on physical rotation PASS_REPORTED on 8a02596d, with 191 JVM/14 Android. TalkBack deferred and physical tablet remain pending."
+  },
+  "limits": [
+    "Human reports only in this file; build and automated fix evidence are recorded separately in r4-conectividad-fix-2026-10-19.json",
+    "Approximate location timed out; no claim of a successful approximate fix or a bug merely for that timeout",
+    "Numerical precision and full literal messages not reported",
+    "Not a GNSS-only measurement, institutional acceptance, all-device guarantee, or full R4/RF closure",
+    "Saved/form data, camera permission and location settings changed by the operator during tests, not by agent",
+    "Process-death memory limitation remains as documented in r4-permisos-camara-2026-10-19.json"
+  ],
+  "pending": [
+    "M05 controlled portal/no internet",
+    "M06 TalkBack deferred; physical tablet",
+    "contract/signing/delivery decisions"
+  ]
+}

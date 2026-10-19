@@ -1,5 +1,43 @@
 # Evidencia de la base Android
 
+## R4 · acceso y giro corregido y comprobado · 19/10/2026
+
+El operador confirma bienvenida/acceso/evento legibles y alcanzables con XXL, completando el recorrido visual del teléfono en APK 733104d7. Detecta un fallo funcional independiente: el giro borra correo/contraseña rellenados por cuenta de muestra. DemoAccessScreen los mantenía con remember, perdido al recrear Activity. DemoAccessRoute ahora observa DemoAccessViewModel; éste retiene el borrador sólo en memoria, consume la contraseña al enviar y limpia credenciales al logout/onCleared. No SavedState, disco, Room, nuevo proveedor ni cambio de autenticación E1/E2. La contraseña vuelve a estar oculta tras recreación.
+
+Regresión antes: falla al comprobar correo tras recreación, APK de control 185dc7f8 (ruta añadida, comportamiento remember aún intacto). Después: **191 JVM, 14 Android dirigidas aprobadas y Lint 27 avisos/0 errores**; apertura asistida ADB en MIUI, bases demo conservadas por hashes y Room sólo test-*. Las tres nuevas cubren cuenta de muestra sin ingreso automático, edición manual/recreación/consumo de contraseña y logout/nueva Activity vacía. Incluye UI de acceso, perfiles/fixtures Room, calendarios y regresión de conectividad. ActivityScenario.recreate no es giro físico ni muerte de proceso.
+
+APK debug candidata `8a02596d…` instalada; debug/instrumental firmadas y ZIP comprobados. Release compilada unsigned, sin instalar. Bibliotecas nativas debug idénticas a 733104d7 por hash; no ejecución 16 KB. [Evidencia, hashes y límites](evidencias/r4-acceso-giro-2026-10-19.json), [fallo anterior](evidencias/android-acceso-before-2026-10-19.txt), [corrida corregida](evidencias/android-acceso-after-2026-10-19.txt). **Giro físico comprobado por reporte del operador en 8a02596d:** los campos se conservan sin problemas. Es conservación en memoria, no guardado en disco; no se reporta por separado cada paso de ingreso/evento. Arreglo preparado para publicación normal en ramas R4/PR #10, sin merge ni aprobación de terceros atribuida. TalkBack aplazado, tablet, M05 sin entorno y aceptación/entrega siguen pendientes; no cierre R4.
+
+**Visual M06 · 19/10/2026:** el operador completa el recorrido solicitado en Xiaomi con fuente **XXL**, sin botones/textos cortados, ilegibles ni inaccesibles: Inicio, Registros, Resumen, Perfil y captura, incluyendo las variaciones de tema/orientación y calendario indicadas en la guía. Resultado global reportado, sin desglose por control; XXL no equivale a 150 % medido. APK `733104d7…`; [reporte y límites](evidencias/r4-nativos-manual-2026-10-19.json). Quedan bienvenida/acceso/evento con XXL, TalkBack aplazado y tablet físico. Sin nueva APK ni suites; no cierre M06/R4.
+
+**Seguimiento M01 · 19/10/2026:** el operador confirma que «Abrir ajustes», tras denegar Cámara y solicitar QR, abre la ficha correcta de la app. Concede Cámara y vuelve sin reinicio ni descarte en ese intento, APK `733104d7…`. Queda comprobada la acción pendiente de M01 en su recorrido guiado; no es garantía de conservar memoria si Android termina el proceso. [Evidencia por evento](evidencias/r4-nativos-manual-2026-10-19.json). Sin nueva APK ni suites. M05 sigue sin entorno; visual final, TalkBack aplazado y tablet conservan su estado. Los apartados anteriores conservan su corte histórico.
+
+## R4 · corrección de escucha de red y repetición física · 19/10/2026
+
+`MainHubRoute` conserva el Flow con remember(observer). Antes: nueva regresión falla por dos suscripciones en vez de una. Después: 191 JVM, Lint 27 avisos/0 errores y ocho Android dirigidas aprobadas (dos nuevas Compose, tres resumen/Room, dos calendario/recreación, una callback real); datos demo intactos, UI asistida ADB, sin cambiar redes/permisos. Debug nueva `733104d7…` instalada; release unsigned recompilada sin firma/instalación release. [Prueba, hashes y límites](evidencias/r4-conectividad-fix-2026-10-19.json). Martín confirma aviso offline/validado sin navegar en APK 733104d7, demora visual estimada <=1 s, no benchmark. Prueba de formulario previa mantiene b0294e11. M05 pendiente por falta de red controlada; publicación por rama/PR sin merge. Las ocho no sustituyen ni se suman como una sola corrida con las 83 de la APK anterior.
+
+## R4 · recorridos humanos M01/M02 consolidados · 19/10/2026
+
+Reporte humano: escáner abre/cierra conservando campos tras recuperar permiso. Ubicación denegada conserva texto sin coordenadas; servicio apagado informa sin posición; aproximada agota plazo conservando texto sin aplicar; precisa permite descartar una candidata y confirmar otra para aplicarla. Cuatro escenarios GPS guiados comprobados; precisión numérica/mensajes literales no reportados. [Evidencia y límites](evidencias/r4-nativos-manual-2026-10-19.json). No nuevas pruebas automáticas ni cambio APK; no cerrar M03 ni R4. M01 aún requiere confirmación explícita del acceso a Ajustes desde denegación permanente.
+
+## R4 · cámara denegada / Ajustes · 19/10/2026
+
+M01 parcial: reporte humano confirma campos intactos al denegar cámara y continuar manualmente. Al cambiar permisos en Ajustes se observó bienvenida y pérdida de formulario no guardado. ADB de sólo lectura registra cuatro salidas recientes PERMISSION CHANGE, APK b0294e11 comprobada; no se atribuye la causa a un clic específico. Contrato vigente conserva formulario sólo en memoria, no tras muerte del proceso. [Detalle y límite de la guía](ROUND4_QA.md), [evidencia](evidencias/r4-permisos-camara-2026-10-19.json). Seguimiento posterior: apertura/cierre del escáner con campos intactos confirmado; queda acción Abrir ajustes desde denegación permanente. Sin suites nuevas ni cambio funcional.
+
+## R4 · Android nuevo sobre APK final · 18/10/2026
+
+APK `b0294e11…` (misma app integrada, build del 14/10): **52 datos/proveedores + 31 UI**, dos invocaciones aprobadas sin fallos/omisiones dentro de la selección. Xiaomi 11T, API 34, páginas 4 KB; apertura UI asistida ADB en MIUI. Sólo bases/alias `test-*`; archivos demo conservados, sin `-g` ni cambios de red/permisos. Dataset 400 cifrado reabierto: alta p95 42,98 ms, 440 escrituras p95 42,44 ms. QR bitmap y proveedores no acreditan cámara física/GPS/portal. Ancho simulado no acredita tablet; TalkBack sigue pospuesto. [Guía y pendientes actuales](ROUND4_QA.md), [evidencia](evidencias/r4-android-2026-10-18.json). Los resultados inferiores conservan su fecha/APK y no se suman como una sola ejecución.
+
+## R4 · construcción desde clon remoto limpio · 14/10/2026
+
+Base develop `0c64533`; nuevo clon remoto sin local.properties/archivos privados, rama aislada chore/e1-r4-qa. Windows, SDK 37 y criterio de JDK 25 del proyecto; cachés/dependencias del equipo disponibles, no reproducción de un equipo sin SDK.
+
+**191 JVM aprobadas**, cero fallos/errores/omitidas (incluye una prueba aritmética de plantilla); debug e instrumental construidas y firma verificada; **release unsigned construida**, sin generar llave. **Lint debug: 27 avisos/0 errores**. Gradle correcto en 6 min 6 s, 130 tareas ejecutadas. Ambas variantes sin INTERNET y allowBackup=false; release no depurable/PreviewActivity ausente. zipalign ZIP 16 KB aprobado en tres APK; no acredita ELF/runtime 16 KB. Optimización/R8 sigue desactivada, no se atribuye ofuscación ni firma release.
+
+Los tres scripts SQLite del host pasaron; dataset estructural de 400 con FK intactas. No acredita rendimiento/cifrado Android. No hubo dispositivo autorizado al preparar el corte ni ejecución Android nueva. Los resultados de 11/10 y la revisión humana reportada del 13/10 conservan sus alcances y versiones.
+
+[Guía y casos pendientes](ROUND4_QA.md), [fuentes, hashes y resultados](evidencias/r4-clon-limpio-2026-10-14.json). No se modifica código funcional, Room, dependencias ni reglas; sólo documentación/evidencia. TalkBack pospuesto, permisos/redes adversas, tablet, aceptación de contratos, firma/AVA y P3 pendientes. Los cortes siguientes son históricos.
+
 ## Calendarios abiertos al recrear Activity · 11/10/2026
 
 Prueba humana recibida sobre APK `aa46a797…`: contraste de título, enunciados y consentimiento aprobado; selección/cambio/confirmación de fechas y uso horizontal aprobados. Detectó cierre del calendario y colapso del rango al girar con el diálogo abierto. Esta respuesta corresponde a esa APK, no a la nueva corrección.

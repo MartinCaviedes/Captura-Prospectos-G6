@@ -1,5 +1,17 @@
 # 📱 Captura de Prospectos — Grupo 6
 
+**R4 · giro del acceso corregido y comprobado 19/10/2026.** Borrador retenido sólo en DemoAccessViewModel, sin almacenamiento. Regresión falla antes/pasa después; 191 JVM, 14 Android dirigidas y Lint 27 avisos/0 errores. Martín confirma conservación de campos al girar en APK `8a02596d…`. [QA vigente](docs/ROUND4_QA.md). Publicación en ramas/PR de R4 para revisión, sin merge ni cierre R4.
+
+**R4 · visual XXL comprobado 19/10/2026.** El operador completa el recorrido guiado en Xiaomi, fuente XXL, sin botones/textos cortados, ilegibles ni inaccesibles (APK `733104d7…`). Escala numérica no medida; [alcance y pendientes](docs/ROUND4_QA.md). Seguimiento documental, sin nueva APK/suites, merge ni cierre R4.
+
+**R4 · acceso a Ajustes comprobado 19/10/2026.** El operador confirma «Abrir ajustes» desde Cámara denegada, ficha correcta y regreso tras conceder permiso sin reinicio ni descarte en ese intento (APK `733104d7…`). M01 guiado comprobado; no garantiza recuperación tras muerte de proceso. [QA vigente](docs/ROUND4_QA.md). Seguimiento documental, sin nueva APK ni suites; R4 mantiene pendientes y PR #10 sin merge.
+
+**R4 · corrección de red comprobada 19/10/2026.** [QA actual](docs/ROUND4_QA.md): M04 detectó aviso offline que exigía cambiar de pestaña. Se conserva la escucha entre recomposiciones; regresión falla antes/pasa después. 191 JVM, ocho Android dirigidas y Lint 27 avisos/0 errores aprobados. APK debug `733104d7…`: el operador confirma pérdida/retorno sin cambiar pestañas, estimando hasta 1 s; observación informal. Corrección en rama R4 para revisión, sin merge. M05 pendiente por falta de red controlada. M03 QR físico válido/desconocido reportado en la APK anterior. No cierre R4 ni cambio de Room/permisos/E2.
+
+**R4 · avance 18/10/2026.** [QA actual](docs/ROUND4_QA.md): regresión nueva en Xiaomi 11T/API 34 sobre APK `b0294e11…`, 52 pruebas de datos/proveedores y 31 de UI aprobadas en dos ejecuciones, con bases de prueba y conservación de la demo. 400 capturas cifradas, alta p95 42,98 ms. Comprobación estática ELF de 64 bits aprobada; release sigue sin firma. Sin cambio funcional ni cierre E1: quedan permisos/cámara/GPS/redes reales, TalkBack, tablet, aceptación contractual y decisiones de entrega. Los cortes inferiores son históricos.
+
+**R4 · corte 14/10/2026.** R0–R3/V3 integradas en develop por PR #9 (`0c64533`). [QA vigente](docs/ROUND4_QA.md): construcción desde clon remoto limpio, 191 JVM aprobadas, Lint 27 avisos/0 errores; debug/instrumental firmadas y release compilada sin firma. No se ejecutó Android en este corte; resultados del 11/10 conservan su APK. La revisión técnica externa fue reportada al integrar; aceptación de contratos, TalkBack, tablet, permisos adversos, portal cautivo, firma/entrega y defensa siguen pendientes. Los cortes inferiores son antecedentes, no un cierre de E1.
+
 Aplicación Android para registrar personas interesadas en estudiar en Duoc UC durante visitas a establecimientos, ferias y otras actividades de captación en terreno.
 
 El proyecto nace del caso **Inscripción de potenciales clientes**, en la asignatura Desarrollo de Aplicaciones Móviles de Duoc UC Viña del Mar. Su objetivo es digitalizar la captura de datos e intereses académicos, reducir la transcripción manual y conservar registros con su consentimiento y contexto, incluso cuando no haya conexión.

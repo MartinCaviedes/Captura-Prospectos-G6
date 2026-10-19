@@ -1,0 +1,98 @@
+INSTRUMENTATION_STATUS: class=io.github.grupo6.capturaprospectos.ui.access.DemoAccessRecreationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+io.github.grupo6.capturaprospectos.ui.access.DemoAccessRecreationTest:
+INSTRUMENTATION_STATUS: test=sampleCredentialsSurviveRecreationWithoutAutomaticLoginAndPasswordRemainsMasked
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=io.github.grupo6.capturaprospectos.ui.access.DemoAccessRecreationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Failed to assert the following: (Text + InputText + EditableText contains 'captador.a@g6.example' (ignoreCase: false))
+Semantics of the node:
+Node #105 at (l=115.0, t=610.0, r=965.0, b=811.0)px
+ContentDataType = 'AndroidContentDataType(androidAutofillType=1)'
+ContentType = 'androidx.compose.ui.autofill.AndroidContentType@f026943'
+EditableText = ''
+FillableData = 'androidx.compose.ui.autofill.AndroidFillableData@ceb6bc0'
+Focused = 'false'
+ImeAction = 'Default'
+InputText = ''
+IsEditable = 'true'
+Text = '[Correo electrónico]'
+TextSelectionRange = 'TextRange(0, 0)'
+Actions = [ClearTextSubstitution, GetTextLayoutResult, InsertTextAtCursor, OnClick, OnFillData, OnLongClick, PasteText, PerformImeAction, RequestFocus, SetSelection, SetText, SetTextSubstitution, ShowTextSubstitution]
+MergeDescendants = 'true'
+Has 9 siblings
+Selector used: ((Text + InputText + EditableText contains 'Correo electrónico' (ignoreCase: false)) && (SetText is defined))
+
+	at androidx.compose.ui.test.AssertionsKt.assert(Assertions.kt:264)
+	at androidx.compose.ui.test.AssertionsKt.assert$default(Assertions.kt:254)
+	at androidx.compose.ui.test.AssertionsKt.assertTextContains(Assertions.kt:208)
+	at androidx.compose.ui.test.AssertionsKt.assertTextContains$default(Assertions.kt:204)
+	at io.github.grupo6.capturaprospectos.ui.access.DemoAccessRecreationTest.sampleCredentialsSurviveRecreationWithoutAutomaticLoginAndPasswordRemainsMasked(DemoAccessRecreationTest.kt:73)
+
+INSTRUMENTATION_STATUS: stream=
+Error in sampleCredentialsSurviveRecreationWithoutAutomaticLoginAndPasswordRemainsMasked(io.github.grupo6.capturaprospectos.ui.access.DemoAccessRecreationTest):
+java.lang.AssertionError: Failed to assert the following: (Text + InputText + EditableText contains 'captador.a@g6.example' (ignoreCase: false))
+Semantics of the node:
+Node #105 at (l=115.0, t=610.0, r=965.0, b=811.0)px
+ContentDataType = 'AndroidContentDataType(androidAutofillType=1)'
+ContentType = 'androidx.compose.ui.autofill.AndroidContentType@f026943'
+EditableText = ''
+FillableData = 'androidx.compose.ui.autofill.AndroidFillableData@ceb6bc0'
+Focused = 'false'
+ImeAction = 'Default'
+InputText = ''
+IsEditable = 'true'
+Text = '[Correo electrónico]'
+TextSelectionRange = 'TextRange(0, 0)'
+Actions = [ClearTextSubstitution, GetTextLayoutResult, InsertTextAtCursor, OnClick, OnFillData, OnLongClick, PasteText, PerformImeAction, RequestFocus, SetSelection, SetText, SetTextSubstitution, ShowTextSubstitution]
+MergeDescendants = 'true'
+Has 9 siblings
+Selector used: ((Text + InputText + EditableText contains 'Correo electrónico' (ignoreCase: false)) && (SetText is defined))
+
+	at androidx.compose.ui.test.AssertionsKt.assert(Assertions.kt:264)
+	at androidx.compose.ui.test.AssertionsKt.assert$default(Assertions.kt:254)
+	at androidx.compose.ui.test.AssertionsKt.assertTextContains(Assertions.kt:208)
+	at androidx.compose.ui.test.AssertionsKt.assertTextContains$default(Assertions.kt:204)
+	at io.github.grupo6.capturaprospectos.ui.access.DemoAccessRecreationTest.sampleCredentialsSurviveRecreationWithoutAutomaticLoginAndPasswordRemainsMasked(DemoAccessRecreationTest.kt:73)
+
+INSTRUMENTATION_STATUS: test=sampleCredentialsSurviveRecreationWithoutAutomaticLoginAndPasswordRemainsMasked
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 5.465
+There was 1 failure:
+1) sampleCredentialsSurviveRecreationWithoutAutomaticLoginAndPasswordRemainsMasked(io.github.grupo6.capturaprospectos.ui.access.DemoAccessRecreationTest)
+java.lang.AssertionError: Failed to assert the following: (Text + InputText + EditableText contains 'captador.a@g6.example' (ignoreCase: false))
+Semantics of the node:
+Node #105 at (l=115.0, t=610.0, r=965.0, b=811.0)px
+ContentDataType = 'AndroidContentDataType(androidAutofillType=1)'
+ContentType = 'androidx.compose.ui.autofill.AndroidContentType@f026943'
+EditableText = ''
+FillableData = 'androidx.compose.ui.autofill.AndroidFillableData@ceb6bc0'
+Focused = 'false'
+ImeAction = 'Default'
+InputText = ''
+IsEditable = 'true'
+Text = '[Correo electrónico]'
+TextSelectionRange = 'TextRange(0, 0)'
+Actions = [ClearTextSubstitution, GetTextLayoutResult, InsertTextAtCursor, OnClick, OnFillData, OnLongClick, PasteText, PerformImeAction, RequestFocus, SetSelection, SetText, SetTextSubstitution, ShowTextSubstitution]
+MergeDescendants = 'true'
+Has 9 siblings
+Selector used: ((Text + InputText + EditableText contains 'Correo electrónico' (ignoreCase: false)) && (SetText is defined))
+
+	at androidx.compose.ui.test.AssertionsKt.assert(Assertions.kt:264)
+	at androidx.compose.ui.test.AssertionsKt.assert$default(Assertions.kt:254)
+	at androidx.compose.ui.test.AssertionsKt.assertTextContains(Assertions.kt:208)
+	at androidx.compose.ui.test.AssertionsKt.assertTextContains$default(Assertions.kt:204)
+	at io.github.grupo6.capturaprospectos.ui.access.DemoAccessRecreationTest.sampleCredentialsSurviveRecreationWithoutAutomaticLoginAndPasswordRemainsMasked(DemoAccessRecreationTest.kt:73)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
