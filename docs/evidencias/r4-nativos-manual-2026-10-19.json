@@ -2,7 +2,7 @@
   "date": "2026-10-19",
   "source_commit": "352ea817bacb2e37304ef108a1b904f15f01081e",
   "apk_sha256": "b0294e115bb67972c758b36c7e8ab6dbce5573842bcf00def1f14fa1e5d35684",
-  "apk_identification": "Base b0294e11 para M01/M02/M03 y primer M04; el evento M04 corregido especifica APK 733104d7",
+  "apk_identification": "Base b0294e11 para primeros M01/M02/M03/M04; M04 corregido y acceso a Ajustes posterior identifican APK 733104d7 por evento",
   "device": {
     "model": "Xiaomi 11T (21081111RG)",
     "api": 34
@@ -140,10 +140,30 @@
         "Esta repetición cubre el aviso en Inicio; la conservación de campos fue reportada en b0294e11 antes de la corrección",
         "No acredita red conectada sin internet ni portal cautivo"
       ]
+    },
+    {
+      "id": "M01-open-app-settings-after-camera-denial",
+      "source": "Reporte directo de Martín tras el recorrido guiado en Xiaomi",
+      "apk_sha256": "733104d7dd1bbbe9c2d916730026d21229fb8abd121760a4e32ff6c51351cc19",
+      "result": "PASS_REPORTED",
+      "reported_result": "Tras denegar Cámara y solicitar QR aparece Abrir ajustes; abre la ficha de la app. Al conceder nuevamente y volver, la app no se reinició ni descartó la captura.",
+      "observed": {
+        "open_settings_action_visible": true,
+        "correct_app_settings_opened": true,
+        "camera_permission_restored_by_operator": true,
+        "app_restarted_in_this_attempt": false,
+        "capture_discarded_in_this_attempt": false
+      },
+      "limits": [
+        "Conservación observada en este intento; no garantiza recuperación tras muerte del proceso",
+        "El caso anterior con PERMISSION CHANGE y pérdida de memoria sigue siendo evidencia válida en su APK",
+        "No se reporta lectura de un QR después de conceder permiso en esta repetición",
+        "No nuevas suites, compilación, instalación, garantía sobre otros dispositivos o cierre R4/RF"
+      ]
     }
   ],
   "status": {
-    "M01": "Reported denial/manual and permission recovery/open/cancel verified; permanent-denial settings action not explicitly reported",
+    "M01": "Guided denial/manual and recovery/open/cancel on b0294e11; Open settings opens correct app settings on 733104d7, permission restored without restart/discard in this attempt: PASS_REPORTED for guided scope",
     "M02": "Four guided scenarios PASS_REPORTED: denied, disabled, approximate timeout, precise discard/confirm",
     "M03": "Valid QR recognized, confirmed only RUT; unsupported rejected with manual fallback and existing fields preserved: PASS_REPORTED for guided scope",
     "M04": "Initial stale offline banner on b0294e11; corrected 733104d7 loss/recovery without navigation PASS_REPORTED. Earlier form preservation belongs to b0294e11.",
@@ -158,7 +178,6 @@
     "Process-death memory limitation remains as documented in r4-permisos-camara-2026-10-19.json"
   ],
   "pending": [
-    "M01 permanent-denial Open settings action",
     "M05 controlled portal/no internet",
     "M06 final visual/TalkBack deferred/physical tablet",
     "contract/signing/delivery decisions"

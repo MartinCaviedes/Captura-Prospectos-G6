@@ -1,5 +1,7 @@
 # R4 · QA y preparación de E1
 
+**Seguimiento M01 · 19/10/2026:** el operador confirma que «Abrir ajustes», tras denegar Cámara y solicitar QR, abre la ficha correcta de la app. Concede Cámara y vuelve sin reinicio ni descarte en ese intento, APK `733104d7…`. Queda comprobada la acción pendiente de M01 en su recorrido guiado; no es garantía de conservar memoria si Android termina el proceso. [Evidencia por evento](evidencias/r4-nativos-manual-2026-10-19.json). Sin nueva APK ni suites. M05 sigue sin entorno; visual final, TalkBack aplazado y tablet conservan su estado. Los apartados anteriores conservan su corte histórico.
+
 ## Corrección de conectividad comprobada · 19/10/2026
 
 En APK anterior `b0294e11…`, el operador observó Inicio aún «Conexión a internet verificada» tras apagar redes; sólo al cambiar de pestaña aparecía offline. Al recuperar conexión se actualizaba automáticamente y el formulario conservaba sus campos. M04 se registra con fallo en pérdida de red, sin atribuir PASS por la conservación del formulario. M03 sí fue reportado: QR físico válido confirma sólo RUT; desconocido se rechaza y permite manual conservando datos.
@@ -10,7 +12,7 @@ Evidencia nueva: 191 JVM aprobadas; Lint 27 avisos/0 errores; ocho Android dirig
 
 APK debug `733104d7…`, instalada conservando datos. **Repetición física del aviso M04 aprobada por reporte humano:** pérdida y recuperación se reflejan sin cambiar pestañas; el operador estima hasta un segundo en ambos sentidos. Es una observación informal, sin cronómetro ni muestra para un benchmark. La conservación de campos fue comprobada antes en b0294e11; los reportes cámara/GPS/QR también mantienen esa APK. No se suman como nuevos en 733104d7. Corrección preparada para revisión en rama R4/PR #10, sin merge ni cierre E1.
 
-M05 no ejecutado: el operador informa que no dispone de Wi-Fi de pruebas sin internet ni portal controlado. La transición offline/validada comprobada no sustituye este caso. Continúan M01 Abrir ajustes desde denegación permanente, visual final, TalkBack aplazado/tablet y las decisiones de entrega.
+M05 no ejecutado: el operador informa que no dispone de Wi-Fi de pruebas sin internet ni portal controlado. La transición offline/validada comprobada no sustituye este caso. Seguimiento posterior: M01 Abrir ajustes confirmado en 733104d7; continúan visual final, TalkBack aplazado/tablet y decisiones de entrega.
 
 ## Seguimiento humano de cámara y ubicación · 19/10/2026
 
@@ -37,7 +39,7 @@ Los 191 JVM, Lint 27 avisos/0 errores y build desde clon remoto limpio pertenece
 | Bloque | Comprobado | Pendiente concreto |
 |---|---|---|
 | Reglas/persistencia | JVM históricas + regresión Android nueva y 400 cifradas | Aceptación humana específica de RECORD_CONTRACTS y recorrido final de operador |
-| Nativos/red | Humano: cámara manual/recuperación y M02/M03 en b0294e11; aviso de pérdida/retorno M04 corregido en 733104d7, sin navegar | Abrir ajustes desde denegación permanente; M05 sin red controlada disponible |
+| Nativos/red | Cámara manual/recuperación y M02/M03 en b0294e11; M01 Abrir ajustes y aviso M04 sin navegar en 733104d7 comprobados por operador | M05 sin red controlada disponible |
 | Adaptación/accesibilidad | Componentes Compose, texto aumentado, ancho simulado y recreación | Recorrido visual final, TalkBack aplazado, tablet físico |
 | Seguridad/empaquetado | Cifrado/clave inaccesible sin reset, logs acotados, manifiestos/ZIP/ELF | Backup/transferencia efectivos en entorno controlado; runtime 16 KB; aclaración/firma release |
 | Entrega | Candidato fuente y APK identificados, guías y evidencia | Revisión de PR, corte/tag final, AVA y explicación individual |
