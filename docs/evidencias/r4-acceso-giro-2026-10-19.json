@@ -131,7 +131,22 @@
       "sha256_lf": "8d137a3d87a835b0068f3a40acaf7f4d3e8bb841e731fb4d08129f1aa497f998"
     }
   },
-  "manual_verification": "PENDING on new APK: sample fill, physical rotation, manual edits and login",
+  "manual_verification": {
+    "id": "M06-access-rotation-fixed-fields-preserved",
+    "source": "Reporte directo de Martín tras repetir giro en APK corregida",
+    "apk_sha256": "8a02596d62bb639f52fb37503d3f33b4810fa24450d41c8eeccb441527301654",
+    "result": "PASS_REPORTED_FOR_FIELDS_PRESERVATION",
+    "reported_result": "Ahora sí, se guardan los campos sin problemas",
+    "observed": {
+      "login_fields_preserved_during_physical_rotation_reported": true
+    },
+    "limits": [
+      "Se interpreta guardar como conservar en memoria durante giro; no persistencia en disco",
+      "El reporte confirma conservación de campos; no detalla por separado cada paso de ingreso/selección de evento solicitado",
+      "No garantiza restauración tras muerte de proceso, otros equipos ni TalkBack/tablet/portal",
+      "Sin nueva APK, suites ni cierre R4 por esta confirmación"
+    ]
+  },
   "limits": [
     "Control APK 185dc7f8 adds the route wrapper with unchanged remember fields to reproduce the failure; original human report belongs to 733104d7",
     "ActivityScenario.recreate tests Activity recreation, not physical rotation or process death",

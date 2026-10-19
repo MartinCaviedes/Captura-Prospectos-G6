@@ -201,6 +201,22 @@
         "No afirma recuperación tras muerte del proceso ni pruebas de TalkBack/tablet/portal",
         "La repetición física del arreglo en APK nueva sigue pendiente"
       ]
+    },
+    {
+      "id": "M06-access-rotation-fixed-fields-preserved",
+      "source": "Reporte directo de Martín tras repetir giro en APK corregida",
+      "apk_sha256": "8a02596d62bb639f52fb37503d3f33b4810fa24450d41c8eeccb441527301654",
+      "result": "PASS_REPORTED_FOR_FIELDS_PRESERVATION",
+      "reported_result": "Ahora sí, se guardan los campos sin problemas",
+      "observed": {
+        "login_fields_preserved_during_physical_rotation_reported": true
+      },
+      "limits": [
+        "Se interpreta guardar como conservar en memoria durante giro; no persistencia en disco",
+        "El reporte confirma conservación de campos; no detalla por separado cada paso de ingreso/selección de evento solicitado",
+        "No garantiza restauración tras muerte de proceso, otros equipos ni TalkBack/tablet/portal",
+        "Sin nueva APK, suites ni cierre R4 por esta confirmación"
+      ]
     }
   ],
   "status": {
@@ -209,7 +225,7 @@
     "M03": "Valid QR recognized, confirmed only RUT; unsupported rejected with manual fallback and existing fields preserved: PASS_REPORTED for guided scope",
     "M04": "Initial stale offline banner on b0294e11; corrected 733104d7 loss/recovery without navigation PASS_REPORTED. Earlier form preservation belongs to b0294e11.",
     "M05": "NOT_RUN: operator reports no controlled network available",
-    "M06": "Guided phone visual XXL: main/form and welcome/login/event PASS_REPORTED on 733104d7. Separate functional FAIL: login fields lost on rotation. Corrected APK 8a02596d automatic recreation passed; physical retest pending. TalkBack deferred and physical tablet pending."
+    "M06": "Phone guided XXL visual PASS_REPORTED on 733104d7; separate login rotation failure corrected. Fields preservation on physical rotation PASS_REPORTED on 8a02596d, with 191 JVM/14 Android. TalkBack deferred and physical tablet remain pending."
   },
   "limits": [
     "Human reports only in this file; build and automated fix evidence are recorded separately in r4-conectividad-fix-2026-10-19.json",
@@ -221,7 +237,7 @@
   ],
   "pending": [
     "M05 controlled portal/no internet",
-    "M06 physical retest of login rotation fix; TalkBack deferred; physical tablet",
+    "M06 TalkBack deferred; physical tablet",
     "contract/signing/delivery decisions"
   ]
 }
