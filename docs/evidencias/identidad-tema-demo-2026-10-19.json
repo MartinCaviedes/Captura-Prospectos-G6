@@ -240,7 +240,25 @@
       "sha256": "47a8affef074729d52b1bacadcfc64aa80f2a5c1420be59e9666ff379018c7e1"
     }
   },
-  "manual_verification": "PENDING: branding/icon, toggle in both directions, visual/giro, manual fixture confirmation and summary counts on installed APK",
+  "manual_verification": {
+    "id": "IDENTIDAD-theme-and-demo-manual",
+    "source": "Reporte directo del operador tras el recorrido guiado en Xiaomi",
+    "apk_sha256": "1f5c8b2bf4165c667aabebd5284511217c8dc13460a125424f2e03968cd77a98",
+    "result": "PASS_REPORTED_FOR_THEME_AND_FIXTURES",
+    "reported_result": "Todo funciona bien en todas las pestañas al cambiar el tema, sin textos invisibles o comentarios borrados. Preparar datos funciona y se visualizan correctamente.",
+    "observed": {
+      "theme_change_across_tabs_reported_ok": true,
+      "hidden_text_reported": false,
+      "sample_preparation_reported_ok": true,
+      "sample_data_visualization_reported_ok": true
+    },
+    "limits": [
+      "Reporte global, sin conteos exactos ni comprobación independiente detallada de cada logo/icono/reapertura/giro/XXL",
+      "No acredita TalkBack, tablet físico, GPS real por las coordenadas simuladas, aceptación de contratos ni cierre E1",
+      "La carga manual añade fixtures por acción del operador; hashes de conservación pertenecen a la ejecución automática previa",
+      "Sin nuevas suites, APK o instalación por esta confirmación"
+    ]
+  },
   "prior_pass": {
     "tests": 21,
     "apk_sha256": "d3f1ae42481290bacfacba7f1197053179b864cb9d1e44a8e260611415b17c93",
