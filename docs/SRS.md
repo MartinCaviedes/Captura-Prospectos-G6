@@ -157,7 +157,7 @@ Aceptación: límites de sede, evento multidía y cambio de asignación. Si una 
 | RNF08 | Android teléfono/tablet | minSdk 26 como meta del equipo sujeta a matriz de dependencias; portrait/landscape, tamaño de texto aumentado y flujo sin recortes |
 | RNF09 | Entregables y colaboración | Git feature/develop/main, revisión cruzada, actividad real de tres integrantes, tablero, README, APK release firmado y código AVA identificados |
 
-No hay rendimiento medido aún. Las métricas son objetivos de verificación, no resultados. P2 sigue siendo la prioridad; ENTREGAS distribuye los criterios sin eliminarlos. RNF04 y controles remotos de RNF05/06 se completan en E2. RNF09 se acredita por hito; firma en E1 sujeta a aclaración docente y obligatoria en E2. Cualquier reducción real de alcance requiere registrar el cambio, no esconder una omisión como cumplimiento.
+Actualización de evidencia 18/10: dataset de 400 registros cifrados en Xiaomi 11T/API 34, alta p95 42,98 ms y 440 escrituras p95 42,44 ms; método y límites en [R4 QA](ROUND4_QA.md). No mide el recorrido completo de captura, la meta de diez tareas ni rendimiento de otros dispositivos. Las metas PT se conservan como objetivos, no como garantías generales. P2 sigue siendo la prioridad; ENTREGAS distribuye los criterios sin eliminarlos. RNF04 y controles remotos de RNF05/06 se completan en E2. RNF09 se acredita por hito; firma en E1 sujeta a aclaración docente y obligatoria en E2. Cualquier reducción real de alcance requiere registrar el cambio, no esconder una omisión como cumplimiento.
 
 ## 6. Trazabilidad de evaluación
 

@@ -1,32 +1,30 @@
 # R4 · QA y preparación de E1
 
-Corte 14/10/2026 sobre develop `0c64533`. Este incremento verifica y documenta el producto local integrado; no agrega funcionalidades ni cierra RF. Fuente técnica: [ENTREGAS](ENTREGAS.md), [SRS](SRS.md), [SECURITY](SECURITY.md) y [evidencia nueva](evidencias/r4-clon-limpio-2026-10-14.json). La defensa y coordinación del equipo se preparan en el repositorio privado.
+## Verificación Android · 18/10/2026
 
-## Resultado autónomo de este corte
+Se retoma R4 sobre el mismo código funcional integrado `0c64533`, candidato documental `855d6ef`. APK debug `b0294e11…`, Xiaomi 11T / Android 14 / API 34, páginas de 4096 bytes. Instalación conservadora con `-r -t`, sin borrar datos ni conceder permisos por ADB. Los hashes de los archivos de la base demo y clave envuelta permanecieron iguales durante la instalación y ambas suites.
 
-Clon nuevo obtenido del remoto develop, sin local.properties ni archivos privados copiados. Build en Windows con SDK 37 y el JDK fijado por el proyecto; se usaron las dependencias y cachés disponibles del equipo. No es evidencia de un equipo nuevo sin SDK ni de otro sistema operativo.
+**Evidencia nueva:** 52 pruebas de datos/proveedores y 31 de UI aprobadas en dos ejecuciones, sin fallos ni omisiones dentro de la selección. [Resultados, clases y límites](evidencias/r4-android-2026-10-18.json); [salida de datos](evidencias/android-r4-data-2026-10-18.txt) y [salida UI](evidencias/android-r4-ui-2026-10-18.txt). Room/SQLCipher/Keystore, migraciones, no consentimiento, duplicados, rollback, aislamiento de perfiles, edición/anulación y reapertura se ejercitan con bases `test-*`. Las actividades UI requirieron apertura asistida ADB en MIUI; incluyen calendarios tras recreación, acceso, eventos, bandeja/detalle, resumen y texto al 150 % con ancho simulado.
 
-191 pruebas JVM aprobadas, cero fallos/errores/omitidas; una corresponde al test aritmético de plantilla y las restantes a las suites del proyecto. Build debug, instrumental y release unsigned correctos; 130 tareas ejecutadas, 6 min 6 s. Lint debug: 27 avisos/0 errores; avisos por ID en la evidencia. No se actualizan dependencias ni se eliminan reglas para modificar ese resultado.
+Dataset cifrado: 400 capturas, 600 intereses, 320 claves activas y 440 auditorías, sin FK rotas; tras reabrir conserva filas y alcance. Alta p95 **42,98 ms** (400 muestras); escrituras totales p95 **42,44 ms** (440 muestras), bajo meta interna PT de 150 ms. Medición debug de llamada completa al repositorio; excluye inicialización, cambio de contexto, GPS y red, no es tiempo total de captura ni garantía de rendimiento en otros equipos.
 
-Debug e instrumental verifican firma. La release se genera sin firma y no es instalable como entrega firmada; no se creó una llave. Las tres pasan zipalign con comprobación ZIP de 16 KB. Esto no verifica la alineación ELF de cada biblioteca ni ejecución en un dispositivo de páginas de 16 KB. Release no es depurable ni contiene PreviewActivity; optimización/R8 siguen desactivados en la configuración existente y no se acredita ofuscación.
+Inspección acotada de logs del UID de la app durante estas pruebas: sin coincidencias de los patrones de correo/RUT/nombres fixture/contraseña o etiquetas de clave revisados, ni FATAL EXCEPTION. No es auditoría exhaustiva ni prueba de logs de todos los recorridos humanos. No se inspeccionaron logs globales del teléfono.
 
-Los manifiestos efectivos mantienen cámara, ubicación y estado de red; INTERNET está ausente. allowBackup=false y reglas de exclusión de backup/transferencia configuradas. La aplicación sólo exporta su launcher; en release el receptor de ProfileInstaller exportado exige android.permission.DUMP. El análisis limitado de patrones no encontró claves/secretos literales de infraestructura ni archivos privados prohibidos en seguimiento. No es una auditoría exhaustiva; backup/transferencia efectivos, logs en recorridos reales y permisos se comprueban aparte.
+**Empaquetado:** comprobador portátil de cabeceras ELF con ocho pruebas host. Debug y release unsigned pasan LOAD/RELRO para las diez bibliotecas de 64 bits de cada APK. Se aplica la excepción documentada de RELRO en LOAD separado; el módulo por sí solo produciría falsos rechazos. `barhopper` de los ABI de 32 bits conserva LOAD de 4 KB y se informa aparte: el criterio Android de páginas de 16 KB usado aquí corresponde a 64 bits. [Referencia Android](https://developer.android.com/guide/practices/page-sizes). Es comprobación estática, complementa ZIP/firmas del 14/10 y no acredita ejecución 16 KB. No hay AVD/imagen 16 KB configurado y el Xiaomi usa 4 KB. Release sigue sin firma y no instalada.
 
-Los tres scripts SQLite del host pasaron, incluido dataset estructural de 400. No prueban SQLCipher, Keystore, latencia Android ni nuevos resultados del Xiaomi. Las pruebas instrumentadas/humanas del 11/10 siguen históricas. En este corte no se detectó un teléfono autorizado al preparar la ejecución; no se ejecutó una suite Android.
+Los 191 JVM, Lint 27 avisos/0 errores y build desde clon remoto limpio pertenecen al 14/10, [evidencia histórica](evidencias/r4-clon-limpio-2026-10-14.json). No se repitieron porque el código de la app no cambió. El comprobador Python no modifica la APK.
 
-## Orden de comprobaciones restantes
+## Qué queda de R4
 
-| Bloque | Comprobación | Estado de este corte |
+| Bloque | Comprobado | Pendiente concreto |
 |---|---|---|
-| Construcción | Clon remoto limpio, JVM, debug/instrumental y Lint | Comprobado en Windows |
-| Empaquetado | Release compilable, firma debug, manifiestos y alineación ZIP | Comprobado; release firmada/instalación pendientes |
-| Reglas y persistencia | Consentimiento, CRUD, duplicados, permisos de perfil, cifrado, migraciones y reapertura | JVM/SQLite nuevas; suite Android final pendiente |
-| Cámara/GPS | Permisos adversos, lectura segura, cancelar, candidatos y manual | Recorridos físicos pendientes en APK identificada |
-| Red | Pérdida/retorno, red sin internet y portal cautivo | Pendiente de red real preparada |
-| Adaptación | Texto grande, ambas orientaciones, tablet y TalkBack | Antecedentes físicos por versión; comprobación completa pendiente |
-| Entrega | Fuente/artefacto/commit identificados, revisión y canal de firma | Candidato, no cierre de entrega |
+| Reglas/persistencia | JVM históricas + regresión Android nueva y 400 cifradas | Aceptación humana específica de RECORD_CONTRACTS y recorrido final de operador |
+| Nativos/red | QR bitmap con modelo incluido, resultado GPS tipado, 110 aperturas/cierres del observador de red | Cámara/enfoque, permisos adversos, GPS real, pérdida/retorno y portal controlado con usuario |
+| Adaptación/accesibilidad | Componentes Compose, texto aumentado, ancho simulado y recreación | Recorrido visual final, TalkBack aplazado, tablet físico |
+| Seguridad/empaquetado | Cifrado/clave inaccesible sin reset, logs acotados, manifiestos/ZIP/ELF | Backup/transferencia efectivos en entorno controlado; runtime 16 KB; aclaración/firma release |
+| Entrega | Candidato fuente y APK identificados, guías y evidencia | Revisión de PR, corte/tag final, AVA y explicación individual |
 
-La revisión de código reportada al integrar no sustituye la aceptación específica de RECORD_CONTRACTS, accesibilidad completa o ensayo individual. El requisito completo de sincronización sigue en E2.
+El test opt-in de transición Wi-Fi no se invocó: necesita un cambio de red preparado con el usuario, sin red móvil alternativa. El proveedor GPS sólo garantiza resultado tipado; la decodificación de bitmap no acredita enfoque de cámara. Los tests UI emplean ComponentActivity de prueba, no un recorrido humano completo de MainActivity. No sumar anchos simulados como tablet físico ni semántica como TalkBack. La revisión externa reportada al integrar R0–R3 no sustituye aceptación contractual. La sincronización real continúa en E2.
 
 ## Pruebas manuales breves
 
@@ -91,3 +89,15 @@ Datos ficticios guardados explícitamente (si aplica) y configuración restaurad
 ```
 
 Registrar evidencia nueva por APK; conservar las anteriores como antecedentes. No sumar ejecuciones separadas ni marcar todos los casos PASS por aprobar uno. Las decisiones de firma/custodia, aceptación contractual, AVA y defensa se coordinan en el marco privado.
+
+## Reproducir la comprobación ELF
+
+Desde `android/`, con Python 3 (biblioteca estándar):
+
+```powershell
+python tools/test_verify_apk_elf.py
+python tools/verify_apk_elf.py app/build/outputs/apk/demo/debug/app-demo-debug.apk
+python tools/verify_apk_elf.py app/build/outputs/apk/demo/release/app-demo-release-unsigned.apk
+```
+
+Salida JSON con hash de APK y cabeceras por biblioteca; código 0 si las bibliotecas de 64 bits pasan, 1 si alguna no pasa y 2 ante un archivo inválido. Una APK sin bibliotecas nativas devuelve lista vacía: no hay ELF que comprobar, no acredita instalación. Usar además `zipalign -c -P 16 4 APK` y el dispositivo adecuado para ejecución. No modificar `.so` de terceros ni excluir ABI para forzar un resultado.

@@ -1,5 +1,7 @@
 # 📱 Captura de Prospectos — Grupo 6
 
+**R4 · avance 18/10/2026.** [QA actual](docs/ROUND4_QA.md): regresión nueva en Xiaomi 11T/API 34 sobre APK `b0294e11…`, 52 pruebas de datos/proveedores y 31 de UI aprobadas en dos ejecuciones, con bases de prueba y conservación de la demo. 400 capturas cifradas, alta p95 42,98 ms. Comprobación estática ELF de 64 bits aprobada; release sigue sin firma. Sin cambio funcional ni cierre E1: quedan permisos/cámara/GPS/redes reales, TalkBack, tablet, aceptación contractual y decisiones de entrega. Los cortes inferiores son históricos.
+
 **R4 · corte 14/10/2026.** R0–R3/V3 integradas en develop por PR #9 (`0c64533`). [QA vigente](docs/ROUND4_QA.md): construcción desde clon remoto limpio, 191 JVM aprobadas, Lint 27 avisos/0 errores; debug/instrumental firmadas y release compilada sin firma. No se ejecutó Android en este corte; resultados del 11/10 conservan su APK. La revisión técnica externa fue reportada al integrar; aceptación de contratos, TalkBack, tablet, permisos adversos, portal cautivo, firma/entrega y defensa siguen pendientes. Los cortes inferiores son antecedentes, no un cierre de E1.
 
 Aplicación Android para registrar personas interesadas en estudiar en Duoc UC durante visitas a establecimientos, ferias y otras actividades de captación en terreno.

@@ -1,5 +1,9 @@
 # Evidencia de la base Android
 
+## R4 · Android nuevo sobre APK final · 18/10/2026
+
+APK `b0294e11…` (misma app integrada, build del 14/10): **52 datos/proveedores + 31 UI**, dos invocaciones aprobadas sin fallos/omisiones dentro de la selección. Xiaomi 11T, API 34, páginas 4 KB; apertura UI asistida ADB en MIUI. Sólo bases/alias `test-*`; archivos demo conservados, sin `-g` ni cambios de red/permisos. Dataset 400 cifrado reabierto: alta p95 42,98 ms, 440 escrituras p95 42,44 ms. QR bitmap y proveedores no acreditan cámara física/GPS/portal. Ancho simulado no acredita tablet; TalkBack sigue pospuesto. [Guía y pendientes actuales](ROUND4_QA.md), [evidencia](evidencias/r4-android-2026-10-18.json). Los resultados inferiores conservan su fecha/APK y no se suman como una sola ejecución.
+
 ## R4 · construcción desde clon remoto limpio · 14/10/2026
 
 Base develop `0c64533`; nuevo clon remoto sin local.properties/archivos privados, rama aislada chore/e1-r4-qa. Windows, SDK 37 y criterio de JDK 25 del proyecto; cachés/dependencias del equipo disponibles, no reproducción de un equipo sin SDK.

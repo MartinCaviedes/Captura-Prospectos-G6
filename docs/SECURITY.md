@@ -1,5 +1,7 @@
 # Seguridad y demostración reproducible
 
+Evidencia nueva R4 · 18/10: 52 pruebas Android de datos/proveedores y 31 UI en dos ejecuciones sobre APK `b0294e11…`; cifrado, clave inaccesible sin reset, migraciones, reapertura, rollback y alcance de perfiles comprobados con datos ficticios aislados. Inspección acotada de logs del UID de la app sin coincidencias en los patrones revisados. [Método, evidencias y pendientes](ROUND4_QA.md). No acredita auditoría exhaustiva, autenticación remota, backup/transferencia efectivos ni permisos físicos adversos. Las notas inferiores mantienen sus fechas.
+
 Candidato nativo 10/10: cámara/ubicación con solicitud contextual, entrada manual preservada y candidatos confirmados. Cámara/QR no escriben imágenes/payloads; se retira INTERNET añadido por bibliotecas en E1 y el modelo incluido decodifica sin ese permiso. FINE/COARSE/CAMERA permanecieron denegados en las ejecuciones automáticas; matriz real de permisos y revisión humana pendientes. Auditoría candidata Room v4 y evidencia por incremento: [registros](ROUND2_RECORDS_TRAY.md), [nativos](ROUND2_DEVICE_RESOURCES.md), [resultados](ANDROID_BASELINE.md). Los estados v3 siguientes son antecedentes fechados.
 
 
