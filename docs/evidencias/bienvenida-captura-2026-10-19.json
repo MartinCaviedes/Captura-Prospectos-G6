@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-19",
+  "base_commit": "845787ae3d111bbffa4151c6ea7a44229e45bb7f",
+  "scope": "Sólo bienvenida: arte abstracto sustituido por datos de contacto, intereses académicos y consentimiento con texto nativo adaptable",
+  "source": "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/access/DemoAccessScreen.kt",
+  "source_sha256_lf": "2edc4c41499a30dd46451ea912e26c81c5135116eeb70873d63ab748f4542f69",
+  "checks": {
+    "build": "assembleDemoDebug passed",
+    "lint_errors": 0,
+    "lint_warnings": 30,
+    "signature_verified": true,
+    "zipalign_verified": true,
+    "install": "-r -t, no data wipe or permission grant",
+    "demo_files_unchanged_during_install": true,
+    "app_launch": "Status ok"
+  },
+  "apk_sha256": "22d3e9876628f4eb076bee009845737b32f808fdbad670353219c98bb368ae49",
+  "historical_tests": {
+    "apk_sha256": "1f5c8b2bf4165c667aabebd5284511217c8dc13460a125424f2e03968cd77a98",
+    "jvm": 191,
+    "android": 21,
+    "rerun": false,
+    "reason": "Cambio de presentación sin estado, negocio, datos, permisos, navegación o tema nuevos"
+  },
+  "operator_confirmation": {
+    "previous_app_icon_reported_applied": true,
+    "previous_apk_sha256": "1f5c8b2bf4165c667aabebd5284511217c8dc13460a125424f2e03968cd77a98"
+  },
+  "visual_inspection": {
+    "reviewer": "Agente, inspección de screenshot real del Xiaomi",
+    "scope": "Bienvenida en oscuro/vertical: tres conceptos legibles y completos; Comenzar visible",
+    "operator_new_welcome_approval": "NOT_REPORTED",
+    "not_claimed": [
+      "Nueva comprobación física claro/horizontal/XXL/TalkBack/tablet"
+    ]
+  },
+  "limits": [
+    "No new instrumentation, physical giro/XXL/TalkBack/tablet/portal tests",
+    "Release unsigned of previous increment was not rebuilt for this welcome-only adjustment"
+  ]
+}

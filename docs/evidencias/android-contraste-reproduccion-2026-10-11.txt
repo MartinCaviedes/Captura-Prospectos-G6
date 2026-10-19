@@ -1,0 +1,53 @@
+INSTRUMENTATION_STATUS: class=io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest:
+INSTRUMENTATION_STATUS: test=largeTextKeepsLightFormActionsUsableInsideDarkShell
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<Color(0.07450981, 0.16862746, 0.27058825, 1.0, sRGB IEC61966-2.1)> but was:<Color(1.0, 1.0, 1.0, 1.0, sRGB IEC61966-2.1)>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest.assertReadableFormText(AdmissionFormUiTest.kt:81)
+	at io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest.verifyForm(AdmissionFormUiTest.kt:47)
+	at io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest.largeTextKeepsLightFormActionsUsableInsideDarkShell(AdmissionFormUiTest.kt:29)
+
+INSTRUMENTATION_STATUS: stream=
+Error in largeTextKeepsLightFormActionsUsableInsideDarkShell(io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest):
+java.lang.AssertionError: expected:<Color(0.07450981, 0.16862746, 0.27058825, 1.0, sRGB IEC61966-2.1)> but was:<Color(1.0, 1.0, 1.0, 1.0, sRGB IEC61966-2.1)>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest.assertReadableFormText(AdmissionFormUiTest.kt:81)
+	at io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest.verifyForm(AdmissionFormUiTest.kt:47)
+	at io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest.largeTextKeepsLightFormActionsUsableInsideDarkShell(AdmissionFormUiTest.kt:29)
+
+INSTRUMENTATION_STATUS: test=largeTextKeepsLightFormActionsUsableInsideDarkShell
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 7.792
+There was 1 failure:
+1) largeTextKeepsLightFormActionsUsableInsideDarkShell(io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest)
+java.lang.AssertionError: expected:<Color(0.07450981, 0.16862746, 0.27058825, 1.0, sRGB IEC61966-2.1)> but was:<Color(1.0, 1.0, 1.0, 1.0, sRGB IEC61966-2.1)>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest.assertReadableFormText(AdmissionFormUiTest.kt:81)
+	at io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest.verifyForm(AdmissionFormUiTest.kt:47)
+	at io.github.grupo6.capturaprospectos.ui.admission.AdmissionFormUiTest.largeTextKeepsLightFormActionsUsableInsideDarkShell(AdmissionFormUiTest.kt:29)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

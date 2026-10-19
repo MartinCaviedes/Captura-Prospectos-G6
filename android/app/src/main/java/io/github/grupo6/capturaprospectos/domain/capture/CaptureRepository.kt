@@ -23,6 +23,10 @@ interface CaptureContextSource {
 }
 
 object LocalCaptureAccess {
+    /** Selección para consultar: supervisor en su sede, sin permiso de crear como captador. */
+    fun canSelectEvent(actor: LocalActor, event: CaptureEvent): Boolean = canCreate(actor,event) ||
+        (actor.role == LocalRole.SUPERVISOR && event.siteId in actor.siteIds && event.startsAt < event.endsAt && event.name.isNotBlank())
+
     fun canCreate(actor: LocalActor, event: CaptureEvent): Boolean =
         actor.role == LocalRole.CAPTOR && event.siteId in actor.siteIds &&
             actor.id in event.assignedCaptorIds && event.startsAt < event.endsAt && event.name.isNotBlank()
@@ -30,6 +34,15 @@ object LocalCaptureAccess {
     fun canRead(actor: LocalActor, ownerId: UUID, siteId: UUID, state: CaptureState): Boolean =
         siteId in actor.siteIds && (actor.id == ownerId ||
             (actor.role == LocalRole.SUPERVISOR && state != CaptureState.DRAFT))
+
+    fun canSupervise(actor: LocalActor, event: CaptureEvent): Boolean =
+        actor.role == LocalRole.SUPERVISOR && event.siteId in actor.siteIds
+
+    fun canAccessEvent(actor: LocalActor, event: CaptureEvent): Boolean =
+        when (actor.role) {
+            LocalRole.CAPTOR -> canCreate(actor, event)
+            LocalRole.SUPERVISOR -> canSupervise(actor, event)
+        }
 }
 
 data class NewCapture(

@@ -1,0 +1,103 @@
+{
+  "jvm": {
+    "tests": 187,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "Error": 0,
+    "Warning": 25
+  },
+  "apks": {
+    "outputs/apk/demo/debug/app-demo-debug.apk": "3fd701992cf37ebc0ce34140be042cce4fd4ec07f2a9eb2458c6d1396514a0e3",
+    "outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk": "1eaea114d0b188032cf44b982b03cc1e7f8297ef8f5d3694fa87d28ee9e78e9e"
+  },
+  "date": "2026-10-11",
+  "base": "bac7ac3",
+  "android": {
+    "data": {
+      "passed": 51,
+      "seconds": 93.926,
+      "assisted_launch": false
+    },
+    "ui": {
+      "passed": 22,
+      "seconds": 180.681,
+      "assisted_launch": true
+    }
+  },
+  "dataset400": {
+    "rows": 400,
+    "states": {
+      "READY": 260,
+      "NEEDS_CONTEXT": 60,
+      "DRAFT": 40,
+      "CANCELLED": 40
+    },
+    "active_keys": 320,
+    "audits": 440,
+    "schema": 4,
+    "model": "21081111RG",
+    "api": 34,
+    "create": {
+      "samples": 400,
+      "p50_ms": 62.481769,
+      "p95_ms": 114.626077,
+      "p99_ms": 153.82923,
+      "max_ms": 195.897307,
+      "p95_below_150_ms": true
+    },
+    "cancel": {
+      "samples": 40,
+      "p50_ms": 38.747153,
+      "p95_ms": 100.072539,
+      "p99_ms": 131.369461,
+      "max_ms": 131.369461,
+      "p95_below_150_ms": true
+    },
+    "all_writes": {
+      "samples": 440,
+      "p50_ms": 61.154539,
+      "p95_ms": 113.456923,
+      "p99_ms": 153.82923,
+      "max_ms": 195.897307,
+      "p95_below_150_ms": true
+    },
+    "queries": {
+      "captor-a-all-pages-ms": 652.248923,
+      "captor-a-metrics-ms": 126.099462,
+      "captor-b-all-pages-ms": 557.665308,
+      "captor-b-metrics-ms": 158.650154
+    },
+    "method": "elapsedRealtimeNanos around complete real repository calls; initialization/context changes/native GPS excluded; debug build; nearest-rank percentiles"
+  },
+  "host_structural": {
+    "captor_cursor_rows": 200,
+    "control": "host SQLite v4 structural smoke only",
+    "counts": {
+      "active_registration_keys": 320,
+      "capture_interests": 600,
+      "captures": 400,
+      "local_audit": 440
+    },
+    "foreign_key_errors": 0,
+    "states": {
+      "CANCELLED": 40,
+      "DRAFT": 40,
+      "NEEDS_CONTEXT": 60,
+      "READY": 260
+    }
+  },
+  "sources_sha256": {
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/data/local/Dataset400StorageTest.kt": "20ed65e92ce0d70e31d22b418021814e8b1f4d5eca81476d2c41c88af5d8d433",
+    "android/app/src/test/java/io/github/grupo6/capturaprospectos/data/local/StressDataset400Test.kt": "214cc6fff6a498b4973575b1c0531038394d2d9404abd9937025242734db0e45",
+    "android/tools/verify_dataset_400_sql.py": "0b528341ad9528786e497aeb7faca55d7b34a73c892ba6b815377336201cdc55"
+  },
+  "limits": [
+    "Una ejecución debug en Xiaomi 11T Android 14/API 34, sin perfilado de frames ni prueba prolongada de memoria.",
+    "51 datos/nativos y 22 UI ejecutados por separado; UI con asistencia de apertura MIUI.",
+    "No acredita otros dispositivos, otros builds, giro real, TalkBack, portal cautivo ni aceptación humana.",
+    "No es cierre E1/RF; RECORD_CONTRACTS y auditoría v4 candidatos."
+  ]
+}

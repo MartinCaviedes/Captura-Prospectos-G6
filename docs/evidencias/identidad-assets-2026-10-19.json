@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-19",
+  "official_logo_source": "https://www.duoc.cl/wp-content/themes/wordpress-duoc-cl/images/logo-duoc.svg",
+  "manual": "https://www.duoc.cl/wp-content/uploads/2024/11/MANUAL-DE-IDENTIDAD-CORPORATIVA-DUOC-UC-2024_70111139.pdf",
+  "official_logo_transform": "Original SVG preserved; whole SVG rasterized at 4x, no path edits, no tint or aspect change",
+  "app_mark": "Original repository-native vector: person enclosed by four capture corners; navy/gold/white, independent of official logo",
+  "files": {
+    "android/app/src/main/assets/branding/duoc-oficial.svg": {
+      "sha256": "f7af934ef0cbcd9e94634b3007d3c36698708a0c57deb6f10544c9916b713b91",
+      "bytes": 48181
+    },
+    "android/app/src/main/assets/branding/captura-mark.svg": {
+      "sha256": "cfff5cb516af0dbc4797bb97af366418250533e9c9ebe6956133fcaf37ad245d",
+      "bytes": 478
+    },
+    "android/app/src/main/res/drawable-nodpi/duoc_uc_oficial.png": {
+      "sha256": "a7b32944f109540fbc03bcdde6b420bc57a6fd06a893719562c1966055c73b17",
+      "bytes": 97315
+    }
+  }
+}

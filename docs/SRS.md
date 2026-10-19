@@ -1,5 +1,7 @@
 # Especificación de requisitos de software
 
+Estado de interfaz actualizado: [V3 Conexiones](UI_CONEXIONES_E1.md) y [evidencia incremental](ANDROID_BASELINE.md). Los estados de implementación/QA del 06/10 que siguen son históricos; esta adaptación visual conserva los requisitos y contratos de datos de la versión 1.4.
+
 Adaptación F2027 acordada: [FORMULARIO_ADMISION_2027](FORMULARIO_ADMISION_2027.md) registra fuente, respuestas y aclaraciones confirmadas por Martín el 06/10. F01–F03 definen reglas objetivo; dominio/persistencia F2027 implementados, con evidencia Android v2; contexto v3 probado en Android; UI pendiente de verificación funcional. Nacimiento desde QR se conserva condicionado a verificar formato, no como función comprobada.
 
 La distribución vigente por hito está en [ENTREGAS.md](ENTREGAS.md): E1 (P2/P3) implementa el incremento local con GPS, cámara y conectividad; E2 (P4/P5) completa la integración. Los criterios finales de este SRS se conservan. No confundir una tarea E1 completada con un RF semestral terminado.
@@ -155,7 +157,7 @@ Aceptación: límites de sede, evento multidía y cambio de asignación. Si una 
 | RNF08 | Android teléfono/tablet | minSdk 26 como meta del equipo sujeta a matriz de dependencias; portrait/landscape, tamaño de texto aumentado y flujo sin recortes |
 | RNF09 | Entregables y colaboración | Git feature/develop/main, revisión cruzada, actividad real de tres integrantes, tablero, README, APK release firmado y código AVA identificados |
 
-No hay rendimiento medido aún. Las métricas son objetivos de verificación, no resultados. P2 sigue siendo la prioridad; ENTREGAS distribuye los criterios sin eliminarlos. RNF04 y controles remotos de RNF05/06 se completan en E2. RNF09 se acredita por hito; firma en E1 sujeta a aclaración docente y obligatoria en E2. Cualquier reducción real de alcance requiere registrar el cambio, no esconder una omisión como cumplimiento.
+Actualización de evidencia 18/10: dataset de 400 registros cifrados en Xiaomi 11T/API 34, alta p95 42,98 ms y 440 escrituras p95 42,44 ms; método y límites en [R4 QA](ROUND4_QA.md). No mide el recorrido completo de captura, la meta de diez tareas ni rendimiento de otros dispositivos. Las metas PT se conservan como objetivos, no como garantías generales. P2 sigue siendo la prioridad; ENTREGAS distribuye los criterios sin eliminarlos. RNF04 y controles remotos de RNF05/06 se completan en E2. RNF09 se acredita por hito; firma en E1 sujeta a aclaración docente y obligatoria en E2. Cualquier reducción real de alcance requiere registrar el cambio, no esconder una omisión como cumplimiento.
 
 ## 6. Trazabilidad de evaluación
 
