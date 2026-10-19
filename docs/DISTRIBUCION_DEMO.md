@@ -1,9 +1,9 @@
 # Instalar y probar la demo E1
 
-Versión preliminar de evaluación del 19/10/2026. APK Android demo/debug; no es una versión de producción ni acredita cierre de E1/R4. Se distribuye el mismo archivo instalado en el Xiaomi, sin modificar código, dependencias, permisos o datos.
+Versión de evaluación **1.0.1 (2)**, 19/10/2026. APK Android demo/debug con corrección de la disposición de «Nuevo evento» en pantallas estrechas. Conserva identificador y firma para actualizar la instalación existente, sin desinstalar ni borrar datos.
 
-- [Descargar APK](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/download/e1-demo-2026-10-19/Captura-Prospectos-G6-E1-demo.apk)
-- [Versión y archivos de prueba en GitHub](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e1-demo-2026-10-19)
+- [Descargar APK](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/download/e1-demo-1.0.1/Captura-Prospectos-G6-E1-demo.apk)
+- [Versión y archivos de prueba en GitHub](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e1-demo-1.0.1)
 - [QR ficticio válido y QR no compatible](fixtures/qr/README.md)
 
 ## Instalación
@@ -46,11 +46,10 @@ El soporte de QR de cédula real se aplaza a E2 por decisión de Martín del 19/
 
 ## Identificación y evidencia
 
-- APK SHA-256: `22d3e9876628f4eb076bee009845737b32f808fdbad670353219c98bb368ae49`.
-- Código de la app: `ae68318e99f5ff342f96667544a174200c4ac1da`; el commit de la etiqueta sólo añade esta documentación, los PNG y el registro de distribución, sin cambios bajo `android/`.
-- Compilación y Lint de esta APK: aprobados, 30 avisos/0 errores; firma y alineación ZIP verificadas. Instalación y bienvenida oscuro/vertical inspeccionadas en Xiaomi.
-- 191 JVM/21 Android pertenecen al incremento anterior `1f5c8b2b`; no se presentan como suites nuevas de esta APK. [Evidencia específica](evidencias/bienvenida-captura-2026-10-19.json).
-- Los PR R4 #10 e identidad #11 conservan su revisión/integración pendiente. Publicar esta preliminar no fusiona ramas ni sustituye aceptación contractual.
-- TalkBack sigue aplazado; tablet físico y red sin internet/portal controlado continúan pendientes. No se afirma cierre general por distribuir la demo.
+- APK SHA-256: `fc9dadc967d5adfbc7025f828130ef79fb59e005f3e7b728a28ec06194371612`.
+- Código de esta actualización: `336ea814b28a256bfae8c5f0488a9d210a5f3af2`. La etiqueta identifica la fuente con documentación de distribución; sin cambios funcionales posteriores a las pruebas.
+- 191 JVM y siete Android dirigidas aprobadas; compilación y Lint correctos, 30 avisos/0 errores. Firma, certificado de actualización y alineación verificadas. [Detalle de la corrección](UI_EVENTOS_RESPONSIVE.md).
+- Las suites anteriores conservan su fecha y APK; no se suman a este incremento. La comprobación de ancho no acredita tablet físico ni TalkBack.
+- El soporte de cédula real, autenticación y sincronización remotas no se implementan en esta actualización. Los pendientes generales se consultan en [QA](ROUND4_QA.md).
 
 La APK se adjunta como archivo de GitHub Releases; no se incorpora el binario al historial del repositorio. Para informar un problema, indica versión, modelo/Android, pasos, resultado y captura sin datos personales. No adjuntes fotos de cédulas ni QR personales.
