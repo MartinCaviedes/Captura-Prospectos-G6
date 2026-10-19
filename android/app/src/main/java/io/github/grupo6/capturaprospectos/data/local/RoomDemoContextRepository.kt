@@ -96,8 +96,8 @@ internal class RoomDemoContextRepository(
             val coordinates = if (row.latitude == null && row.longitude == null) null else Coordinates(requireNotNull(row.latitude), requireNotNull(row.longitude)).also { require(it.isValid()) }
             CaptureEvent(UUID.fromString(row.id), UUID.fromString(row.siteId), row.name, Instant.parse(row.startsAt), Instant.parse(row.endsAt), ZoneId.of(row.timeZone),
                 dao.assignments(row.id).map { UUID.fromString(it.profileId) }.toSet(), coordinates)
-        }.filter { profile != null && LocalCaptureAccess.canCreate(profile.actor, it) }
-        val selected = state.eventId?.let { id -> requireNotNull(available.singleOrNull { it.id.toString() == id }) }
+        }.filter { profile != null && LocalCaptureAccess.canSelectEvent(profile.actor, it) }
+        val selected = state.eventId?.let { id -> UUID.fromString(id); available.singleOrNull { it.id.toString() == id } }
         val eventRow = rows.singleOrNull { it.id == selected?.id.toString() }
         val suggestion = eventRow?.establishment?.let { EstablishmentSuggestion(it, eventRow.establishmentCommune) }
         val version = requireNotNull(dao.catalog(state.catalogVersion))
@@ -108,5 +108,39 @@ internal class RoomDemoContextRepository(
             dao.sites(version.id).map { SiteOption(UUID.fromString(it.id), it.name, it.catalogVersion, it.enabled) })
         val consent = requireNotNull(db.captures().consent(state.consentVersion))
         return DemoContextSnapshot(UUID.fromString(state.deviceId), profiles, profile, available, selected, suggestion, catalog, consent.version, consent.text)
+    }
+
+    /** Autoriza origen/destino y asignaciones en la misma transacción que escribe el evento. */
+    override suspend fun saveEvent(command: SaveDemoEvent): SaveEventResult = withContext(dispatcher) {
+        try {
+            db.withTransaction {
+                val snapshot=readSnapshot() ?: return@withTransaction SaveEventResult.Unauthorized
+                val actor=snapshot.currentProfile?.actor ?: return@withTransaction SaveEventResult.Unauthorized
+                val dao=db.context()
+                if(actor.role != LocalRole.SUPERVISOR || command.siteId !in actor.siteIds)
+                    return@withTransaction SaveEventResult.Unauthorized
+                val existing=command.eventId?.let { dao.event(it.toString()) }
+                if(command.eventId != null && (existing==null || UUID.fromString(existing.siteId) !in actor.siteIds))
+                    return@withTransaction SaveEventResult.Unauthorized
+                if(snapshot.catalog.sites.none { it.id==command.siteId && it.enabled }) return@withTransaction SaveEventResult.Unauthorized
+                val issues=eventIssues(command).toMutableList()
+                val captors=snapshot.profiles.filter { it.actor.role==LocalRole.CAPTOR && command.siteId in it.actor.siteIds }.map { it.actor.id }.toSet()
+                if(!captors.containsAll(command.assignedCaptorIds)) issues += "Sólo se asignan captadores habilitados para la sede elegida."
+                if(issues.isNotEmpty()) return@withTransaction SaveEventResult.Invalid(issues)
+                val id=command.eventId ?: UUID.randomUUID()
+                val row=DemoEventRow(id.toString(),command.siteId.toString(),command.name.trim(),command.startsAt.toString(),command.endsAt.toString(),command.timeZone.id,
+                    command.coordinates?.latitude,command.coordinates?.longitude,command.establishment?.trim()?.ifEmpty { null },command.establishmentCommune?.trim()?.ifEmpty { null })
+                if(existing==null) dao.insertEvent(row) else dao.updateEvent(row)
+                dao.deleteAssignments(id.toString())
+                dao.insertAssignments(command.assignedCaptorIds.map { DemoAssignmentRow(id.toString(),it.toString()) })
+                // Invalida el contexto observado sin seleccionar por inferencia ni modificar capturas.
+                val state=requireNotNull(dao.state());dao.select(state.profileId,state.eventId)
+                SaveEventResult.Success(id)
+            }
+        } catch(cancelled:kotlinx.coroutines.CancellationException) { throw cancelled }
+        catch(_:SQLiteException) { SaveEventResult.StorageUnavailable }
+        catch(_:IllegalArgumentException) { SaveEventResult.StorageUnavailable }
+        catch(_:DateTimeException) { SaveEventResult.StorageUnavailable }
+        catch(_:IllegalStateException) { SaveEventResult.StorageUnavailable }
     }
 }

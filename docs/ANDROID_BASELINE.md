@@ -1,5 +1,180 @@
 # Evidencia de la base Android
 
+## Bienvenida con contenido de captura · 19/10/2026
+
+Por observación del operador se retira la ilustración de órbitas de WelcomeScreen. Se reemplaza por texto nativo adaptable: **Datos de contacto**, **Intereses académicos** y **Consentimiento**, con numeración informativa sin acciones o datos simulados. Conserva el estilo, tema, logos, título y botón Comenzar. Martín confirma además el icono aplicado en la APK previa 1f5c8b2b; esta confirmación se registra separada del nuevo texto.
+
+APK debug 22d3e9876628f4eb076bee009845737b32f808fdbad670353219c98bb368ae49: assembleDemoDebug y lintDemoDebug aprobados, firma/ZIP correctos, instalación -r -t conservando archivos de la base demo. Inspección del agente en screenshot real del Xiaomi oscuro/vertical: etiquetas completas y Comenzar visible. Lint 30 avisos/0 errores; se conserva el recurso gráfico anterior como antecedente, sin suprimir avisos. [Evidencia](evidencias/bienvenida-captura-2026-10-19.json). No suites automáticas nuevas ni release reconstruida por este cambio de presentación; 191 JVM/21 Android mantienen su APK 1f5c8b2b. No nueva validación humana del bloque, claro/horizontal/XXL/TalkBack/tablet ni cierre R4. Se publica en la misma rama/PR #11; sin merge ni cambios de estado, datos o reglas.
+
+Iteración autorizada 19/10/2026 · identidad, apariencia y muestra mixta E1. Logo oficial Duoc UC desde su sitio, separado del símbolo propio de captura e icono adaptativo. Perfil permite claro/oscuro, preferencia booleana sin PII; fondos, controles, formulario y barras siguen el modo elegido. Carga voluntaria de 60 ficticios: conserva 24 sin contexto y añade 18 listas/12 borradores/6 anuladas, con ubicaciones simuladas declaradas y sin duplicar/reemplazar trabajo manual. 191 JVM/21 Android dirigidas aprobadas; Lint 29 avisos/0 errores. APK 1f5c8b2b: el operador confirma cambio de tema en todas las pestañas sin texto invisible, carga ficticia y visualización correctas. Reporte global, sin conteos numéricos ni validación independiente detallada de cada paso de la guía. Publicación en ramas propias para revisión, sin merge. Rama feature/e1-identidad-tema-demo depende del PR R4 #10; sin integración, nueva autenticación ni cambio de esquema/reglas. [Detalle y límites](UI_IDENTIDAD_TEMA_DEMO.md).
+
+## R4 · acceso y giro corregido y comprobado · 19/10/2026
+
+El operador confirma bienvenida/acceso/evento legibles y alcanzables con XXL, completando el recorrido visual del teléfono en APK 733104d7. Detecta un fallo funcional independiente: el giro borra correo/contraseña rellenados por cuenta de muestra. DemoAccessScreen los mantenía con remember, perdido al recrear Activity. DemoAccessRoute ahora observa DemoAccessViewModel; éste retiene el borrador sólo en memoria, consume la contraseña al enviar y limpia credenciales al logout/onCleared. No SavedState, disco, Room, nuevo proveedor ni cambio de autenticación E1/E2. La contraseña vuelve a estar oculta tras recreación.
+
+Regresión antes: falla al comprobar correo tras recreación, APK de control 185dc7f8 (ruta añadida, comportamiento remember aún intacto). Después: **191 JVM, 14 Android dirigidas aprobadas y Lint 27 avisos/0 errores**; apertura asistida ADB en MIUI, bases demo conservadas por hashes y Room sólo test-*. Las tres nuevas cubren cuenta de muestra sin ingreso automático, edición manual/recreación/consumo de contraseña y logout/nueva Activity vacía. Incluye UI de acceso, perfiles/fixtures Room, calendarios y regresión de conectividad. ActivityScenario.recreate no es giro físico ni muerte de proceso.
+
+APK debug candidata `8a02596d…` instalada; debug/instrumental firmadas y ZIP comprobados. Release compilada unsigned, sin instalar. Bibliotecas nativas debug idénticas a 733104d7 por hash; no ejecución 16 KB. [Evidencia, hashes y límites](evidencias/r4-acceso-giro-2026-10-19.json), [fallo anterior](evidencias/android-acceso-before-2026-10-19.txt), [corrida corregida](evidencias/android-acceso-after-2026-10-19.txt). **Giro físico comprobado por reporte del operador en 8a02596d:** los campos se conservan sin problemas. Es conservación en memoria, no guardado en disco; no se reporta por separado cada paso de ingreso/evento. Arreglo preparado para publicación normal en ramas R4/PR #10, sin merge ni aprobación de terceros atribuida. TalkBack aplazado, tablet, M05 sin entorno y aceptación/entrega siguen pendientes; no cierre R4.
+
+**Visual M06 · 19/10/2026:** el operador completa el recorrido solicitado en Xiaomi con fuente **XXL**, sin botones/textos cortados, ilegibles ni inaccesibles: Inicio, Registros, Resumen, Perfil y captura, incluyendo las variaciones de tema/orientación y calendario indicadas en la guía. Resultado global reportado, sin desglose por control; XXL no equivale a 150 % medido. APK `733104d7…`; [reporte y límites](evidencias/r4-nativos-manual-2026-10-19.json). Quedan bienvenida/acceso/evento con XXL, TalkBack aplazado y tablet físico. Sin nueva APK ni suites; no cierre M06/R4.
+
+**Seguimiento M01 · 19/10/2026:** el operador confirma que «Abrir ajustes», tras denegar Cámara y solicitar QR, abre la ficha correcta de la app. Concede Cámara y vuelve sin reinicio ni descarte en ese intento, APK `733104d7…`. Queda comprobada la acción pendiente de M01 en su recorrido guiado; no es garantía de conservar memoria si Android termina el proceso. [Evidencia por evento](evidencias/r4-nativos-manual-2026-10-19.json). Sin nueva APK ni suites. M05 sigue sin entorno; visual final, TalkBack aplazado y tablet conservan su estado. Los apartados anteriores conservan su corte histórico.
+
+## R4 · corrección de escucha de red y repetición física · 19/10/2026
+
+`MainHubRoute` conserva el Flow con remember(observer). Antes: nueva regresión falla por dos suscripciones en vez de una. Después: 191 JVM, Lint 27 avisos/0 errores y ocho Android dirigidas aprobadas (dos nuevas Compose, tres resumen/Room, dos calendario/recreación, una callback real); datos demo intactos, UI asistida ADB, sin cambiar redes/permisos. Debug nueva `733104d7…` instalada; release unsigned recompilada sin firma/instalación release. [Prueba, hashes y límites](evidencias/r4-conectividad-fix-2026-10-19.json). Martín confirma aviso offline/validado sin navegar en APK 733104d7, demora visual estimada <=1 s, no benchmark. Prueba de formulario previa mantiene b0294e11. M05 pendiente por falta de red controlada; publicación por rama/PR sin merge. Las ocho no sustituyen ni se suman como una sola corrida con las 83 de la APK anterior.
+
+## R4 · recorridos humanos M01/M02 consolidados · 19/10/2026
+
+Reporte humano: escáner abre/cierra conservando campos tras recuperar permiso. Ubicación denegada conserva texto sin coordenadas; servicio apagado informa sin posición; aproximada agota plazo conservando texto sin aplicar; precisa permite descartar una candidata y confirmar otra para aplicarla. Cuatro escenarios GPS guiados comprobados; precisión numérica/mensajes literales no reportados. [Evidencia y límites](evidencias/r4-nativos-manual-2026-10-19.json). No nuevas pruebas automáticas ni cambio APK; no cerrar M03 ni R4. M01 aún requiere confirmación explícita del acceso a Ajustes desde denegación permanente.
+
+## R4 · cámara denegada / Ajustes · 19/10/2026
+
+M01 parcial: reporte humano confirma campos intactos al denegar cámara y continuar manualmente. Al cambiar permisos en Ajustes se observó bienvenida y pérdida de formulario no guardado. ADB de sólo lectura registra cuatro salidas recientes PERMISSION CHANGE, APK b0294e11 comprobada; no se atribuye la causa a un clic específico. Contrato vigente conserva formulario sólo en memoria, no tras muerte del proceso. [Detalle y límite de la guía](ROUND4_QA.md), [evidencia](evidencias/r4-permisos-camara-2026-10-19.json). Seguimiento posterior: apertura/cierre del escáner con campos intactos confirmado; queda acción Abrir ajustes desde denegación permanente. Sin suites nuevas ni cambio funcional.
+
+## R4 · Android nuevo sobre APK final · 18/10/2026
+
+APK `b0294e11…` (misma app integrada, build del 14/10): **52 datos/proveedores + 31 UI**, dos invocaciones aprobadas sin fallos/omisiones dentro de la selección. Xiaomi 11T, API 34, páginas 4 KB; apertura UI asistida ADB en MIUI. Sólo bases/alias `test-*`; archivos demo conservados, sin `-g` ni cambios de red/permisos. Dataset 400 cifrado reabierto: alta p95 42,98 ms, 440 escrituras p95 42,44 ms. QR bitmap y proveedores no acreditan cámara física/GPS/portal. Ancho simulado no acredita tablet; TalkBack sigue pospuesto. [Guía y pendientes actuales](ROUND4_QA.md), [evidencia](evidencias/r4-android-2026-10-18.json). Los resultados inferiores conservan su fecha/APK y no se suman como una sola ejecución.
+
+## R4 · construcción desde clon remoto limpio · 14/10/2026
+
+Base develop `0c64533`; nuevo clon remoto sin local.properties/archivos privados, rama aislada chore/e1-r4-qa. Windows, SDK 37 y criterio de JDK 25 del proyecto; cachés/dependencias del equipo disponibles, no reproducción de un equipo sin SDK.
+
+**191 JVM aprobadas**, cero fallos/errores/omitidas (incluye una prueba aritmética de plantilla); debug e instrumental construidas y firma verificada; **release unsigned construida**, sin generar llave. **Lint debug: 27 avisos/0 errores**. Gradle correcto en 6 min 6 s, 130 tareas ejecutadas. Ambas variantes sin INTERNET y allowBackup=false; release no depurable/PreviewActivity ausente. zipalign ZIP 16 KB aprobado en tres APK; no acredita ELF/runtime 16 KB. Optimización/R8 sigue desactivada, no se atribuye ofuscación ni firma release.
+
+Los tres scripts SQLite del host pasaron; dataset estructural de 400 con FK intactas. No acredita rendimiento/cifrado Android. No hubo dispositivo autorizado al preparar el corte ni ejecución Android nueva. Los resultados de 11/10 y la revisión humana reportada del 13/10 conservan sus alcances y versiones.
+
+[Guía y casos pendientes](ROUND4_QA.md), [fuentes, hashes y resultados](evidencias/r4-clon-limpio-2026-10-14.json). No se modifica código funcional, Room, dependencias ni reglas; sólo documentación/evidencia. TalkBack pospuesto, permisos/redes adversas, tablet, aceptación de contratos, firma/AVA y P3 pendientes. Los cortes siguientes son históricos.
+
+## Calendarios abiertos al recrear Activity · 11/10/2026
+
+Prueba humana recibida sobre APK `aa46a797…`: contraste de título, enunciados y consentimiento aprobado; selección/cambio/confirmación de fechas y uso horizontal aprobados. Detectó cierre del calendario y colapso del rango al girar con el diálogo abierto. Esta respuesta corresponde a esa APK, no a la nueva corrección.
+
+Corrección sobre `f4d1ac6`, misma rama/PR #9: diálogo y selección provisional (fecha, mes y modo) se retienen sólo en memoria del ViewModel; expansión de rango en su StateFlow. Nacimiento y Desde/Hasta comparten el controlador sin Saver, SavedState, disco ni cambios de Room/contratos. Cancelar no aplica la candidata; confirmar sólo rellena el campo. Aplicar rango conserva el control existente. Descarte/reset/liberación del dueño limpian el calendario; un dueño nuevo comienza sin candidata.
+
+**191 JVM aprobadas**, cero fallos/errores/omitidas; ambas APK; **Lint 27 avisos/0 errores**. Xiaomi 11T Android 14/API 34: **14 pruebas dirigidas aprobadas en 142.14 s**, una ejecución final. Incluye las 12 regresiones de formulario/consentimiento/navegación/candidatos/edición/resumen Room y dos nuevas con ActivityScenario.recreate: nacimiento, ambos extremos y campos expandidos sobreviven a una nueva Activity con ViewModel retenido, se confirma o cancela explícitamente y se limpia al cerrar el dueño. Estos dos casos usan ComponentActivity aislada recompuesta al recrear, no MainActivity ni giro físico.
+
+[Fuentes/APK y alcance](evidencias/calendario-giro-2026-10-11.json), [salida final](evidencias/android-calendario-giro-2026-10-11.txt). Intent MAIN/LAUNCHER alineado con apertura asistida MIUI. Intentos iniciales del fixture/proceso y mes inicial corregidos antes de esta ejecución; no se cuentan como éxitos. Sin reset de datos ni permisos concedidos por ADB.
+
+Las 12/28 Android de cortes anteriores y suites de datos/nativos/400 son históricas respecto a esta nueva APK; no sumar resultados. Martín confirmó después que todo funcionó al realizar el recorrido propuesto en la APK `4df4046a…`: giro vertical/horizontal con calendario abierto, candidata, cancelación/confirmación y rango desplegado. Esta comprobación humana se registra por separado de las 14 automáticas; no acredita TalkBack ni aceptación contractual. TalkBack sigue pospuesto; tablet físico, permisos adversos, portal cautivo, revisión cruzada/contratos y P3 pendientes. Retención durante recreación no implica persistencia tras muerte del proceso.
+
+
+## Ajustes tras prueba humana de V3 · 11/10/2026
+
+Martín comprobó el recorrido de V3 sobre APK `f6d350b…`: acceso de muestra, evento, captura/calendario y giro en todas las ventanas, sin recortes ni problemas al ingresar campos. Reportó textos blancos sobre captura clara y ausencia del calendario en el rango del resumen. Esto acredita sólo su recorrido en esa APK; no acredita TalkBack ni aceptación contractual.
+
+Corrección sobre `ef11807`, misma rama `feature/e1-ui-conexiones` y PR #9: Surface local fija el color de contenido de captura y usa el fondo claro. El calendario volátil se comparte con los campos Desde/Hasta; confirmar sólo rellena ISO, cancelar preserva el valor y Aplicar rango conserva validación/cálculo existentes. No se modifica el dominio ni la persistencia.
+
+**187 JVM aprobadas**, cero fallos/errores/omitidas; ambas APK construidas; **Lint 27 avisos/0 errores**. Xiaomi 11T Android 14/API 34: **12 pruebas dirigidas aprobadas en 132.892 s**, una ejecución final. Formulario en entorno de contenido blanco, contraste de títulos/cuerpo >=4,5:1 y letra 150 %, nacimiento, consentimiento/descarte, candidatos QR/GPS, edición/conflictos y resumen con Room. La prueba nueva cambia cada extremo desde su calendario, comprueba cancelación, que no recalcula antes de Aplicar, y que un extremo vacío conserva el último cálculo tras rechazo.
+
+[Fuentes/APK](evidencias/conexiones-ajustes-2026-10-11.json), [salida final](evidencias/android-conexiones-ajustes-2026-10-11.txt), [reproducción del contraste anterior](evidencias/android-contraste-reproduccion-2026-10-11.txt). La regresión nueva se ejecutó primero contra la APK principal anterior, con instrumental nuevo: falló por blanco en lugar de G6Ink, como se esperaba. Un primer intento del grupo nuevo tuvo un fallo de selector de día: DatePicker expone la fecha completa como etiqueta accesible; se corrigió el selector localizado sin retirar aserciones y el grupo final pasó.
+
+El runner nuevo reconoce los alias de foco de este Android y asiste la apertura cuando ComponentActivity no está enfocada; no se declara arranque desatendido. Instalación `-r -t`, sin borrar datos ni conceder permisos por ADB. El grupo de 28 de V3 y las suites de datos/nativos de abajo son históricos respecto a esta nueva APK; no sumarlos. La confirmación visual nueva del contraste/rango se solicita al usuario. TalkBack continúa pospuesto; tablet físico, permisos adversos, portal cautivo, revisión cruzada/contratos y P3 pendientes.
+
+
+## V3 Conexiones nativa · 11/10/2026
+
+Candidato `feature/e1-ui-conexiones` sobre `dad8a5b` (PR público #8), sin merge ni aceptación humana. **187 JVM aprobadas**, cero fallos/errores/omitidas; ambas APK construidas; **Lint 27 avisos/0 errores**, controles activos y sin baseline nueva. Las 27 advertencias incluyen versiones de dependencias, recursos históricos y metadatos existentes; no se atribuyen a fallos de ejecución. [Adaptación y límites de V3](UI_CONEXIONES_E1.md), [fuentes/APK identificadas](evidencias/conexiones-2026-10-11.json), [procedencia de recursos y licencia](evidencias/conexiones-assets-2026-10-11.json).
+
+Una ejecución final conjunta sobre las APK definitivas en Xiaomi 11T Android 14/API 34: **28 pruebas aprobadas en 244.441 s**. Acceso/carga aislada cifrada, menú compacto/ampliado, selección de contexto, formulario/calendario/descarte, candidatos QR/GPS, bandeja/detalle/conflictos, métricas y administración. [Salida íntegra](evidencias/android-conexiones-final-2026-10-11.txt). Las bases instrumentales son aisladas; instalar con `-r -t` conserva los datos existentes. No se concedieron permisos por ADB ni se borraron datos.
+
+La apertura de ComponentActivity recibió asistencia ADB. El detector heredado buscaba `mResumedActivity` y no reconocía los alias `topResumedActivity`/`ResumedActivity` de este Android; pudo repetir aperturas innecesarias. Por ello no se acredita arranque desatendido ni se atribuye cada asistencia a bloqueo MIUI. MainActivity real se abrió después y su foco se comprobó con los alias correctos y la ventana de la app.
+
+Un intento inicial tuvo nueve fallos de interacción/visibilidad tras cambiar los diseños: controles fuera de la composición/área visible y confirmación reactiva aún no observada. Se adaptaron desplazamiento, visibilidad y espera conservando aserciones de campos, consentimiento, persistencia y navegación; la ejecución final completa pasó. Calendario y credenciales permanecen en memoria: se excluye el registro SavedState interno de DatePicker, sin cambios en negocio/Room.
+
+Se inspeccionó la bienvenida real en orientación horizontal. MIUI rechazó la inyección de gestos y las escrituras de ajustes por ADB; los valores de rotación permanecen `accelerometer_rotation=1`, `user_rotation=0`, iguales al inicio. Revisión visual completa y giro físico de esta APK se solicitan al usuario; no se extrapola su aprobación del refinamiento anterior. La simulación Density no acredita un tablet físico. QR/GPS con dobles no acredita cámara/enfoque ni adquisición física nueva. TalkBack sigue pospuesto expresamente; permisos adversos, portal cautivo, revisión cruzada, aceptación contractual y ensayo P3 pendientes. Las suites de datos/nativos y el ensayo de 400 de los apartados inferiores son históricos respecto a V3.
+
+
+## Refinamiento visual y acceso demo — 11/10/2026
+
+Candidato `feature/e1-ui-refinement` sobre `161f635`, sin merge ni aceptación humana. **187 JVM aprobadas**, sin fallos/errores/omitidas; APK principal e instrumental construidas; **Lint 25 avisos/0 errores**. No cambian Room, migraciones, dependencias ni transporte. [Guía, credenciales y alcance](UI_REFINEMENT_E1.md), [controles y hashes de fuentes/APK](evidencias/ui-refinement-2026-10-11.json).
+
+Ejecuciones nuevas separadas en Xiaomi 11T Android 14/API 34, con las mismas APK e inicio de actividad asistido por ADB donde MIUI lo bloqueaba:
+
+| Grupo | Resultado | Alcance |
+|---|---|---|
+| DemoAccessRoomTest + DemoVisualUiTest | 5 aprobadas, 22,763 s | Credenciales contra perfiles reales, aislamiento/carga voluntaria de 24 ficticios por AdmissionRepository cifrado, idempotencia, métricas, acceso y menú compacto/ampliado con semántica |
+| Regresiones de contexto, formulario, dispositivos UI, registros, detalle, métricas y eventos | 22 aprobadas, 186,189 s | Confirmaciones/descarte, error/reintento, edición/conflictos, permisos por rol y recorrido inicio→resumen con Room |
+
+[Salida de acceso](evidencias/android-ui-access-2026-10-11.txt) y [regresiones](evidencias/android-ui-regressions-2026-10-11.txt). No sumar grupos como una ejecución conjunta. La simulación Density de ancho ampliado no acredita tablet Android. Las 51 pruebas cifradas/nativas anteriores no se repitieron; cámara/GPS físicos anteriores siguen siendo históricos respecto a esta nueva interfaz. La bienvenida real se abrió y se inspeccionó en Xiaomi sin borrar datos ni conceder permisos por ADB.
+
+Un primer compile señaló referencia nullable/import y se corrigió. Un intento de Lint quedó detenido y se canceló; el reintento en proceso nuevo con memoria 4 GB y dos workers terminó con todas las reglas activas. No se ocultaron avisos ni se bajaron exigencias. Pendientes: TalkBack completo, cámara/enfoque/giro, permisos adversos, portal cautivo real, tablet y revisiones humanas.
+
+
+## Comprobación acumulada y dataset real · 11/10/2026
+
+187 JVM, cero fallos/errores/omitidas; ambas APK y Lint 0 errores/25 avisos. Xiaomi 11T Android 14/API 34: **51 de datos/nativos (93.926 s)** y **22 UI (180.681 s)** en grupos separados; apertura asistida MIUI en UI. Mismas APK verificadas por SHA256, identificadas con fuentes y runners en [evidencia](evidencias/dataset-correction-2026-10-11.json). Las 51 incluyen 48 cifradas (el ensayo nuevo de 400 y 47 regresiones) y tres decoder/proveedor. Las 22 reúnen selector/contexto, formulario/dispositivo, bandeja/detalle, métricas y administración. No se suman ejecuciones históricas como si fueran una suite actual.
+
+Dataset400StorageTest creó 400 admisiones mediante AdmissionRepository y anuló 40 mediante RecordRepository, sobre contexto sintético seleccionado y SQLCipher/Room v4 reales. Estados finales: READY 260, NEEDS_CONTEXT 60, DRAFT 40, CANCELLED 40; 600 intereses, 320 claves activas y 440 auditorías. Reapertura conserva filas/claves/auditoría; encabezado cifrado e integridad FK comprobados. Cada captador recupera 200 filas mediante cursor real sin repetición/omisión; supervisor 360, sin borradores ajenos. Por evento: 160 inscripciones activas, 160 personas y conteos de programas 160/80; consulta fuera de alcance denegada.
+
+Latencia de llamada completa al repositorio (incluye validación, contexto, dispatcher y transacción; excluye inicialización, selección de contexto y GPS/red), elapsedRealtimeNanos y percentiles nearest-rank: altas n=400 p95 **114.626 ms**, anulaciones n=40 p95 **100.073 ms**, conjunto n=440 p95 **113.457 ms**. Altas p99 153.829 ms y máximo 195.897 ms. Meta PT p95 <150 ms observada en este ensayo debug; no significa que toda llamada dure menos de 150 ms. Sin perfilado de frames, no acredita ausencia de jank ni fugas de memoria.
+
+StressDataset400Test comprueba distribución y aislamiento con LocalCaptureAccess, incluyendo realmente 50 borradores ajenos en su fixture específico de 350 visibles. Sus lotes en memoria no prueban un cursor ni rendimiento. verify_dataset_400_sql.py usa esquema v4, UUID/RUT/enums coherentes y verifica estructura/FK/conteos/cursor del host; no mide ni certifica Android.
+
+
+## Corrección y comprobación de administración · 11/10/2026
+
+185 JVM, ambas APK, Lint 0 errores/25 avisos. Xiaomi 11T Android 14/API 34: 47 cifradas (60.545 s) y 11 UI (76.858 s), en grupos separados y con apertura asistida MIUI en UI. Cuatro nuevas de almacenamiento verifican autorización de origen/destino/captadores, preservación histórica, rollback y revocación de asignación. Dos nuevas UI prueban edición desde el hub, fechas multidía explícitas, metadatos, validación y confirmación de descarte. Cuatro nuevas JVM prueban preparación y dos estado/bloqueo de guardado; se conservan las pruebas originales. [Evidencia y APK](evidencias/events-correction-2026-10-11.json).
+
+Se corrigieron una expectativa histórica que omitía la selección tras guardar y un selector UI ambiguo entre la sede del hub y el diálogo. El grupo UI final completo pasó; sin pruebas omitidas ni reducción de controles.
+
+
+## Corrección y verificación de métricas · 11/10/2026
+
+**172 JVM**, ambas APK y Lint **0 errores/25 avisos**. Incluye cuatro regresiones nuevas de fechas/zona/DST, rango inválido que cancela una lectura, error con último cálculo y cancelación por dueño. Xiaomi 11T Android 14/API 34: **43 cifradas (55.885 s)** y **9 UI (54.032 s)** en grupos separados; asistencia MIUI en UI. Cuatro nuevas de Room verifican conteos/rango/eventos/intereses, alcance de captador/supervisor, almacenamiento corrupto y cancelación. Dos UI nuevas usan Room cifrado real para supervisor sin alta y actualización tras anulación/rango inválido; seis del selector y una de contexto+Room son regresiones. [Fuentes/APK/runners](evidencias/metrics-correction-2026-10-11.json).
+
+El primer control cifrado rechazó un RUT ficticio con DV incorrecto en la preparación; se corrigió el fixture y el grupo final completo pasó. Lint detectó uso de ViewModelStore.put en código de producción; se sustituyó por ViewModelProvider/fábrica pública, conservando el control. Sin tests omitidos ni baseline nueva.
+
+
+## Verificación nueva · 11/10/2026
+
+**165 JVM**, ambas APK y Lint **0 errores/25 avisos**. Incluye las doce pruebas originales de bandeja, seis regresiones nuevas de edición y la corrección GPS propagada. Xiaomi 11T Android 14/API 34: **39 cifradas (49.303 s)** sobre ef940a4, concluidas durante el corte; **11 UI (107.106 s)** sobre el build final, en un grupo separado con asistencia MIUI. Tres UI nuevas usan Room cifrado real: completar borrador y confirmar el mismo registro, error/foco/reintento con retirada de notas opcionales, conflicto con descarte explícito. Ocho regresiones de formulario, recursos y bandeja también aprobadas. Fuentes/APK identificadas en [evidencia](evidencias/detail-correction-2026-10-11.json).
+
+La primera ejecución después de la pausa encontró APK instaladas diferentes y clases ausentes; se reinstalaron los builds propios con -r -t y SHA256 verificado. No se toma aquel intento como fallo de producto. Los intentos válidos posteriores detectaron un selector incorrecto del RUT deshabilitado y feedback repetido: corregidos antes de la suite final. Se conservan las pruebas originales; no se omiten aserciones de campos, persistencia o revisión.
+
+Giro real de MainActivity, TalkBack/visual completa, aceptación humana de contrato/v4 y ensayo P3 pendientes. La cámara/GPS físicos fueron comprobados por el usuario en el incremento nativo; no se extrapola ese resultado a todo el recorrido E1. Sin merge ni cierre de RF.
+
+
+## Corrección de adquisición tras prueba física · 10/10/2026
+
+El usuario comprobó cámara física con el QR ficticio: se detectan fullName/RUT y se aplica sólo RUT, sin dividir nombres. Dos intentos de GPS agotaron 10 s con permiso preciso y ubicación activada (uno cerca de ventana). Estos intentos anteriores no acreditaban adquisición ni confirmación.
+
+Se corrige la selección exclusiva de GPS: con permiso preciso se suscriben GPS y red; con aproximado, sólo red. La primera muestra que cumple 100 m/5 min gana. Una muestra imprecisa/antigua no impide esperar al otro proveedor; al agotar plazo se informa calidad si hubo una muestra rechazada, o timeout si no hubo ninguna. No se usa última ubicación cacheada, no se cambian los umbrales ni se confirma automáticamente. Cada listener se retira al terminar, cancelar o revocarse permiso, incluso ante callback síncrono de registro. Sin dependencia nueva ni INTERNET.
+
+Controles nuevos: **155 JVM**, Lint **0 errores/24 avisos**, ambas APK compiladas. Ocho casos JVM específicos de adquisición, cierre y permiso revocado. Xiaomi: **3 decoder/proveedor (1.214 s)** y **8 UI (68.764 s)**, separados con asistencia de apertura MIUI en UI; dobles/bitmaps, sin simular hardware aprobado. Fuentes y APK instaladas verificadas por SHA256 en [evidencia GPS](evidencias/gps-correction-2026-10-10.json). La caché de proyecto fue aislada por worktree y se deshabilitó configuration cache para evitar reutilizar rutas del worktree de detalle. Se corrigió el hallazgo MissingPermission de Lint manejando SecurityException explícitamente; no se añadió baseline ni se deshabilitó el control.
+
+En la APK corregida, el usuario reportó una ubicación candidata con precisión de 12–100 m y comprobó las acciones de confirmar y descartar. No se registraron coordenadas reales ni se atribuye la muestra a un proveedor específico. [Proveedores Android](https://developer.android.com/reference/android/location/LocationManager), [permisos](https://developer.android.com/develop/sensors-and-location/location/permissions). No cierra RF ni revisión humana.
+
+
+## Corrección R2 · recursos nativos — 10/10/2026
+
+Rama `feature/e1-ronda2-device-resources`, sobre 925810f con las correcciones previas de alta/hub y registros. **147 JVM aprobadas**, cero fallos/errores/omitidas; ambas APK compiladas; **Lint 24 avisos/0 errores**. Los cuatro avisos adicionales corresponden a dependencias/UseKtx; no se modifican las versiones previas por estilo.
+
+Nuevas ejecuciones en Xiaomi 11T Android 14/API 34: **tres nativas/decoder** (0.227 s) y **ocho UI** (68.595 s), en grupos separados. El lector ML Kit incluido decodifica bitmaps QR ficticios y el parser rechaza una URL reconocida, sin permiso INTERNET. El proveedor Android devuelve PermissionDenied con permisos de ubicación denegados. Eso no acredita adquisición GPS ni lectura física con cámara. La UI prueba confirmación de candidato de ubicación y reemplazo explícito de RUT, más seis regresiones de formulario/Atrás/bandeja, con dobles y apertura asistida ADB en MIUI. No se conceden/revocan permisos ni se borra la base del usuario.
+
+Las APK instaladas coinciden con el build por SHA256. [Alcance y comprobación física pendiente](ROUND2_DEVICE_RESOURCES.md), [fuentes/APK/suites](evidencias/device-correction-2026-10-10.json), [runner nativo](evidencias/android-device-data-2026-10-10.txt), [runner UI](evidencias/android-device-ui-2026-10-10.txt). Se corrigió además una referencia original a un doble privado de otro archivo que impedía compilar las pruebas; se conservan los nueve casos originales y se ajustan las expectativas incompatibles con el contrato (confirmación GPS y nombres manuales), agregando cinco regresiones de cancelación/estado.
+
+Quedan lectura física de QR ficticio/enfoque/giro/cierre de cámara, permiso aproximado/preciso, denegación permanente y ajustes, servicios GPS apagados, timeout/precisión y confirmación sobre ubicación real. TalkBack/visual completa, aceptación del contrato de registros y cierre E1 siguen pendientes. La evidencia de Room v4 pertenece al bloque previo y no se presenta como una nueva prueba nativa conjunta.
+
+
+## Corrección R2 · registros — 10/10/2026
+
+Rama `feature/e1-ronda2-records-tray`, sobre 08df94f e incorporando la corrección de alta/hub 0fc8b41. **121 JVM sin fallos/errores/omitidas**, APK principal/instrumental correctos y **Lint 20 avisos/0 errores**. Nuevas ejecuciones en Xiaomi 11T Android 14/API 34: **37 pruebas cifradas** (48.262 s), incluidas diez nuevas de registros/migración y 27 de regresión; **dos UI** (16.334 s), por separado y con apertura asistida ADB en MIUI. Se usan bases test-* y datos ficticios, sin borrar la base del usuario ni conceder permisos peligrosos. Ambas APK instaladas coinciden por SHA256 con el build.
+
+La suite de datos verifica permisos por sede/rol, paginación real de 120 registros con timestamps empatados, normalización de búsqueda, edición válida/inválida, borrador→NEEDS_CONTEXT→READY, identidad y consentimiento inmutables, duplicados, revisión concurrente, motivo, rollback y migración cifrada v3→v4. La UI verifica carga de siguiente página y bloqueo de anulación/Atrás con conservación del motivo al fallar. Usa un doble: no acredita un recorrido UI+Room conjunto. Las ocho pruebas JVM originales de bandeja se conservan y cuatro nuevas cubren cursor/lecturas obsoletas/mutación excluyente.
+
+[Alcance](ROUND2_RECORDS_TRAY.md), [fuentes/APK/suites](evidencias/records-correction-2026-10-10.json), [runner cifrado](evidencias/android-records-data-2026-10-10.txt), [runner UI](evidencias/android-records-ui-2026-10-10.txt). El primer intento UI falló porque la aserción inspeccionaba el texto hijo sin la semántica del botón; corregido el selector, los dos casos pasaron manteniendo la comprobación. Los scripts SQLite del host de migraciones 1→2→3 también pasaron; no sustituyen la nueva prueba cifrada 3→4.
+
+Room v4 es el candidato de auditoría de esta rama. La aceptación humana de RECORD_CONTRACTS, giro real, TalkBack/visual completa, detalle editable en su rama dependiente y recursos cámara/GPS siguen pendientes. Sin backend, merge ni cierre de E1.
+
+
+## Corrección R2 · alta/hub — 10/10/2026
+
+Rama `feature/e1-ronda2-form-hub`, corrección sobre ef5a0f4. 109 JVM sin fallos/errores/omitidas; APK principal/instrumental y Lint correctos (20 avisos/0 errores). Ejecuciones nuevas en Xiaomi 11T Android 14/API 34: 27 de persistencia cifrada (29.645 s) y cuatro UI de formulario/Atrás (40.641 s), en grupos separados. UI asistida por ADB en MIUI; ninguna concesión de permisos ni limpieza de la base del usuario. Los cuatro casos UI usan estado/doble; no sustituyen un recorrido nuevo conjunto de alta con Room ni el giro real de MainActivity. Retención/cancelación/cierre están cubiertos con ViewModelStore en JVM.
+
+[Alcance y pendientes](ROUND2_FORM_HUB.md), [fuentes/APK/suites](evidencias/form-correction-2026-10-10.json), [runner UI](evidencias/android-form-correction-2026-10-10.txt). Sin aceptación humana ni cierre global E1; las secciones siguientes siguen siendo evidencia histórica por incremento.
+
+
 ## Revisión R0/R1 — 10/10/2026
 
 Sobre la base publicada 0f43a21, rama fix/e1-revision-rondas-0-1. Correcciones: escapes QR limitados a hexadecimal ASCII y prefijo +56 visible en formulario, con pegado de número completo sin duplicación y borrado a vacío. Sin cambios de Room v3, dependencias ni reglas de negocio.
@@ -77,12 +252,14 @@ Verificación 06/10/2026. Implementación `2298220`; README histórico `d658e76`
 | Runner Android directo sobre v3 | OK (24 tests), 23.178 s | 8 contexto, 7 F2027, 8 almacenamiento cifrado, 1 plantilla |
 | Verificadores SQL 1→2 y 1→2→3 | Pasaron en host | SQLite en memoria, sin simular Keystore/SQLCipher Android |
 
-Suite actual: [salida del runner v3](evidencias/android-context-instrumentation-2026-10-06.txt). La ejecución anterior sobre `91b4983`/Room v2 dio 16 pruebas aprobadas en 13.87 s: [evidencia histórica](evidencias/android-instrumentation-2026-10-06.txt).
+## Estado del candidato local · 11/10/2026
 
-El instalador Gradle falló por restricción de permisos del dispositivo. Su BUILD SUCCESSFUL no acreditó instrumentación; se instalaron ambos APK con ADB sin `-g` y se ejecutó AndroidJUnitRunner. Las pruebas indicadas corresponden a ese runner, no al intento fallido de instalación.
+Las correcciones acumuladas de selector/alta, registros, nativos, detalle, métricas y administración están implementadas y comprobadas en los grupos identificados arriba. La afirmación anterior de E1 completamente verificada se retiró: la evidencia del host no certificaba Android y permanecen QA/aceptaciones humanas. Room v4 es el mismo candidato de auditoría propagado, con migración aditiva comprobada, no una integración ya aceptada. [Método y límites de 400](ROUND3_DATASET_400.md).
 
-SHA-256 del APK probado `2298220`: `5707c6cd9dc2703e63f43d15dbb2b02ef96b789f4166fd79685b661d31807c34`. Un build posterior puede generar otro hash; registrar el suyo y su commit, sin atribuirle automáticamente esta ejecución.
+## Pendientes para Entrega 2 (E2)
 
-## Pendientes reales
+Integración remota (backend Spring Boot, PostgreSQL, API REST, OpenAPI/Retrofit), sincronización en segundo plano con WorkManager (`PENDING` / `SENDING` / `SYNCED`), autenticación con tokens/servidor, consolidación multi-dispositivo y empaquetado release firmado para producción.
 
-Revisión humana y reproducción por compañero; conexión del formulario al alta, bandeja/edición/anulación, cámara/GPS y presentación de red, métricas y administración. Selector/Room y observador de red ya implementados. Backup/transferencia efectiva, rendimiento de 400 registros, accesibilidad, otros dispositivos/entornos y release firmado no comprobados. Ningún RF completo cerrado. No hay backend, ACK ni integración remota.
+## Comprobación manual del candidato — 11/10/2026
+
+En la APK con SHA-256 `c78e6dd1dffe26c427267e0ec9d71b0fb0ab179388b0c2cb7ada22518c1279ff`, el usuario respondió al recorrido solicitado de acceso, teclado de correo, giro, desplazamiento y descarte: todo funciona en vertical y horizontal, sin botones cortados ni problemas con el texto ingresado. Es evidencia manual de este recorrido en Xiaomi; no acredita TalkBack, tablet, redes especiales ni revisión independiente.

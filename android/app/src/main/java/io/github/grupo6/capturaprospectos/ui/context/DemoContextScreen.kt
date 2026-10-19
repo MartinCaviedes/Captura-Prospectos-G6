@@ -2,6 +2,7 @@ package io.github.grupo6.capturaprospectos.ui.context
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,6 +24,14 @@ import io.github.grupo6.capturaprospectos.domain.capture.LocalRole
 import io.github.grupo6.capturaprospectos.domain.context.DemoContextState
 import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
 import java.util.UUID
+import io.github.grupo6.capturaprospectos.domain.capture.CaptureEvent
+import io.github.grupo6.capturaprospectos.ui.components.*
+import io.github.grupo6.capturaprospectos.R
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 /** El consumidor confirma cambios con un nuevo estado; un clic no simula persistencia. */
 @Composable
@@ -34,26 +43,29 @@ fun DemoContextScreen(
     onEventSelected: (UUID) -> Unit,
     onClearSelection: () -> Unit,
     modifier: Modifier = Modifier,
+    onContinueToHub: () -> Unit = {},
+    onCreateEvent: () -> Unit = {},
+    showProfiles: Boolean = true,
 ) {
+    ConexionesBackground(modifier) {
     LazyColumn(
-        modifier = modifier,
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(24.dp),
     ) {
         item {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Captura de prospectos", style = MaterialTheme.typography.headlineMedium,
+                Text("Tu punto de partida", style = MaterialTheme.typography.headlineMedium,
                     modifier = Modifier.semantics { heading() })
-                Text("Demo local · Grupo 6", style = MaterialTheme.typography.titleMedium)
-                Text("Perfiles y eventos ficticios. Seleccionar un perfil no autentica tu identidad.")
-                Text("Envío no habilitado en esta entrega", style = MaterialTheme.typography.bodyMedium)
+                Text("Elige el evento de tu jornada.", style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         if (state.busy) item {
             Text("Procesando operación local…", modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
-        state.message?.let { message -> item {
+        state.message?.takeIf { state.eventEditor == null }?.let { message -> item {
             Text(message, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
             if (state.context != DemoContextState.StorageUnavailable) {
                 TextButton(onClick = onRetry, enabled = !state.busy) { Text("Reintentar lectura") }
@@ -83,17 +95,48 @@ fun DemoContextScreen(
             }
             is DemoContextState.Ready -> {
                 val snapshot = context.snapshot
-                item { Text("1. Selecciona un perfil", style = MaterialTheme.typography.titleLarge,
+                if (showProfiles) item { Text("1. Selecciona un perfil", style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.semantics { heading() }) }
                 if (snapshot.profiles.isEmpty()) item { Text("No hay perfiles disponibles. Solicita revisión del contexto.") }
-                items(snapshot.profiles, key = { "profile-${it.actor.id}" }) { profile ->
+                if (showProfiles) items(snapshot.profiles, key = { "profile-${it.actor.id}" }) { profile ->
                     ContextChoice(profile.displayName, snapshot.currentProfile?.actor?.id == profile.actor.id,
                         enabled = !state.busy, onClick = { onProfileSelected(profile.actor.id) })
                 }
                 when {
                     snapshot.currentProfile == null -> item { Text("Elige un perfil para consultar sus eventos.") }
-                    snapshot.currentProfile.actor.role == LocalRole.SUPERVISOR -> item {
-                        Text("Perfil supervisor: la selección de eventos para capturar no está disponible. La supervisión se incorporará en otro incremento.")
+                    snapshot.currentProfile.actor.role == LocalRole.SUPERVISOR -> {
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                            ) {
+                                Text("2. Evento para supervisar", style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.semantics { heading() })
+                                FilledTonalButton(onClick = onCreateEvent, enabled = !state.busy) {
+                                    Text("Nuevo evento")
+                                }
+                            }
+                        }
+                        if (snapshot.availableEvents.isEmpty()) item {
+                            Text("No hay eventos configurados para tus sedes. Pulsa 'Nuevo evento' para crear uno.")
+                        }
+                        items(snapshot.availableEvents, key = { "event-${it.id}" }) { event ->
+                            EventChoice(event, snapshot.selectedEvent?.id == event.id,
+                                enabled = !state.busy, onClick = { onEventSelected(event.id) })
+                        }
+                        snapshot.selectedEvent?.let { event -> item {
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Evento en supervisión: ${event.name}.", style = MaterialTheme.typography.bodyMedium)
+                                Button(
+                                    onClick = onContinueToHub,
+                                    enabled = !state.busy,
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text("Ir al panel de supervisión")
+                                }
+                            }
+                        } }
                     }
                     else -> {
                         item { Text("2. Selecciona un evento", style = MaterialTheme.typography.titleLarge,
@@ -104,16 +147,48 @@ fun DemoContextScreen(
                                 enabled = !state.busy, onClick = { onEventSelected(event.id) })
                         }
                         snapshot.selectedEvent?.let { event -> item {
-                            Text("Contexto seleccionado: ${event.name}. El formulario se incorporará en el siguiente incremento.")
+                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Contexto seleccionado: ${event.name}.", style = MaterialTheme.typography.bodyMedium)
+                                Button(
+                                    onClick = onContinueToHub,
+                                    enabled = !state.busy,
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text("Ir al panel de captura")
+                                }
+                            }
                         } }
                     }
                 }
-                if (snapshot.currentProfile != null) item {
+                if (showProfiles && snapshot.currentProfile != null) item {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(onClick = onClearSelection, enabled = !state.busy) { Text("Salir de la selección") }
                         Text("Salir conserva los registros guardados en este dispositivo.", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
+            }
+        }
+    }
+}
+}
+
+@Composable private fun EventChoice(event: CaptureEvent, isSelected: Boolean, enabled: Boolean, onClick: () -> Unit) {
+    GlassCard(Modifier.fillMaxWidth(), border = BorderStroke(if (isSelected) 2.dp else 1.dp,
+        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant)) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            ContextChoice(event.name, isSelected, enabled, onClick)
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                DesignIcon(R.drawable.g6_event_frame)
+                val start = event.startsAt.atZone(event.timeZone)
+                val end = event.endsAt.atZone(event.timeZone)
+                Text("${start.format(DateTimeFormatter.ofPattern("d MMM yyyy · HH:mm", Locale.forLanguageTag("es-CL")))} – ${end.format(DateTimeFormatter.ofPattern("d MMM · HH:mm", Locale.forLanguageTag("es-CL")))}",
+                    style = MaterialTheme.typography.labelLarge)
+            }
+            Image(painterResource(R.drawable.g6_event_journey_dotted_divider), null, Modifier.fillMaxWidth().height(1.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                DesignIcon(R.drawable.g6_event_frame1)
+                Text(if (event.location == null) "Sin ubicación de referencia" else "Ubicación de referencia del evento",
+                    style = MaterialTheme.typography.bodySmall)
             }
         }
     }

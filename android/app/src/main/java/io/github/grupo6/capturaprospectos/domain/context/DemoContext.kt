@@ -2,6 +2,8 @@ package io.github.grupo6.capturaprospectos.domain.context
 
 import io.github.grupo6.capturaprospectos.domain.admission.*
 import io.github.grupo6.capturaprospectos.domain.capture.*
+import java.time.Instant
+import java.time.ZoneId
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 
@@ -25,6 +27,27 @@ sealed interface DemoContextState {
 }
 enum class ContextChange { APPLIED, ALREADY_INITIALIZED, INVALID_SELECTION, NOT_INITIALIZED, INCOMPATIBLE_SEED, STORAGE_UNAVAILABLE }
 
+
+data class SaveDemoEvent(
+    val eventId: UUID? = null,
+    val siteId: UUID,
+    val name: String,
+    val startsAt: Instant,
+    val endsAt: Instant,
+    val timeZone: ZoneId = ZoneId.of("America/Santiago"),
+    val coordinates: Coordinates? = null,
+    val establishment: String? = null,
+    val establishmentCommune: String? = null,
+    val assignedCaptorIds: Set<UUID> = emptySet(),
+)
+
+sealed interface SaveEventResult {
+    data class Success(val eventId: UUID) : SaveEventResult
+    data object Unauthorized : SaveEventResult
+    data class Invalid(val issues: List<String>) : SaveEventResult
+    data object StorageUnavailable : SaveEventResult
+}
+
 /** Perfiles de demostración seleccionables: no autentica identidades ni emite tokens. */
 interface DemoContextRepository : AdmissionContextSource {
     suspend fun initialize(): ContextChange
@@ -33,4 +56,5 @@ interface DemoContextRepository : AdmissionContextSource {
     suspend fun selectProfile(id: UUID): ContextChange
     suspend fun selectEvent(id: UUID): ContextChange
     suspend fun clearSelection(): ContextChange
+    suspend fun saveEvent(command: SaveDemoEvent): SaveEventResult
 }

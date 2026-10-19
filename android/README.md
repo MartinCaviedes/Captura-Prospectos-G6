@@ -1,6 +1,6 @@
 # Captura de Prospectos — Android
 
-Base R0/R1: selector de perfiles y eventos conectado a Room cifrado, observador de red y componentes del formulario F2027. El formulario todavía no se abre desde MainActivity ni guarda desde la UI. Cámara/GPS reales, bandeja y edición/anulación corresponden a los próximos incrementos.
+Develop `0c64533` integra el flujo E1: bienvenida → credenciales demo → evento → menú → alta F2027 consentida en Room cifrado; bandeja/detalle/edición/anulación, cámara QR sintética, GPS confirmado, métricas y eventos. [R4 QA](../docs/ROUND4_QA.md) registra construcción desde clon remoto limpio del 14/10: 191 JVM, Lint 27 avisos/0 errores y APK debug/instrumental/release unsigned. Evidencias físicas/Android anteriores conservan sus versiones; no se atribuyen a la nueva compilación. Revisión técnica externa reportada al integrar; aceptación contractual, accesibilidad completa, permisos/redes adversas, tablet y entrega pendientes. No acredita cierre E1.
 
 Consultar [R0](../docs/ROUND0_BASE.md), [R1](../docs/ROUND1_INTERFACES.md) y [evidencia de pruebas](../docs/ANDROID_BASELINE.md).
 
@@ -14,6 +14,7 @@ Consultar [R0](../docs/ROUND0_BASE.md), [R1](../docs/ROUND1_INTERFACES.md) y [ev
 | SDK compile / target / mínimo | 37 / 37 / 26 |
 | Compose plugin / BOM | 2.2.10 / 2026.02.01 |
 | Room / KSP | 2.8.5 / 2.3.10 |
+| CameraX / ML Kit barcode incluido | 1.5.3 / 17.3.0 |
 | SQLCipher / SQLite / coroutines | 4.19.1 / 2.7.0 / 1.10.2 |
 
 Las versiones efectivas están en `gradle/libs.versions.toml`, wrapper y build del módulo; no regenerar el proyecto ni actualizar dependencias para reproducir esta base.
@@ -49,13 +50,13 @@ adb install -r -t app/build/outputs/apk/androidTest/demo/debug/app-demo-debug-an
 adb shell am instrument -w -r io.github.grupo6.capturaprospectos.demo.debug.test/androidx.test.runner.AndroidJUnitRunner
 ```
 
-La evidencia más reciente se obtuvo en grupos separados: 28 pruebas de datos/red, una de selector con Room, una de transición Wi-Fi y una de formulario. En MIUI las pruebas UI requirieron apertura asistida por ADB; el comando general no acredita ejecución desatendida de esos casos. La transición Wi-Fi requiere habilitación y preparación específicas; consultar ANDROID_BASELINE. Comprobar resultados individuales y omisiones. La alternativa no concede permisos peligrosos: futuros tests de cámara/GPS necesitarán su propio manejo de permisos.
+El antecedente R0/R1 se obtuvo en grupos separados: 28 pruebas de datos/red, una de selector con Room, una de transición Wi-Fi y una de formulario. Las evidencias posteriores están fechadas en ANDROID_BASELINE; este corte R4 no ejecutó pruebas Android. En MIUI las pruebas UI requirieron apertura asistida por ADB; el comando general no acredita ejecución desatendida de esos casos. La transición Wi-Fi requiere habilitación y preparación específicas; consultar ANDROID_BASELINE. Comprobar resultados individuales y omisiones. La alternativa no concede permisos peligrosos: futuros tests de cámara/GPS necesitarán su propio manejo de permisos.
 
 ## Implementación y continuidad
 
 Nuevas altas: `domain.admission` → `AdmissionRepository` / `RoomAdmissionRepository`. `PrepareAdmission` prepara una entrada; el repositorio valida autorización/consentimiento y confirma guardado tras commit. El contrato antiguo `domain.capture` se conserva para compatibilidad; no convertir altas F2027 a `CaptureInput`.
 
-Room v3 conserva esquemas 1/2/3 y migraciones 1→2→3. No inventa nombres separados, nacimiento, prioridades ni sedes para registros antiguos. La clave SQLCipher se protege con Keystore; fallo de clave no borra la base. No usar migración destructiva.
+Room v4 conserva esquemas 1/2/3/4 y migraciones 1→2→3→4. La migración aditiva de auditoría conserva todos los datos v3 y deja NULL los atributos históricos desconocidos. No inventa nombres separados, nacimiento, prioridades ni sedes para registros antiguos. La clave SQLCipher se protege con Keystore; fallo de clave no borra la base. No usar migración destructiva.
 
 `RoomDemoContextRepository.initialize()` siembra perfiles/eventos/catálogo explícitamente, sin prospectos ni selección automática. El botón «Preparar demo local» del selector invoca esta inicialización. Ver [DEMO_CONTEXT](../docs/DEMO_CONTEXT.md) para el consumidor y sus estados.
 
@@ -68,4 +69,4 @@ python tools/verify_context_migration_sql.py
 
 Ambos controles pasaron en SQLite del host; no sustituyen Room/SQLCipher/Keystore en Android.
 
-Faltan conectar el formulario al guardado y completar bandeja, edición/anulación, cámara/GPS, administración, métricas y revisión cruzada. Backup/transferencia están excluidos por configuración, pendientes de prueba efectiva. El APK debug no acredita release firmado ni RF completos. No guardar secretos, datos reales, build, cachés, local.properties o claves en Git.
+Alta, bandeja/detalle/edición, administración y métricas están integradas en develop, con evidencia por incremento. R4 continúa con la matriz de permisos, redes reales, adaptación/accesibilidad y revisión de aceptación. Backup/transferencia están excluidos por configuración, pendientes de prueba efectiva. Release unsigned compila, pero no acredita firma, instalación o RF completos. No guardar secretos, datos reales, build, cachés, local.properties o claves en Git.

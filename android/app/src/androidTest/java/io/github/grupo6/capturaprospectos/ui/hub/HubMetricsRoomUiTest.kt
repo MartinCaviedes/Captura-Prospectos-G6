@@ -1,0 +1,138 @@
+package io.github.grupo6.capturaprospectos.ui.hub
+
+import androidx.activity.ComponentActivity
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.*
+import androidx.compose.ui.test.*
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.lifecycle.ViewModelStore
+import androidx.test.platform.app.InstrumentationRegistry
+import io.github.grupo6.capturaprospectos.data.local.*
+import io.github.grupo6.capturaprospectos.domain.admission.*
+import io.github.grupo6.capturaprospectos.domain.capture.*
+import io.github.grupo6.capturaprospectos.domain.context.*
+import io.github.grupo6.capturaprospectos.domain.device.*
+import io.github.grupo6.capturaprospectos.domain.records.*
+import io.github.grupo6.capturaprospectos.ui.theme.CapturaProspectosG6Theme
+import java.io.File
+import java.security.KeyStore
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
+import java.util.Locale
+import java.util.UUID
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.flowOf
+import org.junit.*
+import org.junit.Assert.*
+
+class HubMetricsRoomUiTest {
+    @get:Rule val compose=createAndroidComposeRule<ComponentActivity>()
+    private val context get()=InstrumentationRegistry.getInstrumentation().targetContext
+    private val name="test-hub-metrics-${UUID.randomUUID()}.db"
+    private var handle:EncryptedDatabase?=null
+    private val store=ViewModelStore()
+    private lateinit var ctx:RoomDemoContextRepository
+    private lateinit var repo:RoomRecordRepository
+    private lateinit var vm:MainHubMetricsViewModel
+    private lateinit var saved:UUID
+    private fun id(key:String)=UUID.fromString(DemoSeed.id(key))
+    private fun start(supervisor:Boolean=false,summaryOnStart:Boolean=true) {
+        val snapshot=runBlocking(Dispatchers.IO) {
+            handle=EncryptedDatabase.open(context,name);ctx=RoomDemoContextRepository(handle!!.database)
+            ctx.initialize();ctx.selectProfile(id("captor-a"));ctx.selectEvent(id("event-a"))
+            val env=ctx.environment(id("event-a"))!!
+            val input=AdmissionInput(givenNames="Persona Ficticia",familyNames="Demo",rut="12345678-5",
+                email="demo@example.invalid",phone="+56900000000",birthDate="2000-01-01",residenceCommune="Comuna ficticia",
+                currentActivity=CurrentActivity.SECONDARY_GRADUATE,interests=listOf(RankedInterest(id("program-1"),1)))
+            saved=(RoomAdmissionRepository(handle!!.database,ctx).create(NewAdmission(id("event-a"),input,SaveIntent.CONFIRM_REGISTRATION,
+                ConsentEvidence(DemoSeed.CONSENT,Instant.now(),env.context.actor.id,AcceptanceMode.DIRECT),null)) as CreateAdmissionResult.Saved).id
+            if(supervisor) { ctx.selectProfile(id("supervisor"));ctx.selectEvent(id("event-a")) }
+            repo=RoomRecordRepository(handle!!.database,ctx)
+            (ctx.snapshot() as DemoContextState.Ready).snapshot
+        }
+        compose.runOnIdle { vm=MainHubMetricsViewModel(repo,snapshot.selectedEvent!!);store.put("metrics",vm) }
+        val offline=object:ConnectivityObserver { override fun observe()=flowOf(ConnectivityStatus.OFFLINE) }
+        compose.setContent { var summary by remember { mutableStateOf(false) }; CapturaProspectosG6Theme { MainHubRoute(snapshot.currentProfile!!,snapshot.selectedEvent!!,offline,{}, {},recordRepository=repo,suppliedMetrics=vm,summaryOnly=summary,onOpenSummary={summary=true}) } }
+        compose.waitUntil(10000) { vm.uiState.value.metrics != null }
+        if(summaryOnStart) { scroll("Ver resumen");compose.onNodeWithText("Ver resumen").performClick() }
+    }
+    private fun scroll(text:String) { compose.onNode(hasScrollAction()).performScrollToNode(hasText(text)) }
+    @After fun cleanup() { compose.runOnIdle { store.clear() };handle?.close();check(name.startsWith("test-hub-metrics-"));context.deleteDatabase(name)
+        listOf("",".bak",".new").forEach { File(context.noBackupFilesDir,"$name.wrapped-key$it").delete() }
+        KeyStore.getInstance("AndroidKeyStore").apply { load(null);deleteEntry("g6.database.$name") }
+    }
+    @Test fun supervisorSeesAuthorizedEventAndLocalCountsWithoutCapturePermission() {
+        start(supervisor=true,summaryOnStart=false)
+        scroll("Nueva captura");compose.onNodeWithText("Nueva captura").assertIsNotEnabled()
+        scroll("Ver resumen");compose.onNodeWithText("Ver resumen").performClick()
+        scroll("Personas distintas: 1");compose.onNodeWithText("Personas distintas: 1").assertExists()
+        assertEquals(DemoSeed.sites.first().name,vm.uiState.value.metrics!!.siteMetrics.single().siteName)
+        assertNull(runBlocking(Dispatchers.IO) { ctx.environment(id("event-a")) })
+    }
+    @Test fun refreshingAfterCancellationUsesRoomAndInvalidRangePreservesLastCalculation() {
+        start();scroll("Personas distintas: 1");compose.onNodeWithText("Personas distintas: 1").assertExists()
+        runBlocking(Dispatchers.IO) { assertTrue(repo.cancel(CancelRecord(saved,1,"Motivo ficticio")) is RecordMutationResult.Saved) }
+        scroll("Actualizar");compose.onNodeWithText("Actualizar").performClick()
+        compose.waitUntil(10000) { vm.uiState.value.metrics?.totalCaptures==0 }
+        assertEquals(1,vm.uiState.value.metrics!!.cancelledCount)
+        scroll("Elegir período");compose.onNodeWithText("Elegir período").performClick()
+        scroll("Desde (aaaa-mm-dd)");compose.onNode(hasText("Desde (aaaa-mm-dd)") and hasSetTextAction()).performTextReplacement("2026-02-30")
+        scroll("Hasta inclusive (aaaa-mm-dd)");compose.onNode(hasText("Hasta inclusive (aaaa-mm-dd)") and hasSetTextAction()).performTextReplacement("2026-03-01")
+        scroll("Aplicar rango");compose.onNodeWithText("Aplicar rango").performClick()
+        compose.waitUntil(10000) { vm.uiState.value.error != null }
+        assertEquals(1,vm.uiState.value.metrics!!.cancelledCount)
+        compose.onNodeWithText("Se conserva el último cálculo; revisa su período antes de usarlo.").assertExists()
+    }
+    @Test fun rangeCalendarsCancelOrFillOnlyTheirFieldUntilRangeIsApplied() {
+        start()
+        val previous = vm.uiState.value.metrics
+        compose.runOnIdle { vm.fromDate("2000-01-01"); vm.untilDate("2000-01-02") }
+        scroll("Elegir período"); compose.onNodeWithText("Elegir período").performClick()
+        scroll("Desde (aaaa-mm-dd)")
+        compose.onNodeWithContentDescription("Elegir fecha desde").performClick()
+        compose.onNodeWithText("Cancelar fecha").performClick()
+        compose.runOnIdle { assertEquals("2000-01-01", vm.uiState.value.fromDate) }
+        compose.onNodeWithContentDescription("Elegir fecha desde").performClick()
+        selectCalendarDay("2000-01-02")
+        compose.onNodeWithText("Usar fecha").performClick()
+        compose.runOnIdle {
+            assertEquals("2000-01-02", vm.uiState.value.fromDate)
+            assertEquals("2000-01-02", vm.uiState.value.untilDate)
+            assertSame(previous, vm.uiState.value.metrics)
+        }
+        scroll("Hasta inclusive (aaaa-mm-dd)")
+        compose.onNodeWithContentDescription("Elegir fecha hasta").performClick()
+        selectCalendarDay("2000-01-03")
+        compose.onNodeWithText("Usar fecha").performClick()
+        compose.runOnIdle {
+            assertEquals("2000-01-02", vm.uiState.value.fromDate)
+            assertEquals("2000-01-03", vm.uiState.value.untilDate)
+            assertSame(previous, vm.uiState.value.metrics)
+        }
+        compose.onNode(hasText("Hasta inclusive (aaaa-mm-dd)") and hasSetTextAction()).performTextClearance()
+        compose.onNodeWithContentDescription("Elegir fecha hasta").performClick()
+        compose.onNodeWithText("Usar fecha").assertIsNotEnabled()
+        compose.onNodeWithText("Cancelar fecha").performClick()
+        scroll("Aplicar rango"); compose.onNodeWithText("Aplicar rango").performClick()
+        compose.waitUntil(10000) { vm.uiState.value.error != null }
+        assertSame(previous, vm.uiState.value.metrics)
+    }
+    @OptIn(ExperimentalMaterial3Api::class)
+    private fun selectCalendarDay(iso: String) {
+        val millis = LocalDate.parse(iso).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        val description = DatePickerDefaults.dateFormatter()
+            .formatDate(millis, Locale.getDefault(), forContentDescription = true)!!
+        val matcher = hasText(description, substring = true, ignoreCase = true) or
+            hasContentDescription(description, substring = true, ignoreCase = true)
+        if (compose.onAllNodes(matcher).fetchSemanticsNodes().isEmpty()) {
+            compose.onNode(isDialog()).performTouchInput { swipeUp() }
+        }
+        assertEquals("Día accesible del calendario: $description", 1,
+            compose.onAllNodes(matcher).fetchSemanticsNodes().size)
+        compose.onNode(matcher)
+            .performScrollTo().performClick()
+    }
+}

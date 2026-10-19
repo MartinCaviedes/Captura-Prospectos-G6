@@ -1,5 +1,13 @@
 # Sistema de diseño y flujos
 
+Bienvenida · 19/10: la ilustración abstracta se sustituye por tres conceptos reales de captura con texto nativo (contacto, intereses y consentimiento), adaptable al tema/letra. No son controles ni campos simulados. [Estado y evidencia](UI_IDENTIDAD_TEMA_DEMO.md).
+
+Iteración autorizada 19/10/2026 · identidad, apariencia y muestra mixta E1. Logo oficial Duoc UC desde su sitio, separado del símbolo propio de captura e icono adaptativo. Perfil permite claro/oscuro, preferencia booleana sin PII; fondos, controles, formulario y barras siguen el modo elegido. Carga voluntaria de 60 ficticios: conserva 24 sin contexto y añade 18 listas/12 borradores/6 anuladas, con ubicaciones simuladas declaradas y sin duplicar/reemplazar trabajo manual. 191 JVM/21 Android dirigidas aprobadas; Lint 29 avisos/0 errores. APK 1f5c8b2b: el operador confirma cambio de tema en todas las pestañas sin texto invisible, carga ficticia y visualización correctas. Reporte global, sin conteos numéricos ni validación independiente detallada de cada paso de la guía. Publicación en ramas propias para revisión, sin merge. Rama feature/e1-identidad-tema-demo depende del PR R4 #10; sin integración, nueva autenticación ni cambio de esquema/reglas. [Detalle y límites](UI_IDENTIDAD_TEMA_DEMO.md).
+
+Ajuste V3 tras prueba humana, 11/10: el formulario claro establece su color de contenido en Surface; no hereda blanco del shell oscuro. Nacimiento y filtros Desde/Hasta comparten calendario en memoria; seleccionar no guarda ni aplica el rango automáticamente. [Resultado y evidencia](UI_CONEXIONES_E1.md).
+
+**Tema vigente del candidato V3 · 11/10/2026:** [Conexiones](UI_CONEXIONES_E1.md) sustituye la adaptación inicial de tema/fuentes descrita abajo, conservando las reglas del formulario y E1. Fondo azul #0B1525, superficie #172B46, acción dorada #FFB800, formulario claro #EDF3FB y texto #132B45/#52657A. Manrope local en títulos y Roboto nativa en cuerpo. En el formulario, acciones secundarias en tinta y principales doradas con texto azul oscuro. Las tablas de paleta anteriores son antecedentes; no alternar ambos sistemas entre pantallas nuevas.
+
 UI F2027 del 06/10: diferenciar campos obligatorios/condicionales/opcionales; ninguna preferencia preseleccionada. Sugerencia de establecimiento desde evento identificado necesita confirmación y permite editar; no sobrescribe datos al cambiar contexto. Mostrar jornada, nivel y motivación como opcionales, sin campo libre para motivación. Conservar ingreso manual de nacimiento, sin prometer que el lector lo extrae.
 
 Acuerdo F01: las opciones pueden ordenarse alfabéticamente; el resumen de hasta tres seleccionadas se ordena por prioridad e incluye controles accesibles para reordenar. F03: mostrar por separado contexto del captador y preferencia de sede; múltiples sedes opcionales sin máximo adicional, sin preseleccionar la del evento. F02 aclarado el 06/10.
@@ -84,3 +92,10 @@ Animaciones discretas: transición de bandeja a detalle, aparición de errores y
 ## Revisión visual por RF
 
 Evidencia de estado normal, vacío, error y carga; captura con datos ficticios; revisión por compañero. Mantener guía actualizada si se agrega un patrón, evitando variantes locales del mismo componente. Que el código compile no demuestra que teclado, permisos, cámara o texto ampliado sean utilizables.
+
+
+## Refinamiento E1 candidato · 11/10
+
+Por encargo explícito se prepara bienvenida, acceso con fixtures locales, menú, perfil y resumen con gráficos. Ver [alcance y pruebas manuales](UI_REFINEMENT_E1.md). La paleta anterior describe la adaptación inicial: el candidato mantiene amarillo #FFB800/negro #1A1A1A y añade azul #112B46 como apoyo propio, fondo claro #F3F5F8 y fondo oscuro #101B28 / superficie #1B2A3B. No usar amarillo como texto normal sobre blanco. Se conservan fuentes nativas y controles Material 3; tarjetas de radios 12/20/28 dp y elevaciones discretas. Se priorizan superficies opacas para texto y formularios.
+
+Google/Microsoft se anuncian deshabilitados. Registro remoto/perfil editable institucional siguen en E2; el perfil E1 muestra identidad y contexto ficticios. La carga opcional de prospectos inventados conserva validación, consentimiento sintético, permisos de alta y duplicados de los repositorios. No implica aceptación del cliente ni del contrato de registros. Menú lateral desde 840 dp disponibles; los datos siguen separados por actor y ámbito. El prototipo editable propone una composición tablet; la APK debe validarse por separado con teclado, giro y letra ampliada.

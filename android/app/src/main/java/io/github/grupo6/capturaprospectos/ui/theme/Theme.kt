@@ -1,39 +1,61 @@
 package io.github.grupo6.capturaprospectos.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
+import android.view.Window
+import androidx.core.view.WindowCompat
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 
-private val DarkColorScheme = darkColorScheme(
+private val DarkColors = darkColorScheme(
     primary = DuocYellow, onPrimary = DuocBlack,
-    primaryContainer = DuocYellow, onPrimaryContainer = DuocBlack,
-    secondary = DuocLightGray, onSecondary = DuocBlack,
-    secondaryContainer = DuocGray, onSecondaryContainer = DuocWhite,
+    primaryContainer = G6Navy, onPrimaryContainer = DuocWhite,
+    secondary = G6Cyan, onSecondary = DuocBlack,
+    secondaryContainer = G6Navy, onSecondaryContainer = DuocWhite,
+    tertiary = G6Cobalt, onTertiary = Color.White,
+    tertiaryContainer = G6Navy, onTertiaryContainer = DuocWhite,
     background = DuocBlack, onBackground = DuocWhite,
-    surface = DuocBlack, onSurface = DuocWhite,
-    surfaceVariant = DuocBlack, onSurfaceVariant = DuocLightGray,
-    outline = DuocLightGray,
+    surface = G6Navy, onSurface = DuocWhite,
+    surfaceVariant = G6Navy, onSurfaceVariant = DuocLightGray,
+    surfaceContainer = G6Navy, surfaceContainerLow = G6Navy,
+    surfaceContainerHigh = G6Navy, surfaceContainerHighest = G6Navy,
+    outline = DuocLightGray, outlineVariant = Color(0xFF395169),
+    error = Color(0xFFFFB4AB), onError = Color(0xFF690005),
+)
+private val LightColors = lightColorScheme(
+    primary = G6Ink, onPrimary = Color.White,
+    primaryContainer = G6Paper, onPrimaryContainer = G6Ink,
+    secondary = G6Ink, onSecondary = Color.White,
+    secondaryContainer = G6Paper, onSecondaryContainer = G6Ink,
+    tertiary = G6Cobalt, onTertiary = Color.White,
+    tertiaryContainer = G6Paper, onTertiaryContainer = G6Ink,
+    background = G6Paper, onBackground = G6Ink,
+    surface = Color.White, onSurface = G6Ink,
+    surfaceVariant = G6Paper, onSurfaceVariant = DuocGray,
+    surfaceContainer = Color.White, surfaceContainerLow = G6Paper,
+    surfaceContainerHigh = Color.White, surfaceContainerHighest = G6Paper,
+    outline = Color(0xFF8496AD), outlineVariant = Color(0xFFC4D0E3),
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = DuocYellow, onPrimary = DuocBlack,
-    primaryContainer = DuocYellow, onPrimaryContainer = DuocBlack,
-    secondary = DuocBlack, onSecondary = DuocWhite,
-    secondaryContainer = DuocLightGray, onSecondaryContainer = DuocBlack,
-    background = DuocWhite, onBackground = DuocBlack,
-    surface = DuocWhite, onSurface = DuocBlack,
-    surfaceVariant = DuocLightGray, onSurfaceVariant = DuocBlack,
-    outline = DuocGray,
-)
+val LocalG6DarkTheme = staticCompositionLocalOf { true }
 
-/** Tema fijo de referencia; fuentes nativas hasta verificar los recursos tipográficos. */
+/** La preferencia de apariencia comparte paleta y estado en todas las pantallas. */
 @Composable
-fun CapturaProspectosG6Theme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit,
-) {
-    MaterialTheme(colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
-        typography = Typography, content = content)
+fun CapturaProspectosG6Theme(darkTheme: Boolean = true, content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalG6DarkTheme provides darkTheme) {
+        MaterialTheme(colorScheme = if (darkTheme) DarkColors else LightColors, typography = Typography,
+            shapes = Shapes(small = RoundedCornerShape(12.dp), medium = RoundedCornerShape(20.dp),
+                large = RoundedCornerShape(28.dp)), content = content)
+    }
+}
+
+/** Los iconos de barras siguen la apariencia elegida, aunque difiera de la del teléfono. */
+fun applySystemBarAppearance(window: Window, darkMode: Boolean) {
+    WindowCompat.getInsetsController(window, window.decorView).apply {
+        isAppearanceLightStatusBars = !darkMode
+        isAppearanceLightNavigationBars = !darkMode
+    }
 }

@@ -1,0 +1,57 @@
+{
+  "jvm": {
+    "tests": 185,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "Error": 0,
+    "Warning": 25
+  },
+  "apks": {
+    "outputs/apk/demo/debug/app-demo-debug.apk": "3fd701992cf37ebc0ce34140be042cce4fd4ec07f2a9eb2458c6d1396514a0e3",
+    "outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk": "64cca47f298f7d1f4914f67e8b1c6694fbded5eb26201c10a410b50f4a23a0b9"
+  },
+  "date": "2026-10-11",
+  "base": "2b01a1e",
+  "android": {
+    "data": {
+      "passed": 47,
+      "seconds": 60.545,
+      "assisted_launch": false
+    },
+    "ui": {
+      "passed": 11,
+      "seconds": 76.858,
+      "assisted_launch": true
+    }
+  },
+  "data_build": {
+    "jvm": {
+      "tests": 185,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "lint": {
+      "Error": 0,
+      "Warning": 25
+    },
+    "apks": {
+      "outputs/apk/demo/debug/app-demo-debug.apk": "3fd701992cf37ebc0ce34140be042cce4fd4ec07f2a9eb2458c6d1396514a0e3",
+      "outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk": "59de0193bddc05f3a4532a2ac53ff517854da409e9b766f77257be82605cf1a8"
+    }
+  },
+  "sources_sha256": {
+    "domain/context/EventEditorInput.kt": "9ef73ea5429f4df2df141d91cf4df86267de37822fee67c83b428c32c68911ec",
+    "ui/context/DemoContextViewModel.kt": "a4798ddf770ed8aa43cefab044f1f083595ba93324a692e880877296fe97bd51",
+    "ui/context/EventAdminDialog.kt": "e5caaabd1b647c1746d2e7a0fda4ca7ff8a0726b79f8cc53fbeb8956fe3044e3",
+    "data/local/RoomDemoContextRepository.kt": "ab497daab9ad72e42dfeef32de67c1c062c688f27833f5e9f127563bacc077b0"
+  },
+  "limits": [
+    "Datos y UI ejecutados en grupos separados; después del grupo de datos sólo cambió el selector de una prueba UI.",
+    "Revisión cruzada, aceptación de RECORD_CONTRACTS/auditoría v4, giro real y TalkBack pendientes.",
+    "No es aceptación ni cierre E1/RF13."
+  ]
+}

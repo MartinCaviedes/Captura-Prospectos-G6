@@ -51,6 +51,11 @@ android {
 room { schemaDirectory("$projectDir/schemas") }
 
 dependencies {
+    // Modelo incluido en la APK: lectura QR disponible sin descarga ni backend.
+    implementation(libs.camera.camera2)
+    implementation(libs.camera.lifecycle)
+    implementation(libs.camera.view)
+    implementation(libs.mlkit.barcode)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     implementation(libs.sqlcipher)
