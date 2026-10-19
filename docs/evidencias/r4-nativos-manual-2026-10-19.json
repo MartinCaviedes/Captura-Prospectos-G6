@@ -2,7 +2,7 @@
   "date": "2026-10-19",
   "source_commit": "352ea817bacb2e37304ef108a1b904f15f01081e",
   "apk_sha256": "b0294e115bb67972c758b36c7e8ab6dbce5573842bcf00def1f14fa1e5d35684",
-  "apk_identification": "Hash comprobado por ADB previamente en esta sesión; sin instalación posterior del agente",
+  "apk_identification": "Base b0294e11 para M01/M02/M03 y primer M04; el evento M04 corregido especifica APK 733104d7",
   "device": {
     "model": "Xiaomi 11T (21081111RG)",
     "api": 34
@@ -123,16 +123,34 @@
         "Red sin internet o portal cautivo",
         "Nueva suite automática"
       ]
+    },
+    {
+      "id": "M04-fixed-banner-both-directions",
+      "source": "Reporte del operador durante la repetición guiada",
+      "apk_sha256": "733104d7dd1bbbe9c2d916730026d21229fb8abd121760a4e32ff6c51351cc19",
+      "result": "PASS_REPORTED",
+      "reported_result": "Funciona perfectamente en ambos sentidos sin cambiar de pestaña; detección muy rápida, el mensaje cambia en un segundo como máximo",
+      "observed": {
+        "offline_without_navigation": true,
+        "validated_recovery_without_navigation": true,
+        "latency_estimate_max_seconds": 1
+      },
+      "limits": [
+        "Estimación visual del operador, sin cronómetro/instrumentación ni número de repeticiones reportado; no benchmark ni garantía en otros equipos",
+        "Esta repetición cubre el aviso en Inicio; la conservación de campos fue reportada en b0294e11 antes de la corrección",
+        "No acredita red conectada sin internet ni portal cautivo"
+      ]
     }
   ],
   "status": {
     "M01": "Reported denial/manual and permission recovery/open/cancel verified; permanent-denial settings action not explicitly reported",
     "M02": "Four guided scenarios PASS_REPORTED: denied, disabled, approximate timeout, precise discard/confirm",
     "M03": "Valid QR recognized, confirmed only RUT; unsupported rejected with manual fallback and existing fields preserved: PASS_REPORTED for guided scope",
-    "M04": "FAIL_REPORTED: offline banner stale until tab change; recovery automatic; form fields preserved. New candidate physical repetition pending."
+    "M04": "Initial stale offline banner on b0294e11; corrected 733104d7 loss/recovery without navigation PASS_REPORTED. Earlier form preservation belongs to b0294e11.",
+    "M05": "NOT_RUN: operator reports no controlled network available"
   },
   "limits": [
-    "No new automated tests, instrumentation, build or installation in this update",
+    "Human reports only in this file; build and automated fix evidence are recorded separately in r4-conectividad-fix-2026-10-19.json",
     "Approximate location timed out; no claim of a successful approximate fix or a bug merely for that timeout",
     "Numerical precision and full literal messages not reported",
     "Not a GNSS-only measurement, institutional acceptance, all-device guarantee, or full R4/RF closure",
@@ -141,7 +159,6 @@
   ],
   "pending": [
     "M01 permanent-denial Open settings action",
-    "M04 physical recheck of new candidate; controlled regression passed, not yet human confirmed",
     "M05 controlled portal/no internet",
     "M06 final visual/TalkBack deferred/physical tablet",
     "contract/signing/delivery decisions"

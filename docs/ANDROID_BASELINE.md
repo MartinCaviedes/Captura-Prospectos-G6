@@ -1,8 +1,8 @@
 # Evidencia de la base Android
 
-## R4 · corrección candidata de escucha de red · 19/10/2026
+## R4 · corrección de escucha de red y repetición física · 19/10/2026
 
-`MainHubRoute` conserva el Flow con remember(observer). Antes: nueva regresión falla por dos suscripciones en vez de una. Después: 191 JVM, Lint 27 avisos/0 errores y ocho Android dirigidas aprobadas (dos nuevas Compose, tres resumen/Room, dos calendario/recreación, una callback real); datos demo intactos, UI asistida ADB, sin cambiar redes/permisos. Debug nueva `733104d7…` instalada; release unsigned recompilada sin firma/instalación release. [Prueba, hashes y límites](evidencias/r4-conectividad-fix-2026-10-19.json). Repetición física M04 pendiente: candidato local sin push. Las ocho no sustituyen ni se suman como una sola corrida con las 83 de la APK anterior.
+`MainHubRoute` conserva el Flow con remember(observer). Antes: nueva regresión falla por dos suscripciones en vez de una. Después: 191 JVM, Lint 27 avisos/0 errores y ocho Android dirigidas aprobadas (dos nuevas Compose, tres resumen/Room, dos calendario/recreación, una callback real); datos demo intactos, UI asistida ADB, sin cambiar redes/permisos. Debug nueva `733104d7…` instalada; release unsigned recompilada sin firma/instalación release. [Prueba, hashes y límites](evidencias/r4-conectividad-fix-2026-10-19.json). Martín confirma aviso offline/validado sin navegar en APK 733104d7, demora visual estimada <=1 s, no benchmark. Prueba de formulario previa mantiene b0294e11. M05 pendiente por falta de red controlada; publicación por rama/PR sin merge. Las ocho no sustituyen ni se suman como una sola corrida con las 83 de la APK anterior.
 
 ## R4 · recorridos humanos M01/M02 consolidados · 19/10/2026
 

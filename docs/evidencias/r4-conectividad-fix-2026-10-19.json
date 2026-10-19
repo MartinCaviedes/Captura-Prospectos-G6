@@ -88,7 +88,7 @@
   "limits": [
     "Before expected failure proves subscription restart with controlled observer; no physical radios changed by agent",
     "After controlled observer UI tests and real callback cleanup test do not replace manual loss/recovery on actual network",
-    "Manual M04 on this new APK still pending; previous camera/GPS/QR reports apply to b0294e11",
+    "Manual banner loss/recovery PASS_REPORTED on 733104d7; previous form/camera/GPS/QR reports remain tied to b0294e11",
     "Unsigned release rebuilt; no release signing/installation, no Room/auth/navigation contract changes or E2 work"
   ],
   "release": {
@@ -101,5 +101,22 @@
     "debug": 20,
     "release": 20
   },
-  "publication": "LOCAL_CANDIDATE; physical M04 repetition pending before pushing the correction"
+  "publication": "HUMAN_RETEST_VERIFIED; branches prepared for normal publication without merge",
+  "manual_verification": {
+    "id": "M04-fixed-banner-both-directions",
+    "source": "Reporte directo de Martín tras repetir el caso en la APK corregida",
+    "apk_sha256": "733104d7dd1bbbe9c2d916730026d21229fb8abd121760a4e32ff6c51351cc19",
+    "result": "PASS_REPORTED",
+    "reported_result": "Funciona perfectamente en ambos sentidos sin cambiar de pestaña; detección muy rápida, el mensaje cambia en un segundo como máximo",
+    "observed": {
+      "offline_without_navigation": true,
+      "validated_recovery_without_navigation": true,
+      "latency_estimate_max_seconds": 1
+    },
+    "limits": [
+      "Estimación visual del operador, sin cronómetro/instrumentación ni número de repeticiones reportado; no benchmark ni garantía en otros equipos",
+      "Esta repetición cubre el aviso en Inicio; la conservación de campos fue reportada en b0294e11 antes de la corrección",
+      "No acredita red conectada sin internet ni portal cautivo"
+    ]
+  }
 }
