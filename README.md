@@ -1,5 +1,7 @@
 # 📱 Captura de Prospectos — Grupo 6
 
+**Integración actual · 19/10/2026.** Los incrementos de R4 e identidad/distribución de los PR #10 y #11 están integrados en `develop`, tras la revisión externa de Sebastián y Jeremy reportada por Martín. Las notas fechadas inferiores conservan su contexto histórico. La demo publicada sigue siendo una evaluación local; TalkBack, tablet físico, red controlada sin internet/portal y aceptación contractual mantienen sus pendientes.
+
 **Descarga de evaluación E1 · 19/10/2026:** [APK Android](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/download/e1-demo-2026-10-19/Captura-Prospectos-G6-E1-demo.apk) · [versión preliminar](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e1-demo-2026-10-19) · [instalación y cuentas de muestra](docs/DISTRIBUCION_DEMO.md) · [QR ficticios para pruebas](docs/fixtures/qr/README.md). APK demo/debug, sin integración de los PR pendientes ni cierre E1.
 
 **Bienvenida refinada · 19/10/2026.** El arte abstracto se reemplaza por contacto, intereses y consentimiento con texto nativo. APK `22d3e987…` instalada e inspeccionada en Xiaomi oscuro/vertical; build/Lint sin errores, 30 avisos. Las suites previas mantienen 1f5c8b2b. [Detalle](docs/UI_IDENTIDAD_TEMA_DEMO.md). PR #11, sin merge.
@@ -34,7 +36,7 @@ La [versión preliminar de evaluación](https://github.com/MartinCaviedes/Captur
 
 Consulta la **[guía completa de instalación y pruebas](https://github.com/MartinCaviedes/Captura-Prospectos-G6/blob/e1-demo-2026-10-19/docs/DISTRIBUCION_DEMO.md)** para el acceso como Captador B/Supervisor, los límites y los checksums.
 
-Esta descarga es una demo/debug firmada para desarrollo, con datos ficticios y almacenamiento local por dispositivo, sin sincronización E1. La APK corresponde a la etiqueta enlazada; no se afirma que el código de `main` ya incluya los PR posteriores pendientes. El soporte de cédula real queda aplazado a E2. No desinstales una versión anterior sin considerar sus datos locales.
+Esta descarga es una demo/debug firmada para desarrollo, con datos ficticios y almacenamiento local por dispositivo, sin sincronización E1. La APK corresponde a la etiqueta enlazada y conserva su checksum original. El soporte de cédula real queda aplazado a E2. No desinstales una versión anterior sin considerar sus datos locales.
 
 ## 🎯 Caso de uso
 
