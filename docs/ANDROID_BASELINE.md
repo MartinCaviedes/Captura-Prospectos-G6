@@ -1,5 +1,7 @@
 # Evidencia de la base Android
 
+**Visual M06 · 19/10/2026:** el operador completa el recorrido solicitado en Xiaomi con fuente **XXL**, sin botones/textos cortados, ilegibles ni inaccesibles: Inicio, Registros, Resumen, Perfil y captura, incluyendo las variaciones de tema/orientación y calendario indicadas en la guía. Resultado global reportado, sin desglose por control; XXL no equivale a 150 % medido. APK `733104d7…`; [reporte y límites](evidencias/r4-nativos-manual-2026-10-19.json). Quedan bienvenida/acceso/evento con XXL, TalkBack aplazado y tablet físico. Sin nueva APK ni suites; no cierre M06/R4.
+
 **Seguimiento M01 · 19/10/2026:** el operador confirma que «Abrir ajustes», tras denegar Cámara y solicitar QR, abre la ficha correcta de la app. Concede Cámara y vuelve sin reinicio ni descarte en ese intento, APK `733104d7…`. Queda comprobada la acción pendiente de M01 en su recorrido guiado; no es garantía de conservar memoria si Android termina el proceso. [Evidencia por evento](evidencias/r4-nativos-manual-2026-10-19.json). Sin nueva APK ni suites. M05 sigue sin entorno; visual final, TalkBack aplazado y tablet conservan su estado. Los apartados anteriores conservan su corte histórico.
 
 ## R4 · corrección de escucha de red y repetición física · 19/10/2026

@@ -160,6 +160,33 @@
         "No se reporta lectura de un QR después de conceder permiso en esta repetición",
         "No nuevas suites, compilación, instalación, garantía sobre otros dispositivos o cierre R4/RF"
       ]
+    },
+    {
+      "id": "M06-visual-xiaomi-xxl",
+      "source": "Reporte directo de Martín tras el recorrido visual solicitado",
+      "apk_sha256": "733104d7dd1bbbe9c2d916730026d21229fb8abd121760a4e32ff6c51351cc19",
+      "result": "PASS_REPORTED_FOR_GUIDED_VISUAL_SCOPE",
+      "reported_result": "Aumenté la fuente a XXL en el Xiaomi, realicé el flujo solicitado y no noté problemas; ningún botón o texto quedó inaccesible, cortado o ilegible.",
+      "font_setting_reported": "XXL",
+      "font_scale_numeric": "NOT_MEASURED",
+      "requested_scope": [
+        "Inicio, Registros, Resumen y Perfil en claro/oscuro y vertical/horizontal",
+        "Captura ficticia, desplazamiento a consentimiento/descarte y giro con calendario abierto",
+        "Comprobar acceso a controles, conservación de campos y fecha candidata; descartar sin guardar"
+      ],
+      "observed": {
+        "operator_reports_requested_flow_completed": true,
+        "clipped_text_or_controls_reported": false,
+        "illegible_text_reported": false,
+        "inaccessible_controls_reported": false
+      },
+      "limits": [
+        "XXL es la opción indicada por el operador; no equivale a un 150 % medido",
+        "El reporte confirma globalmente el recorrido; no aporta resultados individuales ni capturas de cada control o paso",
+        "Bienvenida/acceso/selección de evento con XXL no estaban en este recorrido",
+        "No acredita TalkBack, tablet físico, todos los equipos ni cierre completo de M06/R4",
+        "Sin nueva compilación, APK, instalación o suites automáticas"
+      ]
     }
   ],
   "status": {
@@ -167,7 +194,8 @@
     "M02": "Four guided scenarios PASS_REPORTED: denied, disabled, approximate timeout, precise discard/confirm",
     "M03": "Valid QR recognized, confirmed only RUT; unsupported rejected with manual fallback and existing fields preserved: PASS_REPORTED for guided scope",
     "M04": "Initial stale offline banner on b0294e11; corrected 733104d7 loss/recovery without navigation PASS_REPORTED. Earlier form preservation belongs to b0294e11.",
-    "M05": "NOT_RUN: operator reports no controlled network available"
+    "M05": "NOT_RUN: operator reports no controlled network available",
+    "M06": "Guided visual flow with Xiaomi font XXL PASS_REPORTED; numeric scale not measured. Welcome/login/event at XXL, deferred TalkBack and physical tablet remain pending."
   },
   "limits": [
     "Human reports only in this file; build and automated fix evidence are recorded separately in r4-conectividad-fix-2026-10-19.json",
@@ -179,7 +207,7 @@
   ],
   "pending": [
     "M05 controlled portal/no internet",
-    "M06 final visual/TalkBack deferred/physical tablet",
+    "M06 welcome/login/event with XXL; TalkBack deferred; physical tablet",
     "contract/signing/delivery decisions"
   ]
 }

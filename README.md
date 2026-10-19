@@ -1,5 +1,7 @@
 # 📱 Captura de Prospectos — Grupo 6
 
+**R4 · visual XXL comprobado 19/10/2026.** El operador completa el recorrido guiado en Xiaomi, fuente XXL, sin botones/textos cortados, ilegibles ni inaccesibles (APK `733104d7…`). Escala numérica no medida; [alcance y pendientes](docs/ROUND4_QA.md). Seguimiento documental, sin nueva APK/suites, merge ni cierre R4.
+
 **R4 · acceso a Ajustes comprobado 19/10/2026.** El operador confirma «Abrir ajustes» desde Cámara denegada, ficha correcta y regreso tras conceder permiso sin reinicio ni descarte en ese intento (APK `733104d7…`). M01 guiado comprobado; no garantiza recuperación tras muerte de proceso. [QA vigente](docs/ROUND4_QA.md). Seguimiento documental, sin nueva APK ni suites; R4 mantiene pendientes y PR #10 sin merge.
 
 **R4 · corrección de red comprobada 19/10/2026.** [QA actual](docs/ROUND4_QA.md): M04 detectó aviso offline que exigía cambiar de pestaña. Se conserva la escucha entre recomposiciones; regresión falla antes/pasa después. 191 JVM, ocho Android dirigidas y Lint 27 avisos/0 errores aprobados. APK debug `733104d7…`: el operador confirma pérdida/retorno sin cambiar pestañas, estimando hasta 1 s; observación informal. Corrección en rama R4 para revisión, sin merge. M05 pendiente por falta de red controlada. M03 QR físico válido/desconocido reportado en la APK anterior. No cierre R4 ni cambio de Room/permisos/E2.
