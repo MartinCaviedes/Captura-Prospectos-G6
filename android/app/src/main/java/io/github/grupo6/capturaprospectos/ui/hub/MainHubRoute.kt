@@ -26,7 +26,9 @@ fun MainHubRoute(
     summaryOnly: Boolean = false,
     onOpenSummary: () -> Unit = {},
 ) {
-    val connectivity by connectivityObserver.observe().collectAsStateWithLifecycle(initialValue = ConnectivityStatus.UNKNOWN)
+    // Conservar el Flow evita cancelar/recrear el callback de red en cada recomposición.
+    val connectivityFlow = remember(connectivityObserver) { connectivityObserver.observe() }
+    val connectivity by connectivityFlow.collectAsStateWithLifecycle(initialValue = ConnectivityStatus.UNKNOWN)
     val localStore = remember(profile.actor, event, recordRepository) { androidx.lifecycle.ViewModelStore() }
     val metricsVm = suppliedMetrics ?: remember(localStore) {
         androidx.lifecycle.ViewModelProvider(localStore, object : androidx.lifecycle.ViewModelProvider.Factory {

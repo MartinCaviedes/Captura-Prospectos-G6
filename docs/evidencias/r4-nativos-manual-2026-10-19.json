@@ -81,12 +81,55 @@
         "Precisión numérica/coordenadas no reportadas",
         "No atribuir la posición exclusivamente a GNSS: el proveedor también admite NETWORK"
       ]
+    },
+    {
+      "id": "M03-physical-valid-and-unsupported-qr",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "Tras completar nombres y apellidos ficticios, el QR válido se reconoció con los datos indicados; al confirmar se rellenó únicamente RUT sin cambiar nombres/apellidos. El QR no compatible se informó como no válido/no admitido y permitió continuar manualmente manteniendo los datos previos.",
+      "result": "PASS_REPORTED",
+      "observed": {
+        "valid_qr_recognized": true,
+        "explicit_confirmation_fills_only_rut": true,
+        "manual_given_and_family_names_preserved": true,
+        "unsupported_qr_rejected": true,
+        "manual_fallback_preserves_existing_data": true,
+        "external_browser_opened": "NOT_EXPLICITLY_REPORTED",
+        "focus_failures": "NONE_REPORTED; no systematic focus/distance matrix reported"
+      },
+      "fixtures": {
+        "valid_sha256": "b763518a8987dc953dbb7dcd6e1972a37c5628f63d6a391058144f13cb032f4b",
+        "unsupported_sha256": "01c4b162e91fa19bafc05e2fa9898f9bf23745934afc90c2b3feb66117926d53"
+      },
+      "not_claimed": [
+        "Real identity-card support, birth-date extraction, or identity validation",
+        "Explicit overwrite of an already-filled different RUT: this run began with RUT empty",
+        "Every focus/distance condition, every device or no-browser launch explicitly observed",
+        "New automated tests or full R4/RF closure"
+      ]
+    },
+    {
+      "id": "M04-network-loss-stale-banner",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "Inicio conserva Conexión a internet verificada después de apagar conexiones; cambia a offline sólo tras ir a Registros y volver. Al recuperar red se actualiza automáticamente. El formulario conserva campos al desactivar/activar red.",
+      "result": "FAIL_REPORTED_PARTIAL",
+      "observed": {
+        "offline_banner_without_navigation": false,
+        "offline_after_tab_change": true,
+        "recovery_banner_without_navigation": true,
+        "form_fields_preserved": true
+      },
+      "not_claimed": [
+        "M04 completo aprobado",
+        "Red sin internet o portal cautivo",
+        "Nueva suite automática"
+      ]
     }
   ],
   "status": {
     "M01": "Reported denial/manual and permission recovery/open/cancel verified; permanent-denial settings action not explicitly reported",
     "M02": "Four guided scenarios PASS_REPORTED: denied, disabled, approximate timeout, precise discard/confirm",
-    "M03": "NOT_VERIFIED_IN_THIS_CUT"
+    "M03": "Valid QR recognized, confirmed only RUT; unsupported rejected with manual fallback and existing fields preserved: PASS_REPORTED for guided scope",
+    "M04": "FAIL_REPORTED: offline banner stale until tab change; recovery automatic; form fields preserved. New candidate physical repetition pending."
   },
   "limits": [
     "No new automated tests, instrumentation, build or installation in this update",
@@ -98,8 +141,7 @@
   ],
   "pending": [
     "M01 permanent-denial Open settings action",
-    "M03 physical valid/unsupported QR and focus",
-    "M04 network transitions",
+    "M04 physical recheck of new candidate; controlled regression passed, not yet human confirmed",
     "M05 controlled portal/no internet",
     "M06 final visual/TalkBack deferred/physical tablet",
     "contract/signing/delivery decisions"

@@ -1,5 +1,9 @@
 # Evidencia de la base Android
 
+## R4 · corrección candidata de escucha de red · 19/10/2026
+
+`MainHubRoute` conserva el Flow con remember(observer). Antes: nueva regresión falla por dos suscripciones en vez de una. Después: 191 JVM, Lint 27 avisos/0 errores y ocho Android dirigidas aprobadas (dos nuevas Compose, tres resumen/Room, dos calendario/recreación, una callback real); datos demo intactos, UI asistida ADB, sin cambiar redes/permisos. Debug nueva `733104d7…` instalada; release unsigned recompilada sin firma/instalación release. [Prueba, hashes y límites](evidencias/r4-conectividad-fix-2026-10-19.json). Repetición física M04 pendiente: candidato local sin push. Las ocho no sustituyen ni se suman como una sola corrida con las 83 de la APK anterior.
+
 ## R4 · recorridos humanos M01/M02 consolidados · 19/10/2026
 
 Reporte humano: escáner abre/cierra conservando campos tras recuperar permiso. Ubicación denegada conserva texto sin coordenadas; servicio apagado informa sin posición; aproximada agota plazo conservando texto sin aplicar; precisa permite descartar una candidata y confirmar otra para aplicarla. Cuatro escenarios GPS guiados comprobados; precisión numérica/mensajes literales no reportados. [Evidencia y límites](evidencias/r4-nativos-manual-2026-10-19.json). No nuevas pruebas automáticas ni cambio APK; no cerrar M03 ni R4. M01 aún requiere confirmación explícita del acceso a Ajustes desde denegación permanente.

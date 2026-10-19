@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-19",
+  "parent_commit": "38bddc4cbee693e95e26a43cebc0efc6a6fa5534",
+  "functional_change": "MainHubRoute retains connectivity Flow with remember(observer); callback subscription no longer restarts on each recomposition",
+  "jvm": {
+    "tests": 191,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 27
+  },
+  "sources": {
+    "android/app/src/main/java/io/github/grupo6/capturaprospectos/ui/hub/MainHubRoute.kt": {
+      "sha256_lf": "25358bfac09363293e0360cd2917889969f2ff3df9f14965128bd11e8ceeb7ee"
+    },
+    "android/app/src/androidTest/java/io/github/grupo6/capturaprospectos/ui/hub/HubConnectivityUiTest.kt": {
+      "sha256_lf": "a161cc0d69e0448ed92493179bb8f9b9ea71267960342dce474b419691328975"
+    }
+  },
+  "apk": {
+    "sha256": "733104d7dd1bbbe9c2d916730026d21229fb8abd121760a4e32ff6c51351cc19",
+    "bytes": 46053239,
+    "signature_verified": true,
+    "zipalign_16kb_verified": true
+  },
+  "before": {
+    "mode": "before",
+    "pass_result": false,
+    "demo_files_unchanged": true,
+    "seconds": 5.73,
+    "classes": [
+      "ui.hub.HubConnectivityUiTest#lossAndRecoveryUpdateBannerWithoutNavigationOrRestartingObservation"
+    ],
+    "apk_sha256": "b0294e115bb67972c758b36c7e8ab6dbce5573842bcf00def1f14fa1e5d35684",
+    "instrumental_sha256": "d82557baed5a73d81734407cf6ac40ec74b91eef0aa137ce4bcbf976d9537601",
+    "assists": [
+      "lossAndRecoveryUpdateBannerWithoutNavigationOrRestartingObservation"
+    ],
+    "tests_ok": [],
+    "status_codes": {
+      "0": 0,
+      "-1": 0,
+      "-2": 1,
+      "-3": 0,
+      "-4": 0
+    },
+    "failure_expected_subscription_count": true,
+    "network_or_permission_changes_by_runner": false
+  },
+  "after": {
+    "mode": "after",
+    "pass_result": true,
+    "demo_files_unchanged": true,
+    "seconds": 56.73,
+    "classes": [
+      "ui.hub.HubConnectivityUiTest",
+      "ui.hub.HubMetricsRoomUiTest",
+      "ui.components.CalendarRecreationTest",
+      "data.device.ConnectivityAndroidTest"
+    ],
+    "apk_sha256": "733104d7dd1bbbe9c2d916730026d21229fb8abd121760a4e32ff6c51351cc19",
+    "instrumental_sha256": "d82557baed5a73d81734407cf6ac40ec74b91eef0aa137ce4bcbf976d9537601",
+    "assists": [
+      "supervisorSeesAuthorizedEventAndLocalCountsWithoutCapturePermission",
+      "refreshingAfterCancellationUsesRoomAndInvalidRangePreservesLastCalculation",
+      "rangeCalendarsCancelOrFillOnlyTheirFieldUntilRangeIsApplied",
+      "changingObserverReleasesPreviousSubscriptionAndIgnoresItsLateUpdates",
+      "lossAndRecoveryUpdateBannerWithoutNavigationOrRestartingObservation",
+      "birthDialogAndCandidateSurviveRecreationUntilExplicitConfirmationOrCancel",
+      "bothRangeDialogsAndExpandedFieldsSurviveRecreationWithoutApplyingRange"
+    ],
+    "tests_ok": [
+      "8"
+    ],
+    "status_codes": {
+      "0": 8,
+      "-1": 0,
+      "-2": 0,
+      "-3": 0,
+      "-4": 0
+    },
+    "failure_expected_subscription_count": false,
+    "network_or_permission_changes_by_runner": false
+  },
+  "limits": [
+    "Before expected failure proves subscription restart with controlled observer; no physical radios changed by agent",
+    "After controlled observer UI tests and real callback cleanup test do not replace manual loss/recovery on actual network",
+    "Manual M04 on this new APK still pending; previous camera/GPS/QR reports apply to b0294e11",
+    "Unsigned release rebuilt; no release signing/installation, no Room/auth/navigation contract changes or E2 work"
+  ],
+  "release": {
+    "sha256": "5fd10a4fcddb3019e4a4edc68502f0707af1ece135e2d7a44201546bf8ee38b3",
+    "unsigned": true,
+    "zipalign_16kb_verified": true,
+    "installed": false
+  },
+  "native_libraries_unchanged": {
+    "debug": 20,
+    "release": 20
+  },
+  "publication": "LOCAL_CANDIDATE; physical M04 repetition pending before pushing the correction"
+}

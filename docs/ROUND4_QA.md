@@ -1,10 +1,21 @@
 # R4 · QA y preparación de E1
 
+## Corrección candidata de conectividad · 19/10/2026
+
+En APK anterior `b0294e11…`, el operador observó Inicio aún «Conexión a internet verificada» tras apagar redes; sólo al cambiar de pestaña aparecía offline. Al recuperar conexión se actualizaba automáticamente y el formulario conservaba sus campos. M04 se registra con fallo en pérdida de red, sin atribuir PASS por la conservación del formulario. M03 sí fue reportado: QR físico válido confirma sólo RUT; desconocido se rechaza y permite manual conservando datos.
+
+Se detectó que MainHubRoute creaba un Flow nuevo por recomposición, reiniciando la escucha. Una regresión Compose falla antes (`expected 1 / actual 2` suscripciones) y pasa después de retener el Flow con `remember(connectivityObserver)`. También comprueba cambio de proveedor, cancelación de la escucha anterior y descarte de sus emisiones tardías. No se modifica AndroidConnectivityObserver, permisos, manifiesto, datos, Gradle ni reglas de negocio. No hay sondeo ni permiso INTERNET añadido.
+
+Evidencia nueva: 191 JVM aprobadas; Lint 27 avisos/0 errores; ocho Android dirigidas aprobadas en una ejecución (dos nuevas de conectividad con proveedor controlado, tres resumen/Room, dos calendarios tras recreación y una de liberación del callback real). Xiaomi/API 34, apertura asistida ADB en MIUI, archivos demo intactos por hashes. [Resultado y hashes](evidencias/r4-conectividad-fix-2026-10-19.json), [fallo esperado anterior](evidencias/android-red-before-2026-10-19.txt), [ejecución corregida](evidencias/android-red-after-2026-10-19.txt). Las redes/permisos no fueron modificados por el runner. Debug e instrumental construidas; release unsigned actualizada, sin firma ni instalación release; ZIP comprobado y las 20 bibliotecas nativas por variante tienen los mismos hashes del corte ELF anterior.
+
+APK candidata debug `733104d7…`, instalada conservando datos. **Repetición física M04 en esta APK pendiente**, sin cambiar de pestaña al perder/recuperar red. La prueba controlada demuestra el reinicio y su corrección, pero no sustituye esa repetición con redes reales. Candidato local aún sin push de la corrección; PR #10 conserva su SHA remoto anterior. Los reportes cámara/GPS/QR siguen asociados a `b0294e11…`; no se trasladan como pruebas nuevas de `733104d7…`. Las evidencias inferiores conservan sus versiones.
+
+
 ## Seguimiento humano de cámara y ubicación · 19/10/2026
 
 Denegación/manual y recuperación/apertura/cierre de cámara conservan campos según el operador. M02: permiso denegado conserva texto sin coordenadas; servicio apagado informa sin aplicar posición; aproximada finaliza por timeout sin perder texto ni aplicar ubicación; precisa ofrece candidata, descartar no la aplica y una nueva adquisición sólo se aplica al confirmar. No se reportaron precisión numérica ni textos literales completos. [Evidencia humana y límites](evidencias/r4-nativos-manual-2026-10-19.json).
 
-Los cuatro escenarios GPS guiados quedan comprobados por reporte humano en esta APK, sin atribuir una adquisición exitosa al modo aproximado ni lectura exclusiva de satélites. Quedan Abrir ajustes desde denegación permanente y M03 de QR físico. No cambió código ni se ejecutaron suites/build/instalación nuevos; los resultados automáticos del 18/10 se conservan separados. La limitación de memoria ante muerte del proceso sigue vigente.
+Los cuatro escenarios GPS guiados quedan comprobados por reporte humano en esta APK, sin atribuir una adquisición exitosa al modo aproximado ni lectura exclusiva de satélites. Seguimiento posterior: M03 fue reportado con QR físico válido/desconocido. Quedan Abrir ajustes desde denegación permanente y la repetición de M04 corregida. No cambió código ni se ejecutaron suites/build/instalación nuevos; los resultados automáticos del 18/10 se conservan separados. La limitación de memoria ante muerte del proceso sigue vigente.
 
 ## Verificación Android · 18/10/2026
 
