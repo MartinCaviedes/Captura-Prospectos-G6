@@ -1,8 +1,12 @@
 # Evidencia de la base Android
 
+## R4 · recorridos humanos M01/M02 consolidados · 19/10/2026
+
+Reporte humano: escáner abre/cierra conservando campos tras recuperar permiso. Ubicación denegada conserva texto sin coordenadas; servicio apagado informa sin posición; aproximada agota plazo conservando texto sin aplicar; precisa permite descartar una candidata y confirmar otra para aplicarla. Cuatro escenarios GPS guiados comprobados; precisión numérica/mensajes literales no reportados. [Evidencia y límites](evidencias/r4-nativos-manual-2026-10-19.json). No nuevas pruebas automáticas ni cambio APK; no cerrar M03 ni R4. M01 aún requiere confirmación explícita del acceso a Ajustes desde denegación permanente.
+
 ## R4 · cámara denegada / Ajustes · 19/10/2026
 
-M01 parcial: reporte humano confirma campos intactos al denegar cámara y continuar manualmente. Al cambiar permisos en Ajustes se observó bienvenida y pérdida de formulario no guardado. ADB de sólo lectura registra cuatro salidas recientes PERMISSION CHANGE, APK b0294e11 comprobada; no se atribuye la causa a un clic específico. Contrato vigente conserva formulario sólo en memoria, no tras muerte del proceso. [Detalle y límite de la guía](ROUND4_QA.md), [evidencia](evidencias/r4-permisos-camara-2026-10-19.json). Cámara tras reingreso/cancelación aún pendiente; sin suites nuevas ni cambio funcional.
+M01 parcial: reporte humano confirma campos intactos al denegar cámara y continuar manualmente. Al cambiar permisos en Ajustes se observó bienvenida y pérdida de formulario no guardado. ADB de sólo lectura registra cuatro salidas recientes PERMISSION CHANGE, APK b0294e11 comprobada; no se atribuye la causa a un clic específico. Contrato vigente conserva formulario sólo en memoria, no tras muerte del proceso. [Detalle y límite de la guía](ROUND4_QA.md), [evidencia](evidencias/r4-permisos-camara-2026-10-19.json). Seguimiento posterior: apertura/cierre del escáner con campos intactos confirmado; queda acción Abrir ajustes desde denegación permanente. Sin suites nuevas ni cambio funcional.
 
 ## R4 · Android nuevo sobre APK final · 18/10/2026
 

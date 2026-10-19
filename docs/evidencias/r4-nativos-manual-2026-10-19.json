@@ -1,0 +1,107 @@
+{
+  "date": "2026-10-19",
+  "source_commit": "352ea817bacb2e37304ef108a1b904f15f01081e",
+  "apk_sha256": "b0294e115bb67972c758b36c7e8ab6dbce5573842bcf00def1f14fa1e5d35684",
+  "apk_identification": "Hash comprobado por ADB previamente en esta sesión; sin instalación posterior del agente",
+  "device": {
+    "model": "Xiaomi 11T (21081111RG)",
+    "api": 34
+  },
+  "kind": "HUMAN_REPORTED",
+  "events": [
+    {
+      "id": "M01-camera-open-cancel-after-permission-recovery",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "El flujo mencionado funciona perfectamente, se conservan los campos y el escáner no genera problemas",
+      "scope": "Tras permiso concedido y nuevo acceso: nueva captura con datos ficticios, apertura/cierre de escáner sin escanear, campos conservados",
+      "result": "PASS_REPORTED",
+      "not_claimed": [
+        "Lectura/enfoque de QR válido o desconocido (M03)",
+        "Acción Abrir ajustes desde denegación permanente no confirmada explícitamente",
+        "Recuperación de formulario tras muerte del proceso; límite volátil ya documentado",
+        "Pruebas GPS/redes/TalkBack/tablet o nuevas suites automáticas"
+      ]
+    },
+    {
+      "id": "M02-location-permission-denied",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "Ubicación denegada: tras seguir el flujo indicado, los campos conservan el texto y no se aplican coordenadas",
+      "result": "PASS_REPORTED",
+      "observed": {
+        "fields_preserved": true,
+        "coordinates_applied": false
+      },
+      "not_claimed": [
+        "Texto literal del diálogo no reportado",
+        "No acredita adquisición GPS, precisión, confirmación/descarte o M02 completo"
+      ]
+    },
+    {
+      "id": "M02-system-location-disabled",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "Ubicación del teléfono apagada: tras seguir el flujo indicado, el sistema informa que el gps está desactivado, no aplica ninguna coordenada existente o actual",
+      "result": "PASS_REPORTED",
+      "observed": {
+        "disabled_service_message_reported": true,
+        "coordinates_applied": false,
+        "fields_preserved": "NOT_EXPLICITLY_REPORTED"
+      },
+      "not_claimed": [
+        "Aviso descrito por el operador, no transcripción literal",
+        "No acredita adquisición GPS, precisión, confirmación/descarte o M02 completo"
+      ]
+    },
+    {
+      "id": "M02-approximate-location-timeout",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "Ubicación aproximada: tras realizar el flujo y condiciones solicitadas y adquirir gps, el tiempo de espera superó el límite por lo que se rechazó/descartó; los textos ingresados se conservaron y no se aplicó nada de manera autónoma",
+      "result": "PASS_REPORTED",
+      "observed": {
+        "outcome": "TIMEOUT",
+        "fields_preserved": true,
+        "coordinates_applied": false
+      },
+      "not_claimed": [
+        "Adquisición exitosa de posición aproximada",
+        "Mensaje literal y duración exacta del timeout no reportados"
+      ]
+    },
+    {
+      "id": "M02-precise-location-discard-then-confirm",
+      "source": "Reporte del operador durante el recorrido guiado",
+      "reported_result": "Ubicación precisa: apareció una candidata y se descartó; no se conservó la candidata. Tras solicitar gps nuevamente y confirmar, la candidata se aplicó",
+      "result": "PASS_REPORTED",
+      "observed": {
+        "candidate_acquired": true,
+        "discard_did_not_apply": true,
+        "new_acquisition_then_confirmation_applied": true,
+        "accuracy_meters": "NOT_REPORTED"
+      },
+      "not_claimed": [
+        "Precisión numérica/coordenadas no reportadas",
+        "No atribuir la posición exclusivamente a GNSS: el proveedor también admite NETWORK"
+      ]
+    }
+  ],
+  "status": {
+    "M01": "Reported denial/manual and permission recovery/open/cancel verified; permanent-denial settings action not explicitly reported",
+    "M02": "Four guided scenarios PASS_REPORTED: denied, disabled, approximate timeout, precise discard/confirm",
+    "M03": "NOT_VERIFIED_IN_THIS_CUT"
+  },
+  "limits": [
+    "No new automated tests, instrumentation, build or installation in this update",
+    "Approximate location timed out; no claim of a successful approximate fix or a bug merely for that timeout",
+    "Numerical precision and full literal messages not reported",
+    "Not a GNSS-only measurement, institutional acceptance, all-device guarantee, or full R4/RF closure",
+    "Saved/form data, camera permission and location settings changed by the operator during tests, not by agent",
+    "Process-death memory limitation remains as documented in r4-permisos-camara-2026-10-19.json"
+  ],
+  "pending": [
+    "M01 permanent-denial Open settings action",
+    "M03 physical valid/unsupported QR and focus",
+    "M04 network transitions",
+    "M05 controlled portal/no internet",
+    "M06 final visual/TalkBack deferred/physical tablet",
+    "contract/signing/delivery decisions"
+  ]
+}

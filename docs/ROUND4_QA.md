@@ -1,5 +1,11 @@
 # R4 · QA y preparación de E1
 
+## Seguimiento humano de cámara y ubicación · 19/10/2026
+
+Denegación/manual y recuperación/apertura/cierre de cámara conservan campos según el operador. M02: permiso denegado conserva texto sin coordenadas; servicio apagado informa sin aplicar posición; aproximada finaliza por timeout sin perder texto ni aplicar ubicación; precisa ofrece candidata, descartar no la aplica y una nueva adquisición sólo se aplica al confirmar. No se reportaron precisión numérica ni textos literales completos. [Evidencia humana y límites](evidencias/r4-nativos-manual-2026-10-19.json).
+
+Los cuatro escenarios GPS guiados quedan comprobados por reporte humano en esta APK, sin atribuir una adquisición exitosa al modo aproximado ni lectura exclusiva de satélites. Quedan Abrir ajustes desde denegación permanente y M03 de QR físico. No cambió código ni se ejecutaron suites/build/instalación nuevos; los resultados automáticos del 18/10 se conservan separados. La limitación de memoria ante muerte del proceso sigue vigente.
+
 ## Verificación Android · 18/10/2026
 
 Se retoma R4 sobre el mismo código funcional integrado `0c64533`, candidato documental `855d6ef`. APK debug `b0294e11…`, Xiaomi 11T / Android 14 / API 34, páginas de 4096 bytes. Instalación conservadora con `-r -t`, sin borrar datos ni conceder permisos por ADB. Los hashes de los archivos de la base demo y clave envuelta permanecieron iguales durante la instalación y ambas suites.
@@ -19,7 +25,7 @@ Los 191 JVM, Lint 27 avisos/0 errores y build desde clon remoto limpio pertenece
 | Bloque | Comprobado | Pendiente concreto |
 |---|---|---|
 | Reglas/persistencia | JVM históricas + regresión Android nueva y 400 cifradas | Aceptación humana específica de RECORD_CONTRACTS y recorrido final de operador |
-| Nativos/red | QR bitmap con modelo incluido, resultado GPS tipado, 110 aperturas/cierres del observador de red | Cámara/enfoque, permisos adversos, GPS real, pérdida/retorno y portal controlado con usuario |
+| Nativos/red | QR bitmap/proveedores automáticos; humano: denegación/manual y apertura/cierre de cámara; ubicación denegada/apagada, timeout aproximado y precisa con descarte/confirmación | Abrir ajustes desde denegación permanente; QR/enfoque físico válido y desconocido; pérdida/retorno y portal controlado |
 | Adaptación/accesibilidad | Componentes Compose, texto aumentado, ancho simulado y recreación | Recorrido visual final, TalkBack aplazado, tablet físico |
 | Seguridad/empaquetado | Cifrado/clave inaccesible sin reset, logs acotados, manifiestos/ZIP/ELF | Backup/transferencia efectivos en entorno controlado; runtime 16 KB; aclaración/firma release |
 | Entrega | Candidato fuente y APK identificados, guías y evidencia | Revisión de PR, corte/tag final, AVA y explicación individual |
@@ -34,7 +40,7 @@ Usar sólo cuentas/fixtures ficticios. Identificar antes la APK y registrar mode
 
 El operador reporta que denegar Cámara y elegir «Continuar manualmente» conserva nombres/apellidos. Al ir a Ajustes, cambiar el permiso y volver, aparece bienvenida y se pierde el formulario sin guardar. Consulta ADB de sólo lectura: cuatro salidas recientes del paquete con `reason=8 (PERMISSION CHANGE)`; APK instalada coincide con `b0294e11…`. El historial confirma muertes por cambio de permisos, sin atribuir cada salida a una pulsación concreta de conceder/revocar. [Evidencia y límites](evidencias/r4-permisos-camara-2026-10-19.json).
 
-El formulario y acceso demo sólo viven en memoria; sobreviven a recreación de Activity con su dueño, pero no a muerte del proceso. No es una recuperación garantizada al volver de Ajustes. No se cambia a SavedState ni guardado automático sin consentimiento. Para estas pruebas, ajustar permisos sin una captura pendiente y luego abrir una nueva; si ya existe consentimiento válido, un borrador sólo se conserva tras guardado explícito correcto. Se corrige esta omisión de la guía anterior, sin cambiar código de la app. Apertura/cancelación de cámara después de reingresar sigue por verificar; M01 completo permanece parcial.
+El formulario y acceso demo sólo viven en memoria; sobreviven a recreación de Activity con su dueño, pero no a muerte del proceso. No es una recuperación garantizada al volver de Ajustes. No se cambia a SavedState ni guardado automático sin consentimiento. Para estas pruebas, ajustar permisos sin una captura pendiente y luego abrir una nueva; si ya existe consentimiento válido, un borrador sólo se conserva tras guardado explícito correcto. Se corrige esta omisión de la guía anterior, sin cambiar código de la app. Seguimiento posterior: el operador confirma apertura/cierre de cámara con campos intactos tras recuperar permiso. Queda por confirmar explícitamente la acción «Abrir ajustes» desde denegación permanente; M01 completo no se cierra por inferencia. [Consolidación M01/M02](evidencias/r4-nativos-manual-2026-10-19.json).
 
 ### M01 · cámara denegada y recuperación
 
