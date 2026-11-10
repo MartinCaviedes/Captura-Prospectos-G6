@@ -1,0 +1,23 @@
+server:
+  port: ${PORT:8080}
+spring:
+  application:
+    name: api-gateway
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+security:
+  jwt:
+    issuer: ${JWT_ISSUER:captura-g6-users}
+    audience: ${JWT_AUDIENCE:captura-g6-api}
+    public-key: ${JWT_PUBLIC_KEY}
+services:
+  users:
+    url: ${USERS_SERVICE_URL:http://127.0.0.1:8081}
+  prospects:
+    url: ${PROSPECTS_SERVICE_URL:http://127.0.0.1:8082}

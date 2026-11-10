@@ -101,6 +101,12 @@ La APK se genera en `android/app/build/outputs/apk/demo/debug/app-demo-debug.apk
 
 ## Cómo continuar el desarrollo
 
+### Base del backend
+
+Los esqueletos Spring Boot están en [`backend/`](backend/README.md): un API Gateway como punto de entrada y los servicios independientes de usuarios y prospectos, con Spring Security/JWT básico y login local de prueba. La guía explica el arranque y el reparto del trabajo pendiente. Esta base todavía no conecta Android ni implementa los CRUD o la persistencia del backend.
+
+### Flujo de contribución
+
 1. Define una tarea acotada, su requisito, la entrega a la que pertenece y los criterios que debe cumplir. Consulta el [SRS](docs/SRS.md), [Entregas](docs/ENTREGAS.md) y los contratos del área.
 2. Comprueba el estado de tu clon y conserva cualquier trabajo local. Actualiza `develop` mediante avance rápido y crea una rama `feature/`, `fix/`, `docs/` o `chore/` según la tarea.
 3. Implementa el cambio respetando las capas existentes. Coordina antes de modificar navegación, dependencias, permisos, esquema Room o contratos compartidos.

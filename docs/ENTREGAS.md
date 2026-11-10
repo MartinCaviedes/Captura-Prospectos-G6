@@ -82,7 +82,7 @@ La demo E1 queda identificada y aislada de la configuración de integración E2.
 
 ## Infraestructura, firma y asuntos externos
 
-E1 no necesita servicios cloud ni servidores Spring para ejecutarse. Código, documentación técnica, tareas y revisión deben acompañar el trabajo; el flujo Git se describe en CONTRIBUTING. E2 conserva propuestas de dos servicios, PostgreSQL y custodia externa de secretos, aún sin contratar ni desplegar.
+E1 no necesita servicios cloud ni servidores Spring para ejecutarse. Código, documentación técnica, tareas y revisión deben acompañar el trabajo; el flujo Git se describe en CONTRIBUTING. E2 conserva dos servicios de negocio y añade el API Gateway solicitado para la entrega 3; PostgreSQL y la custodia externa de secretos siguen sin contratar ni desplegar.
 
 La API externa es una tarea E2 distinta de nuestra API de catálogo; falta seleccionar una que aporte al caso. No se autoriza aumentar requisitos del producto para justificar una API arbitraria.
 
