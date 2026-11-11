@@ -6,8 +6,15 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuración de enrutamiento del API Gateway hacia los microservicios internos.
+ */
 @Configuration
 public class GatewayRoutes {
+
+    /**
+     * Define las rutas del API Gateway conectando autenticación y usuarios con users-service.
+     */
     @Bean
     RouteLocator routes(RouteLocatorBuilder builder,
                         @Value("${services.users.url}") String usersUrl,
@@ -18,7 +25,10 @@ public class GatewayRoutes {
                 .filters(filters -> filters.removeRequestHeader("Cookie"))
                 .uri(usersUrl))
             .route("users-me", route -> route
-                .path("/api/v1/me")
+                .path(
+                    "/api/v1/me",
+                    "/api/v1/users/**",
+                    "/api/v1/admin/**")
                 .filters(filters -> filters.removeRequestHeader("Cookie"))
                 .uri(usersUrl))
             .route("prospects", route -> route

@@ -100,7 +100,7 @@ class ApiGatewayIntegrationTest {
             .issuer(issuer)
             .subject("test-user")
             .audience(List.of(audience))
-            .issuedAt(Instant.now().minusSeconds(120))
+            .issuedAt(Instant.now().minusSeconds(1000))
             .expiresAt(Instant.now().plusSeconds(expiresIn))
             .claim("roles", List.of("CAPTADOR"))
             .build();
@@ -144,12 +144,14 @@ class ApiGatewayIntegrationTest {
                 .jsonPath("$.authorizationPresent").isEqualTo(true);
         }
 
-        client.get().uri("/api/v1/me")
-            .headers(headers -> headers.setBearerAuth(token))
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody().jsonPath("$.service").isEqualTo("users")
-            .jsonPath("$.authorizationPresent").isEqualTo(true);
+        for (String userPath : List.of("/api/v1/me", "/api/v1/users")) {
+            client.get().uri(userPath)
+                .headers(headers -> headers.setBearerAuth(token))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody().jsonPath("$.service").isEqualTo("users")
+                .jsonPath("$.authorizationPresent").isEqualTo(true);
+        }
     }
 
     @Test

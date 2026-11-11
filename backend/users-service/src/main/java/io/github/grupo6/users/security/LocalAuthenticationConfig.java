@@ -1,48 +1,50 @@
 package io.github.grupo6.users.security;
 
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
-/** Autenticación de desarrollo; sustituir por cuentas persistidas al implementar usuarios. */
+/**
+ * Configuración de proveedores criptográficos BCrypt, autenticación persistida en BD y firma JWT.
+ */
 @Configuration
-@Profile("local")
 public class LocalAuthenticationConfig {
+
+    /**
+     * Provee el codificador BCrypt para cifrar y verificar contraseñas de usuarios.
+     */
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Configura el gestor de autenticación conectado al servicio de usuarios persistidos en BD.
+     */
     @Bean
-    AuthenticationManager authenticationManager(PasswordEncoder encoder,
-            @Value("${LOCAL_ADMIN_PASSWORD}") String adminPassword,
-            @Value("${LOCAL_CAPTOR_PASSWORD}") String captorPassword) {
-        if (adminPassword.isBlank() || captorPassword.isBlank()) {
-            throw new IllegalArgumentException("Configurar las contraseñas locales antes de iniciar");
-        }
-        var users = new InMemoryUserDetailsManager(
-            User.withUsername("demo-admin").password(encoder.encode(adminPassword)).roles("ADMIN").build(),
-            User.withUsername("demo-captor").password(encoder.encode(captorPassword)).roles("CAPTADOR").build());
-        var provider = new DaoAuthenticationProvider(users);
+    AuthenticationManager authenticationManager(UserDetailsService userDetailsService,
+                                                PasswordEncoder encoder) {
+        var provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(encoder);
         return new ProviderManager(provider);
     }
 
+    /**
+     * Configura el codificador Nimbus RSA para firmar los tokens JWT emitidos en el login.
+     */
     @Bean
     JwtEncoder jwtEncoder(@Value("${security.jwt.public-key}") RSAPublicKey publicKey,
                           @Value("${security.jwt.private-key}") RSAPrivateKey privateKey) {

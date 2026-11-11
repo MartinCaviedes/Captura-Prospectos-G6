@@ -20,6 +20,10 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
+
+    /**
+     * Define la cadena de filtros HTTP sin estado y permisos por rol para las rutas del servicio.
+     */
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -30,11 +34,17 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/api/v1/users/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyRole("ADMIN", "SUPERVISOR")
                 .anyRequest().authenticated())
             .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()))
             .build();
     }
 
+    /**
+     * Configura el decodificador JWT RSA validando firma RS256, emisor y audiencia esperada.
+     */
     @Bean
     JwtDecoder jwtDecoder(@Value("${security.jwt.public-key}") RSAPublicKey publicKey,
                           @Value("${security.jwt.issuer}") String issuer,
@@ -49,6 +59,9 @@ public class SecurityConfig {
         return decoder;
     }
 
+    /**
+     * Convierte el claim roles del token JWT en autoridades Spring Security con prefijo ROLE_.
+     */
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         var roles = new JwtGrantedAuthoritiesConverter();

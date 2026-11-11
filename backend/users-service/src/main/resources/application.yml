@@ -3,6 +3,14 @@ server:
 spring:
   application:
     name: users-service
+  datasource:
+    url: ${IDENTITY_JDBC_URL:jdbc:h2:mem:identity_db;DB_CLOSE_DELAY=-1;MODE=PostgreSQL}
+    username: ${IDENTITY_DB_USER:sa}
+    password: ${IDENTITY_DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    open-in-view: false
 management:
   endpoints:
     web:
