@@ -33,6 +33,8 @@ jobs:
         run: |
           source .local/env.sh
           python3 scripts/drain-smoke.py
+      - name: Verify PostgreSQL startup readiness regression
+        run: python3 scripts/test_postgres_readiness.py
       - name: Verify PostgreSQL migrations and concurrency
         run: |
           source .local/env.sh

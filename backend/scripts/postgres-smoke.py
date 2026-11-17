@@ -44,8 +44,10 @@ def run(temp):
         docker("run", "--detach", "--name", NAME, "--publish", "127.0.0.1::5432",
             "--tmpfs", "/var/lib/postgresql/data:rw,nosuid", "--env-file", str(env_file), IMAGE)
         started = True
+        # initdb usa un servidor temporal solo por socket que luego se reinicia.
+        # Esperar TCP evita preparar roles/esquemas durante ese reinicio.
         for _ in range(120):
-            result = subprocess.run(["docker", "exec", NAME, "pg_isready", "-U", "postgres"], capture_output=True)
+            result = subprocess.run(["docker", "exec", NAME, "pg_isready", "-h", "127.0.0.1", "-U", "postgres"], capture_output=True)
             if result.returncode == 0:
                 break
             time.sleep(0.5)
