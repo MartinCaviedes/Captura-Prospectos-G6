@@ -102,6 +102,8 @@ class ApiGatewayIntegrationTest {
             .audience(List.of(audience))
             .issuedAt(Instant.now().minusSeconds(1000))
             .expiresAt(Instant.now().plusSeconds(expiresIn))
+            .claim("userId", "11111111-1111-4111-8111-111111111111")
+            .claim("siteIds", List.of("site-1"))
             .claim("roles", List.of("CAPTADOR"))
             .build();
         return encoder.encode(JwtEncoderParameters.from(
@@ -172,5 +174,31 @@ class ApiGatewayIntegrationTest {
     static void stopServers() {
         USERS.stop(0);
         PROSPECTS.stop(0);
+    }
+
+    @Test void incompatibleIdentityClaimsAreRejected() throws Exception {
+        for (String broken : List.of("userId", "roles", "siteIds", "sub", "exp")) {
+            var rsa = new RSAKey.Builder((RSAPublicKey) KEYS.getPublic())
+                .privateKey((RSAPrivateKey) KEYS.getPrivate()).build();
+            var claims = JwtClaimsSet.builder().issuer("captura-g6-users").audience(List.of("captura-g6-api"))
+                .subject("test-user").issuedAt(Instant.now()).expiresAt(Instant.now().plusSeconds(900))
+                .claim("userId", "11111111-1111-4111-8111-111111111111")
+                .claim("roles", List.of("CAPTADOR")).claim("siteIds", List.of("site-1"))
+                .claims(map -> map.remove(broken)).build();
+            String value = new NimbusJwtEncoder(new ImmutableJWKSet<>(new JWKSet(rsa))).encode(
+                JwtEncoderParameters.from(JwsHeader.with(SignatureAlgorithm.RS256).build(),claims)).getTokenValue();
+            client.get().uri("/api/v1/prospects/status").headers(h -> h.setBearerAuth(value)).exchange().expectStatus().isUnauthorized();
+        }
+        for (Object roles : List.of("ADMIN", List.of("UNKNOWN"), List.of(42))) {
+            var rsa = new RSAKey.Builder((RSAPublicKey) KEYS.getPublic())
+                .privateKey((RSAPrivateKey) KEYS.getPrivate()).build();
+            var claims = JwtClaimsSet.builder().issuer("captura-g6-users").audience(List.of("captura-g6-api"))
+                .subject("test-user").issuedAt(Instant.now()).expiresAt(Instant.now().plusSeconds(900))
+                .claim("userId", "11111111-1111-4111-8111-111111111111")
+                .claim("roles", roles).claim("siteIds", List.of("site-1")).build();
+            String value = new NimbusJwtEncoder(new ImmutableJWKSet<>(new JWKSet(rsa))).encode(
+                JwtEncoderParameters.from(JwsHeader.with(SignatureAlgorithm.RS256).build(),claims)).getTokenValue();
+            client.get().uri("/api/v1/prospects/status").headers(h -> h.setBearerAuth(value)).exchange().expectStatus().isUnauthorized();
+        }
     }
 }

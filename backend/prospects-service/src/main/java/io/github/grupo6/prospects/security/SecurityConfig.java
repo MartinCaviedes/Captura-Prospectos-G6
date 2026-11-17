@@ -21,7 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, com.fasterxml.jackson.databind.ObjectMapper json) throws Exception {
         return http
             // API Bearer sin cookies de sesión: CSRF no aplica a estas rutas.
             .csrf(csrf -> csrf.disable())
@@ -30,7 +30,16 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
-            .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()))
+            .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults())
+                .authenticationEntryPoint((request,response,error) -> {
+                    response.setStatus(401); response.setHeader("WWW-Authenticate", "Bearer");
+                    response.setContentType("application/json"); response.setCharacterEncoding("UTF-8");
+                    json.writeValue(response.getOutputStream(), io.github.grupo6.prospects.controller.ApiErrors.error("UNAUTHORIZED","Se requiere un JWT válido"));
+                }))
+            .exceptionHandling(errors -> errors.accessDeniedHandler((request,response,error) -> {
+                response.setStatus(403); response.setContentType("application/json"); response.setCharacterEncoding("UTF-8");
+                json.writeValue(response.getOutputStream(), io.github.grupo6.prospects.controller.ApiErrors.error("FORBIDDEN","No tiene permiso para esta operación"));
+            }))
             .build();
     }
 
@@ -44,7 +53,7 @@ public class SecurityConfig {
             ? OAuth2TokenValidatorResult.success()
             : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token", "Invalid audience", null));
         decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
-            JwtValidators.createDefaultWithIssuer(issuer), audienceValidator));
+            JwtValidators.createDefaultWithIssuer(issuer), audienceValidator, new IdentityClaimsValidator()));
         return decoder;
     }
 
