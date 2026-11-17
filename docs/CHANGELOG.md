@@ -1,5 +1,13 @@
 # Cambios del producto
 
+## Integración funcional y eliminación de dependencias DEMO · 17/11/2026
+
+Commit `10ba22d` en `develop`:
+- **Catálogo real e inicialización limpia:** `DemoSeed` incorpora las sedes, carreras y menciones reales de Admisión Duoc UC 2027 y el texto de consentimiento de admisión. `RoomDemoContextRepository.initializeCatalog()` inicializa automáticamente sólo el catálogo base al abrir la aplicación, sin precargar perfiles ni eventos ficticios.
+- **Acceso y registro de usuarios reales:** `DemoAccessScreen` y `DemoAccessViewModel` eliminan el bloque de cuentas de muestra y habilitan el registro de cuentas reales (`registerAccount`) e inicio de sesión (`authenticate`) contra Room cifrado (`local_user_accounts` con hash SHA-256 + salt) y contra el `api-gateway` (`POST /api/v1/auth/login` con JWT RS256).
+- **Eventos reales y perfil limpio:** Tanto `CAPTOR` como `SUPERVISOR` pueden crear eventos en sus sedes autorizadas (`EventAdminDialog` con autocompletado de jornada actual). Se elimina de `ProfileScreen` la carga de prospectos ficticios (`DemoDataViewModel`) y se muestra el correo y rol reales del usuario.
+- **Integración móvil-backend con Retrofit:** Se añade `GatewayApiClient` (`Retrofit 2.11.0`, `OkHttp 4.12.0`, `Gson`) y se integran `RoomAdmissionRepository` y `RoomRecordRepository` para sincronizar altas confirmadas, ediciones y anulaciones con `prospects-service` (PostgreSQL) a través del `api-gateway`, manteniendo SQLite/Room como fuente primaria resiliente ante fallos de red. Suite unitaria Android (`:app:testDemoDebugUnitTest`), ensamblado de APK (`:app:assembleDemoDebug`) y suite completa de los tres microservicios backend (`mvnw test`, 11/11) aprobadas.
+
 ## 1.0.1 · acción de eventos adaptable · 19/10/2026
 
 Se corrige el botón «Nuevo evento» que quedaba en una columna de letras en vertical. Se distribuye 1.0.1 (2), misma firma e identificador, sin cambios de negocio/datos/permisos/dependencias. 191 JVM y siete Android dirigidas aprobadas, Lint 30 avisos/0 errores; base demo conservada durante pruebas. [Método, alcance y comprobación física](UI_EVENTOS_RESPONSIVE.md). La evidencia previa conserva su APK/fecha; no cierre E1.

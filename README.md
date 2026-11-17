@@ -20,112 +20,103 @@ La sede del evento y las sedes preferidas para estudiar son datos distintos. Cad
 
 ## Qué permite hacer
 
-- Registrar datos personales, de contacto y educación con validaciones por campo.
-- Seleccionar carreras y preferencias académicas, y revisar el resumen antes de guardar.
-- Confirmar el consentimiento y almacenar la inscripción en una base local cifrada.
-- Consultar, editar y anular registros, conservando el contexto y la auditoría de las operaciones.
-- Leer un QR ficticio mediante la cámara y confirmar el RUT propuesto; nombres y apellidos se completan manualmente.
-- Adquirir una ubicación candidata por GPS y decidir si se aplica; informar el estado de conectividad.
-- Consultar gráficos y métricas locales por evento y período, y administrar eventos según el perfil.
-- Cambiar entre modo claro y oscuro desde Perfil.
+- **Acceso y registro real de usuarios:** crear cuentas con rol (`Captador` o `Supervisor`) y sedes asignadas, e iniciar sesión autenticando contra el backend (`POST /api/v1/auth/login` vía API Gateway con JWT RS256) o contra el almacenamiento local cifrado en modo offline.
+- **Gestión real de eventos y contextos:** crear, editar y seleccionar eventos de captación por sede (tanto para supervisores como para captadores en sus sedes autorizadas), sin depender de eventos ficticios precargados.
+- **Formulario de admisión F2027 con validaciones por campo:** registrar datos personales, RUT con dígito verificador (módulo 11), correo, teléfono, actividad actual, establecimiento y hasta tres carreras priorizadas del catálogo Admisión Duoc UC 2027.
+- **Consentimiento y persistencia local cifrada + sincronización remota:** almacenar cada inscripción o borrador en SQLite/Room cifrado con SQLCipher y Android Keystore, y sincronizar automáticamente las inscripciones confirmadas, ediciones y anulaciones con `prospects-service` (PostgreSQL) a través del `api-gateway` mediante Retrofit, sin perder datos locales ante fallos de red.
+- **Bandeja, detalle, edición y anulación:** consultar registros reales filtrados por rol/sede, estado y búsqueda textual, editar con control optimista de versión y anular con motivo auditado.
+- **Recursos nativos integrados:** escanear códigos QR con CameraX y ML Kit para proponer el RUT, adquirir ubicación candidata por GPS (`LocationManager`) y observar el estado de conectividad en tiempo real (`ConnectivityManager`).
+- **Resumen y métricas reales:** consultar gráficos y estadísticas calculados directamente desde los registros almacenados por evento y rango de fechas, y alternar entre modo claro y oscuro desde Perfil.
 
-El recorrido habitual es **acceso → selección de evento → captura → consentimiento y guardado → consulta de registros y resultados**. La información guardada permanece en el dispositivo al cerrar la sesión.
+El recorrido habitual es **bienvenida → inicio de sesión o registro de cuenta → selección o creación de evento → captura con consentimiento y guardado → consulta de bandeja y resumen**. La información guardada permanece en el dispositivo al cerrar la sesión o reiniciar la aplicación.
 
 ## Alcance de las entregas
 
 | Entrega | Enfoque |
 |---|---|
-| **E1 · aplicación local** | Perfiles de muestra, formulario, Room cifrado, registros, eventos, métricas, cámara, GPS y conectividad real. Funciona sin backend. |
-| **E2 · aplicación integrada** | Autenticación remota, servicios Spring Boot, PostgreSQL, sincronización y supervisión consolidada. El soporte de cédula real requiere validar su formato. |
+| **E1 · aplicación local** | Formulario F2027, Room cifrado, bandeja de registros, eventos, métricas, cámara QR, GPS y conectividad real en dispositivo. |
+| **E2 / E3 · aplicación integrada** | Eliminación de dependencias DEMO, catálogo real Duoc UC 2027, registro/autenticación real de usuarios, microservicios Spring Boot (`api-gateway`, `users-service`, `prospects-service`), PostgreSQL e integración móvil con Retrofit. |
 
-La versión disponible corresponde a **E1**. El acceso es una demostración local; Google y Microsoft no tienen autenticación integrada. La red disponible no implica que los registros se hayan enviado: E1 no sincroniza entre teléfonos. El catálogo y los datos de evaluación son ficticios. Consulta los criterios completos en [Entregas](docs/ENTREGAS.md) y [SRS](docs/SRS.md).
+Consulta los criterios completos en [Entregas](docs/ENTREGAS.md) y [SRS](docs/SRS.md).
 
-## Descargar e instalar la demo E1
+## Uso de la aplicación
 
-Necesitas **Android 8.0 o superior**. La APK de evaluación se descarga gratuitamente desde [GitHub Releases](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e1-demo-1.0.1), sin iniciar sesión en GitHub ni usar Google Play.
+1. Abre la aplicación y pulsa **Comenzar**.
+2. En la pantalla de acceso:
+   - Si aún no tienes cuenta en el dispositivo, pulsa **¿No tienes cuenta? Crear cuenta**, ingresa tu nombre completo, selecciona tu rol (**Captador** o **Supervisor**), marca tus sedes asignadas, ingresa tu correo y contraseña y pulsa **Registrar y entrar**.
+   - Si ya dispones de una cuenta registrada localmente o en el backend (`users-service`), ingresa tu correo electrónico y contraseña y pulsa **Iniciar sesión**.
+3. En **Tu punto de partida**, selecciona un evento existente o pulsa **Nuevo evento** para registrar una nueva actividad en tu sede (puedes usar **Autocompletar jornada de hoy** para rellenar el horario de la jornada actual).
+4. Accede a **Inicio**, **Registros**, **Resumen** y **Perfil** para capturar prospectos, editar o anular fichas y consultar estadísticas reales.
 
-1. [Descarga Captura-Prospectos-G6-E1-demo.apk](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/download/e1-demo-1.0.1/Captura-Prospectos-G6-E1-demo.apk) en tu teléfono y abre el archivo. Los ZIP de código fuente no son instaladores.
-2. Si Android lo solicita, permite instalar aplicaciones desde el navegador o gestor de archivos utilizado y completa la instalación.
-3. Abre la app y pulsa **Comenzar**. En **Cuentas de muestra**, elige un perfil para rellenar las credenciales y después pulsa **Ingresar**.
-4. Selecciona un evento para acceder a Inicio, Registros, Resumen y Perfil.
-
-También puedes ingresar manualmente con estas cuentas. Todas usan la contraseña ficticia **`DemoG6!2026`**:
-
-| Perfil | Correo de muestra |
-|---|---|
-| Captador A | `captador.a@g6.example` |
-| Captador B | `captador.b@g6.example` |
-| Supervisor | `supervisor@g6.example` |
-
-### Explorar con datos y QR de prueba
-
-Como captador, abre **Perfil → Preparar datos ficticios** y confirma la carga para explorar registros y gráficos. La muestra completa por contexto incluye **18 listas, 24 sin contexto, 12 borradores y 6 anuladas**. Los totales pueden variar si ya existen registros o se han modificado las muestras; cada teléfono conserva su propia base de datos.
-
-Para probar la cámara, muestra el [QR ficticio válido o el QR no compatible](docs/fixtures/qr/README.md) en otra pantalla, o imprímelos. El primero propone un RUT que debes confirmar; el segundo comprueba el rechazo de un formato no admitido y permite continuar manualmente. Descarta el formulario al terminar la prueba.
-
-La [guía de distribución](docs/DISTRIBUCION_DEMO.md) contiene el recorrido detallado, las características del instalador y sus verificaciones. Utiliza únicamente datos ficticios para la evaluación.
+Para probar la cámara, muestra un [QR compatible o no compatible](docs/fixtures/qr/README.md) frente al escáner. El primero propone el RUT para confirmación del usuario; el segundo verifica el rechazo seguro y permite continuar con ingreso manual.
 
 ## Tecnologías y arquitectura
 
 | Área | Tecnologías y responsabilidad |
 |---|---|
-| Interfaz | Kotlin, Jetpack Compose y Material 3 para pantallas, componentes y temas. |
-| Estado | ViewModel, StateFlow y coroutines para acciones y estado observable. |
-| Dominio | Reglas de validación, consentimiento, preferencias y contratos en Kotlin. |
-| Almacenamiento | Room sobre SQLite, con SQLCipher para cifrado y Android Keystore para proteger la clave. |
-| Cámara y QR | CameraX y ML Kit, con el modelo de lectura incluido en la APK. |
-| Ubicación y red | LocationManager y ConnectivityManager para recursos reales de Android. |
-| Construcción y pruebas | Gradle Wrapper, JUnit, AndroidX Test y pruebas de Compose. |
+| Interfaz | Kotlin, Jetpack Compose, Material 3 y animaciones de transición (`Crossfade`, `AnimatedVisibility`, `animateContentSize`). |
+| Estado | ViewModel, StateFlow y Coroutines para estado inmutable y acciones unidireccionales (MVVM). |
+| Dominio | Reglas de validación centralizadas, consentimiento, preferencias académicas y contratos en Kotlin. |
+| Almacenamiento local | Room 2.8.5 sobre SQLite, con SQLCipher 4.19.1 para cifrado y Android Keystore para proteger la clave AES-256-GCM. |
+| Comunicación remota | Retrofit 2.11.0 + OkHttp 4.12.0 + Gson hacia el `api-gateway` con autenticación Bearer JWT. |
+| Backend y BD remota | Java 21, Spring Boot 3.5.16 (`api-gateway`, `users-service`, `prospects-service`), Spring Security OAuth2/JWT RS256 y PostgreSQL. |
+| Cámara, GPS y red | CameraX + ML Kit Barcode Scanning (modelo incluido), `LocationManager` y `ConnectivityManager`. |
+| Construcción y pruebas | Gradle Wrapper, Maven Wrapper, JUnit, AndroidX Test y pruebas de integración Spring Boot. |
 
-El flujo principal es **pantalla → ViewModel → repositorio → Room**. Las pantallas presentan el estado y envían acciones; el dominio define las reglas y los repositorios coordinan la persistencia. Los prospectos se guardan en una base del almacenamiento privado de la app; la preferencia de apariencia se conserva por separado. [Más sobre la arquitectura](docs/ARCHITECTURE.md).
+El flujo principal en Android es **pantalla → ViewModel → repositorio → Room cifrado (+ sincronización Retrofit con API Gateway)**. La base de datos local SQLite/Room se conserva como fuente primaria offline-first para garantizar que ningún fallo de red provoque pérdida de capturas. [Más sobre la arquitectura](docs/ARCHITECTURE.md).
 
 ## Ejecutar desde el código
 
-Para una copia nueva del proyecto:
+Para clonar el repositorio y ubicarse en la rama de trabajo `develop`:
 
 ```powershell
 git clone https://github.com/MartinCaviedes/Captura-Prospectos-G6.git
 cd Captura-Prospectos-G6
+git checkout develop
 ```
 
-Abre la carpeta **`android/`** en Android Studio, configura **SDK 37** y el **JDK 25** requerido por el daemon de Gradle, y selecciona la variante **`demoDebug`**. Ejecuta la app con Run sobre un teléfono o emulador compatible. El proyecto incluye su Gradle Wrapper y no requiere servicios de nube para funcionar localmente.
+### Android
 
-Para compilar y ejecutar los controles JVM y Lint, desde la raíz del repositorio:
+Abre la carpeta **`android/`** en Android Studio, configura **SDK 37** y el **JDK 25** requerido por el daemon de Gradle, y selecciona la variante **`demoDebug`**.
+
+Para compilar y ejecutar las pruebas unitarias desde la raíz del repositorio:
 
 ```powershell
 cd android
-.\gradlew.bat :app:testDemoDebugUnitTest :app:assembleDemoDebug :app:lintDemoDebug --console=plain
+.\gradlew.bat :app:testDemoDebugUnitTest :app:assembleDemoDebug --console=plain
 ```
 
-La APK se genera en `android/app/build/outputs/apk/demo/debug/app-demo-debug.apk`, tomando como referencia la raíz del repositorio. Las pruebas instrumentadas necesitan un dispositivo o emulador; su preparación, los comandos y las versiones fijadas están en la [guía Android](android/README.md).
+La APK se genera en `android/app/build/outputs/apk/demo/debug/app-demo-debug.apk`. Más detalles en la [guía Android](android/README.md).
 
-## Cómo continuar el desarrollo
+### Backend (`api-gateway`, `users-service`, `prospects-service`)
 
-### Base del backend
+Los tres microservicios Spring Boot están en [`backend/`](backend/README.md):
+- **`api-gateway` (`:8080`):** Punto de entrada único, validación JWT RS256, rate-limit de login y enrutamiento hacia usuarios y prospectos.
+- **`users-service` (`:8081`):** Usuarios persistidos en JPA/PostgreSQL, contraseñas BCrypt y emisión de JWT RS256 (`/api/v1/auth/login`, `/api/v1/auth/logout`, `/api/v1/me`, `/api/v1/users`).
+- **`prospects-service` (`:8082`):** Persistencia y CRUD de prospectos en PostgreSQL (`/api/v1/prospects`), control de acceso por rol/sede, unicidad activa `(rut, eventId)` y anulación auditada.
 
-Los esqueletos Spring Boot están en [`backend/`](backend/README.md): un API Gateway como punto de entrada y los servicios independientes de usuarios y prospectos, con Spring Security/JWT básico y login local de prueba. La guía explica el arranque y el reparto del trabajo pendiente. Esta base todavía no conecta Android ni implementa los CRUD o la persistencia del backend.
+Para ejecutar las pruebas de los tres microservicios desde `backend/`:
 
-### Flujo de contribución
+```powershell
+cd backend
+.\mvnw.cmd test
+```
 
-1. Define una tarea acotada, su requisito, la entrega a la que pertenece y los criterios que debe cumplir. Consulta el [SRS](docs/SRS.md), [Entregas](docs/ENTREGAS.md) y los contratos del área.
-2. Comprueba el estado de tu clon y conserva cualquier trabajo local. Actualiza `develop` mediante avance rápido y crea una rama `feature/`, `fix/`, `docs/` o `chore/` según la tarea.
-3. Implementa el cambio respetando las capas existentes. Coordina antes de modificar navegación, dependencias, permisos, esquema Room o contratos compartidos.
-4. Ejecuta controles proporcionales al cambio y actualiza la documentación que corresponda.
-5. Publica la rama y abre un PR hacia `develop` para revisión de otro integrante. Los incrementos comprobados se promueven de `develop` a `main` mediante PR.
-
-La [guía de contribución](CONTRIBUTING.md) explica los comandos y convenciones. Conserva autores e historial y utiliza datos ficticios; los secretos y la documentación operativa privada quedan fuera de este repositorio.
+Consulta la [guía del backend](backend/README.md) para levantar los servicios con PostgreSQL o H2 local y conectar el emulador Android (`http://10.0.2.2:8080/`).
 
 ## Organización del repositorio
 
 ```text
-android/                  Proyecto Android y Gradle Wrapper
-  app/src/main/           Dominio, datos, pantallas y recursos
-  app/src/test/           Pruebas JVM
+android/                  Aplicación Android (Kotlin, Jetpack Compose, Room/SQLCipher, Retrofit)
+  app/src/main/           Dominio, datos locales, cliente remoto Retrofit, pantallas y recursos
+  app/src/test/           Pruebas unitarias JVM
   app/src/androidTest/    Pruebas instrumentadas y de interfaz
-  app/schemas/            Esquemas Room para migraciones
-docs/                     Requisitos, contratos, guías y evidencias
-  fixtures/qr/            Imágenes QR para probar el escáner
-.github/                  Plantillas de contribución
+  app/schemas/            Esquemas exportados de Room (v1 a v4)
+backend/                  Microservicios Spring Boot (Java 21, Maven)
+  api-gateway/            Gateway reactivo y validación JWT (:8080)
+  users-service/          Servicio de usuarios, roles y autenticación JWT (:8081)
+  prospects-service/      Servicio de prospectos y persistencia PostgreSQL (:8082)
+docs/                     Requisitos, contratos, arquitectura, auditorías y evidencias
 ```
 
 ## Documentación del proyecto

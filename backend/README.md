@@ -1,11 +1,11 @@
 # Backend de captación
 
-Base funcional mínima, sin integración Android ni despliegue. Continúa el servicio de usuarios de Jeremy (`a7b1675`) y los esqueletos de `9cd979b`, ya integrados en `develop` mediante PR #18. No reemplaza autenticación ni entidades de usuarios.
+Microservicios Spring Boot integrados con la aplicación Android mediante Retrofit (`GatewayApiClient.kt` en `:app`) a través de `api-gateway`. Continúa el servicio de usuarios (`a7b1675`), la persistencia de prospectos (`e3a1366`) y la integración móvil (`10ba22d`) en `develop`.
 
 | Servicio | Puerto predeterminado | Responsabilidad |
 |---|---|---|
-| api-gateway | 8080 | Entrada del cliente, validación JWT y rutas a URLs fijas configurables. Sin BD ni negocio. |
-| users-service | 8081 | Usuarios JPA, credenciales BCrypt, roles, login y JWT. Implementación existente de Jeremy. |
+| api-gateway | 8080 | Entrada del cliente Android (Retrofit), validación JWT y rutas a URLs fijas configurables. Sin BD ni negocio. |
+| users-service | 8081 | Usuarios JPA, credenciales BCrypt, roles, login y JWT. |
 | prospects-service | 8082 | Prospectos persistidos, propiedad, sedes, edición básica y anulación auditada. |
 
 Java 21, Spring Boot 3.5.16, Maven Wrapper 3.9.11. Gateway WebFlux existente; JPA y H2/PostgreSQL para ambos servicios de negocio. Cada servicio posee sus entidades/repositorios y su base. Prospectos no consulta usuarios por petición ni usa claves foráneas entre servicios.
