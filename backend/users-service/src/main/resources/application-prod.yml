@@ -1,0 +1,12 @@
+# El esquema debe ser aprovisionado y revisado antes del arranque.
+spring:
+  datasource:
+    url: ${IDENTITY_JDBC_URL}
+    username: ${IDENTITY_DB_USER}
+    password: ${IDENTITY_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  sql:
+    init:
+      mode: never

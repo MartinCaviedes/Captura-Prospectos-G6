@@ -31,8 +31,10 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+@org.springframework.context.annotation.Import(ApiGatewayIntegrationTest.FailureRoute.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class ApiGatewayIntegrationTest {
+    static final java.util.concurrent.ExecutorService EXECUTOR = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
     static final KeyPair KEYS = keys();
     static final HttpServer USERS = server("users");
     static final HttpServer PROSPECTS = server("prospects");
@@ -54,6 +56,7 @@ class ApiGatewayIntegrationTest {
         try {
             var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
             server.createContext("/", exchange -> respond(exchange, service));
+            server.setExecutor(EXECUTOR);
             server.start();
             return server;
         } catch (IOException exception) {
@@ -62,6 +65,10 @@ class ApiGatewayIntegrationTest {
     }
 
     static void respond(HttpExchange exchange, String service) throws IOException {
+        if ("slow=true".equals(exchange.getRequestURI().getQuery())) {
+            try { Thread.sleep(1500); }
+            catch (InterruptedException error) { Thread.currentThread().interrupt(); }
+        }
         boolean authorizationPresent = exchange.getRequestHeaders().containsKey("Authorization");
         String response = "{\"service\":\"" + service
             + "\",\"authorizationPresent\":" + authorizationPresent + "}";
@@ -84,6 +91,9 @@ class ApiGatewayIntegrationTest {
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) throws IOException {
+        registry.add("GATEWAY_RESPONSE_TIMEOUT", () -> "200ms");
+        registry.add("GATEWAY_CONNECT_TIMEOUT_MS", () -> "200");
+        registry.add("LOGIN_RATE_LIMIT_REQUESTS", () -> "2");
         String publicKey = publicKeyResource();
         registry.add("security.jwt.public-key", () -> publicKey);
         registry.add("services.users.url",
@@ -110,6 +120,23 @@ class ApiGatewayIntegrationTest {
             JwsHeader.with(SignatureAlgorithm.RS256).build(), claims)).getTokenValue();
     }
 
+    @Autowired org.springframework.context.ConfigurableApplicationContext context;
+
+    @Test void readinessFollowsAvailabilityWithoutExposingDetails() throws Exception {
+        org.springframework.boot.availability.AvailabilityChangeEvent.publish(context,
+            org.springframework.boot.availability.ReadinessState.REFUSING_TRAFFIC);
+        try {
+            client.get().uri("/actuator/health/readiness").exchange().expectStatus().isEqualTo(503)
+                .expectBody().jsonPath("$.status").isEqualTo("OUT_OF_SERVICE");
+            client.get().uri("/actuator/health/liveness").exchange().expectStatus().isOk();
+        } finally {
+            org.springframework.boot.availability.AvailabilityChangeEvent.publish(context,
+                org.springframework.boot.availability.ReadinessState.ACCEPTING_TRAFFIC);
+        }
+        client.get().uri("/actuator/health/readiness").exchange().expectStatus().isOk()
+            .expectBody().jsonPath("$.components").doesNotExist();
+    }
+
     @Test
     void healthAndLoginArePublicAndLoginRoutesToUsers() {
         client.get().uri("/actuator/health").exchange()
@@ -123,6 +150,10 @@ class ApiGatewayIntegrationTest {
             .expectStatus().isOk()
             .expectBody().jsonPath("$.service").isEqualTo("users")
             .jsonPath("$.authorizationPresent").isEqualTo(false);
+        client.post().uri("/api/v1/auth/login").bodyValue("{}").exchange().expectStatus().isOk();
+        client.post().uri("/api/v1/auth/login").bodyValue("{}").exchange()
+            .expectStatus().isEqualTo(429).expectHeader().exists("Retry-After")
+            .expectBody().jsonPath("$.code").isEqualTo("LOGIN_RATE_LIMITED");
     }
 
     @Test
@@ -170,10 +201,38 @@ class ApiGatewayIntegrationTest {
         }
     }
 
+    @org.springframework.boot.test.context.TestConfiguration(proxyBeanMethods = false)
+    static class FailureRoute {
+        @org.springframework.context.annotation.Bean
+        org.springframework.cloud.gateway.route.RouteLocator unavailableRoute(
+                org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder builder) throws IOException {
+            int port;
+            try (var socket = new java.net.ServerSocket(0, 1, java.net.InetAddress.getLoopbackAddress())) {
+                port = socket.getLocalPort();
+            }
+            return builder.routes().route("test-unavailable", route -> route.path("/unavailable")
+                .uri("http://127.0.0.1:" + port)).build();
+        }
+    }
+
+    @Test void slowUpstreamReturnsGatewayTimeout() {
+        client.get().uri("/api/v1/me?slow=true")
+            .headers(h -> h.setBearerAuth(token(KEYS, "captura-g6-users", "captura-g6-api", 900)))
+            .exchange().expectStatus().isEqualTo(504);
+    }
+
+    @Test void unavailableUpstreamReturnsServiceUnavailable() {
+        client.get().uri("/unavailable")
+            .headers(h -> h.setBearerAuth(token(KEYS, "captura-g6-users", "captura-g6-api", 900)))
+            .exchange().expectStatus().isEqualTo(503)
+            .expectBody().jsonPath("$.code").isEqualTo("UPSTREAM_UNAVAILABLE");
+    }
+
     @AfterAll
     static void stopServers() {
         USERS.stop(0);
         PROSPECTS.stop(0);
+        EXECUTOR.shutdownNow();
     }
 
     @Test void incompatibleIdentityClaimsAreRejected() throws Exception {

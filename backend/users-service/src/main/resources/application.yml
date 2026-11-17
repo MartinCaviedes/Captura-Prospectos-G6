@@ -1,6 +1,9 @@
 server:
+  shutdown: graceful
   port: ${PORT:8081}
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: ${SHUTDOWN_TIMEOUT:30s}
   application:
     name: users-service
   datasource:
@@ -19,6 +22,11 @@ management:
   endpoint:
     health:
       show-details: never
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db
 security:
   jwt:
     issuer: ${JWT_ISSUER:captura-g6-users}

@@ -1,0 +1,228 @@
+service,class,package,installed,advisory,severity,fixed_versions_reported,status,reference
+api-gateway,lang-pkgs,com.fasterxml.jackson.core:jackson-core,2.21.4,CVE-2026-89407,HIGH,"2.18.11, 2.21.7, 2.22.3",fixed,https://avd.aquasec.com/nvd/cve-2026-89407
+api-gateway,lang-pkgs,com.fasterxml.jackson.core:jackson-core,2.21.4,CVE-2026-89425,HIGH,"2.21.7, 2.22.3, 2.18.11",fixed,https://avd.aquasec.com/nvd/cve-2026-89425
+api-gateway,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-19032,MEDIUM,"2.18.10, 2.21.6, 2.22.2",fixed,https://avd.aquasec.com/nvd/cve-2026-19032
+api-gateway,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-54515,MEDIUM,"3.1.4, 2.18.9, 2.21.5, 2.22.1",fixed,https://avd.aquasec.com/nvd/cve-2026-54515
+api-gateway,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-59889,MEDIUM,"2.21.5, 2.18.9, 2.22.1",fixed,https://avd.aquasec.com/nvd/cve-2026-59889
+api-gateway,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-68497,HIGH,"2.18.10, 2.21.6, 2.22.2",fixed,https://avd.aquasec.com/nvd/cve-2026-68497
+api-gateway,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-77310,MEDIUM,"2.18.9, 2.21.5, 2.22.1",fixed,https://avd.aquasec.com/nvd/cve-2026-77310
+api-gateway,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-83557,MEDIUM,"2.18.10, 2.21.6, 2.22.2",fixed,https://avd.aquasec.com/nvd/cve-2026-83557
+api-gateway,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-91776,HIGH,"2.18.11, 2.21.7, 2.22.3",fixed,https://avd.aquasec.com/nvd/cve-2026-91776
+api-gateway,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-91777,HIGH,"2.21.7, 2.18.11, 2.22.3",fixed,https://avd.aquasec.com/nvd/cve-2026-91777
+api-gateway,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,GHSA-mhm7-754m-9p8w,MEDIUM,"2.18.9, 2.21.5",fixed,https://github.com/advisories/GHSA-mhm7-754m-9p8w
+api-gateway,lang-pkgs,io.netty:netty-codec,4.1.135.Final,CVE-2026-59901,HIGH,4.1.136.Final,fixed,https://avd.aquasec.com/nvd/cve-2026-59901
+api-gateway,lang-pkgs,io.netty:netty-codec-dns,4.1.135.Final,CVE-2026-73508,MEDIUM,"4.2.16.Final, 4.1.136.Final",fixed,https://avd.aquasec.com/nvd/cve-2026-73508
+api-gateway,lang-pkgs,io.netty:netty-codec-http,4.1.135.Final,CVE-2026-55831,HIGH,"4.2.16.Final, 4.1.136.Final",fixed,https://avd.aquasec.com/nvd/cve-2026-55831
+api-gateway,lang-pkgs,io.netty:netty-codec-http,4.1.135.Final,CVE-2026-55833,HIGH,"4.2.16.Final, 4.1.136.Final",fixed,https://avd.aquasec.com/nvd/cve-2026-55833
+api-gateway,lang-pkgs,io.netty:netty-codec-http,4.1.135.Final,CVE-2026-56745,HIGH,"4.2.16.Final, 4.1.136.Final",fixed,https://avd.aquasec.com/nvd/cve-2026-56745
+api-gateway,lang-pkgs,io.netty:netty-codec-http,4.1.135.Final,CVE-2026-56746,MEDIUM,"4.2.16.Final, 4.1.136.Final",fixed,https://avd.aquasec.com/nvd/cve-2026-56746
+api-gateway,lang-pkgs,io.netty:netty-codec-http,4.1.135.Final,CVE-2026-59898,MEDIUM,"4.2.16.Final, 4.1.136.Final",fixed,https://avd.aquasec.com/nvd/cve-2026-59898
+api-gateway,lang-pkgs,io.netty:netty-codec-http,4.1.135.Final,CVE-2026-59899,MEDIUM,"4.2.16.Final, 4.1.136.Final",fixed,https://avd.aquasec.com/nvd/cve-2026-59899
+api-gateway,lang-pkgs,io.netty:netty-codec-http,4.1.135.Final,CVE-2026-59903,MEDIUM,"4.2.17.Final, 4.1.137.Final",fixed,https://avd.aquasec.com/nvd/cve-2026-59903
+api-gateway,lang-pkgs,io.netty:netty-codec-http,4.1.135.Final,CVE-2026-59921,MEDIUM,"4.2.16.Final, 4.1.136.Final",fixed,https://avd.aquasec.com/nvd/cve-2026-59921
+api-gateway,lang-pkgs,io.netty:netty-codec-http2,4.1.135.Final,CVE-2026-56819,HIGH,"4.2.16.Final, 4.1.136.Final",fixed,https://avd.aquasec.com/nvd/cve-2026-56819
+api-gateway,lang-pkgs,io.netty:netty-codec-http2,4.1.135.Final,CVE-2026-59900,MEDIUM,"4.2.16.Final, 4.1.136.Final",fixed,https://avd.aquasec.com/nvd/cve-2026-59900
+api-gateway,lang-pkgs,io.netty:netty-handler,4.1.135.Final,CVE-2026-75595,CRITICAL,"4.2.17.Final, 4.1.137.Final",fixed,https://avd.aquasec.com/nvd/cve-2026-75595
+api-gateway,lang-pkgs,io.netty:netty-handler,4.1.135.Final,CVE-2026-75596,MEDIUM,"4.2.17.Final, 4.1.137.Final",fixed,https://avd.aquasec.com/nvd/cve-2026-75596
+api-gateway,lang-pkgs,org.apache.logging.log4j:log4j-api,2.24.3,CVE-2026-49844,MEDIUM,"2.25.5, 2.26.1",fixed,https://avd.aquasec.com/nvd/cve-2026-49844
+api-gateway,lang-pkgs,org.bouncycastle:bcprov-jdk18on,1.80.2,CVE-2026-13506,HIGH,1.85,fixed,https://avd.aquasec.com/nvd/cve-2026-13506
+api-gateway,lang-pkgs,org.bouncycastle:bcprov-jdk18on,1.80.2,CVE-2026-8763,CRITICAL,1.85,fixed,https://avd.aquasec.com/nvd/cve-2026-8763
+api-gateway,lang-pkgs,org.springframework:spring-webflux,6.2.19,CVE-2026-47890,CRITICAL,7.0.9,fixed,https://avd.aquasec.com/nvd/cve-2026-47890
+api-gateway,lang-pkgs,org.springframework:spring-webflux,6.2.19,CVE-2026-47892,CRITICAL,7.0.9,fixed,https://avd.aquasec.com/nvd/cve-2026-47892
+api-gateway,os-pkgs,dash,0.5.11+git20210903+057cd650a4ed-3build1,CVE-2026-102473,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-102473
+api-gateway,os-pkgs,dash,0.5.11+git20210903+057cd650a4ed-3build1,CVE-2026-102474,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-102474
+api-gateway,os-pkgs,gcc-12-base,12.3.0-1ubuntu1~22.04.3,CVE-2022-27943,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-27943
+api-gateway,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-18374,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-18374
+api-gateway,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-84243,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-84243
+api-gateway,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-8674,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-8674
+api-gateway,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-86805,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-86805
+api-gateway,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-95818,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-95818
+api-gateway,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-97399,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-97399
+api-gateway,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-18374,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-18374
+api-gateway,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-84243,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-84243
+api-gateway,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-8674,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-8674
+api-gateway,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-86805,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-86805
+api-gateway,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-95818,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-95818
+api-gateway,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-97399,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-97399
+api-gateway,os-pkgs,libexpat1,2.4.7-1ubuntu0.9,CVE-2025-66382,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2025-66382
+api-gateway,os-pkgs,libexpat1,2.4.7-1ubuntu0.9,CVE-2026-93990,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-93990
+api-gateway,os-pkgs,libgcc-s1,12.3.0-1ubuntu1~22.04.3,CVE-2022-27943,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-27943
+api-gateway,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-67693,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-67693
+api-gateway,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-88647,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-88647
+api-gateway,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-88648,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-88648
+api-gateway,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-95184,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-95184
+api-gateway,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-95210,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-95210
+api-gateway,os-pkgs,libncurses6,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+api-gateway,os-pkgs,libncursesw6,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+api-gateway,os-pkgs,libpcre2-8-0,10.39-3ubuntu0.2,CVE-2022-41409,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-41409
+api-gateway,os-pkgs,libsasl2-2,2.1.27+dfsg2-3ubuntu1.2,CVE-2026-107161,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-107161
+api-gateway,os-pkgs,libsasl2-modules-db,2.1.27+dfsg2-3ubuntu1.2,CVE-2026-107161,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-107161
+api-gateway,os-pkgs,libstdc++6,12.3.0-1ubuntu1~22.04.3,CVE-2022-27943,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-27943
+api-gateway,os-pkgs,libsystemd0,249.11-0ubuntu3.23,CVE-2026-121876,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-121876
+api-gateway,os-pkgs,libsystemd0,249.11-0ubuntu3.23,CVE-2026-40228,LOW,,affected,https://avd.aquasec.com/nvd/cve-2026-40228
+api-gateway,os-pkgs,libtinfo6,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+api-gateway,os-pkgs,libudev1,249.11-0ubuntu3.23,CVE-2026-121876,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-121876
+api-gateway,os-pkgs,libudev1,249.11-0ubuntu3.23,CVE-2026-40228,LOW,,affected,https://avd.aquasec.com/nvd/cve-2026-40228
+api-gateway,os-pkgs,libzstd1,1.4.8+dfsg-3build1,CVE-2022-4899,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-4899
+api-gateway,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-18374,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-18374
+api-gateway,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-84243,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-84243
+api-gateway,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-8674,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-8674
+api-gateway,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-86805,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-86805
+api-gateway,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-95818,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-95818
+api-gateway,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-97399,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-97399
+api-gateway,os-pkgs,login,1:4.8.1-2ubuntu2.2,CVE-2023-29383,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-29383
+api-gateway,os-pkgs,login,1:4.8.1-2ubuntu2.2,CVE-2024-56433,LOW,,affected,https://avd.aquasec.com/nvd/cve-2024-56433
+api-gateway,os-pkgs,ncurses-base,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+api-gateway,os-pkgs,ncurses-bin,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+api-gateway,os-pkgs,passwd,1:4.8.1-2ubuntu2.2,CVE-2023-29383,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-29383
+api-gateway,os-pkgs,passwd,1:4.8.1-2ubuntu2.2,CVE-2024-56433,LOW,,affected,https://avd.aquasec.com/nvd/cve-2024-56433
+api-gateway,os-pkgs,perl-base,5.34.0-3ubuntu1.10,CVE-2026-48962,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-48962
+api-gateway,os-pkgs,tar,1.34+dfsg-1ubuntu0.1.22.04.6,CVE-2026-18477,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-18477
+api-gateway,os-pkgs,tar,1.34+dfsg-1ubuntu0.1.22.04.6,CVE-2026-18508,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-18508
+api-gateway,os-pkgs,wget,1.21.2-2ubuntu1.5,CVE-2021-31879,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2021-31879
+prospects-service,lang-pkgs,com.fasterxml.jackson.core:jackson-core,2.21.4,CVE-2026-89407,HIGH,"2.18.11, 2.21.7, 2.22.3",fixed,https://avd.aquasec.com/nvd/cve-2026-89407
+prospects-service,lang-pkgs,com.fasterxml.jackson.core:jackson-core,2.21.4,CVE-2026-89425,HIGH,"2.21.7, 2.22.3, 2.18.11",fixed,https://avd.aquasec.com/nvd/cve-2026-89425
+prospects-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-19032,MEDIUM,"2.18.10, 2.21.6, 2.22.2",fixed,https://avd.aquasec.com/nvd/cve-2026-19032
+prospects-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-54515,MEDIUM,"3.1.4, 2.18.9, 2.21.5, 2.22.1",fixed,https://avd.aquasec.com/nvd/cve-2026-54515
+prospects-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-59889,MEDIUM,"2.21.5, 2.18.9, 2.22.1",fixed,https://avd.aquasec.com/nvd/cve-2026-59889
+prospects-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-68497,HIGH,"2.18.10, 2.21.6, 2.22.2",fixed,https://avd.aquasec.com/nvd/cve-2026-68497
+prospects-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-77310,MEDIUM,"2.18.9, 2.21.5, 2.22.1",fixed,https://avd.aquasec.com/nvd/cve-2026-77310
+prospects-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-83557,MEDIUM,"2.18.10, 2.21.6, 2.22.2",fixed,https://avd.aquasec.com/nvd/cve-2026-83557
+prospects-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-91776,HIGH,"2.18.11, 2.21.7, 2.22.3",fixed,https://avd.aquasec.com/nvd/cve-2026-91776
+prospects-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-91777,HIGH,"2.21.7, 2.18.11, 2.22.3",fixed,https://avd.aquasec.com/nvd/cve-2026-91777
+prospects-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,GHSA-mhm7-754m-9p8w,MEDIUM,"2.18.9, 2.21.5",fixed,https://github.com/advisories/GHSA-mhm7-754m-9p8w
+prospects-service,lang-pkgs,org.apache.logging.log4j:log4j-api,2.24.3,CVE-2026-49844,MEDIUM,"2.25.5, 2.26.1",fixed,https://avd.aquasec.com/nvd/cve-2026-49844
+prospects-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-53404,HIGH,"11.0.23, 10.1.56, 9.0.119",fixed,https://avd.aquasec.com/nvd/cve-2026-53404
+prospects-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-55276,CRITICAL,"11.0.23, 10.1.56, 9.0.119",fixed,https://avd.aquasec.com/nvd/cve-2026-55276
+prospects-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-55956,MEDIUM,"11.0.23, 10.1.56, 9.0.119",fixed,https://avd.aquasec.com/nvd/cve-2026-55956
+prospects-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-65182,CRITICAL,"11.0.25, 10.1.58, 9.0.121",fixed,https://avd.aquasec.com/nvd/cve-2026-65182
+prospects-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-65637,CRITICAL,"11.0.25, 10.1.59, 9.0.121",fixed,https://avd.aquasec.com/nvd/cve-2026-65637
+prospects-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-65905,CRITICAL,"11.0.25, 10.1.58, 9.0.121",fixed,https://avd.aquasec.com/nvd/cve-2026-65905
+prospects-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-68525,CRITICAL,"11.0.25, 10.1.58, 9.0.121",fixed,https://avd.aquasec.com/nvd/cve-2026-68525
+prospects-service,lang-pkgs,org.postgresql:postgresql,42.7.11,CVE-2026-54291,HIGH,42.7.12,fixed,https://avd.aquasec.com/nvd/cve-2026-54291
+prospects-service,lang-pkgs,org.springframework:spring-webmvc,6.2.19,CVE-2026-47884,CRITICAL,7.0.9,fixed,https://avd.aquasec.com/nvd/cve-2026-47884
+prospects-service,lang-pkgs,org.springframework:spring-webmvc,6.2.19,CVE-2026-47890,CRITICAL,7.0.9,fixed,https://avd.aquasec.com/nvd/cve-2026-47890
+prospects-service,os-pkgs,dash,0.5.11+git20210903+057cd650a4ed-3build1,CVE-2026-102473,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-102473
+prospects-service,os-pkgs,dash,0.5.11+git20210903+057cd650a4ed-3build1,CVE-2026-102474,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-102474
+prospects-service,os-pkgs,gcc-12-base,12.3.0-1ubuntu1~22.04.3,CVE-2022-27943,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-27943
+prospects-service,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-18374,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-18374
+prospects-service,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-84243,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-84243
+prospects-service,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-8674,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-8674
+prospects-service,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-86805,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-86805
+prospects-service,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-95818,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-95818
+prospects-service,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-97399,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-97399
+prospects-service,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-18374,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-18374
+prospects-service,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-84243,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-84243
+prospects-service,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-8674,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-8674
+prospects-service,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-86805,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-86805
+prospects-service,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-95818,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-95818
+prospects-service,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-97399,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-97399
+prospects-service,os-pkgs,libexpat1,2.4.7-1ubuntu0.9,CVE-2025-66382,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2025-66382
+prospects-service,os-pkgs,libexpat1,2.4.7-1ubuntu0.9,CVE-2026-93990,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-93990
+prospects-service,os-pkgs,libgcc-s1,12.3.0-1ubuntu1~22.04.3,CVE-2022-27943,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-27943
+prospects-service,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-67693,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-67693
+prospects-service,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-88647,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-88647
+prospects-service,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-88648,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-88648
+prospects-service,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-95184,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-95184
+prospects-service,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-95210,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-95210
+prospects-service,os-pkgs,libncurses6,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+prospects-service,os-pkgs,libncursesw6,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+prospects-service,os-pkgs,libpcre2-8-0,10.39-3ubuntu0.2,CVE-2022-41409,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-41409
+prospects-service,os-pkgs,libsasl2-2,2.1.27+dfsg2-3ubuntu1.2,CVE-2026-107161,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-107161
+prospects-service,os-pkgs,libsasl2-modules-db,2.1.27+dfsg2-3ubuntu1.2,CVE-2026-107161,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-107161
+prospects-service,os-pkgs,libstdc++6,12.3.0-1ubuntu1~22.04.3,CVE-2022-27943,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-27943
+prospects-service,os-pkgs,libsystemd0,249.11-0ubuntu3.23,CVE-2026-121876,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-121876
+prospects-service,os-pkgs,libsystemd0,249.11-0ubuntu3.23,CVE-2026-40228,LOW,,affected,https://avd.aquasec.com/nvd/cve-2026-40228
+prospects-service,os-pkgs,libtinfo6,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+prospects-service,os-pkgs,libudev1,249.11-0ubuntu3.23,CVE-2026-121876,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-121876
+prospects-service,os-pkgs,libudev1,249.11-0ubuntu3.23,CVE-2026-40228,LOW,,affected,https://avd.aquasec.com/nvd/cve-2026-40228
+prospects-service,os-pkgs,libzstd1,1.4.8+dfsg-3build1,CVE-2022-4899,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-4899
+prospects-service,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-18374,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-18374
+prospects-service,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-84243,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-84243
+prospects-service,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-8674,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-8674
+prospects-service,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-86805,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-86805
+prospects-service,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-95818,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-95818
+prospects-service,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-97399,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-97399
+prospects-service,os-pkgs,login,1:4.8.1-2ubuntu2.2,CVE-2023-29383,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-29383
+prospects-service,os-pkgs,login,1:4.8.1-2ubuntu2.2,CVE-2024-56433,LOW,,affected,https://avd.aquasec.com/nvd/cve-2024-56433
+prospects-service,os-pkgs,ncurses-base,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+prospects-service,os-pkgs,ncurses-bin,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+prospects-service,os-pkgs,passwd,1:4.8.1-2ubuntu2.2,CVE-2023-29383,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-29383
+prospects-service,os-pkgs,passwd,1:4.8.1-2ubuntu2.2,CVE-2024-56433,LOW,,affected,https://avd.aquasec.com/nvd/cve-2024-56433
+prospects-service,os-pkgs,perl-base,5.34.0-3ubuntu1.10,CVE-2026-48962,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-48962
+prospects-service,os-pkgs,tar,1.34+dfsg-1ubuntu0.1.22.04.6,CVE-2026-18477,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-18477
+prospects-service,os-pkgs,tar,1.34+dfsg-1ubuntu0.1.22.04.6,CVE-2026-18508,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-18508
+prospects-service,os-pkgs,wget,1.21.2-2ubuntu1.5,CVE-2021-31879,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2021-31879
+users-service,lang-pkgs,com.fasterxml.jackson.core:jackson-core,2.21.4,CVE-2026-89407,HIGH,"2.18.11, 2.21.7, 2.22.3",fixed,https://avd.aquasec.com/nvd/cve-2026-89407
+users-service,lang-pkgs,com.fasterxml.jackson.core:jackson-core,2.21.4,CVE-2026-89425,HIGH,"2.21.7, 2.22.3, 2.18.11",fixed,https://avd.aquasec.com/nvd/cve-2026-89425
+users-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-19032,MEDIUM,"2.18.10, 2.21.6, 2.22.2",fixed,https://avd.aquasec.com/nvd/cve-2026-19032
+users-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-54515,MEDIUM,"3.1.4, 2.18.9, 2.21.5, 2.22.1",fixed,https://avd.aquasec.com/nvd/cve-2026-54515
+users-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-59889,MEDIUM,"2.21.5, 2.18.9, 2.22.1",fixed,https://avd.aquasec.com/nvd/cve-2026-59889
+users-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-68497,HIGH,"2.18.10, 2.21.6, 2.22.2",fixed,https://avd.aquasec.com/nvd/cve-2026-68497
+users-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-77310,MEDIUM,"2.18.9, 2.21.5, 2.22.1",fixed,https://avd.aquasec.com/nvd/cve-2026-77310
+users-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-83557,MEDIUM,"2.18.10, 2.21.6, 2.22.2",fixed,https://avd.aquasec.com/nvd/cve-2026-83557
+users-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-91776,HIGH,"2.18.11, 2.21.7, 2.22.3",fixed,https://avd.aquasec.com/nvd/cve-2026-91776
+users-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,CVE-2026-91777,HIGH,"2.21.7, 2.18.11, 2.22.3",fixed,https://avd.aquasec.com/nvd/cve-2026-91777
+users-service,lang-pkgs,com.fasterxml.jackson.core:jackson-databind,2.21.4,GHSA-mhm7-754m-9p8w,MEDIUM,"2.18.9, 2.21.5",fixed,https://github.com/advisories/GHSA-mhm7-754m-9p8w
+users-service,lang-pkgs,org.apache.logging.log4j:log4j-api,2.24.3,CVE-2026-49844,MEDIUM,"2.25.5, 2.26.1",fixed,https://avd.aquasec.com/nvd/cve-2026-49844
+users-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-53404,HIGH,"11.0.23, 10.1.56, 9.0.119",fixed,https://avd.aquasec.com/nvd/cve-2026-53404
+users-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-55276,CRITICAL,"11.0.23, 10.1.56, 9.0.119",fixed,https://avd.aquasec.com/nvd/cve-2026-55276
+users-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-55956,MEDIUM,"11.0.23, 10.1.56, 9.0.119",fixed,https://avd.aquasec.com/nvd/cve-2026-55956
+users-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-65182,CRITICAL,"11.0.25, 10.1.58, 9.0.121",fixed,https://avd.aquasec.com/nvd/cve-2026-65182
+users-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-65637,CRITICAL,"11.0.25, 10.1.59, 9.0.121",fixed,https://avd.aquasec.com/nvd/cve-2026-65637
+users-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-65905,CRITICAL,"11.0.25, 10.1.58, 9.0.121",fixed,https://avd.aquasec.com/nvd/cve-2026-65905
+users-service,lang-pkgs,org.apache.tomcat.embed:tomcat-embed-core,10.1.55,CVE-2026-68525,CRITICAL,"11.0.25, 10.1.58, 9.0.121",fixed,https://avd.aquasec.com/nvd/cve-2026-68525
+users-service,lang-pkgs,org.postgresql:postgresql,42.7.11,CVE-2026-54291,HIGH,42.7.12,fixed,https://avd.aquasec.com/nvd/cve-2026-54291
+users-service,lang-pkgs,org.springframework:spring-webmvc,6.2.19,CVE-2026-47884,CRITICAL,7.0.9,fixed,https://avd.aquasec.com/nvd/cve-2026-47884
+users-service,lang-pkgs,org.springframework:spring-webmvc,6.2.19,CVE-2026-47890,CRITICAL,7.0.9,fixed,https://avd.aquasec.com/nvd/cve-2026-47890
+users-service,os-pkgs,dash,0.5.11+git20210903+057cd650a4ed-3build1,CVE-2026-102473,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-102473
+users-service,os-pkgs,dash,0.5.11+git20210903+057cd650a4ed-3build1,CVE-2026-102474,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-102474
+users-service,os-pkgs,gcc-12-base,12.3.0-1ubuntu1~22.04.3,CVE-2022-27943,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-27943
+users-service,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-18374,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-18374
+users-service,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-84243,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-84243
+users-service,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-8674,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-8674
+users-service,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-86805,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-86805
+users-service,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-95818,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-95818
+users-service,os-pkgs,libc-bin,2.35-0ubuntu3.15,CVE-2026-97399,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-97399
+users-service,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-18374,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-18374
+users-service,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-84243,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-84243
+users-service,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-8674,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-8674
+users-service,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-86805,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-86805
+users-service,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-95818,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-95818
+users-service,os-pkgs,libc6,2.35-0ubuntu3.15,CVE-2026-97399,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-97399
+users-service,os-pkgs,libexpat1,2.4.7-1ubuntu0.9,CVE-2025-66382,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2025-66382
+users-service,os-pkgs,libexpat1,2.4.7-1ubuntu0.9,CVE-2026-93990,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-93990
+users-service,os-pkgs,libgcc-s1,12.3.0-1ubuntu1~22.04.3,CVE-2022-27943,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-27943
+users-service,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-67693,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-67693
+users-service,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-88647,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-88647
+users-service,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-88648,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-88648
+users-service,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-95184,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-95184
+users-service,os-pkgs,libgnutls30,3.7.3-4ubuntu1.9,CVE-2026-95210,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-95210
+users-service,os-pkgs,libncurses6,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+users-service,os-pkgs,libncursesw6,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+users-service,os-pkgs,libpcre2-8-0,10.39-3ubuntu0.2,CVE-2022-41409,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-41409
+users-service,os-pkgs,libsasl2-2,2.1.27+dfsg2-3ubuntu1.2,CVE-2026-107161,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-107161
+users-service,os-pkgs,libsasl2-modules-db,2.1.27+dfsg2-3ubuntu1.2,CVE-2026-107161,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-107161
+users-service,os-pkgs,libstdc++6,12.3.0-1ubuntu1~22.04.3,CVE-2022-27943,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-27943
+users-service,os-pkgs,libsystemd0,249.11-0ubuntu3.23,CVE-2026-121876,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-121876
+users-service,os-pkgs,libsystemd0,249.11-0ubuntu3.23,CVE-2026-40228,LOW,,affected,https://avd.aquasec.com/nvd/cve-2026-40228
+users-service,os-pkgs,libtinfo6,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+users-service,os-pkgs,libudev1,249.11-0ubuntu3.23,CVE-2026-121876,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-121876
+users-service,os-pkgs,libudev1,249.11-0ubuntu3.23,CVE-2026-40228,LOW,,affected,https://avd.aquasec.com/nvd/cve-2026-40228
+users-service,os-pkgs,libzstd1,1.4.8+dfsg-3build1,CVE-2022-4899,LOW,,affected,https://avd.aquasec.com/nvd/cve-2022-4899
+users-service,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-18374,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-18374
+users-service,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-84243,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-84243
+users-service,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-8674,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-8674
+users-service,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-86805,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-86805
+users-service,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-95818,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-95818
+users-service,os-pkgs,locales,2.35-0ubuntu3.15,CVE-2026-97399,MEDIUM,2.35-0ubuntu3.18,fixed,https://avd.aquasec.com/nvd/cve-2026-97399
+users-service,os-pkgs,login,1:4.8.1-2ubuntu2.2,CVE-2023-29383,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-29383
+users-service,os-pkgs,login,1:4.8.1-2ubuntu2.2,CVE-2024-56433,LOW,,affected,https://avd.aquasec.com/nvd/cve-2024-56433
+users-service,os-pkgs,ncurses-base,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+users-service,os-pkgs,ncurses-bin,6.3-2ubuntu0.3,CVE-2023-50495,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-50495
+users-service,os-pkgs,passwd,1:4.8.1-2ubuntu2.2,CVE-2023-29383,LOW,,affected,https://avd.aquasec.com/nvd/cve-2023-29383
+users-service,os-pkgs,passwd,1:4.8.1-2ubuntu2.2,CVE-2024-56433,LOW,,affected,https://avd.aquasec.com/nvd/cve-2024-56433
+users-service,os-pkgs,perl-base,5.34.0-3ubuntu1.10,CVE-2026-48962,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-48962
+users-service,os-pkgs,tar,1.34+dfsg-1ubuntu0.1.22.04.6,CVE-2026-18477,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-18477
+users-service,os-pkgs,tar,1.34+dfsg-1ubuntu0.1.22.04.6,CVE-2026-18508,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2026-18508
+users-service,os-pkgs,wget,1.21.2-2ubuntu1.5,CVE-2021-31879,MEDIUM,,affected,https://avd.aquasec.com/nvd/cve-2021-31879
