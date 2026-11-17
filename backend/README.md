@@ -1,35 +1,18 @@
-# Esqueletos de backend · Spring Boot
+# Backend de captación
 
-Base para desarrollar la incorporación del backend solicitada para la entrega 3. No representa la entrega terminada ni conecta todavía Android. Los documentos históricos llaman E2 al incremento remoto; esta base no cambia esa numeración ni da por cumplidos sus requisitos.
+Base funcional mínima, sin integración Android ni despliegue. Continúa el servicio de usuarios de Jeremy (`a7b1675`) y los esqueletos de `9cd979b`, ya integrados en `develop` mediante PR #18. No reemplaza autenticación ni entidades de usuarios.
 
-## División recomendada
-
-| Aplicación | Puerto | Responsabilidad |
+| Servicio | Puerto predeterminado | Responsabilidad |
 |---|---|---|
-| `api-gateway` | 8080 | Punto de entrada único, validación inicial del JWT y enrutamiento. |
-| `users-service` | 8081 | Usuarios, credenciales, roles generales y emisión de JWT. |
-| `prospects-service` | 8082 | Captados/inscripciones, eventos, asignaciones y permisos por propietario o sede. |
+| api-gateway | 8080 | Entrada del cliente, validación JWT y rutas a URLs fijas configurables. Sin BD ni negocio. |
+| users-service | 8081 | Usuarios JPA, credenciales BCrypt, roles, login y JWT. Implementación existente de Jeremy. |
+| prospects-service | 8082 | Prospectos persistidos, propiedad, sedes, edición básica y anulación auditada. |
 
-Es una división coherente con `docs/API_CONTRACTS.md` y `docs/ENVIRONMENTS.md`: identidad cambia por razones distintas a captación. Administración de cuentas pertenece a usuarios; supervisión de captados pertenece a prospectos. Crear un microservicio genérico de «admin» mezclaría ambas responsabilidades. Eventos y catálogos pueden permanecer dentro de prospectos por ahora.
+Java 21, Spring Boot 3.5.7, Maven Wrapper 3.9.11. Gateway WebFlux existente; JPA y H2/PostgreSQL para ambos servicios de negocio. Cada servicio posee sus entidades/repositorios y su base. Prospectos no consulta usuarios por petición ni usa claves foráneas entre servicios.
 
-Las tres aplicaciones se construyen desde un agregador Maven, pero generan JAR y procesos independientes. El gateway no contiene reglas de negocio ni accede a bases de datos: enruta `/api/v1/auth/**` y `/api/v1/me` a usuarios. Envía a prospectos las familias de rutas ya propuestas en `docs/API_CONTRACTS.md`: asignaciones, catálogo, eventos, inscripciones y reportes, además de su ruta técnica de estado. Los servicios de negocio no comparten código de dominio ni necesitan llamadas entre sí para validar cada petición. Cuando incorporen persistencia, cada servicio debe ser dueño de sus tablas/base: sin repositorios compartidos ni claves foráneas entre servicios. PostgreSQL es la continuidad propuesta en la documentación; su instalación, entidades y migraciones quedan para una tarea posterior.
+## Preparación y compilación
 
-## Qué incluye
-
-- Java 21, Spring Boot 3.5.7 y Maven Wrapper 3.9.11. Usar un **JDK**, no solamente un JRE. Android conserva su configuración JDK 25 independiente.
-- Spring Web, WebFlux Gateway, Validation, Security y Resource Server; Spring Security verifica los JWT con sus componentes estándar.
-- JWT RS256 de 15 minutos, con validación de firma, emisor, audiencia y vigencia. Tolerancia de reloj estándar de Spring Security: 60 segundos.
-- Login exclusivamente en perfil `local`, con dos cuentas en memoria y contraseñas BCrypt generadas por el setup. Las cuentas se reconstruyen al reiniciar.
-- Paquetes `controller`, `service`, `repository`, `model` y `security`. Los paquetes de negocio pendientes se conservan con `package-info.java`; no contienen CRUD ficticio.
-- Pruebas de login, rutas del gateway, 401, 403, roles, firma incorrecta, vencimiento, audiencia y emisor.
-
-No hay Swagger, descubrimiento de servicios, balanceador dinámico ni infraestructura adicional. El gateway usa URLs configurables y conserva el encabezado `Authorization`; usuarios y prospectos vuelven a validar el token como defensa en profundidad. No se han implementado CRUD, persistencia, refresh/logout revocable, asignaciones, idempotencia, sincronización ni integración Android. El `sub` local usa el nombre de cuenta de prueba; al persistir usuarios debe pasar a un UUID estable. `ADMIN` administra cuentas; `CAPTADOR` es el perfil de captura. Los permisos de supervisor por sede se implementarán en prospectos, además del JWT.
-
-## Arranque local
-
-Requisitos: JDK 21 o superior, Bash y OpenSSL. En Windows usar Git Bash/WSL para preparar claves, o generar el par RSA con OpenSSL y configurar las mismas variables en PowerShell; Maven también dispone de `mvnw.cmd`.
-
-Desde `backend/`:
+Instalar un JDK 21, Python 3 (solo prueba funcional), Bash y OpenSSL. Desde `backend/`:
 
 ```bash
 bash scripts/prepare-local.sh
@@ -37,77 +20,136 @@ source .local/env.sh
 ./mvnw clean verify
 ```
 
-El script genera claves y contraseñas en `.local/`, excluido de Git, con permisos restringidos. Se puede repetir sin reemplazar archivos existentes. No compartir ni subir ese directorio. Cada integrante genera su configuración. Las contraseñas están disponibles localmente en `LOCAL_ADMIN_PASSWORD` y `LOCAL_CAPTOR_PASSWORD`; no se imprimen en el setup.
+El setup genera un par RSA 2048 (privada PKCS#8, pública X.509) y contraseñas aleatorias en `.local/`, excluido de Git y con permisos restringidos. No sobreescribe configuraciones existentes ni imprime claves/contraseñas. Cada integrante genera sus propios archivos. `JAVA_HOME` debe apuntar a un JDK 21; no cambiar la versión del POM para compilar con Java 17.
 
-En tres terminales, desde `backend/`, cargando las variables en todas:
+Compilación independiente desde `backend/`, sin instalar los otros servicios:
 
 ```bash
-# Terminal 1: punto de entrada de Android y otros clientes.
-source .local/env.sh
-unset JWT_PRIVATE_KEY LOCAL_ADMIN_PASSWORD LOCAL_CAPTOR_PASSWORD
-java -jar api-gateway/target/api-gateway-0.0.1-SNAPSHOT.jar
+./mvnw -f users-service/pom.xml clean verify
+./mvnw -f prospects-service/pom.xml clean verify
+./mvnw -f api-gateway/pom.xml clean verify
 ```
 
+## Ejecución
+
+En tres terminales desde `backend/`, cargar `.local/env.sh` en todas:
+
 ```bash
-# Terminal 2
+# Terminal 1
 source .local/env.sh
 java -jar users-service/target/users-service-0.0.1-SNAPSHOT.jar
 ```
 
 ```bash
-# Terminal 3: prospectos solo recibe la clave pública.
+# Terminal 2: solo clave pública
 source .local/env.sh
 unset JWT_PRIVATE_KEY LOCAL_ADMIN_PASSWORD LOCAL_CAPTOR_PASSWORD
 java -jar prospects-service/target/prospects-service-0.0.1-SNAPSHOT.jar
 ```
 
-También se puede desarrollar cada aplicación desde el IDE o con `./mvnw -pl api-gateway spring-boot:run`, `./mvnw -pl users-service spring-boot:run` y `./mvnw -pl prospects-service spring-boot:run`. Spring Boot no crea un backend productivo por arrancar sin perfil local: el login solo existe en `local` y aún debe implementarse autenticación con usuarios persistidos.
-
-## Rutas disponibles
-
-| Aplicación | Método/ruta | Acceso |
-|---|---|---|
-| Las tres | `GET /actuator/health` | Público, solo estado general del proceso consultado. |
-| Gateway | `POST /api/v1/auth/login` | Público; se reenvía a usuarios. |
-| Gateway | `GET /api/v1/me` | JWT válido; se reenvía a usuarios. |
-| Gateway | Rutas de prospectos descritas en `docs/API_CONTRACTS.md` | JWT válido; se reenvían a prospectos. |
-| Usuarios | `POST /api/v1/auth/login` | Público, solo perfil `local`. JSON `username`, `password`; devuelve `accessToken`, `tokenType`, `expiresIn` en segundos. |
-| Usuarios | `GET /api/v1/me` | JWT válido. Devuelve sujeto y roles del token. |
-| Prospectos | `GET /api/v1/prospects/status` | JWT válido. Ruta técnica para verificar acceso; no lista captados. |
-| Ambas | `GET /api/v1/admin/status` | Rol `ADMIN`. Ruta técnica para comprobar 403/200. |
-
-Las cuentas locales son `demo-admin` y `demo-captor`. Un token emitido por usuarios funciona en el gateway y en prospectos con la misma clave pública, emisor y audiencia. Enviar `Authorization: Bearer <accessToken>`; credenciales inválidas producen 401, campos inválidos 400 y un captador que accede a una ruta administrativa recibe 403. No registrar contraseñas ni tokens en logs. Sin cookies de autenticación: la API es stateless y desactiva CSRF para este flujo Bearer. El gateway elimina cualquier encabezado `Cookie` antes de reenviar. No hay CORS abierto; Android nativo no lo necesita.
-
-Prueba rápida de salud y acceso anónimo:
-
 ```bash
-curl --fail http://127.0.0.1:8080/actuator/health
-curl --fail http://127.0.0.1:8081/actuator/health
-curl --fail http://127.0.0.1:8082/actuator/health
-curl -i http://127.0.0.1:8080/api/v1/prospects/status # Debe devolver 401
+# Terminal 3: solo clave pública
+source .local/env.sh
+unset JWT_PRIVATE_KEY LOCAL_ADMIN_PASSWORD LOCAL_CAPTOR_PASSWORD
+java -jar api-gateway/target/api-gateway-0.0.1-SNAPSHOT.jar
 ```
 
-Los contratos funcionales de `/registrations` siguen pendientes; las rutas `status` son del esqueleto. No se crea OpenAPI ni Swagger para este alcance. Antes del CRUD, acuerden ejemplos JSON y reglas en documentación simple. Para un entorno compartido se requiere HTTPS, claves fuera del repositorio y una política de intentos de login; el perfil local y sus cuentas no son una configuración de despliegue.
+Cada proceso permite sobrescribir `PORT`. También se puede usar `./mvnw -pl <servicio> spring-boot:run`.
 
-## Configuración
+## Configuración sin secretos en Git
 
-| Variable | Uso |
+| Variable | Servicio y significado |
 |---|---|
-| `SPRING_PROFILES_ACTIVE=local` | Habilita las cuentas y el login de desarrollo. |
-| `JWT_PRIVATE_KEY` | Recurso PEM PKCS#8, solo usuarios. |
-| `JWT_PUBLIC_KEY` | Recurso PEM público X.509 en las tres aplicaciones. |
-| `JWT_ISSUER` | Predeterminado `captura-g6-users`. Igual en las tres. |
-| `JWT_AUDIENCE` | Predeterminado `captura-g6-api`. Igual en las tres. |
-| `LOCAL_ADMIN_PASSWORD`, `LOCAL_CAPTOR_PASSWORD` | Contraseñas solo del perfil local en usuarios. |
-| `USERS_SERVICE_URL` | Destino del gateway; por defecto `http://127.0.0.1:8081`. |
-| `PROSPECTS_SERVICE_URL` | Destino del gateway; por defecto `http://127.0.0.1:8082`. |
-| `PORT` | Sobrescribe el puerto de cada proceso por separado. |
+| `JWT_PRIVATE_KEY` | Solo usuarios; URI `file:/ruta/privada.pem`. |
+| `JWT_PUBLIC_KEY` | Los tres; URI de la misma clave pública. |
+| `JWT_ISSUER` | Los tres; predeterminado `captura-g6-users`. |
+| `JWT_AUDIENCE` | Los tres; predeterminado `captura-g6-api`. |
+| `LOCAL_ADMIN_PASSWORD` | Usuarios; seed demo-admin y supervisor. Usar valor aleatorio del setup. |
+| `LOCAL_CAPTOR_PASSWORD` | Usuarios; seed demo-captor, captor-a y captor-b. Usar valor aleatorio del setup. |
+| `IDENTITY_JDBC_URL`, `IDENTITY_DB_USER`, `IDENTITY_DB_PASSWORD` | Usuarios; configuración de Jeremy. |
+| `JPA_DDL_AUTO` | Usuarios; predeterminado `update`. |
+| `PROSPECTS_JDBC_URL`, `PROSPECTS_DB_USER`, `PROSPECTS_DB_PASSWORD` | Prospectos; base separada. |
+| `PROSPECTS_DDL_AUTO` | Prospectos; predeterminado `update`. |
+| `USERS_SERVICE_URL` | Gateway; predeterminado `http://127.0.0.1:8081`. |
+| `PROSPECTS_SERVICE_URL` | Gateway; predeterminado `http://127.0.0.1:8082`. |
+| `PORT` | Puerto del proceso correspondiente. |
+| `SPRING_PROFILES_ACTIVE` | Setup usa `local`; el servicio de Jeremy actualmente no limita login/seed a ese perfil. |
 
-## Reparto del trabajo siguiente
+Ambos servicios usan H2 **en memoria** por defecto, usuario `sa` sin contraseña; los datos se pierden al detenerlos. Para conservar datos locales, configurar bases distintas:
 
-1. Usuarios: modelo de cuenta/roles, repositorio y autenticación persistida; reemplazar el proveedor en memoria manteniendo el contrato JWT.
-2. Prospectos: modelo de inscripción y consentimiento, repositorio, validaciones y CRUD según contratos existentes. Derivar captador del JWT; verificar propietario/asignación en el servidor.
-3. Gateway: mantener solo rutas, autenticación transversal y observabilidad mínima; no trasladar allí validaciones de usuarios o prospectos.
-4. En conjunto: acordar UUID de usuario y roles, errores y permisos; después integrar Android usando el gateway como URL base. No enviar las credenciales demo de Android al backend como si fueran cuentas reales.
+```bash
+export IDENTITY_JDBC_URL='jdbc:h2:file:./.local/identity;MODE=PostgreSQL'
+export PROSPECTS_JDBC_URL='jdbc:h2:file:./.local/prospects;MODE=PostgreSQL'
+```
 
-Los tests del esqueleto validan seguridad e inicio de Spring. No acreditan persistencia ni autorización de datos que todavía no existe.
+Para PostgreSQL usar `jdbc:postgresql://HOST:5432/BASE` con bases/usuarios separados y contraseñas externas. El driver ya está incluido; no se requiere instalar PostgreSQL para probar H2. La prueba funcional usa H2, no acredita PostgreSQL ni migraciones productivas. `ddl-auto=update` conserva la convención del backend actual; migraciones revisadas quedan pendientes.
+
+El seed de Jeremy conserva sus cuentas y UUID determinísticos; `captor-a` pertenece a `site-1`, `captor-b` a `site-2`, supervisor y administrador a ambas. El código existente tiene contraseñas demo predeterminadas: usar siempre el setup que las sobrescribe. Las contraseñas de cuentas ya persistidas no se cambian al regenerar variables. No utilizar el seed como aprovisionamiento productivo.
+
+## Contrato de identidad existente
+
+- `POST /api/v1/auth/login`: público, JSON `username` (username o email) y `password`. Respuesta: `accessToken`, `tokenType=Bearer`, `expiresIn=900`, `userId`, `username`, `email`, `displayName`, `rol`, `roles`, `siteIds`. Incorrectas: 401; campos inválidos: 400.
+- `GET /api/v1/me`: JWT, identidad de usuarios.
+- `POST /api/v1/auth/logout`: JWT, confirmación local; no revoca tokens emitidos.
+- `GET /api/v1/users[/{id}]`: ADMIN/SUPERVISOR según seguridad existente. `POST /api/v1/users` y `PATCH /api/v1/users/{id}/estado`: ADMIN.
+- `GET /api/v1/admin/status`: ADMIN; enruta a usuarios.
+
+Usuarios firma RS256. Claims: `sub` es username, **`userId` es el UUID propietario**, `roles` es lista de ADMIN/CAPTADOR/SUPERVISOR, `siteIds` lista de sedes. Emisor/audiencia configurables, expiración 15 minutos. Gateway y prospectos verifican firma RS256, emisor, audiencia, vigencia (tolerancia Spring de 60 segundos) y estructura de identidad: UUID, sujeto no vacío, roles reconocidos y sedes string. Rechazan claims ausentes o incompatibles con 401. Los cambios de rol/sede/estado posteriores al login se reflejan al emitir otro token; no hay revocación inmediata.
+
+El gateway conserva `Authorization: Bearer ...`, elimina `Cookie` y mantiene las rutas existentes de usuarios/prospectos. Las familias históricas de eventos, catálogo, asignaciones, inscripciones y reportes siguen sin implementación de negocio. Solo `POST login` y salud son públicos. Cada servicio expone únicamente salud general en `/actuator/health`; no se reenvían actuators internos. Sin CORS abierto.
+
+## API mínima de prospectos
+
+Este incremento usa `/api/v1/prospects`; **no implementa el contrato completo `/registrations`** propuesto en `docs/API_CONTRACTS.md`.
+
+| Método y ruta | Permiso y comportamiento |
+|---|---|
+| `POST /api/v1/prospects` | CAPTADOR, sede en su JWT. Propietario derivado de `userId`. 201. |
+| `GET /api/v1/prospects/{id}` | Captador propietario, ADMIN o SUPERVISOR de la sede. |
+| `GET /api/v1/prospects?page=0&size=20` | Mismo filtro aplicado en BD. `items`, `page`, `size`, `total`. Tamaño 1–100, página 0–1000000, orden createdAt/id. |
+| `PUT /api/v1/prospects/{id}` | Mismos permisos; reemplaza solo nombres/apellidos/email/teléfono de registro activo. |
+| `POST /api/v1/prospects/{id}/cancel` | ADMIN o SUPERVISOR de sede. JSON `reason` obligatorio (máx. 500). Sin borrado físico. |
+
+Creación: `rut` con dígito verificador módulo 11 (normaliza puntos y K), `eventId` UUID, `siteId` (máx. 120), `givenNames`/`familyNames` (máx. 120), `email` (máx. 160), `phone` (8–15 dígitos con `+` opcional), `consentAccepted=true` y `consentVersion` (máx. 80). No enviar `captorId`: campos desconocidos dan 400. El servidor registra consentimiento/fecha/captador y timestamps UTC; no acepta fechas de consentimiento aportadas libremente. Validar que consentimiento ya fue obtenido antes de enviar datos personales.
+
+RUT/evento/sede/propietario/consentimiento permanecen inmutables. RUT/evento activo único mediante restricción BD; duplicado devuelve 409 sin identificar al otro captador. Anular guarda actor, motivo y fecha y libera la clave activa para recreación. Anulado no editable; repetir anulación da 409. No se exponen eliminación ni cambio de dueño. JPA `@Version` protege escrituras concurrentes, devolviendo 409; no hay aún precondición de versión del cliente.
+
+Errores de prospectos: `code`, `message` en español, `fieldErrors` y `correlationId` generado por respuesta. 400 formato/campos, 401 JWT, 403 permisos, 404 inexistente y 409 duplicado/estado/concurrencia. Sin stacktrace ni contenido del registro en errores. No constituye todavía trazabilidad distribuida por correlationId. Gateway y usuarios conservan sus respuestas de seguridad existentes.
+
+## Flujo completo
+
+Desde `backend/` con variables del setup cargadas (sin imprimir contraseñas o JWT):
+
+```bash
+python3 - <<'PY'
+import json, os, urllib.request, uuid
+base = 'http://127.0.0.1:8080'
+def post(path, data, token=None):
+    headers = {'Content-Type': 'application/json'}
+    if token: headers['Authorization'] = 'Bearer ' + token
+    req = urllib.request.Request(base+path, data=json.dumps(data).encode(), headers=headers)
+    with urllib.request.urlopen(req) as res: return json.load(res)
+login = post('/api/v1/auth/login', {'username':'captor-a','password':os.environ['LOCAL_CAPTOR_PASSWORD']})
+prospect = post('/api/v1/prospects', {
+    'rut':'12345678-5','eventId':str(uuid.uuid4()),'siteId':'site-1',
+    'givenNames':'Persona','familyNames':'Ficticia','email':'ficticia@example.com',
+    'phone':'+56912345678','consentAccepted':True,'consentVersion':'v1'
+}, login['accessToken'])
+print('Creado:', prospect['id'])
+PY
+```
+
+## Verificación
+
+```bash
+./mvnw clean verify
+source .local/env.sh
+python3 scripts/smoke-test.py
+git diff --check
+```
+
+La prueba funcional inicia y detiene sus propios tres JAR en 18080/18081/18082 (`SMOKE_BASE_PORT` configurable), usa datos ficticios y bases temporales separadas. Comprueba login inválido/válido, JWT alterado, identidad, creación/consulta/edición/lista, aislamiento entre captadores, lectura administrativa/supervisor, duplicado, anulación y persistencia tras reiniciar prospectos. No modifica bases configuradas del desarrollador ni imprime secretos. Las pruebas JUnit cubren además expiración, emisor/audiencia/firma, claims incompatibles, sedes, campos inválidos y conflictos de estado.
+
+## Límites pendientes
+
+Sin integración Android, despliegue, métricas, catálogos, asignación real a eventos, sincronización, idempotencia, reconciliación, correcciones supervisadas completas, refresh/revocación ni catálogo de consentimientos. `eventId` es un UUID recibido; no se acredita existencia/asignación del evento. `siteIds` del JWT restringe sedes, sin llamadas a usuarios. El consentimiento mínimo no sustituye el modelo completo/evidencia offline propuesto. No Swagger/OpenAPI generado, discovery, Docker, Config Server, mensajería ni infraestructura adicional. El siguiente trabajo del equipo debe completar contratos y permisos de eventos antes de conectar Android.

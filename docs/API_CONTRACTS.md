@@ -1,5 +1,7 @@
 # Borrador de contratos y reglas de integración
 
+> Incremento backend 16/11/2026: usuarios persistidos y API mínima `/api/v1/prospects` disponibles; ver [guía ejecutable del backend](../backend/README.md). Este documento conserva el diseño futuro de `/registrations`, aún no implementado. Para este incremento se documenta JSON en Markdown, sin generar Swagger/OpenAPI.
+
 Alcance 02/10/2026: contratos remotos de E2 según [ENTREGAS](ENTREGAS.md). No bloquean E1; sus interfaces/modelos locales se revisan por separado. Una conexión detectada en E1 no activa estas rutas ni acredita una integración. API externa de evaluación pendiente de selección y contrato separado de las APIs propias.
 
 Versión de diseño 0.1, 30/09/2026. Backend todavía inexistente. Los siguientes son contratos propuestos, no endpoints comprobados. Antes de implementar cliente y servidor en paralelo, crear y revisar `openapi.yaml` con tipos, required/nullability, enums, ejemplos y errores. Este documento explica semántica; no será una segunda copia manual de los esquemas.
