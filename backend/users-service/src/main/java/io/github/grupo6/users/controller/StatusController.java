@@ -45,10 +45,10 @@ public class StatusController {
         @NotBlank @Size(max = 120) String displayName,
         @NotBlank @Size(min = 6, max = 128) String password,
         @NotNull RolUsuario rol,
-        String sedesAsignadas
+        @Size(max = 255) String sedesAsignadas
     ) {}
 
-    public record EstadoUsuarioRequest(boolean activo) {}
+    public record EstadoUsuarioRequest(@NotNull Boolean activo) {}
 
     /**
      * Retorna el perfil e identidad del usuario autenticado a partir del token JWT.
@@ -119,7 +119,7 @@ public class StatusController {
      */
     @PatchMapping("/api/v1/users/{id}/estado")
     public Usuario cambiarEstado(@PathVariable String id,
-                                 @RequestBody EstadoUsuarioRequest request) {
+                                 @Valid @RequestBody EstadoUsuarioRequest request) {
         return usuarioService.cambiarEstadoActivo(id, request.activo());
     }
 

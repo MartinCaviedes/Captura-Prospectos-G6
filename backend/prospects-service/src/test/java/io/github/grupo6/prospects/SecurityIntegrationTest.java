@@ -69,6 +69,23 @@ class SecurityIntegrationTest {
             JwsHeader.with(SignatureAlgorithm.RS256).build(), claims)).getTokenValue();
     }
 
+    @Autowired org.springframework.context.ConfigurableApplicationContext context;
+
+    @Test void readinessFollowsAvailabilityWithoutExposingDetails() throws Exception {
+        org.springframework.boot.availability.AvailabilityChangeEvent.publish(context,
+            org.springframework.boot.availability.ReadinessState.REFUSING_TRAFFIC);
+        try {
+            mvc.perform(get("/actuator/health/readiness")).andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value("OUT_OF_SERVICE"));
+            mvc.perform(get("/actuator/health/liveness")).andExpect(status().isOk());
+        } finally {
+            org.springframework.boot.availability.AvailabilityChangeEvent.publish(context,
+                org.springframework.boot.availability.ReadinessState.ACCEPTING_TRAFFIC);
+        }
+        mvc.perform(get("/actuator/health/readiness")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.components").doesNotExist());
+    }
+
     @Test void healthIsPublicButApiRequiresAuthentication() throws Exception {
         mvc.perform(get("/actuator/health")).andExpect(status().isOk());
         mvc.perform(get("/api/v1/prospects/status"))

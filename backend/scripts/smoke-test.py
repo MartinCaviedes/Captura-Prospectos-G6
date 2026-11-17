@@ -33,8 +33,8 @@ def request(method, path, data=None, token=None, expected=200):
         return json.loads(raw) if raw else None
 
 
-def start(service, port, temp):
-    env = dict(os.environ, PORT=str(port))
+def start(service, port, temp, settings=None):
+    env = dict(os.environ, PORT=str(port), SHUTDOWN_TIMEOUT="5s")
     if service != "users-service":
         for key in ("JWT_PRIVATE_KEY", "LOCAL_ADMIN_PASSWORD", "LOCAL_CAPTOR_PASSWORD"):
             env.pop(key, None)
@@ -46,15 +46,16 @@ def start(service, port, temp):
     env["IDENTITY_DB_PASSWORD"] = env["PROSPECTS_DB_PASSWORD"] = ""
     env["PROSPECTS_JDBC_URL"] = f"jdbc:h2:file:{temp}/prospects;MODE=PostgreSQL"
     env["JPA_DDL_AUTO"] = env["PROSPECTS_DDL_AUTO"] = "update"
+    env.update(settings or {})
     jar = ROOT / service / "target" / f"{service}-0.0.1-SNAPSHOT.jar"
     with open(Path(temp) / f"{service}.log", "ab") as log:
         process = subprocess.Popen([JAVA, "-jar", str(jar)], env=env, stdout=log, stderr=subprocess.STDOUT)
-    processes[service] = process
+    processes[service] = (process, Path(temp) / f"{service}.log")
     for _ in range(180):
         if process.poll() is not None:
             raise RuntimeError(f"{service} terminó; revisar su configuración")
         try:
-            with urllib.request.urlopen(f"http://127.0.0.1:{port}/actuator/health", timeout=1) as response:
+            with urllib.request.urlopen(f"http://127.0.0.1:{port}/actuator/health/readiness", timeout=1) as response:
                 if response.status == 200:
                     return
         except (urllib.error.URLError, TimeoutError):
@@ -64,13 +65,15 @@ def start(service, port, temp):
 
 
 def stop(service):
-    process = processes.pop(service)
+    process, log_path = processes.pop(service)
     process.terminate()
     try:
         process.wait(timeout=15)
     except subprocess.TimeoutExpired:
         process.kill()
         process.wait()
+        raise AssertionError(f"{service} excedió el tiempo de cierre")
+    assert "Graceful shutdown complete" in log_path.read_text(), f"{service}: falta evidencia de cierre controlado"
 
 
 def login(username, password):
@@ -115,7 +118,6 @@ def run(temp):
     cancelled = request("POST", path + "/cancel", {"reason": "Prueba"}, supervisor["accessToken"])
     assert cancelled["status"] == "CANCELLED" and cancelled["cancelledBy"] == supervisor["userId"]
     request("POST", "/api/v1/prospects", payload, token, 201)
-    print("OK: tres procesos, login, JWT, identidad, CRUD, permisos, duplicado, anulación y persistencia tras reinicio")
 
 
 if __name__ == "__main__":
@@ -126,5 +128,13 @@ if __name__ == "__main__":
         try:
             run(temp)
         finally:
+            cleanup_errors = []
             for name in list(processes):
-                stop(name)
+                try:
+                    stop(name)
+                except Exception as error:
+                    cleanup_errors.append(error)
+            if cleanup_errors:
+                raise AssertionError("Falló el cierre de procesos de prueba") from cleanup_errors[0]
+
+    print("OK: tres procesos, login, JWT, identidad, CRUD, permisos, duplicado, anulación, persistencia, readiness y cierre controlado")

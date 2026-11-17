@@ -83,10 +83,66 @@ class SecurityIntegrationTest {
             .privateKey((RSAPrivateKey) keys.getPrivate()).build();
         var encoder = new NimbusJwtEncoder(new ImmutableJWKSet<>(new JWKSet(rsa)));
         var claims = JwtClaimsSet.builder().issuer(issuer).subject("test-user")
-            .audience(List.of(audience)).issuedAt(Instant.now().minusSeconds(1000))
-            .expiresAt(Instant.now().plusSeconds(expiry)).claim("roles", List.of(role)).build();
+            .issuedAt(Instant.now().minusSeconds(1000))
+            .expiresAt(Instant.now().plusSeconds(expiry)).claim("roles", List.of(role));
+        if (audience != null) claims.audience(List.of(audience));
         return encoder.encode(JwtEncoderParameters.from(
-            JwsHeader.with(SignatureAlgorithm.RS256).build(), claims)).getTokenValue();
+            JwsHeader.with(SignatureAlgorithm.RS256).build(), claims.build())).getTokenValue();
+    }
+
+    @Autowired org.springframework.context.ConfigurableApplicationContext context;
+
+    @Test void readinessFollowsAvailabilityWithoutExposingDetails() throws Exception {
+        org.springframework.boot.availability.AvailabilityChangeEvent.publish(context,
+            org.springframework.boot.availability.ReadinessState.REFUSING_TRAFFIC);
+        try {
+            mvc.perform(get("/actuator/health/readiness")).andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value("OUT_OF_SERVICE"));
+            mvc.perform(get("/actuator/health/liveness")).andExpect(status().isOk());
+        } finally {
+            org.springframework.boot.availability.AvailabilityChangeEvent.publish(context,
+                org.springframework.boot.availability.ReadinessState.ACCEPTING_TRAFFIC);
+        }
+        mvc.perform(get("/actuator/health/readiness")).andExpect(status().isOk())
+            .andExpect(jsonPath("$.components").doesNotExist());
+    }
+
+    @Test void assignedSitesRespectStorageLimit() throws Exception {
+        String admin = "Bearer " + token(KEYS, "captura-g6-users", "captura-g6-api", "ADMIN", 900);
+        var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        var valid = java.util.Map.of("username", "sites-boundary", "email", "boundary@example.com",
+            "displayName", "Prueba", "password", "test-only-password", "rol", "CAPTADOR",
+            "sedesAsignadas", "a".repeat(120) + "," + "b".repeat(120) + "," + "c".repeat(13));
+        mvc.perform(post("/api/v1/users").header("Authorization", admin)
+            .contentType("application/json").content(mapper.writeValueAsString(valid)))
+            .andExpect(status().isCreated());
+        var invalid = new java.util.HashMap<>(valid);
+        invalid.put("username", "sites-overflow");
+        invalid.put("email", "overflow@example.com");
+        invalid.put("sedesAsignadas", valid.get("sedesAsignadas") + "c");
+        mvc.perform(post("/api/v1/users").header("Authorization", admin)
+            .contentType("application/json").content(mapper.writeValueAsString(invalid)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test void missingStateCannotDisableAccount() throws Exception {
+        String admin = "Bearer " + token(KEYS, "captura-g6-users", "captura-g6-api", "ADMIN", 900);
+        var result = mvc.perform(get("/api/v1/users").header("Authorization", admin))
+            .andExpect(status().isOk()).andReturn();
+        var users = new com.fasterxml.jackson.databind.ObjectMapper()
+            .readTree(result.getResponse().getContentAsString());
+        String path = "/api/v1/users/" + users.get(0).get("id").asText();
+        mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch(path + "/estado")
+            .header("Authorization", admin).contentType("application/json").content("{}"))
+            .andExpect(status().isBadRequest());
+        mvc.perform(get(path).header("Authorization", admin))
+            .andExpect(jsonPath("$.activo").value(true));
+    }
+
+    @Test void signedTokenWithoutAudienceReturnsUnauthorized() throws Exception {
+        String bearer = token(KEYS, "captura-g6-users", null, "ADMIN", 900);
+        mvc.perform(get("/api/v1/admin/status").header("Authorization", "Bearer " + bearer))
+            .andExpect(status().isUnauthorized());
     }
 
     /**

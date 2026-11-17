@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 /**
  * Inicializador de cuentas base sincronizado con los perfiles de la aplicación Android.
  */
+@org.springframework.context.annotation.Profile("local & !prod")
 @Component
 public class UsuarioDataSeeder implements CommandLineRunner {
 
@@ -28,8 +29,8 @@ public class UsuarioDataSeeder implements CommandLineRunner {
      */
     public UsuarioDataSeeder(UsuarioRepository usuarioRepository,
                              PasswordEncoder passwordEncoder,
-                             @Value("${LOCAL_ADMIN_PASSWORD:admin1234}") String adminPassword,
-                             @Value("${LOCAL_CAPTOR_PASSWORD:captor1234}") String captorPassword) {
+                             @Value("${LOCAL_ADMIN_PASSWORD}") String adminPassword,
+                             @Value("${LOCAL_CAPTOR_PASSWORD}") String captorPassword) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.adminPassword = adminPassword;

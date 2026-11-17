@@ -8,10 +8,17 @@
     </parent>
     <artifactId>api-gateway</artifactId>
     <properties>
-        <spring-cloud.version>2025.0.0</spring-cloud.version>
+        <bouncycastle.version>1.85</bouncycastle.version>
+        <spring-cloud.version>2025.0.3</spring-cloud.version>
     </properties>
     <dependencyManagement>
         <dependencies>
+            <!-- Cloud starter fija una versión anterior con avisos de seguridad. -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
