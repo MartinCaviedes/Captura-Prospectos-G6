@@ -177,7 +177,7 @@ class ApiGatewayIntegrationTest {
     }
 
     @Test void incompatibleIdentityClaimsAreRejected() throws Exception {
-        for (String broken : List.of("userId", "roles", "siteIds", "sub", "exp")) {
+        for (String broken : List.of("userId", "roles", "siteIds", "sub", "exp", "aud")) {
             var rsa = new RSAKey.Builder((RSAPublicKey) KEYS.getPublic())
                 .privateKey((RSAPrivateKey) KEYS.getPrivate()).build();
             var claims = JwtClaimsSet.builder().issuer("captura-g6-users").audience(List.of("captura-g6-api"))

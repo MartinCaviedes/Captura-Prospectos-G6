@@ -49,7 +49,7 @@ public class SecurityConfig {
                           @Value("${security.jwt.audience}") String audience) {
         var decoder = NimbusJwtDecoder.withPublicKey(publicKey)
             .signatureAlgorithm(SignatureAlgorithm.RS256).build();
-        OAuth2TokenValidator<Jwt> audienceValidator = jwt -> jwt.getAudience().contains(audience)
+        OAuth2TokenValidator<Jwt> audienceValidator = jwt -> jwt.getAudience() != null && jwt.getAudience().contains(audience)
             ? OAuth2TokenValidatorResult.success()
             : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token", "Invalid audience", null));
         decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(

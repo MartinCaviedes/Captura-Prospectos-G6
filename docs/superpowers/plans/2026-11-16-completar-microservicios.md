@@ -27,7 +27,7 @@ Claims ausentes o mal tipados deben dar 401, no 500. Cruce de captadores/sedes n
 2. [x] Agregar pruebas HTTP de CRUD, propietario, sedes, validación, duplicados y anulación; comprobar fallo 404 antes de implementar.
 3. [x] Implementar entidad Prospect/repository/service/controller, DTOs y errores; añadir JPA/H2/PostgreSQL con base independiente. Ejecutar toda la suite.
 4. [x] Probar rechazo de claims inválidos en gateway/prospectos antes de implementar validadores; preservar pruebas criptográficas existentes. Ejecutar suite.
-5. [ ] Actualizar guía, preparar prueba funcional reproducible con tres JAR reales, login por gateway, CRUD/permisos/anulación. Compilar cada módulo independiente, clean verify y diff --check.
+5. [x] Actualizar guía, preparar prueba funcional reproducible con tres JAR reales, login por gateway, CRUD/permisos/anulación. Compilar cada módulo independiente, clean verify y diff --check.
 6. [ ] Revisar diff completo, commits en español, publicar rama al fork y PR a upstream/develop sin merge.
 
 ## Registro
@@ -37,3 +37,9 @@ Claims ausentes o mal tipados deben dar 401, no 500. Cruce de captadores/sedes n
 
 - Baseline: 10/10 pruebas, BUILD SUCCESS. CRUD RED: 4 pruebas fallan 404; GREEN: 4/4. Claims RED: gateway/prospectos aceptaban token sin userId (200); GREEN: suite completa 16/16.
 - Funcional: tres JAR, login y CRUD por gateway, permisos, duplicado, anulación y persistencia tras reinicio: OK.
+
+- Compilación/pruebas independientes: usuarios 4/4, prospectos 8/8, gateway 4/4; los tres BUILD SUCCESS.
+- Revisión independiente del diff: sin defectos introducidos bloqueantes. Detectó fallo preexistente de audiencia ausente.
+- Corrección final: JWT sin aud reproducido (gateway 500/prospectos NPE), comprobación null añadida; prueba incompatibleIdentityClaimsAreRejected RED→GREEN en ambos servicios. clean verify 16/16 y funcional final OK.
+- Observación menor diferida: no hay pruebas dedicadas de concurrencia; constraint única y @Version sí implementadas y conflictos secuenciales probados. PostgreSQL pendiente de validación de entorno.
+- Usuarios de Jeremy y Android sin cambios; git diff --check limpio. Publicación y enlace de PR se registran en la entrega del chat.
