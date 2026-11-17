@@ -48,13 +48,13 @@ public class UsuarioDataSeeder implements CommandLineRunner {
         sembrarCuenta("profile/demo-admin", "demo-admin", "admin@g6.example",
             "Administrador General", adminPassword, RolUsuario.ADMIN, "site-1,site-2");
         sembrarCuenta("profile/demo-captor", "demo-captor", "demo.captor@g6.example",
-            "Captador Demo", captorPassword, RolUsuario.CAPTADOR, "site-1");
+            "Captador General", captorPassword, RolUsuario.CAPTADOR, "site-1");
         sembrarCuenta("profile/captor-a", "captor-a", "captador.a@g6.example",
-            "Captador A (demo)", captorPassword, RolUsuario.CAPTADOR, "site-1");
+            "Captador A", captorPassword, RolUsuario.CAPTADOR, "site-1");
         sembrarCuenta("profile/captor-b", "captor-b", "captador.b@g6.example",
-            "Captador B (demo)", captorPassword, RolUsuario.CAPTADOR, "site-2");
+            "Captador B", captorPassword, RolUsuario.CAPTADOR, "site-2");
         sembrarCuenta("profile/supervisor", "supervisor", "supervisor@g6.example",
-            "Supervisor (demo)", adminPassword, RolUsuario.SUPERVISOR, "site-1,site-2");
+            "Supervisor", adminPassword, RolUsuario.SUPERVISOR, "site-1,site-2");
     }
 
     /**

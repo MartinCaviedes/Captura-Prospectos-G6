@@ -44,9 +44,9 @@ import java.util.concurrent.atomic.AtomicBoolean
     var replaceRut by remember(state.qrCandidate) { mutableStateOf(false) }
     val candidate = state.qrCandidate
     val needsReplacement = candidate != null && state.input.rut.isNotBlank() && RutValidator.normalize(state.input.rut) != candidate.rut
-    AlertDialog(onDismissRequest = onClose, title = { Text("Leer QR ficticio con cámara") },
+    AlertDialog(onDismissRequest = onClose, title = { Text("Escanear código QR con cámara") },
         text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Enfoca un QR G6DEMO:1. No se guardan fotos; puedes cerrar y completar los datos manualmente.")
+            Text("Enfoca el código QR para proponer el RUT. No se guardan fotos; puedes cerrar y completar los datos manualmente.")
             if (candidate == null && state.qrError == null) QrCameraPreview(onPayload, onUnavailable,
                 Modifier.fillMaxWidth().height(220.dp))
             candidate?.let {

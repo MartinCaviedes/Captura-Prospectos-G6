@@ -366,63 +366,67 @@ class FormActions(
         }
         }
         entry {
-            if (state.isSaving) {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                Text("Guardando en base de datos local…", style = MaterialTheme.typography.bodyMedium)
-            }
-            if (state.isSaved) {
-                GlassCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                ) {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(
-                            "¡Registro guardado con éxito!",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        )
-                        Text(
-                            state.message ?: "",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        )
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            PrimaryActionButton(onClick = { actions.reset?.invoke() }) {
-                                Text("Nueva inscripción")
-                            }
-                            if (actions.onBack != null) {
-                                OutlinedButton(onClick = { actions.onBack.invoke() }) {
-                                    Text("Volver al panel")
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                androidx.compose.animation.AnimatedVisibility(visible = state.isSaving) {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                        Text("Guardando en base de datos…", style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+                if (state.isSaved) {
+                    GlassCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(
+                                "¡Registro guardado con éxito!",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            )
+                            Text(
+                                state.message ?: "",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            )
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                PrimaryActionButton(onClick = { actions.reset?.invoke() }) {
+                                    Text("Nueva inscripción")
+                                }
+                                if (actions.onBack != null) {
+                                    OutlinedButton(onClick = { actions.onBack.invoke() }) {
+                                        Text("Volver al panel")
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            } else {
-                state.issues.forEach { Text("${fieldLabel(it.field)}: ${issueLabel(it.code)}", color = MaterialTheme.colorScheme.error) }
-                state.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-                if (actions.save != null) {
-                    PrimaryActionButton(
-                        onClick = { actions.save.invoke(SaveIntent.CONFIRM_REGISTRATION) },
-                        enabled = saveEnabled && !state.isSaving && !state.isAcquiringLocation && state.locationCandidate == null && !state.isQrScannerOpen,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(if (editing) "Guardar cambios y confirmar inscripción" else "Guardar inscripción")
+                } else {
+                    state.issues.forEach { Text("${fieldLabel(it.field)}: ${issueLabel(it.code)}", color = MaterialTheme.colorScheme.error) }
+                    state.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                    if (actions.save != null) {
+                        PrimaryActionButton(
+                            onClick = { actions.save.invoke(SaveIntent.CONFIRM_REGISTRATION) },
+                            enabled = saveEnabled && !state.isSaving && !state.isAcquiringLocation && state.locationCandidate == null && !state.isQrScannerOpen,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(if (editing) "Guardar cambios y confirmar inscripción" else "Guardar inscripción")
+                        }
+                        if (allowDraft) OutlinedButton(
+                            onClick = { actions.save.invoke(SaveIntent.SAVE_DRAFT) },
+                            enabled = saveEnabled && !state.isSaving && !state.isAcquiringLocation && state.locationCandidate == null && !state.isQrScannerOpen,
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text("Guardar borrador")
+                        }
                     }
-                    if (allowDraft) OutlinedButton(
-                        onClick = { actions.save.invoke(SaveIntent.SAVE_DRAFT) },
-                        enabled = saveEnabled && !state.isSaving && !state.isAcquiringLocation && state.locationCandidate == null && !state.isQrScannerOpen,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text("Guardar borrador")
-                    }
-                }
-                PrimaryActionButton({ actions.validate(SaveIntent.CONFIRM_REGISTRATION) }, enabled = !state.isSaving, modifier = Modifier.fillMaxWidth()) { Text("Validar inscripción") }
-                if (allowDraft) OutlinedButton({ actions.validate(SaveIntent.SAVE_DRAFT) }, enabled = !state.isSaving, modifier = Modifier.fillMaxWidth()) { Text("Validar borrador") }
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton({ confirmDiscard = true }, enabled = !state.isSaving) { Text(if (editing) "Descartar edición" else "Descartar formulario") }
-                    if (actions.onBack != null) {
-                        TextButton(enabled = !state.isSaving, onClick = { confirmDiscard = true }) { Text("Volver al panel") }
+                    PrimaryActionButton({ actions.validate(SaveIntent.CONFIRM_REGISTRATION) }, enabled = !state.isSaving, modifier = Modifier.fillMaxWidth()) { Text("Validar inscripción") }
+                    if (allowDraft) OutlinedButton({ actions.validate(SaveIntent.SAVE_DRAFT) }, enabled = !state.isSaving, modifier = Modifier.fillMaxWidth()) { Text("Validar borrador") }
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        TextButton({ confirmDiscard = true }, enabled = !state.isSaving) { Text(if (editing) "Descartar edición" else "Descartar formulario") }
+                        if (actions.onBack != null) {
+                            TextButton(enabled = !state.isSaving, onClick = { confirmDiscard = true }) { Text("Volver al panel") }
+                        }
                     }
                 }
             }

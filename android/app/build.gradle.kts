@@ -51,6 +51,9 @@ android {
 room { schemaDirectory("$projectDir/schemas") }
 
 dependencies {
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp)
     // Modelo incluido en la APK: lectura QR disponible sin descarga ni backend.
     implementation(libs.camera.camera2)
     implementation(libs.camera.lifecycle)

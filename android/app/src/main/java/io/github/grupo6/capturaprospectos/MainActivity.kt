@@ -65,20 +65,27 @@ class MainActivity : ComponentActivity() {
                             DemoContextUiState(DemoContextState.StorageUnavailable), {}, owner::retry, {}, {}, {}, modifier)
                         is ContextSessionState.Ready -> {
                             val contextUi by current.viewModel.uiState.collectAsStateWithLifecycle()
+                            LaunchedEffect(contextUi.context, contextUi.busy) {
+                                if (contextUi.context == DemoContextState.NotInitialized && !contextUi.busy) {
+                                    current.viewModel.ensureCatalogInitialized()
+                                }
+                            }
                             val snapshot = (contextUi.context as? DemoContextState.Ready)?.snapshot
                             val profile = snapshot?.currentProfile
                             val event = snapshot?.selectedEvent
                             when {
                                 snapshot == null -> DemoContextRoute(current.viewModel, modifier, showProfiles = false)
                                 accessState.actorId == null || profile == null || profile.actor.id != accessState.actorId -> DemoAccessRoute(
-                                    access, true, contextUi.busy,
-                                    { email, password -> access.submit(email, password, current.viewModel) }, modifier)
+                                    model = access,
+                                    ready = true,
+                                    contextBusy = contextUi.busy,
+                                    onSubmit = { email, password -> access.submit(email, password, current.viewModel) },
+                                    modifier = modifier,
+                                    availableSites = snapshot.catalog.sites,
+                                )
                                 else -> {
                                     var active by rememberSaveable(accessState.actorId) { mutableStateOf(AppScreen.CONTEXT_SELECTOR) }
-                                    val dataVm = owner.data()
-                                    val data by dataVm.uiState.collectAsStateWithLifecycle()
-                                    LaunchedEffect(profile.actor.id, event?.id) { dataVm.clearMessage() }
-                                    val canNavigate = !data.busy && !contextUi.busy && contextUi.eventEditor == null
+                                    val canNavigate = !contextUi.busy && contextUi.eventEditor == null
                                     BackHandler(active in setOf(AppScreen.SUMMARY, AppScreen.PROFILE)) {
                                         if (canNavigate) active = AppScreen.HUB
                                     }
@@ -91,48 +98,55 @@ class MainActivity : ComponentActivity() {
                                                 emptyList(), snapshot.consentVersion, snapshot.consentText),
                                                 snapshot.catalog.programs, snapshot.catalog.sites)
                                         }
-                                        when (active) {
-                                            AppScreen.FORM -> {
-                                                val form = owner.form(env, snapshot.establishmentSuggestion)
-                                                Box(modifier, contentAlignment = Alignment.TopCenter) {
-                                                    AdmissionFormRoute(form, Modifier.widthIn(max = 840.dp).fillMaxSize(),
-                                                        onNavigateBack = { if (owner.releaseForm()) active = AppScreen.HUB })
+                                        androidx.compose.animation.Crossfade(targetState = active, label = "app_screen_transition") { currentScreen ->
+                                            when (currentScreen) {
+                                                AppScreen.FORM -> {
+                                                    val form = owner.form(env, snapshot.establishmentSuggestion)
+                                                    Box(modifier, contentAlignment = Alignment.TopCenter) {
+                                                        AdmissionFormRoute(form, Modifier.widthIn(max = 840.dp).fillMaxSize(),
+                                                            onNavigateBack = { if (owner.releaseForm()) active = AppScreen.HUB })
+                                                    }
                                                 }
-                                            }
-                                            AppScreen.TRAY -> {
-                                                val tray = owner.tray(profile.actor)
-                                                val trayState by tray.uiState.collectAsStateWithLifecycle()
-                                                val trayNavigation = canNavigate && !trayState.isMutating &&
-                                                    !trayState.isDetailOpen && !trayState.isReadingDetail &&
-                                                    !trayState.isEditing && trayState.targetForCancellation == null
-                                                AppNavigation(active, trayNavigation, { destination ->
-                                                    if (trayNavigation && owner.releaseTray()) active = destination
-                                                }, modifier) { body ->
-                                                    io.github.grupo6.capturaprospectos.ui.records.RecordTrayRoute(tray,
-                                                        onNavigateBack = { if (owner.releaseTray()) active = AppScreen.HUB },
-                                                        modifier = body)
+                                                AppScreen.TRAY -> {
+                                                    val tray = owner.tray(profile.actor)
+                                                    val trayState by tray.uiState.collectAsStateWithLifecycle()
+                                                    val trayNavigation = canNavigate && !trayState.isMutating &&
+                                                        !trayState.isDetailOpen && !trayState.isReadingDetail &&
+                                                        !trayState.isEditing && trayState.targetForCancellation == null
+                                                    AppNavigation(currentScreen, trayNavigation, { destination ->
+                                                        if (trayNavigation && owner.releaseTray()) active = destination
+                                                    }, modifier) { body ->
+                                                        io.github.grupo6.capturaprospectos.ui.records.RecordTrayRoute(tray,
+                                                            onNavigateBack = { if (owner.releaseTray()) active = AppScreen.HUB },
+                                                            modifier = body)
+                                                    }
                                                 }
-                                            }
-                                            else -> AppNavigation(active, canNavigate, { active = it }, modifier) { body ->
-                                                if (active == AppScreen.PROFILE) ProfileScreen(profile, event, data,
-                                                    onChangeEvent = { active = AppScreen.CONTEXT_SELECTOR },
-                                                    onLoadData = { dataVm.load(env) },
-                                                    onLogout = {
-                                                        if (canNavigate && owner.releaseForm() && owner.releaseTray()) {
-                                                            current.viewModel.clearSelection()
-                                                            access.logout()
-                                                        }
-                                                    }, modifier = body, darkMode = darkMode, onDarkModeChange = appearance::setDarkMode)
-                                                else MainHubRoute(profile, event, connectivity,
-                                                    onNewCapture = { active = AppScreen.FORM },
-                                                    onChangeContext = { active = AppScreen.CONTEXT_SELECTOR },
-                                                    modifier = body,
-                                                    onOpenTray = { active = AppScreen.TRAY },
-                                                    recordRepository = current.recordRepository,
-                                                    suppliedMetrics = owner.hub(profile.actor, event),
-                                                    contextViewModel = current.viewModel,
-                                                    summaryOnly = active == AppScreen.SUMMARY,
-                                                    onOpenSummary = { active = AppScreen.SUMMARY })
+                                                else -> AppNavigation(currentScreen, canNavigate, { active = it }, modifier) { body ->
+                                                    if (currentScreen == AppScreen.PROFILE) ProfileScreen(
+                                                        profile = profile,
+                                                        event = event,
+                                                        onChangeEvent = { active = AppScreen.CONTEXT_SELECTOR },
+                                                        onLogout = {
+                                                            if (canNavigate && owner.releaseForm() && owner.releaseTray()) {
+                                                                current.viewModel.clearSelection()
+                                                                access.logout()
+                                                            }
+                                                        },
+                                                        modifier = body,
+                                                        darkMode = darkMode,
+                                                        onDarkModeChange = appearance::setDarkMode,
+                                                    )
+                                                    else MainHubRoute(profile, event, connectivity,
+                                                        onNewCapture = { active = AppScreen.FORM },
+                                                        onChangeContext = { active = AppScreen.CONTEXT_SELECTOR },
+                                                        modifier = body,
+                                                        onOpenTray = { active = AppScreen.TRAY },
+                                                        recordRepository = current.recordRepository,
+                                                        suppliedMetrics = owner.hub(profile.actor, event),
+                                                        contextViewModel = current.viewModel,
+                                                        summaryOnly = currentScreen == AppScreen.SUMMARY,
+                                                        onOpenSummary = { active = AppScreen.SUMMARY })
+                                                }
                                             }
                                         }
                                     }

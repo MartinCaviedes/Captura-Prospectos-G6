@@ -7,7 +7,7 @@ import java.time.ZoneId
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 
-data class DemoProfile(val actor: LocalActor, val displayName: String)
+data class DemoProfile(val actor: LocalActor, val displayName: String, val email: String = "")
 data class DemoCatalog(
     val version: String, val sourceKind: String, val sourceReference: String, val academicYear: Int,
     val programs: List<ProgramOption>, val sites: List<SiteOption>,
@@ -48,13 +48,35 @@ sealed interface SaveEventResult {
     data object StorageUnavailable : SaveEventResult
 }
 
-/** Perfiles de demostración seleccionables: no autentica identidades ni emite tokens. */
+data class RegisterAccountCommand(
+    val displayName: String,
+    val email: String,
+    val password: String,
+    val role: LocalRole = LocalRole.CAPTOR,
+    val siteIds: Set<UUID> = emptySet(),
+    val explicitId: UUID? = null,
+) {
+    override fun toString() = "RegisterAccountCommand(email=$email, role=$role, credentials=redacted)"
+}
+
+sealed interface AuthResult {
+    data class Authenticated(val profile: DemoProfile) : AuthResult
+    data class Invalid(val message: String) : AuthResult
+    data object InvalidCredentials : AuthResult
+    data object DuplicateAccount : AuthResult
+    data object StorageUnavailable : AuthResult
+}
+
+/** Repositorio de contexto, catálogo, eventos y cuentas locales. */
 interface DemoContextRepository : AdmissionContextSource {
     suspend fun initialize(): ContextChange
+    suspend fun initializeCatalog(): ContextChange = initialize()
     suspend fun snapshot(): DemoContextState
     fun observe(): Flow<DemoContextState>
     suspend fun selectProfile(id: UUID): ContextChange
     suspend fun selectEvent(id: UUID): ContextChange
     suspend fun clearSelection(): ContextChange
     suspend fun saveEvent(command: SaveDemoEvent): SaveEventResult
+    suspend fun authenticate(emailOrUsername: String, password: String): AuthResult = AuthResult.InvalidCredentials
+    suspend fun registerAccount(command: RegisterAccountCommand): AuthResult = AuthResult.StorageUnavailable
 }

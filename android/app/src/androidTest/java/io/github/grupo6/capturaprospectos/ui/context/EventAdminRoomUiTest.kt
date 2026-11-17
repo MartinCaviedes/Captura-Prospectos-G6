@@ -65,23 +65,23 @@ class EventAdminRoomUiTest {
         start(supervisor=true);val original=stored()
         scroll("Editar evento");compose.onNodeWithText("Editar evento").performClick()
         compose.waitUntil(10000) { ctxVm.uiState.value.eventEditor!=null }
-        scroll("Colegio o institución");compose.onNode(hasText("Colegio o institución") and hasSetTextAction()).assertTextContains("Colegio ficticio A")
-        scroll("Comuna del colegio");compose.onNode(hasText("Comuna del colegio") and hasSetTextAction()).assertTextContains("Comuna ficticia A")
+        scroll("Colegio o institución");compose.onNode(hasText("Colegio o institución") and hasSetTextAction()).assertTextContains("Liceo Bicentenario Viña del Mar")
+        scroll("Comuna del colegio");compose.onNode(hasText("Comuna del colegio") and hasSetTextAction()).assertTextContains("Viña del Mar")
         write("Nombre del evento","Evento editado ficticio")
         write("Inicio con offset","2026-10-12T09:00-03:00");write("Término con offset","2026-10-15T17:00-03:00")
         write("Latitud declarada (opcional)","-34.0");write("Longitud declarada (opcional)","-70.0")
         scroll("Guardar evento");compose.onNodeWithText("Guardar evento").performClick()
         compose.waitUntil(10000) { ctxVm.uiState.value.eventEditor==null && !ctxVm.uiState.value.busy }
         val row=runBlocking(Dispatchers.IO) { handle!!.database.context().event(DemoSeed.id("event-a"))!! }
-        assertEquals("Evento editado ficticio",row.name);assertEquals("Colegio ficticio A",row.establishment)
-        assertEquals("Comuna ficticia A",row.establishmentCommune);assertEquals("2026-10-15T20:00:00Z",row.endsAt)
+        assertEquals("Evento editado ficticio",row.name);assertEquals("Liceo Bicentenario Viña del Mar",row.establishment)
+        assertEquals("Viña del Mar",row.establishmentCommune);assertEquals("2026-10-15T20:00:00Z",row.endsAt)
         assertEquals(-34.0,row.latitude!!,0.0);assertEquals(original,stored())
     }
     @Test fun invalidCreationPreservesInputAndConfirmationControlsDiscardThenSuccessfulSelection() {
         start(supervisor=true);scroll("Nuevo evento");compose.onNodeWithText("Nuevo evento").performClick()
         compose.waitUntil(10000) { ctxVm.uiState.value.eventEditor!=null };assertNull(ctxVm.uiState.value.eventEditor!!.siteId)
         write("Nombre del evento","Nuevo evento ficticio")
-        scroll("Sede ficticia 1 — DEMO");compose.onNode(hasText("Sede ficticia 1 — DEMO") and hasClickAction()).performClick()
+        scroll("Sede Viña del Mar");compose.onNode(hasText("Sede Viña del Mar") and hasClickAction()).performClick()
         write("Inicio con offset","2026-10-12T09:00-03:00");write("Término con offset","2026-10-11T09:00-03:00")
         scroll("Guardar evento");compose.onNodeWithText("Guardar evento").performClick()
         compose.waitUntil(10000) { ctxVm.uiState.value.message!=null }
@@ -89,7 +89,7 @@ class EventAdminRoomUiTest {
         scroll("Cancelar edición de evento");compose.onNodeWithText("Cancelar edición de evento").performClick();compose.onNodeWithText("Conservar evento").performClick()
         assertEquals("Nuevo evento ficticio",ctxVm.uiState.value.eventEditor!!.name)
         write("Término con offset","2026-10-13T17:00-03:00")
-        scroll("Captador A — DEMO");compose.onNodeWithText("Captador A — DEMO").performClick()
+        scroll("Captador A");compose.onNodeWithText("Captador A").performClick()
         scroll("Guardar evento");compose.onNodeWithText("Guardar evento").performClick()
         compose.waitUntil(10000) { ctxVm.uiState.value.eventEditor==null && !ctxVm.uiState.value.busy }
         val snapshot=(ctxVm.uiState.value.context as DemoContextState.Ready).snapshot

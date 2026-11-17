@@ -19,7 +19,8 @@ internal class RoomAdmissionRepository(
     private val clock: Clock = Clock.systemUTC(), private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : AdmissionRepository {
     override suspend fun create(request: NewAdmission): CreateAdmissionResult = withContext(dispatcher) {
-        try {
+        var syncPayload: io.github.grupo6.capturaprospectos.data.remote.CreateProspectRequestDto? = null
+        val localResult = try {
             db.withTransaction {
                 val actor = context.currentActor() ?: return@withTransaction CreateAdmissionResult.AccessDenied
                 val catalog = context.environment(request.eventId) ?: return@withTransaction CreateAdmissionResult.AccessDenied
@@ -48,13 +49,42 @@ internal class RoomAdmissionRepository(
                         dao.insertInterests(prepared.programs.map { InterestRow(id.toString(), it.id.toString(), null,
                             it.catalogVersion, it.name, null, it.priority, it.section, it.mentionId?.toString(), it.mentionName) })
                         dao.insertSites(prepared.sites.map { SitePreferenceRow(id.toString(), it.id.toString(), it.name, it.catalogVersion) })
-                        if (prepared.state != CaptureState.DRAFT) dao.insertKey(ActiveKeyRow(env.event.id.toString(), prepared.input.rut, id.toString()))
+                        if (prepared.state != CaptureState.DRAFT) {
+                            dao.insertKey(ActiveKeyRow(env.event.id.toString(), prepared.input.rut, id.toString()))
+                            syncPayload = io.github.grupo6.capturaprospectos.data.remote.CreateProspectRequestDto(
+                                rut = prepared.input.rut,
+                                eventId = env.event.id.toString(),
+                                siteId = io.github.grupo6.capturaprospectos.data.remote.BackendSession.mapLocalSiteToBackend(env.event.siteId),
+                                givenNames = prepared.input.givenNames,
+                                familyNames = prepared.input.familyNames,
+                                email = prepared.input.email,
+                                phone = prepared.input.phone,
+                                consentAccepted = true,
+                                consentVersion = prepared.consent.version,
+                            )
+                        }
                         dao.insertAudit(AuditRow(UUID.randomUUID().toString(), id.toString(), actor.id.toString(), now.toString(), "CREATED", 1))
                         CreateAdmissionResult.Saved(id, 1, prepared.state)
                     }
                 }
             }
         } catch (_: SQLiteException) { CreateAdmissionResult.StorageUnavailable }
+
+        val bearer = io.github.grupo6.capturaprospectos.data.remote.BackendSession.bearerHeader()
+        val payload = syncPayload
+        if (localResult is CreateAdmissionResult.Saved && bearer != null && payload != null) {
+            try {
+                val response = io.github.grupo6.capturaprospectos.data.remote.BackendSession.createService()
+                    .createProspect(bearer, payload)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    io.github.grupo6.capturaprospectos.data.remote.BackendSession.recordRemoteId(localResult.id, body.id)
+                }
+            } catch (_: Exception) {
+                // Fallo de red: el registro permanece persistido en Room sin pérdida de datos.
+            }
+        }
+        localResult
     }
 
     // Fallos de formato se traducen sin reset; no capturar IllegalStateException/CancellationException.

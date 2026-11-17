@@ -40,6 +40,54 @@ class DemoContextViewModel(private val repository: DemoContextRepository) : View
     } else null
 
     @MainThread
+    fun ensureCatalogInitialized(): Job? = if (uiState.value.context == DemoContextState.NotInitialized) {
+        perform { repository.initializeCatalog() }
+    } else null
+
+    @MainThread
+    fun authenticate(
+        emailOrUsername: String,
+        password: String,
+        onResult: (AuthResult) -> Unit = {},
+    ): Job? {
+        if (uiState.value.busy || uiState.value.eventEditor != null || !viewModelScope.isActive) return null
+        mutableState.update { it.copy(busy = true, message = null) }
+        return viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            try {
+                observation?.cancelAndJoin()
+                val result = repository.authenticate(emailOrUsername, password)
+                val context = repository.snapshot()
+                mutableState.update { it.copy(context = context, message = null) }
+                onResult(result)
+            } finally {
+                mutableState.update { it.copy(busy = false) }
+                if (viewModelScope.isActive) observe()
+            }
+        }
+    }
+
+    @MainThread
+    fun registerAccount(
+        command: RegisterAccountCommand,
+        onResult: (AuthResult) -> Unit = {},
+    ): Job? {
+        if (uiState.value.busy || uiState.value.eventEditor != null || !viewModelScope.isActive) return null
+        mutableState.update { it.copy(busy = true, message = null) }
+        return viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            try {
+                observation?.cancelAndJoin()
+                val result = repository.registerAccount(command)
+                val context = repository.snapshot()
+                mutableState.update { it.copy(context = context, message = null) }
+                onResult(result)
+            } finally {
+                mutableState.update { it.copy(busy = false) }
+                if (viewModelScope.isActive) observe()
+            }
+        }
+    }
+
+    @MainThread
     fun selectProfile(id: UUID): Job? = when (uiState.value.context) {
         is DemoContextState.Ready -> perform { repository.selectProfile(id) }
         else -> null
@@ -59,7 +107,7 @@ class DemoContextViewModel(private val repository: DemoContextRepository) : View
 
     @MainThread fun beginEventEditor(edit:Boolean=false) {
         val snapshot=(uiState.value.context as? DemoContextState.Ready)?.snapshot ?: return
-        if(uiState.value.busy || snapshot.currentProfile?.actor?.role != LocalRole.SUPERVISOR) return
+        if(uiState.value.busy || snapshot.currentProfile == null) return
         val input=if(edit) snapshot.selectedEvent?.let { EventEditorInput.from(it,snapshot.establishmentSuggestion) } ?: return
             else EventEditorInput()
         mutableState.update { it.copy(eventEditor=input,confirmEventDiscard=false,message=null) }
@@ -96,7 +144,7 @@ class DemoContextViewModel(private val repository: DemoContextRepository) : View
                     is io.github.grupo6.capturaprospectos.domain.context.SaveEventResult.Success ->
                         "Evento guardado correctamente en este dispositivo."
                     io.github.grupo6.capturaprospectos.domain.context.SaveEventResult.Unauthorized ->
-                        "No tienes permisos de supervisor para administrar eventos en esta sede."
+                        "No tienes permisos para administrar eventos en esta sede."
                     is io.github.grupo6.capturaprospectos.domain.context.SaveEventResult.Invalid ->
                         result.issues.joinToString(" ")
                     io.github.grupo6.capturaprospectos.domain.context.SaveEventResult.StorageUnavailable ->
@@ -136,9 +184,9 @@ class DemoContextViewModel(private val repository: DemoContextRepository) : View
 
 private fun ContextChange?.message(): String? = when (this) {
     null, ContextChange.APPLIED -> null
-    ContextChange.ALREADY_INITIALIZED -> "La demo ya estaba preparada; se conservó su contexto."
+    ContextChange.ALREADY_INITIALIZED -> "El catálogo ya estaba inicializado; se conservó su contexto."
     ContextChange.INVALID_SELECTION -> "La selección no es válida para el contexto actual. Revisa el perfil y el evento."
-    ContextChange.NOT_INITIALIZED -> "Primero prepara la demo local."
+    ContextChange.NOT_INITIALIZED -> "Inicializa primero el catálogo local."
     ContextChange.INCOMPATIBLE_SEED -> "El contexto existente requiere revisión. No se borraron ni reemplazaron sus datos."
     ContextChange.STORAGE_UNAVAILABLE -> "No se pudo completar la operación local. Los datos se conservan; reintenta la lectura."
 }

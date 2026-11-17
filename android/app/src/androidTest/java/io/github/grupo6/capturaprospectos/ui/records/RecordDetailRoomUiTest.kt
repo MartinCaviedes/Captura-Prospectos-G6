@@ -73,7 +73,7 @@ class RecordDetailRoomUiTest {
         write("Correo electrónico","demo@example.invalid"); write("Teléfono","900000000"); write("Nacimiento (aaaa-mm-dd)","2000-01-01")
         write("Comuna de residencia","Comuna ficticia")
         scroll("Egresado Enseñanza Media"); compose.onNodeWithText("Egresado Enseñanza Media").performClick()
-        scroll("Programa ficticio 1 — DEMO"); compose.onNodeWithText("Programa ficticio 1 — DEMO").performClick()
+        scroll("Ingeniería en Informática"); compose.onNodeWithText("Ingeniería en Informática").performClick()
         save(); compose.waitUntil(10000) { !vm.uiState.value.isEditing && !vm.uiState.value.isReadingDetail }
         val pending=stored(); assertEquals(CaptureState.NEEDS_CONTEXT,pending.state); assertEquals(original.id,pending.id)
         assertEquals(original.consent,pending.consent); assertEquals(original.capturedAt,pending.capturedAt)
