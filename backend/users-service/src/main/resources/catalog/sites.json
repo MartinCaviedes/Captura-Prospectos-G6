@@ -1,0 +1,10 @@
+[
+  {"id":"site-1","name":"Sede Viña del Mar","enabled":true},
+  {"id":"site-2","name":"Sede Valparaíso","enabled":true},
+  {"id":"site-3","name":"Sede Alameda (Santiago Centro)","enabled":true},
+  {"id":"site-4","name":"Sede Antonio Varas (Providencia)","enabled":true},
+  {"id":"site-5","name":"Sede Maipú","enabled":true},
+  {"id":"site-6","name":"Sede San Joaquín","enabled":true},
+  {"id":"site-7","name":"Sede Concepción","enabled":true},
+  {"id":"site-8","name":"Sede Puerto Montt","enabled":true}
+]

@@ -91,7 +91,7 @@ def run(temp):
     supervisor = login("supervisor", os.environ["LOCAL_ADMIN_PASSWORD"])
     token = a["accessToken"]
     identity = request("GET", "/api/v1/me", token=token)
-    assert identity["userId"] == a["userId"]
+    assert identity["id"] == a["userId"]
     parts = token.split(".")
     parts[2] = ("A" if parts[2][0] != "A" else "B") + parts[2][1:]
     request("GET", "/api/v1/prospects", token=".".join(parts), expected=401)

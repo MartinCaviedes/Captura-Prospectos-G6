@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -32,8 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
+    public static final long SESSION_SECONDS = 4 * 60 * 60;
 
-    private final AuthenticationManager authenticationManager;
     private final UsuarioService usuarioService;
     private final JwtEncoder encoder;
     private final String issuer;
@@ -42,20 +40,25 @@ public class AuthController {
     /**
      * Inicializa el controlador de autenticación con el gestor de seguridad y emisor JWT.
      */
-    public AuthController(AuthenticationManager authenticationManager,
-                          UsuarioService usuarioService,
+    public AuthController(UsuarioService usuarioService,
                           JwtEncoder encoder,
                           @Value("${security.jwt.issuer}") String issuer,
                           @Value("${security.jwt.audience}") String audience) {
-        this.authenticationManager = authenticationManager;
         this.usuarioService = usuarioService;
         this.encoder = encoder;
         this.issuer = issuer;
         this.audience = audience;
     }
 
-    public record LoginRequest(@NotBlank @Size(max = 120) String username,
-                               @NotBlank @Size(max = 128) String password) {}
+    public record LoginRequest(@NotBlank @Size(max = 160) String username,
+                               @NotBlank @Size(max = 128) String password) {
+        @Override public String toString() { return "LoginRequest[credentials=REDACTED]"; }
+    }
+
+    @PostMapping("/register") @ResponseStatus(HttpStatus.CREATED)
+    public AccountDtos.RegistrationReceipt register(@Valid @RequestBody AccountDtos.RegisterRequest request) {
+        return usuarioService.register(request);
+    }
 
     public record TokenResponse(
         String accessToken,
@@ -75,26 +78,21 @@ public class AuthController {
      */
     @PostMapping("/login")
     public TokenResponse login(@Valid @RequestBody LoginRequest request) {
-        var auth = authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken.unauthenticated(
-                request.username().trim(), request.password()));
+        Usuario usuario = usuarioService.authenticate(request.username(), request.password());
         var now = Instant.now();
-        var roles = auth.getAuthorities().stream()
-            .map(authority -> authority.getAuthority().replaceFirst("^ROLE_", "")).toList();
-
-        Usuario usuario = usuarioService.buscarPorIdentificador(auth.getName()).orElse(null);
-        String userId = usuario != null ? usuario.getId() : auth.getName();
-        String email = usuario != null ? usuario.getEmail() : auth.getName();
-        String displayName = usuario != null ? usuario.getDisplayName() : auth.getName();
-        String rolPrincipal = usuario != null ? usuario.getRol().name() : (roles.isEmpty() ? "CAPTADOR" : roles.get(0));
-        List<String> siteIds = usuario != null ? usuario.obtenerSedeIds() : List.of("site-1");
+        var roles = List.of(usuario.getRol().name());
+        String userId = usuario.getId();
+        String email = usuario.getEmail();
+        String displayName = usuario.getDisplayName();
+        String rolPrincipal = usuario.getRol().name();
+        List<String> siteIds = usuario.obtenerSedeIds();
 
         var claims = JwtClaimsSet.builder()
             .issuer(issuer)
-            .subject(auth.getName())
+            .subject(usuario.getUsername())
             .audience(List.of(audience))
             .issuedAt(now)
-            .expiresAt(now.plusSeconds(900))
+            .expiresAt(now.plusSeconds(SESSION_SECONDS))
             .claim("roles", roles)
             .claim("userId", userId)
             .claim("email", email)
@@ -107,9 +105,9 @@ public class AuthController {
         return new TokenResponse(
             token,
             "Bearer",
-            900,
+            SESSION_SECONDS,
             userId,
-            auth.getName(),
+            usuario.getUsername(),
             email,
             displayName,
             rolPrincipal,
@@ -141,6 +139,6 @@ public class AuthController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> invalidRequest() {
-        return Map.of("code", "INVALID_REQUEST", "message", "Revisar usuario y contraseña");
+        return Map.of("code", "INVALID_REQUEST", "message", "Revisa los datos enviados.");
     }
 }

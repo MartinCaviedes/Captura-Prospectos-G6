@@ -46,6 +46,7 @@ public class Prospect {
     }
     public String getStatus() { return cancelledAt == null ? "ACTIVE" : "CANCELLED"; }
     public UUID getId() { return id; }
+    public long getVersion() { return version; }
     public String getRut() { return rut; }
     public UUID getEventId() { return eventId; }
     public String getSiteId() { return siteId; }
