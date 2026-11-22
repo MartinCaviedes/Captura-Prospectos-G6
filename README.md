@@ -4,7 +4,9 @@ Aplicación Android para registrar personas interesadas en estudiar en Duoc UC d
 
 El proyecto aborda el caso **Inscripción de potenciales clientes**, de la asignatura Desarrollo de Aplicaciones Móviles. Reúne los datos de contacto, los intereses académicos y el contexto de cada inscripción para facilitar el trabajo del equipo de captación, incluso sin conexión a internet.
 
-**[Descargar APK](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/download/e1-demo-1.0.1/Captura-Prospectos-G6-E1-demo.apk)** · [Guía de instalación](docs/DISTRIBUCION_DEMO.md) · [QR para pruebas](docs/fixtures/qr/README.md) · [Documentación](docs/README.md)
+**[Descargar APK candidata E2 1.1.0](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/download/e2-1.1.0-rc1/Captura-Prospectos-G6-1.1.0-release.apk)** · [Instalación y firma](docs/RELEASE_DISTRIBUTION.md) · [Estado de entrega](docs/ENTREGA_E2_1_1_0.md) · [Swagger](https://13.58.183.187/docs/index.html) · [Documentación](docs/README.md)
+
+La candidata E2 utiliza el backend académico de AWS. La [versión E1 anterior](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e1-demo-1.0.1) permanece disponible; los datos locales de debug y release pertenecen a instalaciones independientes.
 
 ## Caso de negocio
 
@@ -20,12 +22,13 @@ La sede del evento y las sedes preferidas para estudiar son datos distintos. Cad
 
 ## Qué permite hacer
 
-- **Acceso y registro real de usuarios:** crear cuentas con rol (`Captador` o `Supervisor`) y sedes asignadas, e iniciar sesión autenticando contra el backend (`POST /api/v1/auth/login` vía API Gateway con JWT RS256) o contra el almacenamiento local cifrado en modo offline.
+- **Acceso y registro de usuarios:** solicitar una cuenta remota; el administrador la habilita y asigna rol/sedes. El login se valida en backend mediante API Gateway y JWT RS256. CAPTADOR/SUPERVISOR pueden continuar localmente hasta 12 horas desde el login verificado, con autorización cifrada y sin contraseña local; reiniciar el dispositivo exige conexión. [Alcance de sesión offline](docs/OFFLINE_SESSION_VALIDATION.md).
 - **Gestión real de eventos y contextos:** crear, editar y seleccionar eventos de captación por sede (tanto para supervisores como para captadores en sus sedes autorizadas), sin depender de eventos ficticios precargados.
 - **Formulario de admisión F2027 con validaciones por campo:** registrar datos personales, RUT con dígito verificador (módulo 11), correo, teléfono, actividad actual, establecimiento y hasta tres carreras priorizadas del catálogo Admisión Duoc UC 2027.
-- **Consentimiento y persistencia local cifrada + sincronización remota:** almacenar cada inscripción o borrador en SQLite/Room cifrado con SQLCipher y Android Keystore, y sincronizar automáticamente las inscripciones confirmadas, ediciones y anulaciones con `prospects-service` (PostgreSQL) a través del `api-gateway` mediante Retrofit, sin perder datos locales ante fallos de red.
+- **Consentimiento y sincronización persistente:** guardar fichas y operaciones pendientes en Room con SQLCipher/Android Keystore; enviar altas, ediciones y anulaciones con reintentos idempotentes y permisos revalidados. La cola continúa con la app abierta y acceso vigente. Conflictos y fichas anteriores se conservan para revisión. [Alcance y límites](docs/PROSPECT_SYNC_CONTRACT.md).
 - **Bandeja, detalle, edición y anulación:** consultar registros reales filtrados por rol/sede, estado y búsqueda textual, editar con control optimista de versión y anular con motivo auditado.
 - **Recursos nativos integrados:** escanear códigos QR con CameraX y ML Kit para proponer el RUT, adquirir ubicación candidata por GPS (`LocationManager`) y observar el estado de conectividad en tiempo real (`ConnectivityManager`).
+- **API externa de ubicación:** después de confirmar GPS reciente, consultar opcionalmente la localidad mediante BigDataCloud y, por separado, intentar obtener calle/número con el geocodificador de Android. Ambos muestran referencias aproximadas con aviso previo y alternativa ante fallo. Describen el punto de captura, sin rellenar el domicilio del prospecto. [Contrato y evidencia](docs/EXTERNAL_GEOCODING_CONTRACT.md).
 - **Resumen y métricas reales:** consultar gráficos y estadísticas calculados directamente desde los registros almacenados por evento y rango de fechas, y alternar entre modo claro y oscuro desde Perfil.
 
 El recorrido habitual es **bienvenida → inicio de sesión o registro de cuenta → selección o creación de evento → captura con consentimiento y guardado → consulta de bandeja y resumen**. La información guardada permanece en el dispositivo al cerrar la sesión o reiniciar la aplicación.
@@ -43,8 +46,9 @@ Consulta los criterios completos en [Entregas](docs/ENTREGAS.md) y [SRS](docs/SR
 
 1. Abre la aplicación y pulsa **Comenzar**.
 2. En la pantalla de acceso:
-   - Si aún no tienes cuenta en el dispositivo, pulsa **¿No tienes cuenta? Crear cuenta**, ingresa tu nombre completo, selecciona tu rol (**Captador** o **Supervisor**), marca tus sedes asignadas, ingresa tu correo y contraseña y pulsa **Registrar y entrar**.
-   - Si ya dispones de una cuenta registrada localmente o en el backend (`users-service`), ingresa tu correo electrónico y contraseña y pulsa **Iniciar sesión**.
+   - Si aún no tienes cuenta, pulsa **¿No tienes cuenta? Crear cuenta**, ingresa nombre, correo y contraseña y pulsa **Solicitar cuenta**. La solicitud queda pendiente; el administrador debe habilitarla y asignar rol/sedes.
+   - Si ya tienes una cuenta remota habilitada, ingresa tu usuario o correo y contraseña. El Administrador entra a gestión de usuarios sin elegir evento; Captador/Supervisor continúan al contexto de trabajo. El acceso requiere el backend actualizado; no usa cuentas locales como respaldo tras un rechazo.
+   - Sin red, si existe una autorización local vigente de este mismo arranque del dispositivo, puedes pulsar **Continuar sin conexión**. Al recuperar red se revalida el acceso; si el JWT ya no está disponible, se solicita login. Los envíos permanecen bloqueados hasta validarlo.
 3. En **Tu punto de partida**, selecciona un evento existente o pulsa **Nuevo evento** para registrar una nueva actividad en tu sede (puedes usar **Autocompletar jornada de hoy** para rellenar el horario de la jornada actual).
 4. Accede a **Inicio**, **Registros**, **Resumen** y **Perfil** para capturar prospectos, editar o anular fichas y consultar estadísticas reales.
 
@@ -128,6 +132,8 @@ docs/                     Requisitos, contratos, arquitectura, auditorías y evi
 | Capas y decisiones técnicas | [Arquitectura](docs/ARCHITECTURE.md) · [Diseño](docs/DESIGN.md) |
 | Datos, contexto y protección | [Modelo local](docs/LOCAL_MODEL.md) · [Contexto demo](docs/DEMO_CONTEXT.md) · [Seguridad](docs/SECURITY.md) |
 | Construcción y pruebas | [Guía Android](android/README.md) · [Evidencia técnica](docs/ANDROID_BASELINE.md) · [QA y pendientes](docs/ROUND4_QA.md) |
+| Apodo y foto en este dispositivo | [Personalización del perfil](docs/PROFILE_PERSONALIZATION.md) |
+| API implementada y pruebas desde navegador | [OpenAPI y Swagger UI](docs/SWAGGER_VALIDATION.md) |
 | Historial y documentación completa | [Changelog](docs/CHANGELOG.md) · [Índice](docs/README.md) |
 
 ## Equipo

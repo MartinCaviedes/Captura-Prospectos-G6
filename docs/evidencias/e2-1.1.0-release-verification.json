@@ -1,0 +1,28 @@
+{
+  "release": {
+    "sha256": "d24c92fc061fab9b9c9c21fa9ec1b895f422f4e7acb751f1f6b770b862114f1e",
+    "versionCode": 3,
+    "versionName": "1.1.0",
+    "debuggable": false,
+    "apiBaseUrl": "https://13.58.183.187/",
+    "applicationId": "io.github.grupo6.capturaprospectos.demo",
+    "signingAlias": "g6-release"
+  },
+  "native_libraries": 20,
+  "elf_64bit_failures": [],
+  "aws_url_found_in_dex": true,
+  "lint": {
+    "error": 0,
+    "warning": 42,
+    "note": 0
+  },
+  "redmi_installation": {
+    "result": "PASS",
+    "version": "1.1.0",
+    "versionCode": 3,
+    "activity_start_status": "ok",
+    "debuggable_flag_present": false,
+    "debug_app_preserved": true,
+    "manual_functional_confirmation": "PASS - Martin reported release smoke successful on Redmi 9A, 2026-11-22"
+  }
+}

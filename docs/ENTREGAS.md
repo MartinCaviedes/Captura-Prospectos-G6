@@ -1,5 +1,7 @@
 # Alcance y aceptación por entrega
 
+Actualización 22/11/2026: el [incremento candidato E2 1.1.0](ENTREGA_E2_1_1_0.md) identifica funciones implementadas, despliegue AWS, firma, pruebas y alcance aplazado por decisión del equipo. La matriz inferior conserva el horizonte del SRS y sus decisiones históricas; no acredita que todas las funciones remotas previstas estén implementadas ni sustituye aceptación docente. Trello no forma parte del alcance actual y se mantienen tres roles con funciones diferenciadas.
+
 Decisión de alcance del equipo · 19/10/2026: Martín aplaza el soporte de QR de cédula real a E2; no se incorporan dependencias ni un parser de documentos reales en E1. Se mantiene cámara real con formato sintético, confirmación y entrada manual. La distribución preliminar por GitHub no supone aceptación contractual ni cierre E1. [Guía de distribución](DISTRIBUCION_DEMO.md).
 
 Actualización 11/10/2026: candidato local con las correcciones de las rondas preparadas y verificaciones identificadas en ANDROID_BASELINE. Se retiró la afirmación anterior de alcance E1 completamente verificado: SQLite del host no acreditaba rendimiento Android. Hay ahora un ensayo real de 400 en Room cifrado, sin que ello cierre E1/RF ni sustituya accesibilidad, permisos adversos, revisión cruzada y aceptación de contratos. Sin backend/WorkManager/ACK; transporte NOT_QUEUED. El alcance y criterios siguientes se conservan.
