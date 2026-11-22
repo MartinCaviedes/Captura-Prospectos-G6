@@ -1,10 +1,22 @@
 # Captura de Prospectos — Android
 
-Develop `0c64533` integra el flujo E1: bienvenida → credenciales demo → evento → menú → alta F2027 consentida en Room cifrado; bandeja/detalle/edición/anulación, cámara QR sintética, GPS confirmado, métricas y eventos. [R4 QA](../docs/ROUND4_QA.md) registra construcción desde clon remoto limpio del 14/10: 191 JVM, Lint 27 avisos/0 errores y APK debug/instrumental/release unsigned. Evidencias físicas/Android anteriores conservan sus versiones; no se atribuyen a la nueva compilación. Revisión técnica externa reportada al integrar; aceptación contractual, accesibilidad completa, permisos/redes adversas, tablet y entrega pendientes. No acredita cierre E1.
+API externa candidata: [localidad aproximada del GPS con BigDataCloud](../docs/EXTERNAL_GEOCODING_CONTRACT.md), sin cuenta/clave, consulta explícita y errores recuperables. Solo se consultan coordenadas actuales del propio dispositivo; las pruebas automáticas usan HTTP local y no envían posiciones ficticias al proveedor. Las ampliaciones del SRS acordadas con Martín se evaluarán después del alcance fundamental, sin declararlas descartadas ni cumplidas.
 
-Consultar [R0](../docs/ROUND0_BASE.md), [R1](../docs/ROUND1_INTERFACES.md) y [evidencia de pruebas](../docs/ANDROID_BASELINE.md).
+Para pruebas físicas mediante USB: compilar con `-Pg6ApiBaseUrl=http://127.0.0.1:8080/` y usar `adb -s <dispositivo> reverse tcp:8080 tcp:<puerto-local-gateway>`. La URL solo configura el backend propio; BigDataCloud conserva su HTTPS directo. Sin esa propiedad, se mantiene `http://10.0.2.2:8080/` para el emulador. No incluir credenciales en la URL; para un servidor remoto usar HTTPS.
+
+Incrementos locales del 21–22/11: [cuentas y administración](../docs/ACCOUNT_ANDROID_VALIDATION.md), [sesión local offline hasta 12 horas](../docs/OFFLINE_SESSION_VALIDATION.md) y [cola persistente de sincronización](../docs/PROSPECT_SYNC_CONTRACT.md). ADMIN usa navegación independiente; se retiró el fallback de credenciales locales. Se requiere backend actualizado para el primer acceso. Los JWT nuevos duran cuatro horas; el permiso local no extiende ese plazo. Reiniciar el dispositivo exige conexión. La cola continúa al abrir la aplicación y autenticar; no se ejecuta con la app cerrada ni resuelve conflictos por sobrescritura. Las fichas anteriores requieren conciliación. La descripción del corte 10ba22d inferior es histórica y no acredita cierre de E2.
+
+Develop `10ba22d` integra el flujo funcional completo sin dependencias de datos DEMO:
+- **Bienvenida → Acceso real (inicio de sesión o registro de cuenta) → Selección o creación de evento → Menú principal (`Inicio`, `Registros`, `Resumen`, `Perfil`) → Alta F2027 consentida en Room cifrado y sincronización remota con el API Gateway mediante Retrofit.**
+- El catálogo base (sedes, carreras y menciones de Admisión Duoc UC 2027, junto con el texto de consentimiento) se inicializa automáticamente al abrir la base de datos por primera vez (`ensureCatalogInitialized()` / `initializeCatalog()`), sin precargar perfiles ni eventos ficticios.
+- Tanto los usuarios con rol `CAPTOR` como `SUPERVISOR` pueden registrar eventos en sus sedes autorizadas desde el selector de contexto y desde el panel.
+- En `Perfil` se muestra el correo y rol reales del usuario autenticado, habiéndose eliminado el cargador de prospectos ficticios.
+
+Consultar [R0](../docs/ROUND0_BASE.md), [R1](../docs/ROUND1_INTERFACES.md), [R4 QA](../docs/ROUND4_QA.md) y [evidencia de pruebas](../docs/ANDROID_BASELINE.md).
 
 ## Entorno fijado
+
+Sesión online actual: hasta cuatro horas, con [restauración cifrada y foto en Inicio](../docs/REMEMBERED_SESSION.md). El registro offline de doce horas permanece separado. Las pruebas físicas anteriores de cámara, galería y apodo fueron confirmadas por Martín en Redmi 9A.
 
 | Elemento | Valor en el proyecto |
 |---|---|
@@ -14,10 +26,11 @@ Consultar [R0](../docs/ROUND0_BASE.md), [R1](../docs/ROUND1_INTERFACES.md) y [ev
 | SDK compile / target / mínimo | 37 / 37 / 26 |
 | Compose plugin / BOM | 2.2.10 / 2026.02.01 |
 | Room / KSP | 2.8.5 / 2.3.10 |
+| Retrofit / OkHttp / Gson | 2.11.0 / 4.12.0 / 2.11.0 |
 | CameraX / ML Kit barcode incluido | 1.5.3 / 17.3.0 |
 | SQLCipher / SQLite / coroutines | 4.19.1 / 2.7.0 / 1.10.2 |
 
-Las versiones efectivas están en `gradle/libs.versions.toml`, wrapper y build del módulo; no regenerar el proyecto ni actualizar dependencias para reproducir esta base.
+Las versiones efectivas están en `gradle/libs.versions.toml`, wrapper y build del módulo.
 
 ## Preparación
 
@@ -27,22 +40,24 @@ Las versiones efectivas están en `gradle/libs.versions.toml`, wrapper y build d
 4. Desde esta carpeta ejecutar en PowerShell:
 
 ```powershell
-.\gradlew.bat :app:testDemoDebugUnitTest :app:assembleDemoDebug :app:lintDemoDebug :app:assembleDemoDebugAndroidTest --console=plain
+.\gradlew.bat :app:testDemoDebugUnitTest :app:assembleDemoDebug --console=plain
 ```
 
-En Linux/macOS usar `./gradlew` con el mismo JDK/SDK; esos entornos todavía no se han reproducido. La variante demo funciona sin backend. En el selector, «Preparar demo local» inicializa explícitamente perfiles, eventos y catálogo ficticios; no crea prospectos ni selecciona un contexto automáticamente.
+La aplicación conserva capturas y outbox en Room/SQLCipher. Guardado y pendiente son atómicos; transmite con JWT vigente y `/me` verificado contra el `api-gateway` (`http://10.0.2.2:8080/` en emulador). Reintenta fallos transitorios con espera persistida. Conflictos y fichas anteriores se conservan para revisión, sin reenviarlas a ciegas. El detalle distingue guardado local, pendiente, confirmado y revisión. Room migra de 4 a 5 sin borrar datos.
 
-Evidencia R0/R1 del 09/10: 95 JVM aprobadas y Lint sin errores. Los avisos y condiciones de cada ejecución están identificados en ANDROID_BASELINE. APK principal: `app/build/outputs/apk/demo/debug/app-demo-debug.apk`; APK de pruebas: `app/build/outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk`; Lint: `app/build/reports/lint-results-demoDebug.html`.
+APK principal: `app/build/outputs/apk/demo/debug/app-demo-debug.apk`; APK de pruebas: `app/build/outputs/apk/androidTest/demo/debug/app-demo-debug-androidTest.apk`.
 
 ## Pruebas Android
 
-Conectar dispositivo de pruebas API >=26 con depuración USB autorizada, o emulador compatible; confirmar que ADB lo muestra autorizado. Los tests usan bases/alias `test-*`, distintos de la base de la app. Revisar ese aislamiento antes de modificar tests destructivos.
+Cobertura JaCoCo, alcance de lógica, unión JVM/emulador y comprobación del 80 %: [guía reproducible](../docs/COVERAGE_VALIDATION.md). La instrumentación de cobertura se activa con `-Pg6AndroidCoverage=true`; no es necesaria para instalar la APK normal en el teléfono.
+
+Conectar dispositivo de pruebas API >=26 con depuración USB autorizada, o emulador compatible; confirmar que ADB lo muestra autorizado. Los tests usan bases/alias `test-*`, distintos de la base de la app.
 
 ```powershell
 .\gradlew.bat :app:connectedDemoDebugAndroidTest --console=plain
 ```
 
-Verificar que se ejecutaron los tests, no sólo el mensaje final del build. En el dispositivo probado, el instalador de Gradle encontró una restricción de concesión automática de permisos y no ejecutó la suite aunque imprimió BUILD SUCCESSFUL. Se resolvió con instalación sin `-g` y el runner directo:
+Si el dispositivo restringe la concesión automática de permisos durante la instalación por Gradle, instalar sin `-g` y ejecutar el runner directo:
 
 ```powershell
 adb install -r -t app/build/outputs/apk/demo/debug/app-demo-debug.apk
@@ -50,23 +65,19 @@ adb install -r -t app/build/outputs/apk/androidTest/demo/debug/app-demo-debug-an
 adb shell am instrument -w -r io.github.grupo6.capturaprospectos.demo.debug.test/androidx.test.runner.AndroidJUnitRunner
 ```
 
-El antecedente R0/R1 se obtuvo en grupos separados: 28 pruebas de datos/red, una de selector con Room, una de transición Wi-Fi y una de formulario. Las evidencias posteriores están fechadas en ANDROID_BASELINE; este corte R4 no ejecutó pruebas Android. En MIUI las pruebas UI requirieron apertura asistida por ADB; el comando general no acredita ejecución desatendida de esos casos. La transición Wi-Fi requiere habilitación y preparación específicas; consultar ANDROID_BASELINE. Comprobar resultados individuales y omisiones. La alternativa no concede permisos peligrosos: futuros tests de cámara/GPS necesitarán su propio manejo de permisos.
-
 ## Implementación y continuidad
 
-Nuevas altas: `domain.admission` → `AdmissionRepository` / `RoomAdmissionRepository`. `PrepareAdmission` prepara una entrada; el repositorio valida autorización/consentimiento y confirma guardado tras commit. El contrato antiguo `domain.capture` se conserva para compatibilidad; no convertir altas F2027 a `CaptureInput`.
+- **Altas y persistencia local (`domain.admission` → `RoomAdmissionRepository` / `RoomRecordRepository`):** `PrepareAdmission` valida todos los campos F2027; el repositorio verifica autorización y consentimiento en una transacción Room cifrada y confirma el guardado tras el commit.
+- **Sincronización con Backend (`data.remote.GatewayApiClient`):** Si existe una sesión JWT activa en `BackendSession`, las altas confirmadas (`POST /api/v1/prospects`), ediciones (`PUT /api/v1/prospects/{id}`) y anulaciones (`POST /api/v1/prospects/{id}/cancel`) se envían a través del `api-gateway`. Ante cualquier error de red, el registro local se conserva íntegro en Room sin pérdida de información.
+- **Cuentas y eventos (`RoomDemoContextRepository`):**
+  - `initializeCatalog()` instala únicamente el catálogo base de sedes, carreras, menciones y versión de consentimiento sin perfiles ni eventos ficticios.
+  - `registerAccount(...)` y `authenticate(...)` gestionan las cuentas de usuario en la tabla cifrada `local_user_accounts` (hash SHA-256 con salt aleatorio) vinculada a `demo_profiles` y `demo_profile_sites`.
+  - `saveEvent(...)` permite crear y editar eventos tanto a `SUPERVISOR` como a `CAPTOR` dentro de sus sedes autorizadas.
+- **Esquema Room v4:** Conserva esquemas 1/2/3/4 y migraciones no destructivas `1→2→3→4`, con clave SQLCipher protegida en `AndroidKeyStore`.
 
-Room v4 conserva esquemas 1/2/3/4 y migraciones 1→2→3→4. La migración aditiva de auditoría conserva todos los datos v3 y deja NULL los atributos históricos desconocidos. No inventa nombres separados, nacimiento, prioridades ni sedes para registros antiguos. La clave SQLCipher se protege con Keystore; fallo de clave no borra la base. No usar migración destructiva.
-
-`RoomDemoContextRepository.initialize()` siembra perfiles/eventos/catálogo explícitamente, sin prospectos ni selección automática. El botón «Preparar demo local» del selector invoca esta inicialización. Ver [DEMO_CONTEXT](../docs/DEMO_CONTEXT.md) para el consumidor y sus estados.
-
-Verificación SQL adicional desde esta carpeta, con Python 3 y sin librerías externas:
+Verificación SQL adicional desde esta carpeta, con Python 3:
 
 ```text
 python tools/verify_migration_sql.py
 python tools/verify_context_migration_sql.py
 ```
-
-Ambos controles pasaron en SQLite del host; no sustituyen Room/SQLCipher/Keystore en Android.
-
-Alta, bandeja/detalle/edición, administración y métricas están integradas en develop, con evidencia por incremento. R4 continúa con la matriz de permisos, redes reales, adaptación/accesibilidad y revisión de aceptación. Backup/transferencia están excluidos por configuración, pendientes de prueba efectiva. Release unsigned compila, pero no acredita firma, instalación o RF completos. No guardar secretos, datos reales, build, cachés, local.properties o claves en Git.

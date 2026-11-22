@@ -10,6 +10,7 @@ import org.junit.Test
 import org.junit.Assert.assertEquals
 
 /** Prueba asistida: Wi-Fi validado al comenzar; apagar/restaurar externamente, sin red móvil alternativa. */
+@io.github.grupo6.capturaprospectos.testing.RequiresExternalFixture
 class ConnectivityTransitionTest {
     @Test fun reportsRealLossAndRecovery() = runBlocking {
         org.junit.Assume.assumeTrue("Requiere orquestación externa autorizada de Wi-Fi",

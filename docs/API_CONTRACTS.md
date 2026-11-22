@@ -1,5 +1,15 @@
 # Borrador de contratos y reglas de integración
 
+> Estado ejecutable del 22/11/2026: [OpenAPI unificado](openapi/backend.openapi.json) y [Swagger UI: uso y verificación](SWAGGER_VALIDATION.md), con identidad, administración, CRUD de prospectos, sincronización y diagnóstico. Las secciones de diseño histórico inferiores no sustituyen el contrato de rutas implementadas. BigDataCloud se consume desde Android según su [contrato separado](EXTERNAL_GEOCODING_CONTRACT.md).
+
+> Candidato local del 22/11/2026: [sincronización persistente e idempotente](PROSPECT_SYNC_CONTRACT.md) mediante `PUT /api/v1/prospects/sync/{localCaptureId}`, [cuentas Android](ACCOUNT_ANDROID_VALIDATION.md) y [sesión offline](OFFLINE_SESSION_VALIDATION.md). Las propuestas históricas `/registrations` inferiores no representan rutas implementadas. No se ha publicado ni desplegado este incremento.
+
+> Contrato estructurado de cuentas E2: [OpenAPI 3.1](openapi/accounts.openapi.json), [compatibilidad](openapi/README.md), [fixtures](fixtures/accounts/README.md) y [evidencia del candidato backend](ACCOUNT_BACKEND_VALIDATION.md). Esa especificación cubre identidad/administración; la ruta de sincronización tiene contrato separado.
+
+> Diseño de cuentas del 21/11/2026: [registro pendiente y administración de permisos](ACCOUNT_ACCESS_CONTRACT.md), implementado en el candidato local. Conserva el registro del equipo, sin autorasignación de privilegios; recuperación de contraseña queda aplazada. Las propuestas antiguas de refresh/sesión inferiores no describen la implementación JWT actual.
+
+> Incremento backend 16/11/2026: usuarios persistidos y API mínima `/api/v1/prospects` disponibles; ver [guía ejecutable del backend](../backend/README.md). Este documento conserva el diseño futuro de `/registrations`, aún no implementado. Para este incremento se documenta JSON en Markdown, sin generar Swagger/OpenAPI.
+
 Alcance 02/10/2026: contratos remotos de E2 según [ENTREGAS](ENTREGAS.md). No bloquean E1; sus interfaces/modelos locales se revisan por separado. Una conexión detectada en E1 no activa estas rutas ni acredita una integración. API externa de evaluación pendiente de selección y contrato separado de las APIs propias.
 
 Versión de diseño 0.1, 30/09/2026. Backend todavía inexistente. Los siguientes son contratos propuestos, no endpoints comprobados. Antes de implementar cliente y servidor en paralelo, crear y revisar `openapi.yaml` con tipos, required/nullability, enums, ejemplos y errores. Este documento explica semántica; no será una segunda copia manual de los esquemas.

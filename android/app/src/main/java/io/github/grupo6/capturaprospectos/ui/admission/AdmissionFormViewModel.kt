@@ -16,6 +16,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 
+data class GeocodingState(val available:Boolean=false,val busy:Boolean=false,val label:String?=null,val message:String?=null) {
+    override fun toString()="GeocodingState(location=redacted)"
+}
+
 data class AdmissionFormState(
     val input: AdmissionInput = AdmissionInput(),
     val mode: AcceptanceMode? = null,
@@ -34,6 +38,8 @@ data class AdmissionFormState(
     val qrCandidate: QrCandidate? = null,
     val qrError: String? = null,
     val isQrScannerOpen: Boolean = false,
+    val geocoding: GeocodingState = GeocodingState(),
+    val addressGeocoding: GeocodingState = GeocodingState(),
 ) { override fun toString() = "AdmissionFormState(redacted)" }
 
 /** Mantiene el borrador de admisión en memoria y expone su validación y persistencia a la UI.
@@ -47,6 +53,8 @@ class AdmissionFormViewModel(
     private val locationProvider: LocationProvider? = null,
     private val qrParser: QrParser = DemoQrParser(),
     val initialRecord: StoredAdmission? = null,
+    private val reverseGeocoder: ReverseGeocoder? = null,
+    private val addressGeocoder: ReverseGeocoder? = null,
 ) : ViewModel() {
     private val state = MutableStateFlow(initialRecord?.let {
         AdmissionFormState(input = it.input, mode = it.consent.mode, consent = it.consent, location = it.location)
@@ -57,6 +65,11 @@ class AdmissionFormViewModel(
     private val canEdit get() = active && !state.value.isSaving && !state.value.isSaved
     private var locationJob: Job? = null
     private var locationGeneration = 0L
+    private var freshNativePosition:CaptureLocation.Device?=null
+    private var geocodingJob:Job?=null
+    private var geocodingGeneration=0L
+    private var addressJob:Job?=null
+    private var addressGeneration=0L
     private fun change(transform: (AdmissionInput) -> AdmissionInput) {
         if (!canEdit) return
         state.value = state.value.copy(
@@ -166,7 +179,8 @@ class AdmissionFormViewModel(
             return null
         }
         val generation = ++locationGeneration
-        state.value = current.copy(isAcquiringLocation = true, locationCandidate = null, locationStatus = "Adquiriendo ubicación…")
+        cancelGeocoding()
+        state.value = current.copy(isAcquiringLocation = true, locationCandidate = null, locationStatus = "Adquiriendo ubicación…",geocoding=GeocodingState(),addressGeocoding=GeocodingState())
         return viewModelScope.launch {
             val result = provider.request(LocationRequestDefaults.timeout)
             currentCoroutineContext().ensureActive()
@@ -179,6 +193,7 @@ class AdmissionFormViewModel(
                     val policy = LocationPolicy()
                     val isValid = policy.isValid(result.position, now, context.actor.id, context.event.location)
                     if (isValid) {
+                        freshNativePosition=result.position
                         latest.copy(
                             isAcquiringLocation = false,
                             locationCandidate = result.position,
@@ -201,7 +216,7 @@ class AdmissionFormViewModel(
                 )
                 LocationResult.TimedOut -> latest.copy(
                     isAcquiringLocation = false,
-                    locationStatus = "Tiempo de espera agotado al adquirir ubicación (10s).",
+                    locationStatus = "Tiempo de espera agotado al adquirir ubicación (${LocationRequestDefaults.timeout.seconds} s).",
                 )
                 LocationResult.Unavailable -> latest.copy(
                     isAcquiringLocation = false,
@@ -218,12 +233,14 @@ class AdmissionFormViewModel(
             state.value = state.value.copy(locationCandidate = null, locationStatus = "La ubicación candidata ya no es válida; adquiere otra.")
             return
         }
-        state.value = state.value.copy(location = candidate, locationCandidate = null, locationStatus = "Ubicación GPS confirmada por el usuario.")
+        state.value = state.value.copy(location = candidate, locationCandidate = null, locationStatus = "Ubicación GPS confirmada por el usuario.",
+            geocoding=GeocodingState(available=reverseGeocoder!=null && freshNativePosition==candidate),
+            addressGeocoding=GeocodingState(available=addressGeocoder!=null && freshNativePosition==candidate))
     }
     @MainThread fun dismissLocationCandidate() {
         if (!canEdit) return
         cancelLocation()
-        state.value = state.value.copy(locationCandidate = null, isAcquiringLocation = false, locationStatus = null)
+        state.value = state.value.copy(locationCandidate = null, isAcquiringLocation = false, locationStatus = null,geocoding=GeocodingState(),addressGeocoding=GeocodingState())
     }
 
     @MainThread
@@ -231,6 +248,7 @@ class AdmissionFormViewModel(
         if (!canEdit || state.value.isAcquiringLocation) return
         val eventLoc = environment.context.event.location
         if (eventLoc != null) {
+            cancelGeocoding()
             val confirmed = CaptureLocation.EventConfirmed(
                 coordinates = eventLoc,
                 confirmedAt = clock.instant(),
@@ -239,6 +257,8 @@ class AdmissionFormViewModel(
             state.value = state.value.copy(
                 location = confirmed, locationCandidate = null,
                 locationStatus = "Ubicación confirmada según sede del evento.",
+                geocoding=GeocodingState(),
+                addressGeocoding=GeocodingState(),
             )
         } else {
             state.value = state.value.copy(
@@ -251,7 +271,48 @@ class AdmissionFormViewModel(
     fun clearLocation() {
         if (!canEdit) return
         cancelLocation()
-        state.value = state.value.copy(location = initialRecord?.location, locationCandidate = null, isAcquiringLocation = false, locationStatus = null)
+        state.value = state.value.copy(location = initialRecord?.location, locationCandidate = null, isAcquiringLocation = false, locationStatus = null,geocoding=GeocodingState(),addressGeocoding=GeocodingState())
+    }
+
+    @MainThread fun lookupLocality():Job? = lookupLabel(address=false)
+    @MainThread fun lookupAddress():Job? = lookupLabel(address=true)
+    private fun updateLookup(address:Boolean,value:GeocodingState) {
+        state.value=if(address) state.value.copy(addressGeocoding=value) else state.value.copy(geocoding=value)
+    }
+    private fun lookupLabel(address:Boolean):Job? {
+        val current=state.value
+        val lookup=if(address) current.addressGeocoding else current.geocoding
+        if(!canEdit || current.isAcquiringLocation || current.isQrScannerOpen || current.geocoding.busy || current.addressGeocoding.busy || lookup.label!=null) return null
+        val geocoder=(if(address) addressGeocoder else reverseGeocoder) ?: return null
+        val subject=if(address) "la dirección" else "la localidad"
+        val position=freshNativePosition
+        if(position==null || state.value.location!=position || !GeocodingPolicy.isFresh(position,clock.instant())) {
+            updateLookup(address,GeocodingState(message="Adquiere y confirma un GPS reciente para consultar $subject."))
+            return null
+        }
+        val generation=if(address) ++addressGeneration else ++geocodingGeneration
+        updateLookup(address,GeocodingState(available=true,busy=true))
+        return viewModelScope.launch {
+            val result=geocoder.lookup(position)
+            currentCoroutineContext().ensureActive()
+            if(generation!=(if(address) addressGeneration else geocodingGeneration) || !canEdit || state.value.location!=position) return@launch
+            if(!GeocodingPolicy.isFresh(position,clock.instant())) {
+                updateLookup(address,GeocodingState(message="La posición envejeció. Adquiere GPS otra vez para consultar."))
+                return@launch
+            }
+            val updated=when(result) {
+                is GeocodingResult.Found -> GeocodingState(available=true,label=result.label)
+                is GeocodingResult.Failed -> GeocodingState(available=true,message=when(result.reason) {
+                    GeocodingFailure.NETWORK -> "No se pudo conectar. Puedes continuar guardando sin consultar $subject."
+                    GeocodingFailure.LIMITED -> "El proveedor pide esperar o limita la consulta. Puedes continuar sin ella."
+                    GeocodingFailure.STALE_POSITION -> "Adquiere GPS otra vez antes de consultar $subject."
+                    GeocodingFailure.INVALID_RESPONSE -> "No se obtuvo un resultado válido para estas coordenadas. Puedes continuar sin él."
+                    GeocodingFailure.UNAVAILABLE -> if(address) "El servicio del teléfono no entregó una dirección de calle. Puedes continuar con la localidad."
+                        else "Consulta de localidad no disponible. Puedes continuar sin ella."
+                })
+            }
+            updateLookup(address,updated)
+        }.also { if(address) addressJob=it else geocodingJob=it }
     }
 
     // --- Asistencia por Cámara / QR sintético (RF11) ---
@@ -348,7 +409,8 @@ class AdmissionFormViewModel(
             state.value = current.copy(message = "Repositorio local no disponible para guardar.")
             return null
         }
-        state.value = current.copy(isSaving = true, message = null)
+        cancelGeocoding(clearPosition=false)
+        state.value = current.copy(isSaving = true, message = null,geocoding=current.geocoding.copy(busy=false),addressGeocoding=current.addressGeocoding.copy(busy=false))
         return viewModelScope.launch {
             val request = NewAdmission(
                 input = current.input,
@@ -365,7 +427,8 @@ class AdmissionFormViewModel(
                     isSaved = true,
                     savedId = result.id,
                     savedState = result.state,
-                    message = "Inscripción guardada localmente (${result.state.name}). Envío remoto no habilitado en esta entrega."
+                    message = if(result.state==CaptureState.DRAFT) "Borrador guardado en este dispositivo."
+                        else "Inscripción guardada localmente. Puedes revisar el estado del envío en Registros."
                 )
                 is CreateAdmissionResult.DuplicateOwn -> latest.copy(
                     isSaving = false,
@@ -398,9 +461,19 @@ class AdmissionFormViewModel(
     }
     /** El consumidor de edición escribe por RecordRepository y comparte el bloqueo con todos los campos. */
     @MainThread fun editingMutation(saving: Boolean, issues: List<AdmissionIssue> = emptyList(), message: String? = null) {
-        if (initialRecord != null && active) state.value = state.value.copy(isSaving = saving, issues = issues, message = message)
+        if (initialRecord != null && active) {
+            if(saving) cancelGeocoding(clearPosition=false)
+            state.value = state.value.copy(isSaving = saving, issues = issues, message = message,
+                geocoding=if(saving) state.value.geocoding.copy(busy=false) else state.value.geocoding,
+                addressGeocoding=if(saving) state.value.addressGeocoding.copy(busy=false) else state.value.addressGeocoding)
+        }
     }
-    private fun cancelLocation() { locationGeneration++; locationJob?.cancel(); locationJob = null }
+    private fun cancelGeocoding(clearPosition:Boolean=true) {
+        geocodingGeneration++;geocodingJob?.cancel();geocodingJob=null
+        addressGeneration++;addressJob?.cancel();addressJob=null
+        if(clearPosition) freshNativePosition=null
+    }
+    private fun cancelLocation() { locationGeneration++; locationJob?.cancel(); locationJob = null;cancelGeocoding() }
     @MainThread fun reset() { if (initialRecord == null && !state.value.isSaving) { cancelLocation(); birthCalendar.close(); state.value = AdmissionFormState() } }
     @MainThread fun discard() { if (initialRecord == null && !state.value.isSaving) { cancelLocation(); birthCalendar.close(); state.value = AdmissionFormState() } }
     override fun onCleared() { active = false; cancelLocation(); birthCalendar.close(); state.value = AdmissionFormState() }

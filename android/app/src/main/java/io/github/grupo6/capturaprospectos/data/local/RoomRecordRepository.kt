@@ -143,7 +143,7 @@ internal class RoomRecordRepository(
         if (command.expectedRevision <= 0) return@withContext RecordMutationResult.InvalidRevision
         val reason = command.reason.trim()
         reasonError(reason, required = true)?.let { return@withContext it }
-        try {
+        val localResult = try {
             db.withTransaction {
                 val actor = context.currentActor() ?: return@withTransaction RecordMutationResult.Unavailable
                 val dao = db.captures()
@@ -157,16 +157,19 @@ internal class RoomRecordRepository(
                 dao.deleteKey(row.id)
                 dao.insertAudit(AuditRow(UUID.randomUUID().toString(), row.id, actor.id.toString(), clock.instant().toString(),
                     "CANCELLED", next, row.revision, reason, "[\"state\"]"))
+                enqueueCapture(db,row.id,actor.id.toString(),reason)
                 RecordMutationResult.Saved(command.id, next, CaptureState.CANCELLED)
             }
         } catch (_: SQLiteException) { RecordMutationResult.StorageUnavailable }
         catch (_: IllegalArgumentException) { RecordMutationResult.StorageUnavailable }
         catch (_: DateTimeException) { RecordMutationResult.StorageUnavailable }
+
+        localResult
     }
 
     override suspend fun edit(command: EditAdmission): RecordMutationResult = withContext(dispatcher) {
         if (command.expectedRevision <= 0) return@withContext RecordMutationResult.InvalidRevision
-        try {
+        val localResult = try {
             db.withTransaction {
                 val actor = context.currentActor() ?: return@withTransaction RecordMutationResult.Unavailable
                 val dao = db.captures()
@@ -233,15 +236,20 @@ internal class RoomRecordRepository(
                     it.catalogVersion, it.name, null, it.priority, it.section, it.mentionId?.toString(), it.mentionName) })
                 dao.insertSites(preparation.sites.map { SitePreferenceRow(row.id, it.id.toString(), it.name, it.catalogVersion) })
                 dao.deleteKey(row.id)
-                if (state != CaptureState.DRAFT) dao.insertKey(ActiveKeyRow(row.eventId, preparation.input.rut, row.id))
+                if (state != CaptureState.DRAFT) {
+                    dao.insertKey(ActiveKeyRow(row.eventId, preparation.input.rut, row.id))
+                }
                 dao.insertAudit(AuditRow(UUID.randomUUID().toString(), row.id, actor.id.toString(), clock.instant().toString(),
                     "EDITED", updated.revision, row.revision, reason.takeIf(String::isNotEmpty),
                     fields.joinToString(prefix = "[\"", separator = "\",\"", postfix = "\"]")))
+                enqueueCapture(db,row.id,actor.id.toString(),reason.takeIf(String::isNotEmpty))
                 RecordMutationResult.Saved(command.id, updated.revision, state)
             }
         } catch (_: SQLiteException) { RecordMutationResult.StorageUnavailable }
         catch (_: IllegalArgumentException) { RecordMutationResult.StorageUnavailable }
         catch (_: DateTimeException) { RecordMutationResult.StorageUnavailable }
+
+        localResult
     }
 
     private fun canAccess(actor: LocalActor, row: CaptureRow) = LocalCaptureAccess.canRead(actor,

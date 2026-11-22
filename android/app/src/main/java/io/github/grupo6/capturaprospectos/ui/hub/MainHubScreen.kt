@@ -37,6 +37,7 @@ data class MainHubUiState(
     onToday: () -> Unit = {}, onAll: () -> Unit = {}, onRange: () -> Unit = {},
     summaryOnly: Boolean = false, onOpenSummary: () -> Unit = {},
     calendar: VolatileDatePickerController = remember { VolatileDatePickerController() }, onToggleRange: () -> Unit = {},
+    profilePhoto: ByteArray? = null,
 ) {
     val m = state.metrics
     val draft by calendar.draft.collectAsState()
@@ -59,7 +60,8 @@ data class MainHubUiState(
                         color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.labelLarge)
                 }
                 if (!summaryOnly) GlassCard(Modifier.size(56.dp)) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { DesignIcon(R.drawable.g6_home_frame) }
+                    io.github.grupo6.capturaprospectos.ui.profile.ProfileAvatar(state.profile.actor.id.toString(),
+                        state.profile.displayName.take(1).uppercase(),profilePhoto,Modifier.size(56.dp))
                 }
             }
         }

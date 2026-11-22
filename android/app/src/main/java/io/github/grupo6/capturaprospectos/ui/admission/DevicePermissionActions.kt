@@ -19,6 +19,8 @@ import androidx.core.content.ContextCompat
 /** Solicitud sólo tras una acción; denegar conserva el formulario y permite ingreso manual. */
 @Composable internal fun rememberDevicePermissionAction(
     camera: Boolean,
+    denialMessage: String? = null,
+    dismissLabel: String = "Continuar manualmente",
     onGranted: () -> Unit,
 ): () -> Unit {
     val context = LocalContext.current
@@ -34,14 +36,14 @@ import androidx.core.content.ContextCompat
         val activity = context.activity()
         val canRequestAgain = activity != null && permissions.any { ActivityCompat.shouldShowRequestPermissionRationale(activity, it) }
         AlertDialog(onDismissRequest = { denied = false }, title = { Text("Permiso ${if (camera) "de cámara" else "de ubicación"} denegado") },
-            text = { Text(if (camera) "La cámara se usa para leer un QR ficticio, sin guardar fotos. Puedes completar el RUT manualmente."
+            text = { Text(denialMessage ?: if (camera) "La cámara se usa para leer un QR ficticio, sin guardar fotos. Puedes completar el RUT manualmente."
                 else "La ubicación necesita tu permiso y confirmación. Puedes continuar sin ubicación o confirmar explícitamente las coordenadas del evento. La ubicación aproximada también se comprueba contra los límites de precisión.") },
             confirmButton = { TextButton(onClick = {
                 denied = false
                 if (canRequestAgain) launcher.launch(permissions)
                 else context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${context.packageName}")))
             }) { Text(if (canRequestAgain) "Solicitar de nuevo" else "Abrir ajustes") } },
-            dismissButton = { TextButton(onClick = { denied = false }) { Text("Continuar manualmente") } })
+            dismissButton = { TextButton(onClick = { denied = false }) { Text(dismissLabel) } })
     }
     return { if (granted()) callback() else launcher.launch(permissions) }
 }

@@ -7,7 +7,7 @@ Actualizado 06/10/2026. E1 tiene wrapper Gradle, tests y verificadores SQL del h
 | Entorno | API/base | Datos | Propósito |
 |---|---|---|---|
 | e1-local-demo | Android + Room cifrado, sin API | Perfiles y registros ficticios locales identificados | Ejecutar/verificar E1 sin infraestructura remota |
-| local | Dos Spring Boot y PostgreSQL locales | Seed ficticio reproducible | Trabajo independiente y respaldo de demostración |
+| local | API Gateway, dos Spring Boot de negocio y PostgreSQL local | Seed ficticio reproducible | Trabajo independiente y respaldo de demostración |
 | test | Servicios/base efímeros, sin apuntar a cloud compartida | Fixtures aisladas por ejecución | Tests/CI destructivos sin riesgo para otro integrante |
 | integration | Servicios compartidos por definir tras piloto; Neon recomendado | Ficticios compartidos, migraciones revisadas | Prueba conjunta de dos captadores/supervisor |
 

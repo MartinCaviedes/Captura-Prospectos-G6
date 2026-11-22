@@ -1,0 +1,41 @@
+server:
+  shutdown: graceful
+  port: ${PORT:8082}
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: ${SHUTDOWN_TIMEOUT:30s}
+  application:
+    name: prospects-service
+  datasource:
+    url: ${PROSPECTS_JDBC_URL:jdbc:h2:mem:prospects_db;DB_CLOSE_DELAY=-1;MODE=PostgreSQL}
+    username: ${PROSPECTS_DB_USER:sa}
+    password: ${PROSPECTS_DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: ${PROSPECTS_DDL_AUTO:update}
+    open-in-view: false
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db
+security:
+  jwt:
+    issuer: ${JWT_ISSUER:captura-g6-users}
+    audience: ${JWT_AUDIENCE:captura-g6-api}
+    public-key: ${JWT_PUBLIC_KEY}
+# Los drivers pueden incluir la clave RUT/evento en el detalle de una violación.
+logging:
+  level:
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: 'OFF'

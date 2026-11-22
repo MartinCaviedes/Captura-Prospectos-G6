@@ -1,7 +1,5 @@
 package io.github.grupo6.capturaprospectos.data.device
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.android.gms.tasks.Tasks
@@ -16,7 +14,6 @@ import org.junit.Test
 
 /** Decodificación real de bitmaps ficticios; no prueba enfoque físico ni concede CAMERA. */
 class OfflineQrDecoderTest {
-    private val target get() = InstrumentationRegistry.getInstrumentation().targetContext
     private fun decode(asset: String): String {
         val bitmap = InstrumentationRegistry.getInstrumentation().context.assets.open(asset).use(BitmapFactory::decodeStream)
         val scanner = BarcodeScanning.getClient(BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build())
@@ -27,8 +24,9 @@ class OfflineQrDecoderTest {
             return requireNotNull(results.single().rawValue)
         } finally { scanner.close(); bitmap.recycle() }
     }
-    @Test fun bundledModelDecodesSyntheticQrWithoutInternetPermission() {
-        assertEquals(PackageManager.PERMISSION_DENIED, target.packageManager.checkPermission(Manifest.permission.INTERNET, target.packageName))
+    // E2 requiere INTERNET para backend. Esta prueba acredita decodificación del modelo incluido;
+    // no atribuye ausencia de red al permiso del manifiesto.
+    @Test fun bundledModelDecodesSyntheticQrBitmap() {
         val result = DemoQrParser().parse(decode("qr-synthetic.png")) as QrResult.Candidate
         assertEquals("12345678-5", result.value.rut)
         assertEquals("Persona Ficticia Alfa", result.value.fullName)

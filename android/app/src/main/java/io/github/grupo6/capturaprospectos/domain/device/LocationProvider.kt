@@ -17,4 +17,4 @@ sealed interface LocationResult {
 fun interface LocationProvider {
     suspend fun request(timeout: Duration): LocationResult
 }
-object LocationRequestDefaults { val timeout: Duration = Duration.ofSeconds(10) }
+object LocationRequestDefaults { val timeout: Duration = Duration.ofSeconds(30) }

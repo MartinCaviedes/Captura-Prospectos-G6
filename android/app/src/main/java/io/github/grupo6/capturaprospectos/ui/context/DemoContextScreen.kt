@@ -141,9 +141,24 @@ fun DemoContextScreen(
                         } }
                     }
                     else -> {
-                        item { Text("2. Selecciona un evento", style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.semantics { heading() }) }
-                        if (snapshot.availableEvents.isEmpty()) item { Text("Este perfil no tiene eventos disponibles para capturar.") }
+                        item {
+                            FlowRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Text("2. Selecciona un evento", style = MaterialTheme.typography.titleLarge,
+                                    modifier = Modifier.align(androidx.compose.ui.Alignment.CenterVertically)
+                                        .semantics { heading() })
+                                FilledTonalButton(onClick = onCreateEvent, enabled = !state.busy,
+                                    modifier = Modifier.align(androidx.compose.ui.Alignment.CenterVertically)) {
+                                    Text("Nuevo evento")
+                                }
+                            }
+                        }
+                        if (snapshot.availableEvents.isEmpty()) item {
+                            Text("Este perfil no tiene eventos disponibles para capturar. Pulsa 'Nuevo evento' para registrar una actividad.")
+                        }
                         items(snapshot.availableEvents, key = { "event-${it.id}" }) { event ->
                             ContextChoice(event.name, snapshot.selectedEvent?.id == event.id,
                                 enabled = !state.busy, onClick = { onEventSelected(event.id) })

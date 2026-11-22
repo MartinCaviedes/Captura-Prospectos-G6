@@ -20,15 +20,18 @@ class DemoSeedTest {
         }
         DemoSeed.scopes.forEach { scope -> assertTrue(DemoSeed.sites.any { it.id == scope.siteId }); assertTrue(DemoSeed.profiles.any { it.id == scope.profileId }) }
     }
-    @Test fun syntheticCatalogHasIndependentSitesOnlineAndParentMentions() {
-        assertEquals("SYNTHETIC", DemoSeed.catalog.sourceKind)
-        assertTrue(DemoSeed.CONSENT_TEXT.contains("ficticio"))
-        assertTrue(DemoSeed.sites.size > 3)
-        assertTrue(DemoSeed.programs.any { it.section == "DEMO_ONLINE" })
-        assertTrue(DemoSeed.programs.any { it.section == "DEMO_PHYSICAL" })
-        DemoSeed.mentions.forEach { m -> assertTrue(DemoSeed.programs.any { it.id == m.programId }); assertTrue(m.name.contains("ficticia")) }
-        assertTrue(DemoSeed.programs.all { it.catalogVersion == DemoSeed.catalog.id && it.name.contains("ficticio") })
-        assertTrue(DemoSeed.sites.all { it.catalogVersion == DemoSeed.catalog.id && it.name.contains("ficticia") })
+    @Test fun catalogHasIndependentSitesOnlineAndParentMentionsWithoutDemoLabels() {
+        assertEquals("OFFICIAL_REVIEWED", DemoSeed.catalog.sourceKind)
+        assertFalse(DemoSeed.CONSENT_TEXT.contains("ficticio", ignoreCase = true))
+        assertTrue(DemoSeed.sites.size >= 4)
+        assertTrue(DemoSeed.programs.any { it.section == "Duoc Online" })
+        assertTrue(DemoSeed.programs.any { it.section != "Duoc Online" })
+        DemoSeed.mentions.forEach { m ->
+            assertTrue(DemoSeed.programs.any { it.id == m.programId })
+            assertFalse(m.name.contains("DEMO", ignoreCase = true))
+        }
+        assertTrue(DemoSeed.programs.all { it.catalogVersion == DemoSeed.catalog.id && !it.name.contains("DEMO", ignoreCase = true) })
+        assertTrue(DemoSeed.sites.all { it.catalogVersion == DemoSeed.catalog.id && !it.name.contains("DEMO", ignoreCase = true) })
         assertTrue(DemoSeed.events.all { it.latitude == null && it.longitude == null })
     }
 }

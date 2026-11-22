@@ -1,0 +1,52 @@
+name: Backend quality
+on:
+  pull_request:
+    branches: [develop]
+    paths: ['backend/**', '.github/workflows/backend-quality.yml']
+  push:
+    branches: [develop]
+    paths: ['backend/**', '.github/workflows/backend-quality.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: ./mvnw --batch-mode --no-transfer-progress clean verify -Pcoverage
+      - name: Prepare local test configuration
+        run: bash scripts/prepare-local.sh
+      - name: Verify three processes
+        run: |
+          source .local/env.sh
+          python3 scripts/smoke-test.py
+      - name: Verify graceful shutdown with active request
+        run: |
+          source .local/env.sh
+          python3 scripts/drain-smoke.py
+      - name: Verify PostgreSQL startup readiness regression
+        run: python3 scripts/test_postgres_readiness.py
+      - name: Verify PostgreSQL migrations and concurrency
+        run: |
+          source .local/env.sh
+          python3 scripts/postgres-smoke.py
+      - name: Build runtime images
+        run: |
+          for service in users-service prospects-service api-gateway; do
+            docker build --tag "g6-$service:quality" "$service"
+          done
+      - name: Verify runtime containers
+        run: |
+          source .local/env.sh
+          python3 scripts/container-smoke.py
+      - name: Check whitespace
+        run: git diff --check

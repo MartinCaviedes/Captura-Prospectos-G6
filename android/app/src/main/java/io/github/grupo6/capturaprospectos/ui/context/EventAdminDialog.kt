@@ -25,7 +25,7 @@ import io.github.grupo6.capturaprospectos.domain.capture.LocalRole
         Surface(Modifier.fillMaxWidth(0.95f).fillMaxHeight(0.95f),shape=MaterialTheme.shapes.large) {
             Column(Modifier.padding(16.dp).verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(10.dp)) {
                 Text(if(input.eventId==null) "Nuevo evento local" else "Editar evento local",style=MaterialTheme.typography.titleLarge)
-                Text("Datos ficticios del dispositivo. Los registros anteriores conservan su contexto.")
+                Text("Registra los datos del evento para tu sede. Los registros anteriores conservan su contexto.")
                 if(state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
                 state.message?.let { Text(it,color=MaterialTheme.colorScheme.error) }
                 fun edit(change:(EventEditorInput)->EventEditorInput) = vm.eventInput(change)
@@ -37,6 +37,18 @@ import io.github.grupo6.capturaprospectos.domain.capture.LocalRole
                 FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) { sites.forEach { site ->
                     FilterChip(input.siteId==site.id,{edit { it.copy(siteId=site.id) }},label={Text(site.name)},enabled=!state.busy)
                 } }
+                OutlinedButton(
+                    onClick = {
+                        val zone = runCatching { java.time.ZoneId.of(input.timeZone.trim()) }.getOrElse { java.time.ZoneId.of("America/Santiago") }
+                        val today = java.time.LocalDate.now(zone)
+                        val startIso = today.atTime(9, 0).atZone(zone).toOffsetDateTime().toString()
+                        val endIso = today.atTime(18, 0).atZone(zone).toOffsetDateTime().toString()
+                        edit { it.copy(startsAt = startIso, endsAt = endIso) }
+                    },
+                    enabled = !state.busy,
+                ) {
+                    Text("Autocompletar jornada de hoy")
+                }
                 field("Inicio con offset",input.startsAt) { input.copy(startsAt=it) }
                 field("Término con offset",input.endsAt) { input.copy(endsAt=it) }
                 Text("Formato: 2026-10-12T09:00-03:00. Puedes programar varios días.")
@@ -45,12 +57,14 @@ import io.github.grupo6.capturaprospectos.domain.capture.LocalRole
                 field("Longitud declarada (opcional)",input.longitude) { input.copy(longitude=it) }
                 field("Colegio o institución",input.establishment) { input.copy(establishment=it) }
                 field("Comuna del colegio",input.commune) { input.copy(commune=it) }
-                Text("Captadores: sólo pueden asignarse a sus sedes autorizadas.")
-                captors.forEach { captor ->
-                    val selected=captor.actor.id in input.captorIds
-                    val allowed=input.siteId in captor.actor.siteIds
-                    FilterChip(selected,{edit { it.copy(captorIds=if(selected) it.captorIds-captor.actor.id else it.captorIds+captor.actor.id) }},
-                        label={Text(captor.displayName + if(allowed) "" else " · Fuera de sede")},enabled=!state.busy && (allowed || selected))
+                if (captors.isNotEmpty()) {
+                    Text("Captadores: sólo pueden asignarse a sus sedes autorizadas.")
+                    captors.forEach { captor ->
+                        val selected=captor.actor.id in input.captorIds
+                        val allowed=input.siteId in captor.actor.siteIds
+                        FilterChip(selected,{edit { it.copy(captorIds=if(selected) it.captorIds-captor.actor.id else it.captorIds+captor.actor.id) }},
+                            label={Text(captor.displayName + if(allowed) "" else " · Fuera de sede")},enabled=!state.busy && (allowed || selected))
+                    }
                 }
                 FlowRow(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(vm::dismissEventEditor,enabled=!state.busy) { Text("Cancelar edición de evento") }

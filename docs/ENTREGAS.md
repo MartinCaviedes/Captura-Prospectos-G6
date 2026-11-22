@@ -1,5 +1,7 @@
 # Alcance y aceptación por entrega
 
+Actualización 22/11/2026: el [incremento candidato E2 1.1.0](ENTREGA_E2_1_1_0.md) identifica funciones implementadas, despliegue AWS, firma, pruebas y alcance aplazado por decisión del equipo. La matriz inferior conserva el horizonte del SRS y sus decisiones históricas; no acredita que todas las funciones remotas previstas estén implementadas ni sustituye aceptación docente. Trello no forma parte del alcance actual y se mantienen tres roles con funciones diferenciadas.
+
 Decisión de alcance del equipo · 19/10/2026: Martín aplaza el soporte de QR de cédula real a E2; no se incorporan dependencias ni un parser de documentos reales en E1. Se mantiene cámara real con formato sintético, confirmación y entrada manual. La distribución preliminar por GitHub no supone aceptación contractual ni cierre E1. [Guía de distribución](DISTRIBUCION_DEMO.md).
 
 Actualización 11/10/2026: candidato local con las correcciones de las rondas preparadas y verificaciones identificadas en ANDROID_BASELINE. Se retiró la afirmación anterior de alcance E1 completamente verificado: SQLite del host no acreditaba rendimiento Android. Hay ahora un ensayo real de 400 en Room cifrado, sin que ello cierre E1/RF ni sustituya accesibilidad, permisos adversos, revisión cruzada y aceptación de contratos. Sin backend/WorkManager/ACK; transporte NOT_QUEUED. El alcance y criterios siguientes se conservan.
@@ -82,7 +84,7 @@ La demo E1 queda identificada y aislada de la configuración de integración E2.
 
 ## Infraestructura, firma y asuntos externos
 
-E1 no necesita servicios cloud ni servidores Spring para ejecutarse. Código, documentación técnica, tareas y revisión deben acompañar el trabajo; el flujo Git se describe en CONTRIBUTING. E2 conserva propuestas de dos servicios, PostgreSQL y custodia externa de secretos, aún sin contratar ni desplegar.
+E1 no necesita servicios cloud ni servidores Spring para ejecutarse. Código, documentación técnica, tareas y revisión deben acompañar el trabajo; el flujo Git se describe en CONTRIBUTING. E2 conserva dos servicios de negocio y añade el API Gateway solicitado para la entrega 3; PostgreSQL y la custodia externa de secretos siguen sin contratar ni desplegar.
 
 La API externa es una tarea E2 distinta de nuestra API de catálogo; falta seleccionar una que aporte al caso. No se autoriza aumentar requisitos del producto para justificar una API arbitraria.
 

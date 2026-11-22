@@ -198,6 +198,37 @@ class DemoContextViewModelTest {
         assertEquals(1,repo.calls.count { it.startsWith("saveEvent:") })
     }
 
+    @Test fun ensureCatalogInitializedDelegatesWithoutPreloadingProfiles() = runTest(dispatcher) {
+        runCurrent(); vm.ensureCatalogInitialized(); advanceUntilIdle()
+        assertEquals(listOf("initializeCatalog", "snapshot"), repo.calls)
+        assertEquals(DemoContextState.Ready(repo.base), vm.uiState.value.context)
+    }
+
+    @Test fun registerAndAuthenticateAccountUpdatesCurrentProfile() = runTest(dispatcher) {
+        ready()
+        var registered: AuthResult? = null
+        vm.registerAccount(RegisterAccountCommand("Captador Real", "real@duocuc.cl", "ClaveSegura123")) {
+            registered = it
+        }
+        advanceUntilIdle()
+        assertTrue(registered is AuthResult.Authenticated)
+        assertEquals("real@duocuc.cl", (registered as AuthResult.Authenticated).profile.email)
+
+        var authenticated: AuthResult? = null
+        vm.authenticate("real@duocuc.cl", "ClaveSegura123") {
+            authenticated = it
+        }
+        advanceUntilIdle()
+        assertTrue(authenticated is AuthResult.Authenticated)
+    }
+
+    @Test fun captorProfileCanOpenEventEditor() = runTest(dispatcher) {
+        repo.state.value = DemoContextState.Ready(repo.base.copy(currentProfile = repo.profile))
+        runCurrent()
+        vm.beginEventEditor(edit = false)
+        assertNotNull(vm.uiState.value.eventEditor)
+    }
+
 }
 
 /** Doble de contrato: no acredita permisos, Room ni persistencia real. */
@@ -207,7 +238,7 @@ private class FakeContextRepository : DemoContextRepository {
     val event = CaptureEvent(UUID(0, 3), UUID(0, 2), "Evento ficticio", Instant.EPOCH,
         Instant.EPOCH.plusSeconds(60), ZoneId.of("UTC"), setOf(profile.actor.id), null)
     val base = DemoContextSnapshot(UUID(0, 4), listOf(profile, other), null, listOf(event), null, null,
-        DemoCatalog("test", "SYNTHETIC", "test", 2027, emptyList(), emptyList()), "test", "Texto ficticio")
+        DemoCatalog("test", "OFFICIAL_REVIEWED", "test", 2027, emptyList(), emptyList()), "test", "Texto consentimiento")
     val state = MutableStateFlow<DemoContextState>(DemoContextState.NotInitialized)
     val calls = mutableListOf<String>()
     var result = ContextChange.APPLIED
@@ -226,6 +257,7 @@ private class FakeContextRepository : DemoContextRepository {
         return result
     }
     override suspend fun initialize() = change("initialize") { state.value = DemoContextState.Ready(base) }
+    override suspend fun initializeCatalog() = change("initializeCatalog") { state.value = DemoContextState.Ready(base) }
     override suspend fun selectProfile(id: UUID) = change("profile:$id") {
         state.value = DemoContextState.Ready(base.copy(currentProfile = base.profiles.single { it.actor.id == id }))
     }
@@ -243,5 +275,20 @@ private class FakeContextRepository : DemoContextRepository {
         gate?.await()
         lastSaveCommand = command
         return saveResult
+    }
+    override suspend fun registerAccount(command: RegisterAccountCommand): AuthResult {
+        calls += "register:${command.email}"
+        gate?.await()
+        val created = DemoProfile(LocalActor(command.explicitId ?: UUID(0, 9), command.role, command.siteIds), command.displayName, command.email)
+        state.value = DemoContextState.Ready(base.copy(profiles = base.profiles + created, currentProfile = created))
+        return AuthResult.Authenticated(created)
+    }
+    override suspend fun authenticate(emailOrUsername: String, password: String): AuthResult {
+        calls += "auth:$emailOrUsername"
+        gate?.await()
+        val found = (state.value as? DemoContextState.Ready)?.snapshot?.profiles?.firstOrNull { it.email == emailOrUsername }
+            ?: profile.copy(email = emailOrUsername)
+        state.value = DemoContextState.Ready(base.copy(currentProfile = found))
+        return AuthResult.Authenticated(found)
     }
 }

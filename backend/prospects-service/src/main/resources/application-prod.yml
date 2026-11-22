@@ -1,0 +1,12 @@
+# El esquema debe ser aprovisionado y revisado antes del arranque.
+spring:
+  datasource:
+    url: ${PROSPECTS_JDBC_URL}
+    username: ${PROSPECTS_DB_USER}
+    password: ${PROSPECTS_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  sql:
+    init:
+      mode: never

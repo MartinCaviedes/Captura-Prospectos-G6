@@ -1,5 +1,7 @@
 package io.github.grupo6.capturaprospectos.ui.access
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,7 +17,6 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.grupo6.capturaprospectos.R
-import io.github.grupo6.capturaprospectos.data.local.DemoAccessFixtures
 import io.github.grupo6.capturaprospectos.ui.components.*
 import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
 
@@ -65,84 +66,156 @@ import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
 }
 
 /** Conecta el acceso con su dueño de estado de Activity. */
-@Composable fun DemoAccessRoute(model: DemoAccessViewModel, ready: Boolean, contextBusy: Boolean,
-    onSubmit: (String, String) -> Unit, modifier: Modifier = Modifier) {
+@Composable fun DemoAccessRoute(
+    model: DemoAccessViewModel,
+    ready: Boolean,
+    contextBusy: Boolean,
+    onSubmit: (String, String) -> Unit,
+    modifier: Modifier = Modifier,
+    onResumeOffline: () -> Unit = {},
+) {
     val state by model.uiState.collectAsStateWithLifecycle()
-    DemoAccessScreen(state, ready, contextBusy, { model.submitDraft(onSubmit) },
-        model::editEmail, model::editPassword, model::selectSample, modifier)
+    DemoAccessScreen(
+        state = state,
+        ready = ready,
+        contextBusy = contextBusy,
+        onSubmit = { model.submitDraft(onSubmit) },
+        onEmailChange = model::editEmail,
+        onPasswordChange = model::editPassword,
+        modifier = modifier,
+        onDisplayNameChange = model::editDisplayName,
+        onToggleRegisterMode = model::toggleRegisterMode,
+        onPendingDismiss = model::dismissPending,
+        onResumeOffline = onResumeOffline,
+    )
 }
 
-@Composable fun DemoAccessScreen(state: DemoAccessState, ready: Boolean, contextBusy: Boolean,
-    onSubmit: () -> Unit, onEmailChange: (String) -> Unit, onPasswordChange: (String) -> Unit,
-    onSelectSample: (String) -> Unit, modifier: Modifier = Modifier) {
+@Composable fun DemoAccessScreen(
+    state: DemoAccessState,
+    ready: Boolean,
+    contextBusy: Boolean,
+    onSubmit: () -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    onPendingDismiss: () -> Unit = {},
+    onDisplayNameChange: (String) -> Unit = {},
+    onToggleRegisterMode: () -> Unit = {},
+    onResumeOffline: () -> Unit = {},
+) {
     var showPassword by remember { mutableStateOf(false) }
-    var showAccounts by remember { mutableStateOf(false) }
-    val enabled=ready&&!state.busy&&!contextBusy
+    val enabled = ready && !state.busy && !contextBusy
     ConexionesBackground(modifier) {
-        Column(Modifier.align(Alignment.TopCenter).widthIn(max=560.dp).fillMaxWidth()
-            .verticalScroll(rememberScrollState()).padding(24.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
+        Column(
+            Modifier.align(Alignment.TopCenter).widthIn(max = 560.dp).fillMaxWidth()
+                .verticalScroll(rememberScrollState()).padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
             ProductIdentity()
-            Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                Text("Bienvenido",style=MaterialTheme.typography.headlineLarge,modifier=Modifier.semantics { heading() })
-                Text("Ingresa para comenzar tu jornada.",style=MaterialTheme.typography.labelLarge,color=MaterialTheme.colorScheme.onSurfaceVariant)
+            if (state.pendingMessage != null) {
+                GlassCard {
+                    Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text("Solicitud pendiente", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+                        Text(state.pendingMessage)
+                        Text("Cuando tu cuenta esté habilitada, vuelve a iniciar sesión.")
+                        Button(onPendingDismiss) { Text("Volver al acceso") }
+                    }
+                }
+                return@Column
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    if (state.registerMode) "Crear cuenta" else "Bienvenido",
+                    style = MaterialTheme.typography.headlineLarge,
+                    modifier = Modifier.semantics { heading() },
+                )
+                Text(
+                    if (state.registerMode) "Solicita tu cuenta. El administrador asignará tu rol y sedes."
+                    else "Ingresa para comenzar tu jornada.",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
             GlassCard {
-                Column(Modifier.fillMaxWidth().padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-                    OutlinedTextField(state.email,onEmailChange,label={Text("Correo electrónico")},singleLine=true,
-                        keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Email,autoCorrectEnabled=false),
-                        enabled=enabled,modifier=Modifier.fillMaxWidth())
-                    OutlinedTextField(state.password,onPasswordChange,label={Text("Contraseña")},singleLine=true,
-                        visualTransformation=if(showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                        keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password,autoCorrectEnabled=false),
-                        trailingIcon={IconButton({showPassword=!showPassword},enabled=enabled) {
-                            DesignIcon(R.drawable.g6_login_frame1,description=if(showPassword) "Ocultar contraseña" else "Mostrar contraseña")
-                        }},enabled=enabled,modifier=Modifier.fillMaxWidth())
-                    state.error?.let { Text(it,color=MaterialTheme.colorScheme.error,
-                        modifier=Modifier.semantics { liveRegion=LiveRegionMode.Polite }) }
-                    if(state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
-                    Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) {
-                        Text("Acceso de muestra",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                        TextButton({},enabled=false,colors=ButtonDefaults.textButtonColors(
-                            disabledContentColor=MaterialTheme.colorScheme.onSurfaceVariant)) { Text("Recuperar acceso",style=MaterialTheme.typography.bodySmall) }
-                    }
-                    Button(onSubmit,enabled=enabled,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)) { Text("Iniciar sesión") }
-                    Text("o continúa con",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-                    ProviderButton("Continuar con Google",R.drawable.g6_login_g6_v2_brand_google)
-                    ProviderButton("Continuar con Microsoft",R.drawable.g6_login_frame)
-                    TextButton({},enabled=false,colors=ButtonDefaults.textButtonColors(disabledContentColor=MaterialTheme.colorScheme.onSurfaceVariant)) {
-                        Text("¿No tienes cuenta? Crear cuenta")
-                    }
-                    GlassCard(colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.background)) {
-                        Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                            TextButton({showAccounts=!showAccounts},enabled=enabled,modifier=Modifier.fillMaxWidth().semantics {
-                                stateDescription=if(showAccounts) "Expandido" else "Contraído"
-                            }) {
-                                Text("Cuentas de muestra",Modifier.weight(1f))
-                                DesignIcon(R.drawable.g6_login_frame2)
-                            }
-                            if(showAccounts) DemoAccessFixtures.accounts.forEachIndexed { index,account ->
-                                OutlinedButton({onSelectSample(account.email)},enabled=enabled,modifier=Modifier.fillMaxWidth()) {
-                                    Column(Modifier.fillMaxWidth()) {
-                                        Text(listOf("Captador A","Captador B","Supervisor")[index])
-                                        Text(account.email,style=MaterialTheme.typography.bodySmall)
-                                    }
-                                }
-                            }
+                Column(
+                    Modifier.fillMaxWidth().padding(16.dp).animateContentSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    AnimatedVisibility(visible = state.registerMode) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            OutlinedTextField(
+                                value = state.displayName,
+                                onValueChange = onDisplayNameChange,
+                                label = { Text("Nombre completo") },
+                                singleLine = true,
+                                enabled = enabled,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+
                         }
+                    }
+                    OutlinedTextField(
+                        value = state.email,
+                        onValueChange = onEmailChange,
+                        label = { Text("Correo electrónico") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrectEnabled = false),
+                        enabled = enabled,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    OutlinedTextField(
+                        value = state.password,
+                        onValueChange = onPasswordChange,
+                        label = { Text("Contraseña") },
+                        singleLine = true,
+                        visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrectEnabled = false),
+                        trailingIcon = {
+                            IconButton({ showPassword = !showPassword }, enabled = enabled) {
+                                DesignIcon(
+                                    R.drawable.g6_login_frame1,
+                                    description = if (showPassword) "Ocultar contraseña" else "Mostrar contraseña",
+                                )
+                            }
+                        },
+                        enabled = enabled,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    androidx.compose.animation.AnimatedVisibility(visible = state.error != null) {
+                        state.error?.let {
+                            Text(
+                                it,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                            )
+                        }
+                    }
+                    if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
+                    if (state.offlineAvailable && !state.registerMode) {
+                        Text("Puedes continuar con la última cuenta validada en este dispositivo, dentro de las 12 horas desde su acceso con conexión.")
+                        OutlinedButton(onResumeOffline, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
+                            Text("Continuar sin conexión")
+                        }
+                    }
+                    Button(
+                        onClick = onSubmit,
+                        enabled = enabled,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                    ) {
+                        Text(if (state.registerMode) "Solicitar cuenta" else "Iniciar sesión")
+                    }
+                    TextButton(
+                        onClick = onToggleRegisterMode,
+                        enabled = enabled,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            if (state.registerMode) "¿Ya tienes cuenta? Iniciar sesión"
+                            else "¿No tienes cuenta? Crear cuenta"
+                        )
                     }
                 }
             }
         }
-    }
-}
-
-/** Proveedores representados visualmente, con estado deshabilitado anunciado por accesibilidad. */
-@Composable private fun ProviderButton(label: String, resource: Int) {
-    OutlinedButton({},enabled=false,modifier=Modifier.fillMaxWidth().heightIn(min=48.dp).semantics {
-        stateDescription="Disponible en una entrega futura"
-    },colors=ButtonDefaults.outlinedButtonColors(disabledContainerColor=Color.White,disabledContentColor=G6Navy),
-        border=BorderStroke(1.dp,Color(0xFFC4D0E3))) {
-        Image(painterResource(resource),null,Modifier.size(if (resource == R.drawable.g6_login_frame) 21.dp else 20.dp),contentScale=ContentScale.Fit)
-        Spacer(Modifier.width(12.dp));Text(label)
     }
 }

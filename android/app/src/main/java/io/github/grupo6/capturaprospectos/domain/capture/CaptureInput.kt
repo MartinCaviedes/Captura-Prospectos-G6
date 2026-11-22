@@ -4,7 +4,7 @@ import java.time.Instant
 import java.util.UUID
 
 enum class CaptureState { DRAFT, NEEDS_CONTEXT, READY, CANCELLED }
-enum class TransportState { NOT_QUEUED }
+enum class TransportState { NOT_QUEUED, QUEUED, SYNCED, REVIEW }
 enum class AcceptanceMode { DIRECT, VERBAL }
 enum class SaveIntent { SAVE_DRAFT, CONFIRM_REGISTRATION }
 

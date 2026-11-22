@@ -8,6 +8,8 @@ import io.github.grupo6.capturaprospectos.domain.admission.*
 import io.github.grupo6.capturaprospectos.domain.context.*
 import io.github.grupo6.capturaprospectos.domain.records.*
 import io.github.grupo6.capturaprospectos.ui.context.DemoContextViewModel
+import io.github.grupo6.capturaprospectos.data.session.*
+import io.github.grupo6.capturaprospectos.domain.device.ConnectivityStatus
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import java.io.File
@@ -37,9 +39,10 @@ class DemoAccessRoomTest {
         repository.initialize()
         lateinit var ctx: DemoContextViewModel
         lateinit var access: DemoAccessViewModel
-        main { ctx = DemoContextViewModel(repository);access = DemoAccessViewModel();store.put("ctx",ctx);store.put("access",access) }
+        main { ctx = DemoContextViewModel(repository);access = DemoAccessViewModel(DeviceAccountRemote());store.put("ctx",ctx);store.put("access",access) }
         withTimeout(10000) { ctx.uiState.first { it.context is DemoContextState.Ready } }
         main { access.begin();access.submit("captador.a@g6.example", "incorrecta", ctx) }
+        withTimeout(10000) { access.uiState.first { !it.busy } }
         assertNull(access.uiState.value.actorId)
         assertNull((repository.snapshot() as DemoContextState.Ready).snapshot.currentProfile)
         main { access.submit("supervisor@g6.example", DemoAccessFixtures.PASSWORD, ctx) }
@@ -68,7 +71,11 @@ class DemoAccessRoomTest {
         val rows = (records.list(RecordQuery(limit=100)) as RecordPageResult.Page).items
         assertEquals(60,rows.size)
         assertEquals(66,handle!!.database.openHelper.readableDatabase.query("SELECT COUNT(*) FROM local_audit").use { it.moveToFirst(); it.getInt(0) })
-        assertEquals(3,first.programMetrics.size);assertEquals(72,first.programMetrics.sumOf { it.registrations })
+        // El catálogo F2027 ya no contiene solo las tres carreras del demo original.
+        val expectedPrograms = rows.filter { it.state in setOf(CaptureState.READY,CaptureState.NEEDS_CONTEXT) }
+            .flatMap { (records.get(it.id) as ReadAdmissionResult.Found).capture.programs }.map { it.id }.toSet()
+        assertEquals(expectedPrograms,first.programMetrics.map { it.programId }.toSet())
+        assertEquals(72,first.programMetrics.sumOf { it.registrations })
         val draft = rows.first { it.state == CaptureState.DRAFT }
         val admission = (records.get(draft.id) as ReadAdmissionResult.Found).capture
         assertTrue(records.edit(EditAdmission(draft.id,draft.revision,
@@ -87,6 +94,16 @@ class DemoAccessRoomTest {
         assertEquals(48,(records.list(RecordQuery(limit=100)) as RecordPageResult.Page).items.size)
         ctx.selectProfile(id("captor-b"));ctx.selectEvent(id("event-b"))
         assertEquals(0,(records.list(RecordQuery()) as RecordPageResult.Page).items.size)
+        val profile=(ctx.snapshot() as DemoContextState.Ready).snapshot.profiles.first { it.actor.id==id("captor-a") }
+        val assignments=handle!!.database.context().assignments(id("event-a").toString())
+        assertTrue(ctx.acceptRemoteProfile(profile.copy(email="captor.remote@example.invalid")) is AuthResult.Authenticated)
+        assertTrue(ctx.acceptRemoteProfile(profile.copy(email="captor.remote@example.invalid")) is AuthResult.Authenticated)
+        assertEquals(assignments,handle!!.database.context().assignments(id("event-a").toString()))
+        assertEquals(60,(records.list(RecordQuery(limit=100)) as RecordPageResult.Page).items.size)
+        val count=handle!!.database.openHelper.readableDatabase.query("SELECT COUNT(*) FROM local_user_accounts").use { it.moveToFirst();it.getInt(0) }
+        assertEquals(0,count) // No se han creado credenciales locales para importar identidades remotas.
+        assertEquals(AuthResult.StorageUnavailable,ctx.acceptRemoteProfile(profile.copy(actor=profile.actor.copy(siteIds=setOf(UUID.randomUUID())))))
+        assertEquals(60,(records.list(RecordQuery(limit=100)) as RecordPageResult.Page).items.size)
     }
 
     @Test fun interruptedLoadResumesWithoutDuplicatingLegacyDraftOrCancelledSamples() = runBlocking {
@@ -124,5 +141,40 @@ class DemoAccessRoomTest {
         assertEquals(18,metrics.readyCount);assertEquals(24,metrics.needsContextCount)
         assertEquals(12,metrics.draftCount);assertEquals(6,metrics.cancelledCount)
         assertEquals(66,handle!!.database.openHelper.readableDatabase.query("SELECT COUNT(*) FROM local_audit").use { it.moveToFirst(); it.getInt(0) })
+    }
+
+    @Test fun offlineRestoreUsesEncryptedLeaseAndKeepsRoomDataAfterLogout() = runBlocking {
+        handle=EncryptedDatabase.open(context,name)
+        val repository=RoomDemoContextRepository(handle!!.database)
+        repository.initialize()
+        val savedStore=AndroidOfflineSessionStore(context,name)
+        try {
+            lateinit var ctx:DemoContextViewModel
+            lateinit var access:DemoAccessViewModel
+            main {
+                ctx=DemoContextViewModel(repository);store.put("ctx",ctx)
+                access=DemoAccessViewModel(DeviceAccountRemote(),savedStore,AndroidOfflineClock(context));store.put("access",access)
+            }
+            withTimeout(10000) { ctx.uiState.first { it.context is DemoContextState.Ready } }
+            main { access.submit("supervisor@g6.example",DemoAccessFixtures.PASSWORD,ctx) }
+            withTimeout(10000) { access.uiState.first { !it.busy && it.account!=null } }
+            val profiles=handle!!.database.context().profiles()
+            main { store.put("access",DemoAccessViewModel()) } // Clears the old owner without logging out.
+            lateinit var fresh:DemoAccessViewModel
+            main {
+                fresh=DemoAccessViewModel(DeviceAccountRemote(),savedStore,AndroidOfflineClock(context));store.put("fresh",fresh)
+                fresh.networkChanged(ConnectivityStatus.OFFLINE);fresh.begin()
+            }
+            withTimeout(10000) { fresh.uiState.first { it.offlineAvailable } }
+            assertNull(fresh.uiState.value.account)
+            main { fresh.resumeOffline(ctx) }
+            withTimeout(10000) { fresh.uiState.first { it.offline && !it.busy } }
+            assertEquals(id("supervisor"),fresh.uiState.value.actorId)
+            assertNull(io.github.grupo6.capturaprospectos.data.remote.BackendSession.validationHeader())
+            main { fresh.logout() }
+            assertNull(savedStore.read())
+            assertEquals(profiles,handle!!.database.context().profiles())
+            assertEquals(0,handle!!.database.openHelper.readableDatabase.query("SELECT COUNT(*) FROM local_user_accounts").use { it.moveToFirst();it.getInt(0) })
+        } finally { savedStore.clear() }
     }
 }
