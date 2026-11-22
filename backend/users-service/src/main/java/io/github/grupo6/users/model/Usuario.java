@@ -21,7 +21,7 @@ public class Usuario {
     @Column(length = 64, nullable = false, updatable = false)
     private String id;
 
-    @Column(length = 120, nullable = false, unique = true)
+    @Column(length = 160, nullable = false, unique = true)
     private String username;
 
     @Column(length = 160, nullable = false, unique = true)
@@ -44,6 +44,27 @@ public class Usuario {
     @Column(nullable = false)
     private boolean activo = true;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
+    private AccountStatus status = AccountStatus.ACTIVE;
+
+    @jakarta.persistence.Version
+    @Column(nullable = false)
+    private long version;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private java.time.Instant createdAt = java.time.Instant.now();
+
+    @Column(name = "updated_at", nullable = false)
+    private java.time.Instant updatedAt = createdAt;
+
+    public AccountStatus getStatus() { return status; }
+    public void setStatus(AccountStatus value) { status = value; activo = value == AccountStatus.ACTIVE; }
+    public long getVersion() { return version; }
+    public java.time.Instant getCreatedAt() { return createdAt; }
+    public java.time.Instant getUpdatedAt() { return updatedAt; }
+    public void touch() { updatedAt = java.time.Instant.now(); }
+
     /**
      * Constructor vacío requerido por JPA para instanciar la entidad Usuario.
      */
@@ -63,6 +84,7 @@ public class Usuario {
         this.rol = rol;
         this.sedesAsignadas = sedesAsignadas;
         this.activo = activo;
+        this.status = activo ? AccountStatus.ACTIVE : AccountStatus.DISABLED;
     }
 
     /**
@@ -188,5 +210,6 @@ public class Usuario {
      */
     public void setActivo(boolean activo) {
         this.activo = activo;
+        this.status = activo ? AccountStatus.ACTIVE : AccountStatus.DISABLED;
     }
 }

@@ -32,14 +32,24 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health", "/actuator/health/liveness", "/actuator/health/readiness").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/register").permitAll()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/users").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/api/v1/users/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyRole("ADMIN", "SUPERVISOR")
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
-            .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()))
+            .exceptionHandling(errors -> errors
+                .authenticationEntryPoint((request,response,error) -> writeError(response,401,"INVALID_TOKEN"))
+                .accessDeniedHandler((request,response,error) -> writeError(response,403,"ACCESS_DENIED")))
+            .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults())
+                .authenticationEntryPoint((request,response,error) -> writeError(response,401,"INVALID_TOKEN")))
             .build();
+    }
+
+    private static void writeError(jakarta.servlet.http.HttpServletResponse response,int status,String code) throws java.io.IOException {
+        response.setStatus(status); response.setCharacterEncoding("UTF-8"); response.setContentType("application/json");
+        if (status==401) response.setHeader("WWW-Authenticate","Bearer");
+        response.getWriter().write("{\"code\":\""+code+"\",\"message\":\"No tienes acceso a esta operación.\"}");
     }
 
     /**

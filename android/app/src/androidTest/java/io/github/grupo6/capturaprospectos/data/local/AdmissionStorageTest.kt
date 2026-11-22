@@ -81,7 +81,7 @@ class AdmissionStorageTest {
         assertEquals(consent, restored.consent); assertEquals(now, restored.capturedAt)
         assertEquals(site, restored.siteId); assertFalse(site in restored.input.preferredSiteIds)
         assertEquals(CaptureState.NEEDS_CONTEXT, restored.state)
-        assertEquals(TransportState.NOT_QUEUED, restored.transportState)
+        assertEquals(TransportState.QUEUED, restored.transportState)
         assertEquals(listOf(1, 2, 3), restored.programs.map { it.priority })
         assertEquals("Mención ficticia", restored.programs.last().mentionName)
         assertEquals("F2027_1", open().captures().capture(saved.id.toString())!!.contractVersion)

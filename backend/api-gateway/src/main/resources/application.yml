@@ -2,6 +2,8 @@ server:
   forward-headers-strategy: none
   shutdown: graceful
   port: ${PORT:8080}
+documentation:
+  enabled: ${API_DOCS_ENABLED:false}
 spring:
   lifecycle:
     timeout-per-shutdown-phase: ${SHUTDOWN_TIMEOUT:30s}

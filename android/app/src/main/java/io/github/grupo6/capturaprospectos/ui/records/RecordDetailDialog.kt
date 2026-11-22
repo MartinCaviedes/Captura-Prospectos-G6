@@ -33,7 +33,12 @@ fun RecordDetailDialog(
             Column(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Ficha · Rev #${admission.revision}", style = MaterialTheme.typography.titleMedium)
                 StateBadge(admission.state)
-                Text("Transporte local: ${admission.transportState.name} · Sin envío remoto en E1")
+                Text(when(admission.transportState) {
+                    io.github.grupo6.capturaprospectos.domain.capture.TransportState.NOT_QUEUED -> "Guardado solo en este dispositivo"
+                    io.github.grupo6.capturaprospectos.domain.capture.TransportState.QUEUED -> "Pendiente de sincronización"
+                    io.github.grupo6.capturaprospectos.domain.capture.TransportState.SYNCED -> "Sincronizado con el servidor"
+                    io.github.grupo6.capturaprospectos.domain.capture.TransportState.REVIEW -> "Conservado localmente; el envío requiere revisión"
+                })
                 state.message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 if (state.isEditing) {
                     OutlinedTextField(state.editReason, onEditReason,

@@ -27,6 +27,8 @@ class ProspectIntegrationTest {
     static final String B = "22222222-2222-4222-8222-222222222222";
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
+    @Autowired io.github.grupo6.prospects.repository.CaptureSyncRepository syncLinks;
+    @Autowired io.github.grupo6.prospects.repository.ProspectRepository prospects;
     @DynamicPropertySource static void properties(DynamicPropertyRegistry r) throws Exception {
         SecurityIntegrationTest.properties(r);
         r.add("spring.datasource.url", () -> "jdbc:h2:mem:prospect_tests;DB_CLOSE_DELAY=-1;MODE=PostgreSQL");
@@ -52,6 +54,77 @@ class ProspectIntegrationTest {
             .andExpect(jsonPath("$.rut").value("12345678-5"))
             .andExpect(jsonPath("$.consentRecordedAt").isNotEmpty()).andReturn().getResponse().getContentAsString();
         return json.readTree(response).get("id").asText();
+    }
+    Map<String,Object> syncBody(String actor,String event,long revision,long expected) {
+        var request=new HashMap<String,Object>();
+        request.put("deviceId","33333333-3333-4333-8333-333333333333");request.put("ownerId",actor);
+        request.put("sourceRevision",revision);request.put("expectedRevision",expected);
+        request.put("registration",body(event,"site-1"));request.put("state","NEEDS_CONTEXT");
+        request.put("snapshotJson","{\"schema\":\"F2027_1\",\"interests\":[{\"priority\":1}],\"consent\":{\"version\":\"v1\"}}");
+        return request;
+    }
+    String push(String id,String actor,String role,Map<String,Object> request,int expected) throws Exception {
+        return mvc.perform(put("/api/v1/prospects/sync/"+id).header("Authorization","Bearer "+token(actor,role,"site-1"))
+            .contentType("application/json").content(json.writeValueAsString(request))).andExpect(status().is(expected))
+            .andReturn().getResponse().getContentAsString();
+    }
+    @Test void syncReplaysCreateUpdateAndCancellationWithoutDuplicates() throws Exception {
+        String id=UUID.randomUUID().toString(),event=UUID.randomUUID().toString();
+        var request=syncBody(A,event,3,0);String first=push(id,A,"CAPTADOR",request,200);
+        assertEquals(first,push(id,A,"CAPTADOR",request,200));
+        String remote=json.readTree(first).get("remoteId").asText();
+        request.put("sourceRevision",4);request.put("expectedRevision",3);
+        var registration=new HashMap<>((Map<String,Object>)request.get("registration"));registration.put("givenNames","Ana María");request.put("registration",registration);
+        String updated=push(id,A,"CAPTADOR",request,200);assertEquals(updated,push(id,A,"CAPTADOR",request,200));
+        request.put("sourceRevision",5);request.put("expectedRevision",4);request.put("state","CANCELLED");request.put("reason","Anulación de prueba");
+        String cancelled=push(id,A,"CAPTADOR",request,200);assertEquals(cancelled,push(id,A,"CAPTADOR",request,200));
+        mvc.perform(get("/api/v1/prospects/"+remote).header("Authorization","Bearer "+token(A,"CAPTADOR","site-1")))
+            .andExpect(jsonPath("$.givenNames").value("Ana María")).andExpect(jsonPath("$.status").value("CANCELLED"));
+        assertTrue(syncLinks.findById(UUID.fromString(id)).orElseThrow().snapshotJson.contains("interests"));
+    }
+    @Test void syncRejectsChangedReplayAndOutOfOrderRevision() throws Exception {
+        String id=UUID.randomUUID().toString();var request=syncBody(A,UUID.randomUUID().toString(),1,0);push(id,A,"CAPTADOR",request,200);
+        request.put("snapshotJson","{\"schema\":\"F2027_1\",\"changed\":true}");
+        assertEquals("SYNC_REPLAY_CONFLICT",json.readTree(push(id,A,"CAPTADOR",request,409)).get("code").asText());
+        request.put("sourceRevision",2);request.put("expectedRevision",0);push(id,A,"CAPTADOR",request,409);
+        request.put("expectedRevision",1);push(id,A,"CAPTADOR",request,200);
+    }
+    @Test void syncCannotImpersonateOwnerCrossSitesOrChangeDevice() throws Exception {
+        String id=UUID.randomUUID().toString();var request=syncBody(A,UUID.randomUUID().toString(),1,0);
+        push(id,B,"CAPTADOR",request,403);push(id,A,"ADMIN",request,403);
+        var registration=(Map<String,Object>)request.get("registration");registration.put("siteId","site-2");push(id,A,"CAPTADOR",request,403);
+        registration.put("siteId","site-1");push(id,A,"CAPTADOR",request,200);
+        push(id,B,"CAPTADOR",request,403);
+        request.put("deviceId",UUID.randomUUID().toString());request.put("sourceRevision",2);request.put("expectedRevision",1);push(id,A,"CAPTADOR",request,409);
+    }
+    @Test void syncDetectsExternalEditsInsteadOfOverwritingThem() throws Exception {
+        String id=UUID.randomUUID().toString();var request=syncBody(A,UUID.randomUUID().toString(),1,0);
+        String remote=json.readTree(push(id,A,"CAPTADOR",request,200)).get("remoteId").asText();
+        mvc.perform(put("/api/v1/prospects/"+remote).header("Authorization","Bearer "+token(A,"CAPTADOR","site-1"))
+            .contentType("application/json").content("{\"givenNames\":\"Cambio externo\",\"familyNames\":\"Prueba\",\"email\":\"externo@example.invalid\",\"phone\":\"+56912345678\"}"))
+            .andExpect(status().isOk());
+        request.put("sourceRevision",2);request.put("expectedRevision",1);push(id,A,"CAPTADOR",request,409);
+    }
+    @Test void syncValidatesPayloadAndKeepsBusinessDuplicateSeparateFromReplay() throws Exception {
+        String id=UUID.randomUUID().toString();var request=syncBody(A,UUID.randomUUID().toString(),1,0);
+        request.put("snapshotJson","not-json");push(id,A,"CAPTADOR",request,400);
+        request.put("snapshotJson","{\"schema\":\"F2027_1\"}");push(id,A,"CAPTADOR",request,200);
+        push(UUID.randomUUID().toString(),A,"CAPTADOR",request,409);
+    }
+    @Test void syncSupervisorCanCreateButOtherOwnerEditsRequireReason() throws Exception {
+        String id=UUID.randomUUID().toString();var request=syncBody(A,UUID.randomUUID().toString(),1,0);push(id,A,"SUPERVISOR",request,200);
+        request.put("sourceRevision",2);request.put("expectedRevision",1);push(id,B,"SUPERVISOR",request,400);
+        request.put("reason","Corrección supervisada");push(id,B,"SUPERVISOR",request,200);
+    }
+    @Test void concurrentIdenticalSyncCreatesReturnTheSameAck() throws Exception {
+        String id=UUID.randomUUID().toString(),event=UUID.randomUUID().toString();var request=syncBody(A,event,1,0);
+        var barrier=new java.util.concurrent.CyclicBarrier(2);
+        try(var pool=java.util.concurrent.Executors.newFixedThreadPool(2)) {
+            var tasks=new ArrayList<java.util.concurrent.Future<String>>();
+            for(int i=0;i<2;i++) tasks.add(pool.submit(()->{barrier.await(10,java.util.concurrent.TimeUnit.SECONDS);return push(id,A,"CAPTADOR",request,200);}));
+            assertEquals(tasks.get(0).get(15,java.util.concurrent.TimeUnit.SECONDS),tasks.get(1).get(15,java.util.concurrent.TimeUnit.SECONDS));
+        }
+        assertEquals(1L,prospects.findAll().stream().filter(p->p.getEventId().toString().equals(event)).count());
     }
     @Test void crudPersistsAndEnforcesOwnership() throws Exception {
         String id = create(A, "CAPTADOR", "site-1", UUID.randomUUID().toString());

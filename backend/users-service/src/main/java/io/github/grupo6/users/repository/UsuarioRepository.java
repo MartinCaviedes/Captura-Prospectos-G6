@@ -11,6 +11,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, String> {
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("select u from Usuario u where u.id = :id")
+    Optional<Usuario> lockById(@org.springframework.data.repository.query.Param("id") String id);
+
+    org.springframework.data.domain.Page<Usuario> findByStatus(
+        io.github.grupo6.users.model.AccountStatus status, org.springframework.data.domain.Pageable pageable);
+
     /**
      * Busca un usuario por su nombre de usuario o correo electrónico ignorando mayúsculas.
      */

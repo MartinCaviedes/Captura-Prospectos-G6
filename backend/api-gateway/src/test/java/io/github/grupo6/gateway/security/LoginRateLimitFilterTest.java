@@ -28,7 +28,7 @@ class LoginRateLimitFilterTest {
         var blocked = call(filter,"127.0.0.1","/api/v1/auth/login","c");
         assertEquals(HttpStatus.TOO_MANY_REQUESTS, blocked.getResponse().getStatusCode());
         assertEquals("60", blocked.getResponse().getHeaders().getFirst("Retry-After"));
-        assertTrue(blocked.getResponse().getBodyAsString().block().contains("LOGIN_RATE_LIMITED"));
+        assertTrue(blocked.getResponse().getBodyAsString().block().contains("RATE_LIMITED"));
         time.set(60_000_000_000L);
         assertEquals(HttpStatus.OK, call(filter,"127.0.0.1","/api/v1/auth/login","d").getResponse().getStatusCode());
     }
@@ -57,5 +57,12 @@ class LoginRateLimitFilterTest {
         assertThrows(IllegalArgumentException.class, () -> new LoginRateLimitFilter(0,60,1,() -> 0L));
         assertThrows(IllegalArgumentException.class, () -> new LoginRateLimitFilter(1,0,1,() -> 0L));
         assertThrows(IllegalArgumentException.class, () -> new LoginRateLimitFilter(1,60,0,() -> 0L));
+    }
+
+    @Test void registrationSharesBoundedPublicAuthenticationQuota() {
+        var filter = new LoginRateLimitFilter(1,60,10,() -> 0L);
+        assertEquals(HttpStatus.OK,call(filter,"127.0.0.1","/api/v1/auth/register","a").getResponse().getStatusCode());
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,call(filter,"127.0.0.1","/api/v1/auth/login","b").getResponse().getStatusCode());
+        assertEquals(HttpStatus.TOO_MANY_REQUESTS,call(filter,"127.0.0.1","/api/v1/auth/%72egister;test=value","c").getResponse().getStatusCode());
     }
 }

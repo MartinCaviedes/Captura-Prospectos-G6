@@ -25,6 +25,9 @@ internal fun openContextSession(context: Context): ContextSession {
         override val admissionRepository = admissionRepo
         override val recordRepository = recordRepo
         override val locationProvider = locationProvider
+        override val synchronization = RoomCaptureSynchronization(handle.database)
+        override val reverseGeocoder = io.github.grupo6.capturaprospectos.data.remote.BigDataCloudGeocoder()
+        override val addressGeocoder = io.github.grupo6.capturaprospectos.data.device.AndroidAddressGeocoder(context.applicationContext)
         override fun close() = handle.close()
     }
 }

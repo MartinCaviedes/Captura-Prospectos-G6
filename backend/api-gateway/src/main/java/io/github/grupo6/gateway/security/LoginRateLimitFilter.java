@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 @Component
 @Order(-101)
 public class LoginRateLimitFilter implements WebFilter {
-    private static final byte[] MESSAGE = ("{\"code\":\"LOGIN_RATE_LIMITED\","
+    private static final byte[] MESSAGE = ("{\"code\":\"RATE_LIMITED\","
         + "\"message\":\"Demasiados intentos. Reintentar más tarde\"}").getBytes(StandardCharsets.UTF_8);
     private final int requests;
     private final int maxClients;
@@ -53,7 +53,7 @@ public class LoginRateLimitFilter implements WebFilter {
             .map(element -> element instanceof org.springframework.http.server.PathContainer.PathSegment segment
                 ? segment.valueToMatch() : element.value())
             .collect(java.util.stream.Collectors.joining());
-        if (request.getMethod() != HttpMethod.POST || !"/api/v1/auth/login".equals(path)) {
+        if (request.getMethod() != HttpMethod.POST || !("/api/v1/auth/login".equals(path) || "/api/v1/auth/register".equals(path))) {
             return chain.filter(exchange);
         }
         var remote = request.getRemoteAddress();

@@ -68,7 +68,7 @@ public class ProspectService {
         p.cancel(actor(jwt),input.reason()); return repository.saveAndFlush(p);
     }
     // Módulo 11, mismo formato de RUT del dominio local; no se comparte código Android.
-    private String normalizeRut(String raw) {
+    String normalizeRut(String raw) {
         String rut = raw.replace(".", "").trim().toUpperCase(java.util.Locale.ROOT);
         if (!rut.matches("[1-9][0-9]{6,7}-[0-9K]")) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"INVALID_RUT");
         String digits = rut.substring(0,rut.indexOf('-'));

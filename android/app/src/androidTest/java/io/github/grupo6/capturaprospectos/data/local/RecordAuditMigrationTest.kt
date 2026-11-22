@@ -32,13 +32,15 @@ class RecordAuditMigrationTest {
             }) }
         }
 
-    @Test fun encryptedV3UpgradePreservesEveryOldValueAndAddsUnknownAuditAttributesAsNull() {
+    @Test fun encryptedV3UpgradePreservesEveryOldValueAndAddsUnknownAuditAttributesAsNull() = upgrade(3)
+    @Test fun encryptedV4UpgradePreservesDataAndMarksLegacyWithoutSending() = upgrade(4)
+    private fun upgrade(version:Int) {
         val schema = JSONObject(InstrumentationRegistry.getInstrumentation().context.assets.open(
-            "io.github.grupo6.capturaprospectos.data.local.CaptureDatabase/3.json").bufferedReader().use { it.readText() }).getJSONObject("database")
+            "io.github.grupo6.capturaprospectos.data.local.CaptureDatabase/$version.json").bufferedReader().use { it.readText() }).getJSONObject("database")
         System.loadLibrary("sqlcipher")
         val password = DatabaseKeyStore(context, name).getOrCreate()
         val helper = SupportOpenHelperFactory(password).create(SupportSQLiteOpenHelper.Configuration.builder(context).name(name)
-            .callback(object : SupportSQLiteOpenHelper.Callback(3) {
+            .callback(object : SupportSQLiteOpenHelper.Callback(version) {
                 override fun onConfigure(db: SupportSQLiteDatabase) { db.setForeignKeyConstraintsEnabled(true) }
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     val entities = schema.getJSONArray("entities")
@@ -93,7 +95,7 @@ class RecordAuditMigrationTest {
                 arrayOf<Any>(row.id, program.id.toString(), program.catalogVersion, program.name, 1, program.section))
             if (state == CaptureState.READY || state == CaptureState.NEEDS_CONTEXT)
                 old.execSQL("INSERT INTO active_registration_keys VALUES (?, ?, ?)", arrayOf(row.eventId, row.rut, row.id))
-            old.execSQL("INSERT INTO local_audit VALUES (?, ?, ?, ?, ?, ?)", arrayOf<Any>(UUID.randomUUID().toString(), row.id,
+            old.execSQL("INSERT INTO local_audit (id,captureId,actorId,occurredAt,action,resultingRevision) VALUES (?, ?, ?, ?, ?, ?)", arrayOf<Any>(UUID.randomUUID().toString(), row.id,
                 actor.id.toString(), now.toString(), if (state == CaptureState.CANCELLED) "CANCELLED" else "CREATED", row.revision))
         }
         val tables = listOf("captures", "capture_interests", "capture_site_preferences", "consent_text", "active_registration_keys", "local_audit")
@@ -107,8 +109,11 @@ class RecordAuditMigrationTest {
             assertEquals(table, before.getValue(table), rows(migrated, table, columns))
         }
         assertTrue(rows(migrated, "local_audit").all { it["previousRevision"] == null && it["reasonText"] == null && it["changedFields"] == null })
-        assertEquals(indices, rows(migrated, "sqlite_master", listOf("type", "name", "tbl_name", "sql")).filter { it["type"] == "index" && !it["name"]!!.startsWith("sqlite_autoindex") })
-        migrated.query("PRAGMA user_version").use { assertTrue(it.moveToFirst()); assertEquals(4, it.getInt(0)) }
+        assertEquals(indices, rows(migrated, "sqlite_master", listOf("type", "name", "tbl_name", "sql")).filter { it["type"] == "index" && !it["name"]!!.startsWith("sqlite_autoindex") && it["tbl_name"]!="capture_outbox" })
+        assertEquals(4,handle!!.database.sync().let { rows(migrated,"capture_sync_links").size })
+        assertTrue(rows(migrated,"capture_sync_links").all { it["legacy"]=="1" && it["remoteId"]==null && it["acknowledgedRevision"]=="0" })
+        assertTrue(rows(migrated,"capture_outbox").isEmpty())
+        migrated.query("PRAGMA user_version").use { assertTrue(it.moveToFirst()); assertEquals(5, it.getInt(0)) }
         migrated.query("PRAGMA foreign_key_check").use { assertFalse(it.moveToFirst()) }
         assertFalse(context.getDatabasePath(name).readBytes().take(16).toByteArray().toString(Charsets.US_ASCII).startsWith("SQLite format 3"))
     }

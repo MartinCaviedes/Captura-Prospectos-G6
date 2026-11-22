@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Pruebas de integración para login persistido, validación JWT y perfiles de usuario (~75% cobertura).
+ * Pruebas de integración para login persistido, validación JWT y administración. Sin atribuir cobertura no medida.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -82,7 +82,10 @@ class SecurityIntegrationTest {
         var rsa = new RSAKey.Builder((RSAPublicKey) keys.getPublic())
             .privateKey((RSAPrivateKey) keys.getPrivate()).build();
         var encoder = new NimbusJwtEncoder(new ImmutableJWKSet<>(new JWKSet(rsa)));
-        var claims = JwtClaimsSet.builder().issuer(issuer).subject("test-user")
+        String subject = role.equals("ADMIN") ? "demo-admin" : role.equals("SUPERVISOR") ? "supervisor" : "captor-a";
+        String seed = subject.equals("demo-admin") ? "profile/demo-admin" : "profile/" + subject;
+        String id = java.util.UUID.nameUUIDFromBytes(("g6-synthetic-context-v1/"+seed).getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString();
+        var claims = JwtClaimsSet.builder().issuer(issuer).subject(subject).claim("userId", id)
             .issuedAt(Instant.now().minusSeconds(1000))
             .expiresAt(Instant.now().plusSeconds(expiry)).claim("roles", List.of(role));
         if (audience != null) claims.audience(List.of(audience));
@@ -112,14 +115,14 @@ class SecurityIntegrationTest {
         var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
         var valid = java.util.Map.of("username", "sites-boundary", "email", "boundary@example.com",
             "displayName", "Prueba", "password", "test-only-password", "rol", "CAPTADOR",
-            "sedesAsignadas", "a".repeat(120) + "," + "b".repeat(120) + "," + "c".repeat(13));
+            "sedesAsignadas", "site-1,site-2");
         mvc.perform(post("/api/v1/users").header("Authorization", admin)
             .contentType("application/json").content(mapper.writeValueAsString(valid)))
             .andExpect(status().isCreated());
         var invalid = new java.util.HashMap<>(valid);
         invalid.put("username", "sites-overflow");
         invalid.put("email", "overflow@example.com");
-        invalid.put("sedesAsignadas", valid.get("sedesAsignadas") + "c");
+        invalid.put("sedesAsignadas", "x".repeat(256));
         mvc.perform(post("/api/v1/users").header("Authorization", admin)
             .contentType("application/json").content(mapper.writeValueAsString(invalid)))
             .andExpect(status().isBadRequest());
@@ -131,12 +134,12 @@ class SecurityIntegrationTest {
             .andExpect(status().isOk()).andReturn();
         var users = new com.fasterxml.jackson.databind.ObjectMapper()
             .readTree(result.getResponse().getContentAsString());
-        String path = "/api/v1/users/" + users.get(0).get("id").asText();
+        String path = "/api/v1/users/" + users.get("items").get(0).get("id").asText();
         mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch(path + "/estado")
             .header("Authorization", admin).contentType("application/json").content("{}"))
             .andExpect(status().isBadRequest());
         mvc.perform(get(path).header("Authorization", admin))
-            .andExpect(jsonPath("$.activo").value(true));
+            .andExpect(jsonPath("$.status").value("ACTIVE"));
     }
 
     @Test void signedTokenWithoutAudienceReturnsUnauthorized() throws Exception {
@@ -161,7 +164,7 @@ class SecurityIntegrationTest {
         String token = token(KEYS, "captura-g6-users", "captura-g6-api", "CAPTADOR", 900);
         mvc.perform(get("/api/v1/me")
             .header("Authorization", "Bearer " + token))
-            .andExpect(status().isOk()).andExpect(jsonPath("$.subject").value("test-user"));
+            .andExpect(status().isOk()).andExpect(jsonPath("$.username").value("captor-a"));
         mvc.perform(get("/api/v1/admin/status").header("Authorization", "Bearer " + token))
             .andExpect(status().isForbidden());
         String adminToken = token(KEYS, "captura-g6-users", "captura-g6-api", "ADMIN", 900);
@@ -201,12 +204,16 @@ class SecurityIntegrationTest {
             .andExpect(jsonPath("$.tokenType").value("Bearer"))
             .andExpect(jsonPath("$.email").value("captador.a@g6.example"))
             .andExpect(jsonPath("$.rol").value("CAPTADOR"))
+            .andExpect(jsonPath("$.expiresIn").value(14400))
             .andReturn().getResponse().getContentAsString();
         String accessToken = new com.fasterxml.jackson.databind.ObjectMapper()
             .readTree(response).get("accessToken").asText();
+        var claims=com.nimbusds.jwt.SignedJWT.parse(accessToken).getJWTClaimsSet();
+        org.junit.jupiter.api.Assertions.assertEquals(14400,
+            (claims.getExpirationTime().getTime()-claims.getIssueTime().getTime())/1000);
         mvc.perform(get("/api/v1/me").header("Authorization", "Bearer " + accessToken))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.subject").value("captor-a"))
+            .andExpect(jsonPath("$.username").value("captor-a"))
             .andExpect(jsonPath("$.email").value("captador.a@g6.example"));
     }
 }

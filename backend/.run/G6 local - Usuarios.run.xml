@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="G6 local - Usuarios" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="users-service" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="io.github.grupo6.users.UsersApplication" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="PROGRAM_PARAMETERS" value="&quot;--spring.config.additional-location=file:///$PROJECT_DIR$/.local/windows/users.properties&quot;" />
+    <method v="2"><option name="Make" enabled="true" /></method>
+  </configuration>
+</component>

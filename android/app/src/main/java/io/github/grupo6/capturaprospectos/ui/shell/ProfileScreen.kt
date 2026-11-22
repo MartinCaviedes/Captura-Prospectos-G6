@@ -24,25 +24,15 @@ import io.github.grupo6.capturaprospectos.ui.components.*
     modifier: Modifier = Modifier,
     darkMode: Boolean = true,
     onDarkModeChange: (Boolean) -> Unit = {},
+    personalization: (@Composable () -> Unit)? = null,
 ) {
-    var photoSheet by remember { mutableStateOf(false) }
     val initials = profile.displayName.split(" ").filter { it.isNotBlank() }.take(2).joinToString("") { it.take(1) }.uppercase()
     val roleLabel = if (profile.actor.role == io.github.grupo6.capturaprospectos.domain.capture.LocalRole.SUPERVISOR) "Supervisor" else "Captador"
-    if (photoSheet) ModalBottomSheet(onDismissRequest = { photoSheet = false }) {
-        Column(Modifier.fillMaxWidth().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Avatar(initials)
-            Text("Cambiar foto", style = MaterialTheme.typography.titleLarge)
-            listOf("Elegir de galería", "Tomar foto", "Eliminar foto").forEach { label ->
-                OutlinedButton({}, enabled = false, modifier = Modifier.fillMaxWidth().semantics {
-                    stateDescription = "Disponible en una entrega futura"
-                }) { Text(label) }
-            }
-            TextButton({ photoSheet = false }) { Text("Cancelar") }
-        }
-    }
     LazyColumn(modifier, contentPadding = PaddingValues(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item { Text("Mi perfil", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() }) }
         item {
+            if(personalization!=null) personalization()
+            else {
             GlassCard {
                 Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Avatar(initials)
@@ -59,8 +49,8 @@ import io.github.grupo6.capturaprospectos.ui.components.*
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    OutlinedButton({ photoSheet = true }, modifier = Modifier.fillMaxWidth()) { Text("Cambiar foto") }
                 }
+            }
             }
         }
         item {

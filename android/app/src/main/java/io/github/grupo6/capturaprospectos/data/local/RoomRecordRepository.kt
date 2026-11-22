@@ -157,29 +157,18 @@ internal class RoomRecordRepository(
                 dao.deleteKey(row.id)
                 dao.insertAudit(AuditRow(UUID.randomUUID().toString(), row.id, actor.id.toString(), clock.instant().toString(),
                     "CANCELLED", next, row.revision, reason, "[\"state\"]"))
+                enqueueCapture(db,row.id,actor.id.toString(),reason)
                 RecordMutationResult.Saved(command.id, next, CaptureState.CANCELLED)
             }
         } catch (_: SQLiteException) { RecordMutationResult.StorageUnavailable }
         catch (_: IllegalArgumentException) { RecordMutationResult.StorageUnavailable }
         catch (_: DateTimeException) { RecordMutationResult.StorageUnavailable }
 
-        val bearer = io.github.grupo6.capturaprospectos.data.remote.BackendSession.bearerHeader()
-        val remoteId = io.github.grupo6.capturaprospectos.data.remote.BackendSession.remoteIdFor(command.id)
-        if (localResult is RecordMutationResult.Saved && bearer != null && remoteId != null) {
-            try {
-                io.github.grupo6.capturaprospectos.data.remote.BackendSession.createService()
-                    .cancelProspect(bearer, remoteId, io.github.grupo6.capturaprospectos.data.remote.CancelProspectRequestDto(reason))
-            } catch (_: Exception) {
-                // La anulación local permanece confirmada en Room ante cualquier fallo de red.
-            }
-        }
         localResult
     }
 
     override suspend fun edit(command: EditAdmission): RecordMutationResult = withContext(dispatcher) {
         if (command.expectedRevision <= 0) return@withContext RecordMutationResult.InvalidRevision
-        var updatePayload: io.github.grupo6.capturaprospectos.data.remote.UpdateProspectRequestDto? = null
-        var createPayload: io.github.grupo6.capturaprospectos.data.remote.CreateProspectRequestDto? = null
         val localResult = try {
             db.withTransaction {
                 val actor = context.currentActor() ?: return@withTransaction RecordMutationResult.Unavailable
@@ -249,54 +238,17 @@ internal class RoomRecordRepository(
                 dao.deleteKey(row.id)
                 if (state != CaptureState.DRAFT) {
                     dao.insertKey(ActiveKeyRow(row.eventId, preparation.input.rut, row.id))
-                    if (old.state == CaptureState.DRAFT) {
-                        createPayload = io.github.grupo6.capturaprospectos.data.remote.CreateProspectRequestDto(
-                            rut = preparation.input.rut,
-                            eventId = row.eventId,
-                            siteId = io.github.grupo6.capturaprospectos.data.remote.BackendSession.mapLocalSiteToBackend(UUID.fromString(row.siteId)),
-                            givenNames = preparation.input.givenNames,
-                            familyNames = preparation.input.familyNames,
-                            email = preparation.input.email,
-                            phone = preparation.input.phone,
-                            consentAccepted = true,
-                            consentVersion = old.consent.version,
-                        )
-                    } else {
-                        updatePayload = io.github.grupo6.capturaprospectos.data.remote.UpdateProspectRequestDto(
-                            givenNames = preparation.input.givenNames,
-                            familyNames = preparation.input.familyNames,
-                            email = preparation.input.email,
-                            phone = preparation.input.phone,
-                        )
-                    }
                 }
                 dao.insertAudit(AuditRow(UUID.randomUUID().toString(), row.id, actor.id.toString(), clock.instant().toString(),
                     "EDITED", updated.revision, row.revision, reason.takeIf(String::isNotEmpty),
                     fields.joinToString(prefix = "[\"", separator = "\",\"", postfix = "\"]")))
+                enqueueCapture(db,row.id,actor.id.toString(),reason.takeIf(String::isNotEmpty))
                 RecordMutationResult.Saved(command.id, updated.revision, state)
             }
         } catch (_: SQLiteException) { RecordMutationResult.StorageUnavailable }
         catch (_: IllegalArgumentException) { RecordMutationResult.StorageUnavailable }
         catch (_: DateTimeException) { RecordMutationResult.StorageUnavailable }
 
-        val bearer = io.github.grupo6.capturaprospectos.data.remote.BackendSession.bearerHeader()
-        if (localResult is RecordMutationResult.Saved && bearer != null) {
-            try {
-                val remoteId = io.github.grupo6.capturaprospectos.data.remote.BackendSession.remoteIdFor(command.id)
-                val service = io.github.grupo6.capturaprospectos.data.remote.BackendSession.createService()
-                if (remoteId != null && updatePayload != null) {
-                    service.updateProspect(bearer, remoteId, updatePayload!!)
-                } else if (createPayload != null) {
-                    val response = service.createProspect(bearer, createPayload!!)
-                    val body = response.body()
-                    if (response.isSuccessful && body != null) {
-                        io.github.grupo6.capturaprospectos.data.remote.BackendSession.recordRemoteId(command.id, body.id)
-                    }
-                }
-            } catch (_: Exception) {
-                // La edición local queda persistida en Room ante errores de red.
-            }
-        }
         localResult
     }
 

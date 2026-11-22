@@ -2,6 +2,7 @@ package io.github.grupo6.capturaprospectos.data.device
 
 import io.github.grupo6.capturaprospectos.domain.capture.*
 import io.github.grupo6.capturaprospectos.domain.device.LocationResult
+import io.github.grupo6.capturaprospectos.domain.device.LocationRequestDefaults
 import java.time.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.*
@@ -28,8 +29,9 @@ class LocationAcquisitionTest {
     private fun provider(updates: Updates, fine: Boolean = true)=AndroidLocationProvider(
         permissionChecker={ it == "android.permission.ACCESS_COARSE_LOCATION" || fine },updates=updates,now={now})
     @Test fun networkCanResolveWhileGpsIsWaitingAndClosesBothListeners()=runTest {
-        val updates=Updates(); val task=async { provider(updates).request(Duration.ofSeconds(10)) }; runCurrent()
+        val updates=Updates(); val task=async { provider(updates).request(LocationRequestDefaults.timeout) }; runCurrent()
         assertEquals(setOf(NativeLocationSource.GPS,NativeLocationSource.NETWORK),updates.positions.keys)
+        advanceTimeBy(15000); runCurrent(); assertFalse(task.isCompleted)
         updates.positions.getValue(NativeLocationSource.NETWORK)(sample())
         assertEquals(LocationResult.Candidate(sample()),task.await()); assertEquals(2,updates.closed.size)
         updates.positions.getValue(NativeLocationSource.GPS)(sample()) // Tardía: no segundo resume.
@@ -47,8 +49,9 @@ class LocationAcquisitionTest {
         updates.positions.getValue(NativeLocationSource.GPS)(sample()); assertEquals(LocationResult.Candidate(sample()),task.await())
     }
     @Test fun timeoutAndCancellationRemoveEveryListener()=runTest {
-        val updates=Updates(); val task=async { provider(updates).request(Duration.ofSeconds(10)) }; runCurrent()
-        advanceTimeBy(10001); assertEquals(LocationResult.TimedOut,task.await()); assertEquals(2,updates.closed.size)
+        val updates=Updates(); val task=async { provider(updates).request(LocationRequestDefaults.timeout) }; runCurrent()
+        advanceTimeBy(29999); runCurrent(); assertFalse(task.isCompleted)
+        advanceTimeBy(1);runCurrent();assertEquals(LocationResult.TimedOut,task.await()); assertEquals(2,updates.closed.size)
         val cancel=Updates(); val waiting=launch { provider(cancel).request(Duration.ofSeconds(10)) }; runCurrent()
         waiting.cancelAndJoin(); assertEquals(2,cancel.closed.size)
     }

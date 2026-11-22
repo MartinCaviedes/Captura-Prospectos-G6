@@ -1,5 +1,9 @@
 # Backend de captación
 
+Documentación interactiva E2: [OpenAPI y Swagger UI](../docs/SWAGGER_VALIDATION.md). El gateway incluye el contrato de 21 operaciones implementadas. Activar `API_DOCS_ENABLED=true` en su proceso y abrir `/docs/index.html`; por defecto permanece desactivado. Las rutas privadas siguen requiriendo JWT y los permisos correspondientes. La especificación usa el mismo host/puerto del gateway.
+
+Candidato local del 22/11: [sincronización persistente](../docs/PROSPECT_SYNC_CONTRACT.md) con snapshots F2027, enlaces de dispositivo/revisión y reintentos idempotentes. Antes de iniciar `prospects-service` con `ddl-auto=validate` sobre PostgreSQL existente, aplicar **V002__capture_sync.sql después de V001**, con un rol migrador; el rol de aplicación necesita SELECT/INSERT/UPDATE sobre `capture_sync` además de sus permisos actuales. No editar V001 ni resetear bases. El script PostgreSQL de prueba prepara esta migración sobre una base desechable; no migra un despliegue del usuario.
+
 Microservicios Spring Boot integrados con la aplicación Android mediante Retrofit (`GatewayApiClient.kt` en `:app`) a través de `api-gateway`. Continúa el servicio de usuarios (`a7b1675`), la persistencia de prospectos (`e3a1366`) y la integración móvil (`10ba22d`) en `develop`.
 
 | Servicio | Puerto predeterminado | Responsabilidad |
@@ -11,6 +15,8 @@ Microservicios Spring Boot integrados con la aplicación Android mediante Retrof
 Java 21, Spring Boot 3.5.16, Maven Wrapper 3.9.11. Gateway WebFlux existente; JPA y H2/PostgreSQL para ambos servicios de negocio. Cada servicio posee sus entidades/repositorios y su base. Prospectos no consulta usuarios por petición ni usa claves foráneas entre servicios.
 
 ## Preparación y compilación
+
+En **Windows/IntelliJ**, usar la [guía local](../docs/LOCAL_WINDOWS_SETUP.md): `scripts/prepare-local.ps1` prepara propiedades privadas y `scripts/run-local.ps1` inicia los tres servicios con bases H2 persistentes. Las configuraciones `G6 local - ...` de `.run/` cargan esos mismos archivos. Abrir una clase main sin configurar JWT/perfil local no prepara automáticamente las cuentas demo. El procedimiento Bash siguiente se conserva como alternativa.
 
 Instalar un JDK 21, Python 3 (solo prueba funcional), Bash y OpenSSL. Desde `backend/`:
 
@@ -88,15 +94,22 @@ El seed de Jeremy conserva sus cuentas y UUID determinísticos; `captor-a` perte
 
 ## Contrato de identidad existente
 
-- `POST /api/v1/auth/login`: público, JSON `username` (username o email) y `password`. Respuesta: `accessToken`, `tokenType=Bearer`, `expiresIn=900`, `userId`, `username`, `email`, `displayName`, `rol`, `roles`, `siteIds`. Incorrectas: 401; campos inválidos: 400.
-- `GET /api/v1/me`: JWT, identidad de usuarios.
+Incremento de cuentas E2: [OpenAPI unificado](../docs/openapi/backend.openapi.json), [contrato fuente de cuentas](../docs/openapi/accounts.openapi.json), [reglas](../docs/ACCOUNT_ACCESS_CONTRACT.md) y [validación original](../docs/ACCOUNT_BACKEND_VALIDATION.md). La integración posterior con Android está registrada en [cuentas Android](../docs/ACCOUNT_ANDROID_VALIDATION.md).
+
+- `POST /api/v1/auth/login`: público, JSON `username` (username o email) y `password`. Respuesta: `accessToken`, `tokenType=Bearer`, `expiresIn=14400` (4 horas), `userId`, `username`, `email`, `displayName`, `rol`, `roles`, `siteIds`. Incorrectas: 401; campos inválidos: 400.
+- `POST /api/v1/auth/register`: público; displayName, email y password. Crea PENDING sin JWT ni sedes. Rechaza propiedades extra y contraseñas de más de 72 bytes UTF-8. Login comprueba contraseña antes de revelar estado pendiente/desactivado.
+- `GET /api/v1/me`: JWT; UserSummary con estado/asignaciones actuales de BD. Devuelve id/role en lugar de userId/rol; login conserva userId/rol/roles.
 - `POST /api/v1/auth/logout`: JWT, confirmación local; no revoca tokens emitidos.
-- `GET /api/v1/users[/{id}]`: ADMIN/SUPERVISOR según seguridad existente. `POST /api/v1/users` y `PATCH /api/v1/users/{id}/estado`: ADMIN.
+- `GET /api/v1/users[/{id}]`: solo ADMIN activo. Lista paginada (items/page/size/total), filtro status y orden createdAt/id.
+- `POST /api/v1/users`: ADMIN; alta ACTIVE de CAPTADOR/SUPERVISOR con sedes explícitas válidas. Username sin @; no promoción a ADMIN por HTTP.
+- `PATCH /api/v1/users/{id}/access`: ADMIN; status, role, siteIds y expectedVersion; cambio atómico auditado, versión obsoleta → 409.
+- `PATCH /api/v1/users/{id}/estado`: ADMIN; activo y expectedVersion obligatorios; no aprueba pendientes ni rehabilita sin asignaciones. Todos los ADMIN están protegidos por ambas rutas.
+- `GET /api/v1/admin/sites`: ADMIN; catálogo F2027 canónico de asignaciones en users-service/src/main/resources/catalog/sites.json. No consulta API institucional. Es distinto del futuro catálogo remoto de captación.
 - `GET /api/v1/admin/status`: ADMIN; enruta a usuarios.
 
-Usuarios firma RS256. Claims: `sub` es username, **`userId` es el UUID propietario**, `roles` es lista de ADMIN/CAPTADOR/SUPERVISOR, `siteIds` lista de sedes. Emisor/audiencia configurables, expiración 15 minutos. Gateway y prospectos verifican firma RS256, emisor, audiencia, vigencia (tolerancia Spring de 60 segundos) y estructura de identidad: UUID, sujeto no vacío, roles reconocidos y sedes string. Rechazan claims ausentes o incompatibles con 401. Los cambios de rol/sede/estado posteriores al login se reflejan al emitir otro token; no hay revocación inmediata.
+Usuarios firma RS256. Claims: `sub` es username, **`userId` es el UUID propietario**, `roles` es lista de ADMIN/CAPTADOR/SUPERVISOR, `siteIds` lista de sedes. Emisor/audiencia configurables, expiración de 4 horas para nuevas sesiones. Gateway y prospectos verifican firma RS256, emisor, audiencia, vigencia (tolerancia Spring de 60 segundos) y estructura de identidad: UUID, sujeto no vacío, roles reconocidos y sedes string. Rechazan claims ausentes o incompatibles con 401. Los cambios de rol/sede/estado posteriores al login se reflejan al emitir otro token; no hay revocación inmediata. Android conserva el token cifrado y revalida al restaurarlo según [sesión recordada](../docs/REMEMBERED_SESSION.md).
 
-El gateway conserva `Authorization: Bearer ...`, elimina `Cookie` y mantiene las rutas existentes de usuarios/prospectos. Las familias históricas de eventos, catálogo, asignaciones, inscripciones y reportes siguen sin implementación de negocio. Solo `POST login` y salud son públicos. Cada servicio expone únicamente salud general en `/actuator/health`; no se reenvían actuators internos. Sin CORS abierto.
+El gateway conserva `Authorization: Bearer ...`, elimina `Cookie` y mantiene las rutas existentes de usuarios/prospectos. Las familias históricas de eventos, catálogo de captación, asignaciones, inscripciones y reportes siguen sin implementación de negocio. Solo POST login/register y salud son públicos. Cada servicio expone únicamente salud general en `/actuator/health`; no se reenvían actuators internos. Sin CORS abierto.
 
 ## API mínima de prospectos
 
@@ -141,6 +154,8 @@ PY
 
 ## Verificación
 
+Para medir cobertura y exigir al menos 80 % de líneas en cada servicio: `./mvnw clean verify -Pcoverage`. Informes HTML/XML en `<servicio>/target/site/jacoco/`; alcance, resultados y cobertura Android en [la validación JaCoCo](../docs/COVERAGE_VALIDATION.md).
+
 ```bash
 ./mvnw clean verify
 source .local/env.sh
@@ -152,7 +167,7 @@ La prueba funcional inicia y detiene sus propios tres JAR en 18080/18081/18082 (
 
 ## Límites pendientes
 
-Sin integración Android, despliegue, métricas, catálogos, asignación real a eventos, sincronización, idempotencia, reconciliación, correcciones supervisadas completas, refresh/revocación ni catálogo de consentimientos. `eventId` es un UUID recibido; no se acredita existencia/asignación del evento. `siteIds` del JWT restringe sedes, sin llamadas a usuarios. El consentimiento mínimo no sustituye el modelo completo/evidencia offline propuesto. Existen imágenes Docker y pruebas locales de creación duplicada y bootstrap concurrentes. Permanecen pendientes las carreras de edición/anulación y controles distribuidos. Swagger/OpenAPI, discovery, Config Server y mensajería siguen fuera del alcance. El siguiente trabajo del equipo debe completar contratos y permisos de eventos antes de conectar Android.
+El candidato incluye cuentas Android, sesión offline, sincronización persistente/idempotente, API externa de localidad, personalización local, cobertura JaCoCo y OpenAPI/Swagger. AWS/TLS y la APK release firmada ya cuentan con evidencia en el [resumen E2 1.1.0](../docs/ENTREGA_E2_1_1_0.md); las referencias anteriores de este documento describen sus verificaciones locales. Continúan aplazadas las funciones remotas amplias de eventos, catálogo, asignaciones y consolidación entre dispositivos. `eventId` es un UUID recibido: no se acredita existencia/asignación remota del evento. `siteIds` del JWT restringe sedes; no hay revocación inmediata en prospectos ni refresh de JWT. La sincronización almacena snapshots pero no ofrece descarga/reconciliación completa ni ejecución de fondo con WorkManager. Discovery, Config Server y mensajería no se incorporaron como parte de este incremento.
 
 ## Perfil productivo de persistencia
 
@@ -204,6 +219,10 @@ Usuarios y prospectos tienen un script `db/migrations/V001__initial.sql` por mó
 
 La selección y aplicación de migraciones es manual en este incremento. Verificar el archivo y registrar su checksum antes de usarlo en otro entorno. No editar una V001 ya aplicada; los futuros cambios deben usar versiones nuevas. La tabla registra versión/descripción/fecha y no sustituye un runner con validación automática de checksums. La aplicación permanece en validate y no ejecuta los scripts al arrancar.
 
+Para usuarios aplicar después `users-service/db/migrations/V002__account_access.sql`: añade estado/versión/fechas, conserva cuentas/credenciales/asignaciones y crea auditoría e índices de unicidad insensibles a mayúsculas. Falla transaccionalmente ante duplicados o identificadores ambiguos sin fusionarlos. Las fechas históricas representan la migración, no una fecha de alta recuperada. El runtime necesita SELECT/INSERT/UPDATE en usuarios y SELECT/INSERT en account_access_audit. Prospectos mantiene V001. No sustituir V002 por Hibernate update en bases con cuentas; una conversión desde H2 persistente requiere plan separado.
+
+Después de compilar, `python scripts/account-postgres-smoke.py` verifica migración con datos previos, rollback ante duplicados, bootstrap, gateway, aprobación concurrente y persistencia tras reinicio. Requiere Docker, JDK21 y Python cryptography; elimina solo su contenedor temporal g6-accounts-*. No usa datos reales ni acredita cierre graceful en Windows.
+
 Desde backend, después de compilar y cargar el setup local:
 
 ```bash
@@ -243,7 +262,7 @@ La prueba PostgreSQL local valida contraseña/email inválidos sin crear cuentas
 
 Gateway limita POST /api/v1/auth/login por dirección del peer, con una ventana fija por instancia. LOGIN_RATE_LIMIT_REQUESTS admite 60 intentos por defecto, LOGIN_RATE_LIMIT_WINDOW_SECONDS fija 60 segundos y LOGIN_RATE_LIMIT_MAX_CLIENTS acota el mapa a 10000 direcciones. Se cuentan peticiones exitosas e inválidas, sin leer credenciales ni conservarlas. Los límites deben ser positivos; una configuración inválida impide el arranque.
 
-Al agotar la cuota devuelve 429, code LOGIN_RATE_LIMITED, Retry-After en segundos y Cache-Control no-store. Rutas codificadas y parámetros de segmento se comparan con la semántica de path de Spring. El mapa sincroniza comprobación/incremento; al alcanzar su capacidad recupera entradas vencidas y rechaza nuevas direcciones si sigue lleno. El bloqueo se libera al renovar la ventana. No hay bloqueo persistente de cuentas.
+Login y registro comparten la cuota local por peer. Al agotarla devuelve 429, code RATE_LIMITED, Retry-After en segundos y Cache-Control no-store. Rutas codificadas y parámetros de segmento se comparan con la semántica de path de Spring. El mapa sincroniza comprobación/incremento; al alcanzar su capacidad recupera entradas vencidas y rechaza nuevas direcciones si sigue lleno. El bloqueo se libera al renovar la ventana. No hay bloqueo persistente de cuentas.
 
 El gateway fija forward-headers-strategy=none y el filtro ignora X-Forwarded-For aportado por el cliente. Detrás de ALB/proxy, varias personas pueden compartir la cuota del peer. Antes de exponer el entorno deben acordarse límites en el borde y una estrategia de identidad IP confiable con red restringida. No cambiar la estrategia de forwarded headers para confiar en cabeceras arbitrarias. Los contadores no se comparten entre réplicas y se pierden al reiniciar. El acceso directo al login de usuarios debe quedar restringido a la red interna; este filtro protege la entrada por gateway.
 

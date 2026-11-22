@@ -1,7 +1,13 @@
 server:
   shutdown: graceful
   port: ${PORT:8081}
+logging:
+  level:
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: OFF
 spring:
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
   lifecycle:
     timeout-per-shutdown-phase: ${SHUTDOWN_TIMEOUT:30s}
   application:

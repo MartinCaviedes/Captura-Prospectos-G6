@@ -20,6 +20,7 @@ import io.github.grupo6.capturaprospectos.domain.context.ContextOpenFailure
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import io.github.grupo6.capturaprospectos.domain.records.*
 
 sealed interface ContextSessionState {
     data object Opening : ContextSessionState
@@ -29,6 +30,9 @@ sealed interface ContextSessionState {
         val admissionRepository: AdmissionRepository? = null,
         val recordRepository: RecordRepository? = null,
         val locationProvider: io.github.grupo6.capturaprospectos.domain.device.LocationProvider? = null,
+        val synchronization: io.github.grupo6.capturaprospectos.domain.records.CaptureSynchronization? = null,
+        val reverseGeocoder: io.github.grupo6.capturaprospectos.domain.device.ReverseGeocoder? = null,
+        val addressGeocoder: io.github.grupo6.capturaprospectos.domain.device.ReverseGeocoder? = null,
     ) : ContextSessionState
 }
 
@@ -51,7 +55,30 @@ class ContextSessionOwner(
     private val trays = ViewModelStore()
     private var trayActor: LocalActor? = null
     private var trayConsumer: RecordTrayViewModel? = null
+    private var syncConsumer: Job? = null
+    private val syncState=MutableStateFlow(SyncOverview())
+    val synchronizationState=syncState.asStateFlow()
+    private val syncStorage=MutableStateFlow(false)
+    val synchronizationUnavailable=syncStorage.asStateFlow()
     init { start() }
+
+    suspend fun synchronize(identity:SyncIdentity,authorized:()->Boolean,onInvalid:(String)->Unit) {
+        val worker=(state.value as? ContextSessionState.Ready)?.synchronization ?: return
+        val job=currentCoroutineContext()[Job]
+        syncConsumer=job
+        try {
+            while(currentCoroutineContext().isActive) {
+                try {
+                    syncState.value=worker.overview(identity.id)
+                    worker.drain(identity,authorized)?.let { onInvalid(it);return }
+                    syncState.value=worker.overview(identity.id)
+                    syncStorage.value=false
+                } catch(cancelled:CancellationException) { throw cancelled }
+                catch(_:android.database.sqlite.SQLiteException) { syncStorage.value=true }
+                delay(10000)
+            }
+        } finally { if(syncConsumer==job) syncConsumer=null;syncState.value=SyncOverview() }
+    }
 
     /** Retiene sólo memoria en recreaciones de Activity; nunca utiliza SavedState para PII. */
     @MainThread
@@ -67,7 +94,7 @@ class ContextSessionOwner(
                 require(modelClass == AdmissionFormViewModel::class.java)
                 val ready = state.value as ContextSessionState.Ready
                 return AdmissionFormViewModel(environment, suggestion, repository = ready.admissionRepository,
-                    locationProvider = ready.locationProvider) as T
+                    locationProvider = ready.locationProvider,reverseGeocoder=ready.reverseGeocoder,addressGeocoder=ready.addressGeocoder) as T
             }
         })[AdmissionFormViewModel::class.java].also { formConsumer = it }
     }
@@ -99,7 +126,7 @@ class ContextSessionOwner(
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 require(modelClass == RecordTrayViewModel::class.java)
                 val ready = state.value as ContextSessionState.Ready
-                return RecordTrayViewModel(ready.recordRepository, ready.locationProvider) as T
+                return RecordTrayViewModel(ready.recordRepository, ready.locationProvider,ready.reverseGeocoder,ready.addressGeocoder) as T
             }
         })[RecordTrayViewModel::class.java].also { trayConsumer = it }
     }
@@ -140,12 +167,13 @@ class ContextSessionOwner(
                         return DemoContextViewModel(requireNotNull(resource).repository) as T
                     }
                 })[DemoContextViewModel::class.java]
-                state.value = ContextSessionState.Ready(consumer, resource?.admissionRepository, resource?.recordRepository, resource?.locationProvider)
+                state.value = ContextSessionState.Ready(consumer, resource?.admissionRepository, resource?.recordRepository, resource?.locationProvider, resource?.synchronization,resource?.reverseGeocoder,resource?.addressGeocoder)
                 awaitCancellation()
             } catch (_: ContextOpenFailure) {
                 state.value = ContextSessionState.Unavailable
             } finally {
                 withContext(NonCancellable) {
+                    syncConsumer?.cancelAndJoin()
                     val pendingForm = formConsumer
                     val pendingTray = trayConsumer
                     val pendingHub = hubConsumer

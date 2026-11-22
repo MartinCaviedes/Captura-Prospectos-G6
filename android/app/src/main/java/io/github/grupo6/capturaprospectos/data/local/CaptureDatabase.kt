@@ -93,8 +93,9 @@ internal interface CaptureDao {
     fun capturesBySitesExcludingDraft(siteIds: List<String>): List<CaptureRow>
 }
 
-@Database(entities = [ConsentTextRow::class, CaptureRow::class, InterestRow::class, ActiveKeyRow::class, AuditRow::class, SitePreferenceRow::class, CatalogVersionRow::class, DemoSiteRow::class, DemoProfileRow::class, ProfileSiteRow::class, DemoEventRow::class, DemoAssignmentRow::class, DemoProgramRow::class, DemoMentionRow::class, DemoContextRow::class], version = 4, exportSchema = true)
+@Database(entities = [ConsentTextRow::class, CaptureRow::class, InterestRow::class, ActiveKeyRow::class, AuditRow::class, SitePreferenceRow::class, CatalogVersionRow::class, DemoSiteRow::class, DemoProfileRow::class, ProfileSiteRow::class, DemoEventRow::class, DemoAssignmentRow::class, DemoProgramRow::class, DemoMentionRow::class, DemoContextRow::class, SyncLinkRow::class, OutboxRow::class], version = 5, exportSchema = true)
 internal abstract class CaptureDatabase : RoomDatabase() {
     abstract fun captures(): CaptureDao
     abstract fun context(): ContextDao
+    abstract fun sync(): CaptureSyncDao
 }

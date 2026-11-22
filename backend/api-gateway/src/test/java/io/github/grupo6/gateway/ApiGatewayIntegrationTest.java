@@ -122,6 +122,14 @@ class ApiGatewayIntegrationTest {
 
     @Autowired org.springframework.context.ConfigurableApplicationContext context;
 
+    @Test void documentationIsDisabledUnlessExplicitlyEnabledEvenWithValidJwt() {
+        var token=token(KEYS,"captura-g6-users","captura-g6-api",900);
+        for(String path:List.of("/docs", "/docs/index.html", "/docs/openapi/backend.openapi.json", "/docs/assets/swagger-ui.css")) {
+            client.get().uri(path).exchange().expectStatus().isUnauthorized();
+            client.get().uri(path).headers(headers->headers.setBearerAuth(token)).exchange().expectStatus().isForbidden();
+        }
+    }
+
     @Test void readinessFollowsAvailabilityWithoutExposingDetails() throws Exception {
         org.springframework.boot.availability.AvailabilityChangeEvent.publish(context,
             org.springframework.boot.availability.ReadinessState.REFUSING_TRAFFIC);
@@ -150,10 +158,12 @@ class ApiGatewayIntegrationTest {
             .expectStatus().isOk()
             .expectBody().jsonPath("$.service").isEqualTo("users")
             .jsonPath("$.authorizationPresent").isEqualTo(false);
-        client.post().uri("/api/v1/auth/login").bodyValue("{}").exchange().expectStatus().isOk();
+        client.post().uri("/api/v1/auth/register").bodyValue("{}").exchange().expectStatus().isOk()
+            .expectBody().jsonPath("$.service").isEqualTo("users")
+            .jsonPath("$.authorizationPresent").isEqualTo(false);
         client.post().uri("/api/v1/auth/login").bodyValue("{}").exchange()
             .expectStatus().isEqualTo(429).expectHeader().exists("Retry-After")
-            .expectBody().jsonPath("$.code").isEqualTo("LOGIN_RATE_LIMITED");
+             .expectBody().jsonPath("$.code").isEqualTo("RATE_LIMITED");
     }
 
     @Test

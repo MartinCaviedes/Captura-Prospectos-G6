@@ -25,6 +25,7 @@ fun MainHubRoute(
     contextViewModel: io.github.grupo6.capturaprospectos.ui.context.DemoContextViewModel? = null,
     summaryOnly: Boolean = false,
     onOpenSummary: () -> Unit = {},
+    profilePhoto: ByteArray? = null,
 ) {
     // Conservar el Flow evita cancelar/recrear el callback de red en cada recomposición.
     val connectivityFlow = remember(connectivityObserver) { connectivityObserver.observe() }
@@ -52,7 +53,7 @@ fun MainHubRoute(
         onNewCapture = onNewCapture,
         onChangeContext = onChangeContext,
         modifier = modifier,
-        summaryOnly = summaryOnly, onOpenSummary = onOpenSummary,
+        summaryOnly = summaryOnly, onOpenSummary = onOpenSummary, profilePhoto = profilePhoto,
         calendar = metricsVm.calendar, onToggleRange = metricsVm::toggleRange,
         onOpenTray = onOpenTray,
         onCreateEvent = { contextViewModel?.beginEventEditor() },

@@ -1,0 +1,1001 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Captura de Prospectos G6 · Prospectos y sincronización",
+    "version": "0.3.0-e2",
+    "description": "Contrato de rutas implementadas. Ejemplos ficticios; no documenta catálogos/eventos remotos futuros ni el proveedor público BigDataCloud como rutas propias."
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Mismo gateway que sirve la documentación."
+    }
+  ],
+  "tags": [
+    {
+      "name": "Prospectos"
+    },
+    {
+      "name": "Sincronización"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/prospects": {
+      "get": {
+        "operationId": "listProspects",
+        "summary": "Listar prospectos visibles",
+        "description": "CAPTADOR: propios; SUPERVISOR: sedes del JWT; ADMIN: todos. Incluye anulados, orden createdAt/id; paginación por página, no cursor.",
+        "tags": [
+          "Prospectos"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-roles": [
+          "CAPTADOR",
+          "SUPERVISOR",
+          "ADMIN"
+        ],
+        "responses": {
+          "200": {
+            "description": "Listar prospectos visibles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST, INVALID_RUT o INVALID_PAGE; en sync también INVALID_SNAPSHOT y REASON_REQUIRED.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT ausente, vencido o inválido. El gateway puede responder sin cuerpo; el microservicio incluye UNAUTHORIZED."
+          },
+          "403": {
+            "description": "FORBIDDEN: rol, propietario o sede no autorizados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible. El gateway devuelve code=UPSTREAM_UNAVAILABLE si se rechaza la conexión."
+          },
+          "504": {
+            "description": "El gateway agotó el tiempo de espera del servicio; el formato no está normalizado con ProspectError."
+          }
+        },
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000,
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createProspect",
+        "summary": "Crear inscripción mínima",
+        "description": "Solo CAPTADOR de la sede. captorId deriva del JWT. Una inscripción activa por RUT normalizado y evento. El servicio no verifica existencia/asignación remota del evento.",
+        "tags": [
+          "Prospectos"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-roles": [
+          "CAPTADOR"
+        ],
+        "responses": {
+          "201": {
+            "description": "Crear inscripción mínima",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prospect"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST, INVALID_RUT o INVALID_PAGE; en sync también INVALID_SNAPSHOT y REASON_REQUIRED.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT ausente, vencido o inválido. El gateway puede responder sin cuerpo; el microservicio incluye UNAUTHORIZED."
+          },
+          "403": {
+            "description": "FORBIDDEN: rol, propietario o sede no autorizados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible. El gateway devuelve code=UPSTREAM_UNAVAILABLE si se rechaza la conexión."
+          },
+          "504": {
+            "description": "El gateway agotó el tiempo de espera del servicio; el formato no está normalizado con ProspectError."
+          },
+          "409": {
+            "description": "DUPLICATE_EVENT_REGISTRATION, PROSPECT_CANCELLED o CONCURRENT_UPDATE.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProspectRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prospects/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "UUID del prospecto remoto.",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getProspect",
+        "summary": "Consultar prospecto",
+        "description": "CAPTADOR propietario, SUPERVISOR de la sede o ADMIN. Devuelve ficha mínima; no expone snapshotJson completo de sincronización.",
+        "tags": [
+          "Prospectos"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-roles": [
+          "CAPTADOR",
+          "SUPERVISOR",
+          "ADMIN"
+        ],
+        "responses": {
+          "200": {
+            "description": "Consultar prospecto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prospect"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST, INVALID_RUT o INVALID_PAGE; en sync también INVALID_SNAPSHOT y REASON_REQUIRED.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT ausente, vencido o inválido. El gateway puede responder sin cuerpo; el microservicio incluye UNAUTHORIZED."
+          },
+          "403": {
+            "description": "FORBIDDEN: rol, propietario o sede no autorizados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible. El gateway devuelve code=UPSTREAM_UNAVAILABLE si se rechaza la conexión."
+          },
+          "504": {
+            "description": "El gateway agotó el tiempo de espera del servicio; el formato no está normalizado con ProspectError."
+          },
+          "404": {
+            "description": "NOT_FOUND: prospecto no encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateProspect",
+        "summary": "Actualizar contacto",
+        "description": "Reemplaza los cuatro campos de contacto de una ficha activa. CAPTADOR propietario, SUPERVISOR de sede o ADMIN. No admite expectedVersion ni cambia RUT/evento/sede/propietario/consentimiento. Puede provocar conflicto con la siguiente sincronización.",
+        "tags": [
+          "Prospectos"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-roles": [
+          "CAPTADOR",
+          "SUPERVISOR",
+          "ADMIN"
+        ],
+        "responses": {
+          "200": {
+            "description": "Actualizar contacto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prospect"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST, INVALID_RUT o INVALID_PAGE; en sync también INVALID_SNAPSHOT y REASON_REQUIRED.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT ausente, vencido o inválido. El gateway puede responder sin cuerpo; el microservicio incluye UNAUTHORIZED."
+          },
+          "403": {
+            "description": "FORBIDDEN: rol, propietario o sede no autorizados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible. El gateway devuelve code=UPSTREAM_UNAVAILABLE si se rechaza la conexión."
+          },
+          "504": {
+            "description": "El gateway agotó el tiempo de espera del servicio; el formato no está normalizado con ProspectError."
+          },
+          "404": {
+            "description": "NOT_FOUND: prospecto no encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "DUPLICATE_EVENT_REGISTRATION, PROSPECT_CANCELLED o CONCURRENT_UPDATE.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProspectRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prospects/{id}/cancel": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "UUID del prospecto remoto.",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "post": {
+        "operationId": "cancelProspect",
+        "summary": "Anular inscripción",
+        "description": "Solo SUPERVISOR de la sede o ADMIN. Anulación lógica con motivo/actor/fecha; no borra la ficha. CAPTADOR no puede usar esta ruta; la anulación local propia puede enviarse por sync.",
+        "tags": [
+          "Prospectos"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-roles": [
+          "SUPERVISOR",
+          "ADMIN"
+        ],
+        "responses": {
+          "200": {
+            "description": "Anular inscripción",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prospect"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST, INVALID_RUT o INVALID_PAGE; en sync también INVALID_SNAPSHOT y REASON_REQUIRED.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT ausente, vencido o inválido. El gateway puede responder sin cuerpo; el microservicio incluye UNAUTHORIZED."
+          },
+          "403": {
+            "description": "FORBIDDEN: rol, propietario o sede no autorizados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible. El gateway devuelve code=UPSTREAM_UNAVAILABLE si se rechaza la conexión."
+          },
+          "504": {
+            "description": "El gateway agotó el tiempo de espera del servicio; el formato no está normalizado con ProspectError."
+          },
+          "404": {
+            "description": "NOT_FOUND: prospecto no encontrado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "DUPLICATE_EVENT_REGISTRATION, PROSPECT_CANCELLED o CONCURRENT_UPDATE.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelProspectRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prospects/sync/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "UUID local estable de la captura; no es remoteId.",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "put": {
+        "operationId": "syncCapture",
+        "summary": "Sincronizar revisión de captura",
+        "description": "CAPTADOR propietario o SUPERVISOR de sede; ADMIN no tiene esta operación. Primera escritura requiere ownerId del actor, expectedRevision=0 y estado distinto de CANCELLED. Reenvío idéntico conserva ACK; misma revisión con otro cuerpo produce SYNC_REPLAY_CONFLICT. DeviceId e identidad de inscripción son inmutables. Revisiones siguientes requieren expectedRevision vigente y ficha remota sin cambios ajenos. state READY/NEEDS_CONTEXT no es el status ACTIVE de Prospect. Se almacena snapshotJson pero no hay descarga/reconciliación del formulario completo en esta API.",
+        "tags": [
+          "Sincronización"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-required-roles": [
+          "CAPTADOR",
+          "SUPERVISOR"
+        ],
+        "responses": {
+          "200": {
+            "description": "Sincronizar revisión de captura",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptureSyncAck"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "INVALID_REQUEST, INVALID_RUT o INVALID_PAGE; en sync también INVALID_SNAPSHOT y REASON_REQUIRED.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT ausente, vencido o inválido. El gateway puede responder sin cuerpo; el microservicio incluye UNAUTHORIZED."
+          },
+          "403": {
+            "description": "FORBIDDEN: rol, propietario o sede no autorizados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio no disponible. El gateway devuelve code=UPSTREAM_UNAVAILABLE si se rechaza la conexión."
+          },
+          "504": {
+            "description": "El gateway agotó el tiempo de espera del servicio; el formato no está normalizado con ProspectError."
+          },
+          "409": {
+            "description": "SYNC_BASE_MISSING, SYNC_REMOTE_MISSING, SYNC_IDENTITY_CONFLICT, SYNC_REPLAY_CONFLICT, SYNC_VERSION_CONFLICT, DUPLICATE_EVENT_REGISTRATION o CONCURRENT_UPDATE.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProspectError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureSyncRequest"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "CreateProspectRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "rut": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
+            "description": "Admite puntos; se normaliza y comprueba dígito verificador módulo 11."
+          },
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "siteId": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": ".*\\S.*"
+          },
+          "givenNames": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": ".*\\S.*"
+          },
+          "familyNames": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": ".*\\S.*"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "pattern": "^\\+?[0-9]{8,15}$"
+          },
+          "consentAccepted": {
+            "type": "boolean",
+            "const": true
+          },
+          "consentVersion": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "pattern": ".*\\S.*"
+          }
+        },
+        "required": [
+          "rut",
+          "eventId",
+          "siteId",
+          "givenNames",
+          "familyNames",
+          "email",
+          "phone",
+          "consentAccepted",
+          "consentVersion"
+        ],
+        "examples": [
+          {
+            "rut": "12.345.678-5",
+            "eventId": "22222222-2222-4222-8222-222222222222",
+            "siteId": "site-1",
+            "givenNames": "Persona",
+            "familyNames": "Ficticia",
+            "email": "persona@example.invalid",
+            "phone": "+56912345678",
+            "consentAccepted": true,
+            "consentVersion": "F2027_1"
+          }
+        ]
+      },
+      "UpdateProspectRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "givenNames": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": ".*\\S.*"
+          },
+          "familyNames": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": ".*\\S.*"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "pattern": "^\\+?[0-9]{8,15}$"
+          }
+        },
+        "required": [
+          "givenNames",
+          "familyNames",
+          "email",
+          "phone"
+        ],
+        "examples": [
+          {
+            "givenNames": "Persona",
+            "familyNames": "Ficticia",
+            "email": "persona@example.invalid",
+            "phone": "+56912345678"
+          }
+        ]
+      },
+      "CancelProspectRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "pattern": ".*\\S.*"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "examples": [
+          {
+            "reason": "Corrección supervisada ficticia"
+          }
+        ]
+      },
+      "Prospect": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "rut": {
+            "type": "string",
+            "maxLength": 12
+          },
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "siteId": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "captorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "givenNames": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": ".*\\S.*"
+          },
+          "familyNames": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": ".*\\S.*"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 1,
+            "format": "email"
+          },
+          "phone": {
+            "type": "string",
+            "pattern": "^\\+?[0-9]{8,15}$"
+          },
+          "consentVersion": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "consentRecordedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "CANCELLED"
+            ]
+          },
+          "cancelledAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "cancelledBy": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "cancellationReason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "rut",
+          "eventId",
+          "siteId",
+          "captorId",
+          "givenNames",
+          "familyNames",
+          "email",
+          "phone",
+          "consentVersion",
+          "consentRecordedAt",
+          "createdAt",
+          "updatedAt",
+          "status",
+          "cancelledAt",
+          "cancelledBy",
+          "cancellationReason"
+        ]
+      },
+      "ProspectPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Prospect"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "size",
+          "total"
+        ]
+      },
+      "ProspectError": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "fieldErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "correlationId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "fieldErrors",
+          "correlationId"
+        ],
+        "examples": [
+          {
+            "code": "SYNC_VERSION_CONFLICT",
+            "message": "El estado actual no permite la operación",
+            "fieldErrors": {},
+            "correlationId": "33333333-3333-4333-8333-333333333333"
+          }
+        ]
+      },
+      "CaptureSyncRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "deviceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ownerId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sourceRevision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "default": 0,
+            "description": "Última revisión local reconocida por el servidor; 0 para primera sincronización. No es version de Prospect."
+          },
+          "registration": {
+            "$ref": "#/components/schemas/CreateProspectRequest"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "READY",
+              "NEEDS_CONTEXT",
+              "CANCELLED"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 300,
+            "description": "Obligatoria con al menos cinco caracteres tras trim al cancelar o corregir como otro supervisor."
+          },
+          "snapshotJson": {
+            "type": "string",
+            "maxLength": 64000,
+            "minLength": 1,
+            "description": "Cadena JSON de objeto con schema=F2027_1. Backend verifica objeto y marcador; no valida exhaustivamente todos los campos del formulario."
+          }
+        },
+        "required": [
+          "deviceId",
+          "ownerId",
+          "sourceRevision",
+          "registration",
+          "state",
+          "snapshotJson"
+        ],
+        "examples": [
+          {
+            "deviceId": "44444444-4444-4444-8444-444444444444",
+            "ownerId": "11111111-1111-4111-8111-111111111111",
+            "sourceRevision": 1,
+            "expectedRevision": 0,
+            "registration": {
+              "rut": "12.345.678-5",
+              "eventId": "22222222-2222-4222-8222-222222222222",
+              "siteId": "site-1",
+              "givenNames": "Persona",
+              "familyNames": "Ficticia",
+              "email": "persona@example.invalid",
+              "phone": "+56912345678",
+              "consentAccepted": true,
+              "consentVersion": "F2027_1"
+            },
+            "state": "READY",
+            "reason": null,
+            "snapshotJson": "{\"schema\":\"F2027_1\"}"
+          }
+        ]
+      },
+      "CaptureSyncAck": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "localCaptureId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "remoteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sourceRevision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "deviceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "localCaptureId",
+          "remoteId",
+          "sourceRevision",
+          "deviceId"
+        ]
+      }
+    }
+  }
+}

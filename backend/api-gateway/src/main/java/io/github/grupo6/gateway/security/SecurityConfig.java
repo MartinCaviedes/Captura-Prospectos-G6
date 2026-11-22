@@ -17,16 +17,21 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.authorization.AuthorizationDecision;
+import reactor.core.publisher.Mono;
 
 @Configuration
 public class SecurityConfig {
     @Bean
-    SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) {
+    SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http,
+            @Value("${documentation.enabled:false}") boolean documentationEnabled) {
         return http
             .csrf(ServerHttpSecurity.CsrfSpec::disable)
             .authorizeExchange(auth -> auth
+                .pathMatchers(HttpMethod.GET, "/docs", "/docs/**").access((authentication, context) ->
+                    Mono.just(new AuthorizationDecision(documentationEnabled)))
                 .pathMatchers("/actuator/health", "/actuator/health/liveness", "/actuator/health/readiness").permitAll()
-                .pathMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                .pathMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/register").permitAll()
                 .anyExchange().authenticated())
             .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()))
             .build();

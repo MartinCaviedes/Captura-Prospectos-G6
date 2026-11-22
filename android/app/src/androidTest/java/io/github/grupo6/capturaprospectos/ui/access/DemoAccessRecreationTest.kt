@@ -53,10 +53,8 @@ class DemoAccessRecreationTest {
     private fun emailField() = compose.onNode(hasText("Correo electrónico") and hasSetTextAction())
     private fun passwordField() = compose.onNode(hasText("Contraseña") and hasSetTextAction())
     private fun chooseSample() {
-        if (compose.onAllNodesWithText("Captador A").fetchSemanticsNodes().isEmpty()) {
-            scroll("Cuentas de muestra"); compose.onNodeWithText("Cuentas de muestra").performClick()
-        }
-        scroll("Captador A"); compose.onNodeWithText("Captador A").performClick()
+        scroll("Correo electrónico");emailField().performTextReplacement("captador.a@g6.example")
+        scroll("Contraseña");passwordField().performTextReplacement(DemoAccessFixtures.PASSWORD)
     }
     private fun recreate() {
         val owner = harness.model
@@ -66,7 +64,7 @@ class DemoAccessRecreationTest {
     }
     private fun submit() { scroll("Iniciar sesión"); compose.onNodeWithText("Iniciar sesión").performClick() }
 
-    @Test fun sampleCredentialsSurviveRecreationWithoutAutomaticLoginAndPasswordRemainsMasked() {
+    @Test fun typedCredentialsSurviveRecreationWithoutAutomaticLoginAndPasswordRemainsMasked() {
         chooseSample()
         assertNull(harness.submitted)
         recreate()

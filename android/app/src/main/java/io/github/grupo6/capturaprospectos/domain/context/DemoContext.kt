@@ -79,4 +79,5 @@ interface DemoContextRepository : AdmissionContextSource {
     suspend fun saveEvent(command: SaveDemoEvent): SaveEventResult
     suspend fun authenticate(emailOrUsername: String, password: String): AuthResult = AuthResult.InvalidCredentials
     suspend fun registerAccount(command: RegisterAccountCommand): AuthResult = AuthResult.StorageUnavailable
+    suspend fun acceptRemoteProfile(profile: DemoProfile): AuthResult = AuthResult.StorageUnavailable
 }
