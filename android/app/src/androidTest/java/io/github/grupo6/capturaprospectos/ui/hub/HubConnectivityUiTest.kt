@@ -35,6 +35,20 @@ class HubConnectivityUiTest {
     private val event = CaptureEvent(UUID(0,3),UUID(0,2),"Evento ficticio",Instant.EPOCH,
         Instant.EPOCH.plusSeconds(3600),ZoneOffset.UTC,setOf(actor.id),null)
 
+    @Test fun homeUsesPersonalPhotoAndRemovesItWhenDeleted() {
+        val bitmap=android.graphics.Bitmap.createBitmap(32,32,android.graphics.Bitmap.Config.ARGB_8888)
+        val stream=java.io.ByteArrayOutputStream()
+        bitmap.eraseColor(android.graphics.Color.BLUE);bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG,80,stream);bitmap.recycle()
+        val photo=mutableStateOf<ByteArray?>(stream.toByteArray())
+        val observer=CountingObserver(ConnectivityStatus.VALIDATED)
+        compose.setContent {CapturaProspectosG6Theme {MainHubRoute(profile,event,observer,{}, {},profilePhoto=photo.value)}}
+        compose.waitUntil(5000) {compose.onAllNodesWithContentDescription("Foto de perfil").fetchSemanticsNodes().size==1}
+        compose.onNodeWithContentDescription("Foto de perfil").assertIsDisplayed()
+        compose.onNodeWithText("Hola, Captador ficticio").assertIsDisplayed()
+        compose.runOnIdle {photo.value=null}
+        compose.onNodeWithContentDescription("Foto de perfil").assertDoesNotExist()
+    }
+
     @Test fun lossAndRecoveryUpdateBannerWithoutNavigationOrRestartingObservation() {
         val observer = CountingObserver(ConnectivityStatus.VALIDATED)
         compose.setContent { CapturaProspectosG6Theme {

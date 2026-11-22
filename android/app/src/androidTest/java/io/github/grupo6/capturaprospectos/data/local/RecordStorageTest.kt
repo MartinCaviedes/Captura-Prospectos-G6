@@ -183,7 +183,7 @@ class RecordStorageTest {
         assertEquals(old.eventId,loaded.environment.context.event.id)
         assertEquals(old.consent.version,loaded.environment.context.consentVersion)
         assertTrue(loaded.environment.programs.isNotEmpty())
-        assertEquals("Colegio ficticio A",loaded.suggestion!!.name)
+        assertEquals("Liceo Bicentenario Viña del Mar",loaded.suggestion!!.name)
         actor=LocalActor(id("supervisor"),LocalRole.SUPERVISOR,setOf(old.siteId))
         assertTrue(records().editContext(old.id) is RecordEditContextResult.Available)
         actor=actor.copy(siteIds=emptySet())

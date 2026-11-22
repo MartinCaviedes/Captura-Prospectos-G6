@@ -62,9 +62,9 @@ class DemoContextTest {
         assertEquals(setOf(ContextChange.APPLIED, ContextChange.ALREADY_INITIALIZED), results.toSet())
         val initial = ready()
         assertEquals(3, initial.profiles.size); assertNull(initial.currentProfile); assertNull(initial.selectedEvent)
-        assertTrue(initial.availableEvents.isEmpty()); assertEquals("SYNTHETIC", initial.catalog.sourceKind)
-        assertEquals(4, initial.catalog.programs.size); assertEquals(4, initial.catalog.sites.size)
-        assertTrue(initial.consentText.contains("ficticio")); assertEquals(0, db().captures().count())
+        assertTrue(initial.availableEvents.isEmpty()); assertEquals("OFFICIAL_REVIEWED", initial.catalog.sourceKind)
+        assertEquals(10, initial.catalog.programs.size); assertEquals(8, initial.catalog.sites.size)
+        assertTrue(initial.consentText.contains("Duoc UC")); assertEquals(0, db().captures().count())
         assertEquals(ContextChange.ALREADY_INITIALIZED, repository().initialize())
         assertEquals(initial.deviceId, ready().deviceId)
     }
@@ -73,7 +73,7 @@ class DemoContextTest {
         repository().initialize(); selectCaptor()
         val previous = ready()
         assertEquals(setOf(id("event-a"), id("event-a2")), previous.availableEvents.map { it.id }.toSet())
-        assertEquals("Colegio ficticio A", previous.establishmentSuggestion!!.name)
+        assertEquals("Liceo Bicentenario Viña del Mar", previous.establishmentSuggestion!!.name)
         assertNull(previous.selectedEvent!!.location)
         handle!!.close(); handle = null
         assertEquals(previous, ready())

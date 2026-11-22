@@ -25,6 +25,7 @@ internal class RoomDemoContextRepository(
     private val db: CaptureDatabase, private val clock: Clock = Clock.systemUTC(),
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : DemoContextRepository {
+    private val remoteEmails = java.util.concurrent.ConcurrentHashMap<String, String>()
     private suspend fun change(block: () -> ContextChange): ContextChange = withContext(dispatcher) {
         try { db.withTransaction { block() } } catch (_: SQLiteException) { ContextChange.STORAGE_UNAVAILABLE }
         catch (_: IllegalArgumentException) { ContextChange.STORAGE_UNAVAILABLE }
@@ -177,6 +178,31 @@ internal class RoomDemoContextRepository(
         }
     }
 
+    /** Importa identidad ya verificada remotamente; nunca recibe ni guarda contraseña del servidor. */
+    override suspend fun acceptRemoteProfile(profile: DemoProfile): AuthResult = withContext(dispatcher) {
+        try {
+            db.withTransaction {
+                val dao = db.context()
+                if (dao.state() == null) {
+                    val result = initializeCatalogInternal(includeSeedFixtures = false)
+                    if (result !in setOf(ContextChange.APPLIED, ContextChange.ALREADY_INITIALIZED))
+                        throw SQLiteException("Catálogo no disponible")
+                }
+                val allowed = dao.sites(DemoSeed.CATALOG).filter { it.enabled }.map { UUID.fromString(it.id) }.toSet()
+                require(profile.actor.siteIds.isNotEmpty() && allowed.containsAll(profile.actor.siteIds))
+                val id = profile.actor.id.toString()
+                dao.upsertProfile(DemoProfileRow(id, profile.displayName, profile.actor.role.name))
+                dao.deleteScopes(id)
+                dao.insertScopes(profile.actor.siteIds.map { ProfileSiteRow(id, it.toString()) })
+                dao.select(id, null)
+            }
+            remoteEmails[profile.actor.id.toString()] = profile.email
+            AuthResult.Authenticated(profile)
+        } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+        catch (_: SQLiteException) { AuthResult.StorageUnavailable }
+        catch (_: IllegalArgumentException) { AuthResult.StorageUnavailable }
+    }
+
     override suspend fun authenticate(emailOrUsername: String, password: String): AuthResult = withContext(dispatcher) {
         val identifier = emailOrUsername.trim().lowercase(Locale.ROOT)
         if (identifier.isEmpty() || password.isEmpty()) return@withContext AuthResult.InvalidCredentials
@@ -255,7 +281,7 @@ internal class RoomDemoContextRepository(
                 LocalActor(UUID.fromString(it.id), LocalRole.valueOf(it.role),
                     dao.scopes(it.id).map { scope -> UUID.fromString(scope.siteId) }.toSet()),
                 it.displayName,
-                emails[it.id].orEmpty(),
+                remoteEmails[it.id] ?: emails[it.id].orEmpty(),
             )
         }
         val profile = state.profileId?.let { id -> requireNotNull(profiles.singleOrNull { it.actor.id.toString() == id }) }

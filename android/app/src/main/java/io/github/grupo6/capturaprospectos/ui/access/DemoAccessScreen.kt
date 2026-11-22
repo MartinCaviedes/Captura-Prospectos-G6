@@ -17,7 +17,6 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.grupo6.capturaprospectos.R
-import io.github.grupo6.capturaprospectos.data.local.DemoAccessFixtures
 import io.github.grupo6.capturaprospectos.ui.components.*
 import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
 
@@ -73,7 +72,7 @@ import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
     contextBusy: Boolean,
     onSubmit: (String, String) -> Unit,
     modifier: Modifier = Modifier,
-    availableSites: List<io.github.grupo6.capturaprospectos.domain.admission.SiteOption> = emptyList(),
+    onResumeOffline: () -> Unit = {},
 ) {
     val state by model.uiState.collectAsStateWithLifecycle()
     DemoAccessScreen(
@@ -83,13 +82,11 @@ import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
         onSubmit = { model.submitDraft(onSubmit) },
         onEmailChange = model::editEmail,
         onPasswordChange = model::editPassword,
-        onSelectSample = model::selectSample,
         modifier = modifier,
         onDisplayNameChange = model::editDisplayName,
-        onRoleSelected = model::selectRole,
-        onToggleSite = model::toggleSite,
         onToggleRegisterMode = model::toggleRegisterMode,
-        availableSites = availableSites,
+        onPendingDismiss = model::dismissPending,
+        onResumeOffline = onResumeOffline,
     )
 }
 
@@ -100,13 +97,11 @@ import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
     onSubmit: () -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
-    onSelectSample: (String) -> Unit = {},
     modifier: Modifier = Modifier,
+    onPendingDismiss: () -> Unit = {},
     onDisplayNameChange: (String) -> Unit = {},
-    onRoleSelected: (io.github.grupo6.capturaprospectos.domain.capture.LocalRole) -> Unit = {},
-    onToggleSite: (java.util.UUID) -> Unit = {},
     onToggleRegisterMode: () -> Unit = {},
-    availableSites: List<io.github.grupo6.capturaprospectos.domain.admission.SiteOption> = emptyList(),
+    onResumeOffline: () -> Unit = {},
 ) {
     var showPassword by remember { mutableStateOf(false) }
     val enabled = ready && !state.busy && !contextBusy
@@ -117,6 +112,17 @@ import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             ProductIdentity()
+            if (state.pendingMessage != null) {
+                GlassCard {
+                    Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text("Solicitud pendiente", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.semantics { heading() })
+                        Text(state.pendingMessage)
+                        Text("Cuando tu cuenta esté habilitada, vuelve a iniciar sesión.")
+                        Button(onPendingDismiss) { Text("Volver al acceso") }
+                    }
+                }
+                return@Column
+            }
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     if (state.registerMode) "Crear cuenta" else "Bienvenido",
@@ -124,7 +130,7 @@ import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
                     modifier = Modifier.semantics { heading() },
                 )
                 Text(
-                    if (state.registerMode) "Registra tus datos para comenzar tu jornada."
+                    if (state.registerMode) "Solicita tu cuenta. El administrador asignará tu rol y sedes."
                     else "Ingresa para comenzar tu jornada.",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -145,31 +151,7 @@ import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
                                 enabled = enabled,
                                 modifier = Modifier.fillMaxWidth(),
                             )
-                            Text("Rol en terreno", style = MaterialTheme.typography.labelLarge)
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                io.github.grupo6.capturaprospectos.domain.capture.LocalRole.entries.forEach { role ->
-                                    val label = if (role == io.github.grupo6.capturaprospectos.domain.capture.LocalRole.CAPTOR) "Captador" else "Supervisor"
-                                    FilterChip(
-                                        selected = state.selectedRole == role,
-                                        onClick = { onRoleSelected(role) },
-                                        enabled = enabled,
-                                        label = { Text(label) },
-                                    )
-                                }
-                            }
-                            if (availableSites.isNotEmpty()) {
-                                Text("Sedes asignadas", style = MaterialTheme.typography.labelLarge)
-                                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    availableSites.forEach { site ->
-                                        FilterChip(
-                                            selected = site.id in state.selectedSiteIds,
-                                            onClick = { onToggleSite(site.id) },
-                                            enabled = enabled,
-                                            label = { Text(site.name) },
-                                        )
-                                    }
-                                }
-                            }
+
                         }
                     }
                     OutlinedTextField(
@@ -209,12 +191,18 @@ import io.github.grupo6.capturaprospectos.ui.theme.G6Navy
                         }
                     }
                     if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
+                    if (state.offlineAvailable && !state.registerMode) {
+                        Text("Puedes continuar con la última cuenta validada en este dispositivo, dentro de las 12 horas desde su acceso con conexión.")
+                        OutlinedButton(onResumeOffline, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
+                            Text("Continuar sin conexión")
+                        }
+                    }
                     Button(
                         onClick = onSubmit,
                         enabled = enabled,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                     ) {
-                        Text(if (state.registerMode) "Registrar y entrar" else "Iniciar sesión")
+                        Text(if (state.registerMode) "Solicitar cuenta" else "Iniciar sesión")
                     }
                     TextButton(
                         onClick = onToggleRegisterMode,

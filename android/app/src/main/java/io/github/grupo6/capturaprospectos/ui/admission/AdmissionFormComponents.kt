@@ -53,6 +53,8 @@ class FormActions(
     val confirmDeviceLocation: (() -> Unit)? = null,
     val dismissLocationCandidate: (() -> Unit)? = null,
     val dismissQrError: (() -> Unit)? = null,
+    val lookupLocality: (() -> Unit)? = null,
+    val lookupAddress: (() -> Unit)? = null,
 )
 
 /** Compone el formulario a partir del estado y las acciones del ViewModel.
@@ -84,6 +86,8 @@ class FormActions(
             confirmDeviceLocation = vm::confirmDeviceLocation,
             dismissLocationCandidate = vm::dismissLocationCandidate,
             dismissQrError = vm::dismissQrError,
+            lookupLocality = { vm.lookupLocality() },
+            lookupAddress = { vm.lookupAddress() },
         )
     }, modifier, editing = vm.initialRecord != null,
         allowDraft = vm.initialRecord == null || vm.initialRecord.state == CaptureState.DRAFT, saveEnabled = canSaveEdit,
@@ -324,12 +328,18 @@ class FormActions(
                     }
                     if (state.isAcquiringLocation) {
                         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                        Text("Adquiriendo señal GPS (máximo 10s)…", style = MaterialTheme.typography.bodySmall)
+                        Text("Adquiriendo señal GPS (máximo ${io.github.grupo6.capturaprospectos.domain.device.LocationRequestDefaults.timeout.seconds} s)…", style = MaterialTheme.typography.bodySmall)
                     }
 
                     state.locationStatus?.let {
                         Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
+                    LocalityLookupCard(state.geocoding,
+                        enabled=!state.isSaving && !state.isSaved && !state.isAcquiringLocation && !state.isQrScannerOpen && !state.addressGeocoding.busy,
+                        onLookup={actions.lookupLocality?.invoke()})
+                    StreetAddressLookupCard(state.addressGeocoding,
+                        enabled=!state.isSaving && !state.isSaved && !state.isAcquiringLocation && !state.isQrScannerOpen && !state.geocoding.busy,
+                        onLookup={actions.lookupAddress?.invoke()})
 
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         PrimaryActionButton(

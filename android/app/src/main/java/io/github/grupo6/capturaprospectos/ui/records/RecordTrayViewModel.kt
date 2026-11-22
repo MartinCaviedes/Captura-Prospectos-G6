@@ -29,7 +29,9 @@ data class RecordTrayUiState(
 ) { override fun toString() = "RecordTrayUiState(count=${items.size}, redacted)" }
 
 /** Cancela lecturas obsoletas; un commit en curso no se descarta ni se duplica desde la UI. */
-class RecordTrayViewModel(private val repository: RecordRepository?, private val locationProvider: LocationProvider? = null) : ViewModel() {
+class RecordTrayViewModel(private val repository: RecordRepository?, private val locationProvider: LocationProvider? = null,
+    private val reverseGeocoder:io.github.grupo6.capturaprospectos.domain.device.ReverseGeocoder?=null,
+    private val addressGeocoder:io.github.grupo6.capturaprospectos.domain.device.ReverseGeocoder?=null) : ViewModel() {
     private val mutableState = MutableStateFlow(RecordTrayUiState())
     val uiState = mutableState.asStateFlow()
     private var reading: Job? = null
@@ -92,7 +94,7 @@ class RecordTrayViewModel(private val repository: RecordRepository?, private val
                         @Suppress("UNCHECKED_CAST")
                         override fun <T : ViewModel> create(modelClass: Class<T>): T =
                             AdmissionFormViewModel(result.environment, result.suggestion,
-                                locationProvider = locationProvider, initialRecord = record) as T
+                                locationProvider = locationProvider, initialRecord = record,reverseGeocoder=reverseGeocoder,addressGeocoder=addressGeocoder) as T
                     })[AdmissionFormViewModel::class.java]
                     mutableState.update { it.copy(editForm = editor, isReadingDetail = false) }
                 }

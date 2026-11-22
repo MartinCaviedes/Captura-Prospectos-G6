@@ -13,13 +13,25 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.PATCH
 import retrofit2.http.Path
 import retrofit2.http.Query
 
 data class LoginRequestDto(
     val username: String,
     val password: String,
-)
+) { override fun toString() = "LoginRequestDto(credentials=redacted)" }
+
+data class RegisterRequestDto(val displayName: String, val email: String, val password: String) {
+    override fun toString() = "RegisterRequestDto(credentials=redacted)"
+}
+data class RegistrationReceiptDto(val userId: String, val status: String, val message: String)
+data class UserSummaryDto(val id: String, val username: String, val email: String, val displayName: String,
+    val status: String, val role: String?, val siteIds: List<String>, val version: Long,
+    val createdAt: String, val updatedAt: String)
+data class UserPageDto(val items: List<UserSummaryDto>, val page: Int, val size: Int, val total: Long)
+data class ManagedSiteDto(val id: String, val name: String, val enabled: Boolean)
+data class AccountAccessRequestDto(val status: String, val role: String?, val siteIds: List<String>, val expectedVersion: Long)
 
 data class TokenResponseDto(
     val accessToken: String,
@@ -32,7 +44,7 @@ data class TokenResponseDto(
     val rol: String,
     val roles: List<String> = emptyList(),
     val siteIds: List<String> = emptyList(),
-)
+) { override fun toString() = "TokenResponseDto(credentials=redacted)" }
 
 data class CreateProspectRequestDto(
     val rut: String,
@@ -84,6 +96,25 @@ data class ProspectPageDto(
 
 /** Contrato Retrofit alineado con api-gateway, users-service y prospects-service. */
 interface GatewayApiService {
+    @PUT("/api/v1/prospects/sync/{id}")
+    suspend fun syncCapture(@Header("Authorization") bearer:String,@Path("id") id:String,
+        @Body request:SyncCaptureRequestDto):Response<SyncCaptureAckDto>
+    @POST("/api/v1/auth/register")
+    suspend fun register(@Body request: RegisterRequestDto): Response<RegistrationReceiptDto>
+
+    @GET("/api/v1/users")
+    suspend fun users(@Header("Authorization") bearer: String, @Query("status") status: String,
+        @Query("page") page: Int, @Query("size") size: Int): Response<UserPageDto>
+
+    @GET("/api/v1/users/{id}")
+    suspend fun user(@Header("Authorization") bearer: String, @Path("id") id: String): Response<UserSummaryDto>
+
+    @GET("/api/v1/admin/sites")
+    suspend fun managedSites(@Header("Authorization") bearer: String): Response<List<ManagedSiteDto>>
+
+    @PATCH("/api/v1/users/{id}/access")
+    suspend fun setAccess(@Header("Authorization") bearer: String, @Path("id") id: String,
+        @Body request: AccountAccessRequestDto): Response<UserSummaryDto>
     @POST("/api/v1/auth/login")
     suspend fun login(@Body request: LoginRequestDto): Response<TokenResponseDto>
 
@@ -91,7 +122,7 @@ interface GatewayApiService {
     suspend fun logout(@Header("Authorization") bearerToken: String): Response<Map<String, String>>
 
     @GET("/api/v1/me")
-    suspend fun me(@Header("Authorization") bearerToken: String): Response<Map<String, Any>>
+    suspend fun me(@Header("Authorization") bearerToken: String): Response<UserSummaryDto>
 
     @POST("/api/v1/prospects")
     suspend fun createProspect(
@@ -129,31 +160,32 @@ interface GatewayApiService {
 
 /** Mantiene en memoria la sesión JWT activa sin persistir tokens ni contraseñas en texto plano. */
 object BackendSession {
-    @Volatile var baseUrl: String = "http://10.0.2.2:8080/"
+    @Volatile var baseUrl: String = io.github.grupo6.capturaprospectos.BuildConfig.API_BASE_URL
     @Volatile var accessToken: String? = null
         private set
     @Volatile var rawSiteIds: Set<String> = emptySet()
         private set
 
-    private val remoteIdsByLocalCapture = java.util.concurrent.ConcurrentHashMap<UUID, String>()
+    @Volatile private var expiresAtNanos: Long = 0
+    @Volatile private var transmissionAllowed = true
 
-    fun setToken(token: String?, siteIds: Collection<String> = emptyList()) {
+    fun setToken(token: String?, siteIds: Collection<String> = emptyList(), expiresIn: Long = 900) {
         accessToken = token
+        transmissionAllowed = true
         rawSiteIds = siteIds.toSet()
+        expiresAtNanos = System.nanoTime() + expiresIn.coerceIn(0, io.github.grupo6.capturaprospectos.data.session.MAX_ONLINE_SESSION_SECONDS) * 1_000_000_000L
     }
 
     fun clear() {
         accessToken = null
         rawSiteIds = emptySet()
+        expiresAtNanos = 0
     }
 
-    fun bearerHeader(): String? = accessToken?.takeIf { it.isNotBlank() }?.let { "Bearer $it" }
-
-    fun recordRemoteId(localId: UUID, remoteId: String) {
-        remoteIdsByLocalCapture[localId] = remoteId
-    }
-
-    fun remoteIdFor(localId: UUID): String? = remoteIdsByLocalCapture[localId]
+    fun validationHeader(): String? = accessToken?.takeIf { it.isNotBlank() && System.nanoTime() < expiresAtNanos }?.let { "Bearer $it" }
+    fun bearerHeader(): String? = if (transmissionAllowed) validationHeader() else null
+    fun allowTransmission(allowed: Boolean) { transmissionAllowed = allowed }
+    fun remainingMillis(): Long = ((expiresAtNanos - System.nanoTime()) / 1_000_000).coerceAtLeast(0)
 
     fun createService(customBaseUrl: String = baseUrl): GatewayApiService {
         val normalizedUrl = if (customBaseUrl.endsWith("/")) customBaseUrl else "$customBaseUrl/"
@@ -172,7 +204,12 @@ object BackendSession {
 
     fun mapBackendRole(rol: String, roles: List<String>): LocalRole {
         val all = (listOf(rol) + roles).map { it.uppercase() }
-        return if ("SUPERVISOR" in all || "ADMIN" in all) LocalRole.SUPERVISOR else LocalRole.CAPTOR
+        require("ADMIN" !in all) { "Administrador usa navegación propia" }
+        return when {
+            "SUPERVISOR" in all -> LocalRole.SUPERVISOR
+            "CAPTADOR" in all -> LocalRole.CAPTOR
+            else -> error("Rol no reconocido")
+        }
     }
 
     fun mapBackendSiteToUuid(rawSiteId: String): UUID {
@@ -187,7 +224,7 @@ object BackendSession {
     fun mapLocalSiteToBackend(siteUuid: UUID): String {
         for (index in 1..8) {
             val key = "site-$index"
-            if (DemoSeed.id(key) == siteUuid.toString() && (rawSiteIds.isEmpty() || key in rawSiteIds)) {
+            if (DemoSeed.id(key) == siteUuid.toString()) {
                 return key
             }
         }

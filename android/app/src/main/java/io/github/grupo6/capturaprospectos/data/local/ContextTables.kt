@@ -63,7 +63,7 @@ internal interface ContextDao {
     @Insert fun insertCatalog(row: CatalogVersionRow)
     @Insert fun insertSites(rows: List<DemoSiteRow>)
     @Insert fun insertProfiles(rows: List<DemoProfileRow>)
-    @Insert(onConflict = OnConflictStrategy.REPLACE) fun upsertProfile(row: DemoProfileRow)
+    @Upsert fun upsertProfile(row: DemoProfileRow)
     @Insert fun insertScopes(rows: List<ProfileSiteRow>)
     @Query("DELETE FROM demo_profile_sites WHERE profileId = :profileId") fun deleteScopes(profileId: String)
     @Insert fun insertEvents(rows: List<DemoEventRow>)

@@ -94,6 +94,22 @@ class DemoContextViewModel(private val repository: DemoContextRepository) : View
     }
 
     @MainThread
+    fun acceptRemoteProfile(profile: DemoProfile, onResult: (AuthResult) -> Unit): Job? {
+        if (uiState.value.busy || uiState.value.eventEditor != null || !viewModelScope.isActive) return null
+        mutableState.update { it.copy(busy = true, message = null) }
+        return viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            try {
+                observation?.cancelAndJoin()
+                onResult(repository.acceptRemoteProfile(profile))
+                mutableState.update { it.copy(context = repository.snapshot()) }
+            } finally {
+                mutableState.update { it.copy(busy = false) }
+                if (viewModelScope.isActive) observe()
+            }
+        }
+    }
+
+    @MainThread
     fun selectEvent(id: UUID): Job? = when (uiState.value.context) {
         is DemoContextState.Ready -> perform { repository.selectEvent(id) }
         else -> null

@@ -36,19 +36,19 @@ class DemoVisualUiTest {
         compose.onNode(hasScrollAction()).performScrollToNode(hasText("Iniciar sesión"))
         compose.onNodeWithText("Iniciar sesión").performClick()
         compose.runOnIdle { assertEquals("captador.a@g6.example" to "DemoG6!2026",submitted) }
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Continuar con Google"))
-        compose.onNodeWithText("Continuar con Google").assertIsNotEnabled()
-        compose.onNodeWithText("Continuar con Microsoft").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Continuar con Google").assertDoesNotExist()
+        compose.onNodeWithText("Continuar con Microsoft").assertDoesNotExist()
     }
-    @Test fun sampleAccountFillsCredentialsWithoutSigningIn() {
+    @Test fun typingCredentialsDoesNotAutomaticallySignIn() {
         var submitted: Pair<String,String>? = null
         compose.setContent { CapturaProspectosG6Theme {
             DemoAccessRoute(ViewModelProvider(compose.activity)[DemoAccessViewModel::class.java],true,false,{ email,password -> submitted=email to password })
         } }
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Cuentas de muestra"))
-        compose.onNodeWithText("Cuentas de muestra").performClick()
-        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Captador A"))
-        compose.onNodeWithText("Captador A").performClick()
+        compose.onNodeWithText("Cuentas de muestra").assertDoesNotExist()
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Correo electrónico"))
+        compose.onNode(hasText("Correo electrónico") and hasSetTextAction()).performTextInput("captador.a@g6.example")
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Contraseña"))
+        compose.onNode(hasText("Contraseña") and hasSetTextAction()).performTextInput("DemoG6!2026")
         compose.runOnIdle { assertNull(submitted) }
         compose.onNode(hasScrollAction()).performScrollToNode(hasText("Correo electrónico"))
         compose.onNode(hasText("Correo electrónico") and hasSetTextAction()).assertTextContains("captador.a@g6.example")
