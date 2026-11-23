@@ -9,7 +9,7 @@
 | Nombre, integrantes y funcionalidades | Parcial 4, p. 3; EFT, p. 5 | README principal: caso, equipo, alcance y funciones. |
 | Endpoints propios y externos | Parcial 4, p. 3; EFT, p. 5 | README: métodos, rutas, bases, API externa y OpenAPI/Swagger. |
 | Pasos de ejecución | Parcial 4, p. 3; EFT, p. 5 | README: Android local/AWS, backend Windows y enlaces a PostgreSQL/EC2. |
-| APK firmada y evidencia; formato/ubicación de llave | Parcial 4, p. 3; EFT, p. 5 | Release candidata, verificación apksigner y misma identidad en PKCS12/JKS. README identifica custodia y ruta privada. |
+| APK firmada y evidencia; formato/ubicación de llave | Parcial 4, p. 3; EFT, p. 5 | Release final, verificación apksigner y misma identidad en PKCS12/JKS. README identifica custodia y ruta privada. |
 | Código Android y microservicios, historial por integrante | Parcial 4, pp. 3–4; EFT, p. 5 | Repositorio público, directorios android/backend, historial y PR. |
 | SRS | Indicación del profesor comunicada por el grupo; no aparece nombrado expresamente en las dos pautas revisadas | SRS.md revisión 1.5 y Word de igual contenido, enlazados desde README. |
 

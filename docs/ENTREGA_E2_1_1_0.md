@@ -1,10 +1,10 @@
-# Entrega E2 · candidata 1.1.0
+# Entrega E2 y evaluación final · 1.1.0
 
-22/11/2026. Este documento reúne el estado del incremento acordado para E2/examen. Los documentos fechados de implementación conservan sus resultados históricos; este resumen y la revalidación final de cobertura identifican el candidato actual. No supone aceptación docente ni cierre de todos los requisitos del SRS.
+22/11/2026. Este documento reúne el estado del incremento acordado para E2/examen. Los documentos fechados de implementación conservan sus resultados históricos; este resumen y la revalidación final de cobertura identifican la versión entregada. No supone aceptación docente ni cierre de todos los requisitos del SRS.
 
 ## Ejecución y distribución
 
-- [APK y archivos de la candidata](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e2-1.1.0-rc1).
+- [APK y archivos finales](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e2-1.1.0).
 - Gateway: `https://13.58.183.187/`. [Swagger](https://13.58.183.187/docs/index.html) y [OpenAPI](https://13.58.183.187/docs/openapi/backend.openapi.json).
 - Android: versión `1.1.0`, código `3`, applicationId `io.github.grupo6.capturaprospectos.demo`, minSdk 26. Es una APK release no depurable, firmada con la clave del grupo y probada en Redmi 9A. [Firma e instalación](RELEASE_DISTRIBUTION.md).
 - AWS Ohio (`us-east-2`): una EC2 `m7i-flex.large`, tres microservicios en contenedores y PostgreSQL 17.12 con bases/roles separados. IP elástica, HTTPS, discos cifrados y datos en volumen persistente. Puertos públicos 80/443; los puertos internos no se publican. [Operación y respaldos](../backend/deploy/ec2/README.md).
@@ -58,7 +58,7 @@ Por decisión de Martín se prioriza el incremento fundamental y se aplazan las 
 
 Trello queda fuera de la entrega acordada. No se fuerza un cuarto rol sin función real. Estas decisiones de alcance del equipo no sustituyen las aclaraciones que correspondan al profesor sobre las pautas.
 
-La integración a develop y la promoción a main se completaron mediante los PR públicos #22 y #23, con autorización de Martín para este cierre sin esperar otra revisión de Sebastián/Jeremy. No se atribuye una aprobación de código ajena a las pruebas manuales. El canal de APK sigue identificado como candidata hasta su etiquetado final. La custodia de la firma y los accesos de AWS corresponde a Martín, sin copiar secretos al repositorio privado.
+La integración a develop y la promoción a main se completaron mediante los PR públicos #22 y #23, con autorización de Martín para este cierre sin esperar otra revisión de Sebastián/Jeremy. No se atribuye una aprobación de código ajena a las pruebas manuales. La APK se publicó como release final `e2-1.1.0`, conservando la candidata anterior y exactamente el mismo archivo firmado y probado. La custodia de la firma y los accesos de AWS corresponde a Martín, sin copiar secretos al repositorio privado.
 
 ## Documentos de entrega
 
