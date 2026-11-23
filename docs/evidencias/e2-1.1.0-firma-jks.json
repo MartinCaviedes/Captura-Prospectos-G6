@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-22",
+  "apk": "Captura-Prospectos-G6-1.1.0-release.apk",
+  "sha256": "d24c92fc061fab9b9c9c21fa9ec1b895f422f4e7acb751f1f6b770b862114f1e",
+  "certificate_sha256": "512b316af7b60701d4b22a2e1ab52b988afe1c453c3f6011d9a8ced2cb06106c",
+  "keystores": {
+    "pkcs12": "g6-release.p12",
+    "jks": "g6-release.jks",
+    "alias": "g6-release",
+    "same_certificate": true,
+    "private_custodian": "Martin Caviedes"
+  },
+  "apksigner_verification": [
+    "Verifies",
+    "Verified using v1 scheme (JAR signing): false",
+    "Verified using v2 scheme (APK Signature Scheme v2): true",
+    "Verified using v3 scheme (APK Signature Scheme v3): true",
+    "Verified using v3.1 scheme (APK Signature Scheme v3.1): false",
+    "Verified using v4 scheme (APK Signature Scheme v4): false",
+    "Verified for SourceStamp: false",
+    "Number of signers: 1",
+    "Signer #1 certificate DN: CN=Captura Prospectos Grupo 6, OU=Proyecto Academico, O=Grupo 6, C=CL",
+    "Signer #1 certificate SHA-256 digest: 512b316af7b60701d4b22a2e1ab52b988afe1c453c3f6011d9a8ced2cb06106c",
+    "Signer #1 certificate SHA-1 digest: bcb6b9eed2402b33dda6b12455d9c61666a12e9c",
+    "Signer #1 certificate MD5 digest: 3241f9b93b7c2e21984c6ce53aeddc68",
+    "Signer #1 key algorithm: RSA",
+    "Signer #1 key size (bits): 3072",
+    "Signer #1 public key SHA-256 digest: e1da9f52b3c52e0cbed6b33f9690c156d120c2a6ba1d3511b9424a8ae7f0eedf",
+    "Signer #1 public key SHA-1 digest: 92b747e7698f6f672283f9f477a1bd7ddf4a395d",
+    "Signer #1 public key MD5 digest: 337985e4d38fe5b87365c7ebebcbe140"
+  ],
+  "scope": "APK existente verificada sin recompilar ni cambiar firma. Copia JKS de la misma clave; secretos excluidos."
+}

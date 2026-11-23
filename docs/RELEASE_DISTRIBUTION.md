@@ -2,6 +2,12 @@
 
 La distribución académica utiliza una APK release firmada con una clave propia del Grupo 6. Se instala directamente en Android y puede adjuntarse a una release de GitHub; no requiere publicar en Google Play. Preparar el archivo local no equivale a haberlo publicado ni a integrar los cambios en main.
 
+## Custodia y evidencia JKS
+
+22/11/2026: se conserva la clave principal `g6-release.p12` y una copia `g6-release.jks` de la misma clave, alias y certificado, para identificar el formato mencionado en las pautas. Ambas están en `C:\Workspace\Projects\Academic\AppMovil\Docs\firma-release\acceso-privado\`, bajo custodia de Martín Caviedes; la contraseña permanece en esa carpeta privada. La conversión no genera otra identidad de firma ni modifica la APK existente.
+
+[Resultado de verificación](evidencias/e2-1.1.0-firma-jks.json) · [Imagen de evidencia](evidencias/e2-1.1.0-firma-jks.png). Se comparó el certificado de ambos almacenes con el firmante de la APK usando keytool y apksigner. El certificado público permite verificar firma sin revelar la clave. Una solicitud académica de la llave se atiende únicamente por canal privado, nunca como adjunto público. El respaldo en un segundo almacenamiento conserva su seguimiento separado.
+
 ## Construcción y firma en Windows
 
 Requisitos: PowerShell 7, JDK de Android Studio, SDK Android y Build Tools 36.0.0. Desde `android/`, con `JAVA_HOME` configurado:
