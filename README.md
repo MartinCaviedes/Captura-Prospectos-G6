@@ -4,9 +4,9 @@ Aplicación Android para registrar personas interesadas en estudiar en Duoc UC d
 
 El proyecto aborda el caso **Inscripción de potenciales clientes**, de la asignatura Desarrollo de Aplicaciones Móviles. Reúne los datos de contacto, los intereses académicos y el contexto de cada inscripción para facilitar el trabajo del equipo de captación, incluso sin conexión a internet.
 
-**[Descargar APK candidata E2 1.1.0](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/download/e2-1.1.0-rc1/Captura-Prospectos-G6-1.1.0-release.apk)** · [Instalación y firma](docs/RELEASE_DISTRIBUTION.md) · [Estado de entrega](docs/ENTREGA_E2_1_1_0.md) · [Swagger](https://13.58.183.187/docs/index.html) · [Documentación](docs/README.md)
+**[Descargar APK final E2 1.1.0](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/download/e2-1.1.0/Captura-Prospectos-G6-1.1.0-release.apk)** · [Instalación y firma](docs/RELEASE_DISTRIBUTION.md) · [Estado de entrega](docs/ENTREGA_E2_1_1_0.md) · [Swagger](https://13.58.183.187/docs/index.html) · [Documentación](docs/README.md)
 
-La candidata E2 utiliza el backend académico de AWS. La [versión E1 anterior](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e1-demo-1.0.1) permanece disponible; los datos locales de debug y release pertenecen a instalaciones independientes.
+La release E2 utiliza el backend académico de AWS. La [versión E1 anterior](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e1-demo-1.0.1) permanece disponible; los datos locales de debug y release pertenecen a instalaciones independientes.
 
 **SRS de entrega, revisión 1.5:** [descargar Word](docs/entrega/SRS_Captura_de_Prospectos_G6.docx?raw=true) · [consultar Markdown](docs/SRS.md). Ambas versiones distinguen las funciones incluidas de las ampliaciones previstas.
 
@@ -145,7 +145,7 @@ Base propia desplegada: **`https://13.58.183.187/api/v1`**. En desarrollo: `http
 
 ## Firma y evidencia de distribución
 
-La APK **1.1.0 (3)** es release no depurable, firmada con alias `g6-release` y verificada con `apksigner` (v2/v3). El certificado público y las sumas SHA-256 están en los [adjuntos de la candidata](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e2-1.1.0-rc1). [Evidencia técnica de la APK](docs/evidencias/e2-1.1.0-release-verification.json).
+La APK **1.1.0 (3)** es release no depurable, firmada con alias `g6-release` y verificada con `apksigner` (v2/v3). El certificado público y las sumas SHA-256 están en los [adjuntos de la release final](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e2-1.1.0). [Evidencia técnica de la APK](docs/evidencias/e2-1.1.0-release-verification.json).
 
 La clave principal es `g6-release.p12` y se conserva una copia **`g6-release.jks`** con la misma clave y certificado. Ubicación privada de ambas: `C:\Workspace\Projects\Academic\AppMovil\Docs\firma-release\acceso-privado\`; custodio: **Martín Caviedes**. La contraseña también queda fuera de Git. Estos archivos no se adjuntan al repositorio ni a la release pública; el certificado público permite verificar la firma sin exponer la clave. Una eventual entrega de la llave al docente debe realizarse por el canal privado de evaluación.
 

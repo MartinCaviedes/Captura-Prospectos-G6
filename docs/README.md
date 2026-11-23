@@ -1,6 +1,6 @@
 # Documentación técnica
 
-Estado E2 · 22/11/2026: [resumen de entrega 1.1.0](ENTREGA_E2_1_1_0.md), [SRS Word 1.5](entrega/SRS_Captura_de_Prospectos_G6.docx?raw=true), [revisión documental de pautas](ENTREGA_DOCUMENTAL.md), [despliegue EC2](../backend/deploy/ec2/README.md), [cobertura](COVERAGE_VALIDATION.md) y [distribución firmada](RELEASE_DISTRIBUTION.md). El código está integrado en main mediante PR #23, con autorización de Martín para este cierre. La APK mantiene su canal candidato hasta el etiquetado final; los estados fechados inferiores conservan su contexto histórico.
+Estado E2 · 22/11/2026: [resumen de entrega 1.1.0](ENTREGA_E2_1_1_0.md), [SRS Word 1.5](entrega/SRS_Captura_de_Prospectos_G6.docx?raw=true), [revisión documental de pautas](ENTREGA_DOCUMENTAL.md), [despliegue EC2](../backend/deploy/ec2/README.md), [cobertura](COVERAGE_VALIDATION.md) y [distribución firmada](RELEASE_DISTRIBUTION.md). El código está integrado en main mediante PR #23, con autorización de Martín para este cierre. La APK está publicada en el canal final `e2-1.1.0`; los estados fechados inferiores conservan su contexto histórico.
 
 Actualización 17/11/2026 (`10ba22d`): eliminación de dependencias DEMO en el flujo de la aplicación, catálogo de Admisión Duoc UC 2027, creación/autenticación de cuentas reales en Room cifrado y por JWT contra el `api-gateway`, creación de eventos por captadores y supervisores, e integración móvil con Retrofit (`GatewayApiClient.kt`) hacia `users-service` y `prospects-service` (PostgreSQL).
 
