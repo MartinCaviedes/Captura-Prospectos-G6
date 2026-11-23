@@ -8,6 +8,8 @@ El proyecto aborda el caso **Inscripción de potenciales clientes**, de la asign
 
 La candidata E2 utiliza el backend académico de AWS. La [versión E1 anterior](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e1-demo-1.0.1) permanece disponible; los datos locales de debug y release pertenecen a instalaciones independientes.
 
+**SRS de entrega, revisión 1.5:** [descargar Word](docs/entrega/SRS_Captura_de_Prospectos_G6.docx?raw=true) · [consultar Markdown](docs/SRS.md). Ambas versiones distinguen las funciones incluidas de las ampliaciones previstas.
+
 ## Caso de negocio
 
 En una actividad de admisión se necesita vincular a cada persona interesada con sus preferencias de estudio y con el evento en que fue atendida. La aplicación busca reducir la transcripción manual, validar la información durante su ingreso y conservar registros que luego puedan revisarse y resumirse.
@@ -16,6 +18,7 @@ En una actividad de admisión se necesita vincular a cada persona interesada con
 |---|---|
 | Captador | Seleccionar un evento, registrar prospectos y revisar sus capturas y resultados. |
 | Supervisor | Administrar eventos y asignaciones, consultar registros y revisar resultados dentro de su ámbito. |
+| Administrador | Habilitar cuentas registradas y gestionar su estado, rol y sedes autorizadas. |
 | Prospecto | Proporcionar sus datos, intereses y consentimiento; no necesita una cuenta en la app. |
 
 La sede del evento y las sedes preferidas para estudiar son datos distintos. Cada prospecto puede expresar **hasta tres carreras ordenadas por prioridad**, junto con las preferencias previstas en el formulario de admisión.
@@ -38,7 +41,7 @@ El recorrido habitual es **bienvenida → inicio de sesión o registro de cuenta
 | Entrega | Enfoque |
 |---|---|
 | **E1 · aplicación local** | Formulario F2027, Room cifrado, bandeja de registros, eventos, métricas, cámara QR, GPS y conectividad real en dispositivo. |
-| **E2 / E3 · aplicación integrada** | Eliminación de dependencias DEMO, catálogo real Duoc UC 2027, registro/autenticación real de usuarios, microservicios Spring Boot (`api-gateway`, `users-service`, `prospects-service`), PostgreSQL e integración móvil con Retrofit. |
+| **E2 y evaluación final · aplicación integrada** | Registro/autenticación y permisos, catálogo académico local versionado, microservicios Spring Boot con PostgreSQL, sincronización persistente, API externa, perfil local y distribución firmada. |
 
 Consulta los criterios completos en [Entregas](docs/ENTREGAS.md) y [SRS](docs/SRS.md).
 
@@ -71,12 +74,12 @@ El flujo principal en Android es **pantalla → ViewModel → repositorio → Ro
 
 ## Ejecutar desde el código
 
-Para clonar el repositorio y ubicarse en la rama de trabajo `develop`:
+Para clonar el hito integrado en `main`:
 
 ```powershell
 git clone https://github.com/MartinCaviedes/Captura-Prospectos-G6.git
 cd Captura-Prospectos-G6
-git checkout develop
+git checkout main
 ```
 
 ### Android
@@ -90,7 +93,15 @@ cd android
 .\gradlew.bat :app:testDemoDebugUnitTest :app:assembleDemoDebug --console=plain
 ```
 
-La APK se genera en `android/app/build/outputs/apk/demo/debug/app-demo-debug.apk`. Más detalles en la [guía Android](android/README.md).
+La APK se genera en `android/app/build/outputs/apk/demo/debug/app-demo-debug.apk`. La compilación predeterminada conecta el emulador al gateway local `http://10.0.2.2:8080/`; necesita el backend de la siguiente sección.
+
+Para conectar una compilación debug al backend académico desplegado, sin depender del PC, desde `android/`:
+
+```powershell
+.\gradlew.bat :app:assembleDemoDebug -Pg6ApiBaseUrl=https://13.58.183.187/ --console=plain
+```
+
+Instalar con **Run** de Android Studio o `adb install -r app/build/outputs/apk/demo/debug/app-demo-debug.apk`. Para usar la release firmada, descargarla del enlace superior. La instancia AWS debe estar encendida y la cuenta habilitada; el registro no concede permisos automáticamente. Más detalles en la [guía Android](android/README.md).
 
 ### Backend (`api-gateway`, `users-service`, `prospects-service`)
 
@@ -99,14 +110,54 @@ Los tres microservicios Spring Boot están en [`backend/`](backend/README.md):
 - **`users-service` (`:8081`):** Usuarios persistidos en JPA/PostgreSQL, contraseñas BCrypt y emisión de JWT RS256 (`/api/v1/auth/login`, `/api/v1/auth/logout`, `/api/v1/me`, `/api/v1/users`).
 - **`prospects-service` (`:8082`):** Persistencia y CRUD de prospectos en PostgreSQL (`/api/v1/prospects`), control de acceso por rol/sede, unicidad activa `(rut, eventId)` y anulación auditada.
 
-Para ejecutar las pruebas de los tres microservicios desde `backend/`:
+En Windows, con **PowerShell 7 y Java 21**, preparar y ejecutar el backend local con H2 persistente desde la raíz del repositorio:
 
 ```powershell
 cd backend
-.\mvnw.cmd test
+.\scripts\prepare-local.ps1 -UseDemoCredentials
+.\mvnw.cmd verify
+.\scripts\run-local.ps1
 ```
 
-Consulta la [guía del backend](backend/README.md) para levantar los servicios con PostgreSQL o H2 local y conectar el emulador Android (`http://10.0.2.2:8080/`).
+Swagger local: `http://localhost:8080/docs/index.html`. La [guía Windows](docs/LOCAL_WINDOWS_SETUP.md) identifica credenciales ficticias y configuración de IntelliJ; no son las credenciales de AWS. Un entorno existente conserva claves y contraseñas. Detener solo los procesos de este lanzador con `.\scripts\run-local.ps1 -Stop`.
+
+Para PostgreSQL y despliegue, consultar la [guía del backend](backend/README.md) y la [operación en EC2](backend/deploy/ec2/README.md). En AWS, gateway y Swagger se publican por HTTPS en 443; 8080/8081/8082 y PostgreSQL son internos. El puerto 80 atiende redirección y validación del certificado.
+
+## Endpoints utilizados
+
+Base propia desplegada: **`https://13.58.183.187/api/v1`**. En desarrollo: `http://localhost:8080/api/v1`. Las operaciones protegidas requieren Bearer JWT y permisos de rol/sede. [Contrato completo](docs/openapi/backend.openapi.json) · [Swagger UI](https://13.58.183.187/docs/index.html).
+
+| Método | Ruta relativa a la base | Uso |
+|---|---|---|
+| POST | `/auth/register` | Solicitar una cuenta pendiente. |
+| POST | `/auth/login` · `/auth/logout` | Autenticación y cierre de sesión. |
+| GET | `/me` | Validar identidad y permisos vigentes. |
+| GET / POST | `/users` | Listar o crear cuentas según permisos. |
+| GET | `/users/{id}` | Consultar cuenta autorizada. |
+| PATCH | `/users/{id}/access` · `/users/{id}/estado` | Gestionar rol, sedes y estado. |
+| GET | `/admin/sites` | Consultar sedes administrables. |
+| GET / POST | `/prospects` | Consultar o crear prospectos autorizados. |
+| GET / PUT | `/prospects/{id}` | Consultar o actualizar con revisión esperada. |
+| POST | `/prospects/{id}/cancel` | Anular con motivo y auditoría. |
+| PUT | `/prospects/sync/{id}` | Enviar revisiones idempotentes de la cola Android. |
+
+**API externa:** `GET https://api.bigdatacloud.net/data/reverse-geocode-client?latitude={lat}&longitude={lon}&localityLanguage=es`. Retrofit consulta directamente desde el teléfono, por acción explícita con GPS actual confirmado. Muestra localidad/ciudad, región y país; no envía JWT ni datos de la ficha y no completa el domicilio del prospecto. La integración no requiere clave de API. El intento separado de calle/número utiliza Android Geocoder y puede no devolver dirección. [Contrato, privacidad y límites](docs/EXTERNAL_GEOCODING_CONTRACT.md).
+
+## Firma y evidencia de distribución
+
+La APK **1.1.0 (3)** es release no depurable, firmada con alias `g6-release` y verificada con `apksigner` (v2/v3). El certificado público y las sumas SHA-256 están en los [adjuntos de la candidata](https://github.com/MartinCaviedes/Captura-Prospectos-G6/releases/tag/e2-1.1.0-rc1). [Evidencia técnica de la APK](docs/evidencias/e2-1.1.0-release-verification.json).
+
+La clave principal es `g6-release.p12` y se conserva una copia **`g6-release.jks`** con la misma clave y certificado. Ubicación privada de ambas: `C:\Workspace\Projects\Academic\AppMovil\Docs\firma-release\acceso-privado\`; custodio: **Martín Caviedes**. La contraseña también queda fuera de Git. Estos archivos no se adjuntan al repositorio ni a la release pública; el certificado público permite verificar la firma sin exponer la clave. Una eventual entrega de la llave al docente debe realizarse por el canal privado de evaluación.
+
+![Resultado de apksigner y keytool para APK y JKS](docs/evidencias/e2-1.1.0-firma-jks.png)
+
+La imagen resume resultados reales de herramientas, no una captura del IDE. [Verificación reproducible](docs/evidencias/e2-1.1.0-firma-jks.json) · [Procedimiento de firma](docs/RELEASE_DISTRIBUTION.md).
+
+## Pruebas y colaboración
+
+La [verificación de cobertura](docs/COVERAGE_VALIDATION.md) identifica alcance e informes: **60 tests backend, 268 JVM Android y 143 instrumentados**. Cobertura de líneas por servicio: gateway **98,28 %**, usuarios **84,35 %**, prospectos **98,00 %**; lógica Android **87,10 %**, separada de presentación y generado. [Estado y pruebas manuales](docs/ENTREGA_E2_1_1_0.md).
+
+La participación del grupo se conserva en el [historial de commits](https://github.com/MartinCaviedes/Captura-Prospectos-G6/commits/main/) y los [PR integrados](https://github.com/MartinCaviedes/Captura-Prospectos-G6/pulls?q=is%3Apr+is%3Amerged). `main` identifica el hito publicado y `develop` la integración.
 
 ## Organización del repositorio
 
@@ -115,7 +166,7 @@ android/                  Aplicación Android (Kotlin, Jetpack Compose, Room/SQL
   app/src/main/           Dominio, datos locales, cliente remoto Retrofit, pantallas y recursos
   app/src/test/           Pruebas unitarias JVM
   app/src/androidTest/    Pruebas instrumentadas y de interfaz
-  app/schemas/            Esquemas exportados de Room (v1 a v4)
+  app/schemas/            Esquemas exportados de Room (v1 a v5)
 backend/                  Microservicios Spring Boot (Java 21, Maven)
   api-gateway/            Gateway reactivo y validación JWT (:8080)
   users-service/          Servicio de usuarios, roles y autenticación JWT (:8081)
@@ -127,7 +178,7 @@ docs/                     Requisitos, contratos, arquitectura, auditorías y evi
 
 | Para consultar | Documento |
 |---|---|
-| Requisitos y alcance por entrega | [SRS](docs/SRS.md) · [Entregas](docs/ENTREGAS.md) |
+| Requisitos y alcance por entrega | [SRS Markdown](docs/SRS.md) · [SRS Word](docs/entrega/SRS_Captura_de_Prospectos_G6.docx?raw=true) · [Entregas](docs/ENTREGAS.md) |
 | Campos, carreras y preferencias | [Formulario de admisión](docs/FORMULARIO_ADMISION_2027.md) |
 | Capas y decisiones técnicas | [Arquitectura](docs/ARCHITECTURE.md) · [Diseño](docs/DESIGN.md) |
 | Datos, contexto y protección | [Modelo local](docs/LOCAL_MODEL.md) · [Contexto demo](docs/DEMO_CONTEXT.md) · [Seguridad](docs/SECURITY.md) |

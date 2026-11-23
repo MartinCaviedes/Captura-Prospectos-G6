@@ -1,6 +1,6 @@
 # Documentación técnica
 
-Estado E2 · 22/11/2026: [resumen de entrega candidata 1.1.0](ENTREGA_E2_1_1_0.md), [despliegue académico en EC2 y prueba física](../backend/deploy/ec2/README.md), [cobertura revalidada](COVERAGE_VALIDATION.md) y [construcción/distribución release firmada](RELEASE_DISTRIBUTION.md). La integración de la candidata requiere revisión del equipo; los estados fechados inferiores conservan sus contextos históricos.
+Estado E2 · 22/11/2026: [resumen de entrega 1.1.0](ENTREGA_E2_1_1_0.md), [SRS Word 1.5](entrega/SRS_Captura_de_Prospectos_G6.docx?raw=true), [revisión documental de pautas](ENTREGA_DOCUMENTAL.md), [despliegue EC2](../backend/deploy/ec2/README.md), [cobertura](COVERAGE_VALIDATION.md) y [distribución firmada](RELEASE_DISTRIBUTION.md). El código está integrado en main mediante PR #23, con autorización de Martín para este cierre. La APK mantiene su canal candidato hasta el etiquetado final; los estados fechados inferiores conservan su contexto histórico.
 
 Actualización 17/11/2026 (`10ba22d`): eliminación de dependencias DEMO en el flujo de la aplicación, catálogo de Admisión Duoc UC 2027, creación/autenticación de cuentas reales en Room cifrado y por JWT contra el `api-gateway`, creación de eventos por captadores y supervisores, e integración móvil con Retrofit (`GatewayApiClient.kt`) hacia `users-service` y `prospects-service` (PostgreSQL).
 
@@ -10,7 +10,7 @@ Lectura breve: portada → ENTREGAS. Desarrollo: SRS → contrato de la tarea. V
 
 | Consulta | Documento |
 |---|---|
-| Reglas y criterios finales | [SRS 1.4](SRS.md) |
+| Reglas y criterios finales | [SRS 1.5 Markdown](SRS.md) · [Word de entrega](entrega/SRS_Captura_de_Prospectos_G6.docx?raw=true) |
 | Cuándo se implementa cada requisito | [ENTREGAS](ENTREGAS.md) |
 | Campos y preferencias F2027 | [FORMULARIO_ADMISION_2027](FORMULARIO_ADMISION_2027.md) |
 | Contrato de datos/acciones locales | [LOCAL_MODEL](LOCAL_MODEL.md) |
