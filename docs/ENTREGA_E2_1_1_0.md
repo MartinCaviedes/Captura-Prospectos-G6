@@ -58,4 +58,10 @@ Por decisión de Martín se prioriza el incremento fundamental y se aplazan las 
 
 Trello queda fuera de la entrega acordada. No se fuerza un cuarto rol sin función real. Estas decisiones de alcance del equipo no sustituyen las aclaraciones que correspondan al profesor sobre las pautas.
 
-La candidata se publica para revisión. La integración a develop y la promoción a main requieren revisión del equipo; no se atribuye una aprobación de código a las pruebas manuales. La custodia de la firma y los accesos de AWS corresponde a Martín, sin copiar secretos al repositorio privado.
+La integración a develop y la promoción a main se completaron mediante los PR públicos #22 y #23, con autorización de Martín para este cierre sin esperar otra revisión de Sebastián/Jeremy. No se atribuye una aprobación de código ajena a las pruebas manuales. El canal de APK sigue identificado como candidata hasta su etiquetado final. La custodia de la firma y los accesos de AWS corresponde a Martín, sin copiar secretos al repositorio privado.
+
+## Documentos de entrega
+
+El [SRS 1.5](SRS.md) y su [Word](entrega/SRS_Captura_de_Prospectos_G6.docx?raw=true) incorporan los acuerdos vigentes y separan el incremento de las funciones aplazadas. El [README principal](../README.md) identifica equipo, funcionalidades, endpoints, ejecución y evidencia de firma/JKS. La [revisión documental de pautas](ENTREGA_DOCUMENTAL.md) distingue estos archivos de las acciones de entrega en AVA.
+
+La revisión del SRS también identifica una diferencia pendiente de alcance: el transporte actual admite NEEDS_CONTEXT y conserva ese estado, mientras el objetivo original de RF04 contemplaba retener el envío hasta resolver ubicación. No se declara cumplido ese bloqueo ni se modifica código por esta actualización documental.
